@@ -1032,6 +1032,13 @@
     }
 
     @media (max-width: 700px) {
+      input[type="text"],
+      input[type="email"],
+      textarea,
+      #dos-input {
+        font-size: 16px;
+      }
+
       .skill-name {
         width: 100px;
       }
@@ -1826,12 +1833,10 @@
     }
 
     /* ===== MAIN WINDOW CONTROLS ===== */
-    let dvdErrorCount = 0;
-    const MAX_ERRORS_PER_SESSION = 2;
     function minimizeWindow() {
       document.getElementById('window').classList.add('minimized');
       document.getElementById('taskbar-window-btn').classList.remove('active');
-      dvdErrorCount = 0; bounceCount = 0;
+      bounceCount = 0;
       startDvd();
     }
     function restoreWindow() {
@@ -1890,19 +1895,6 @@
       openDialog('message-dialog');
     }
     function openRecycleBin() { openDialog('recyclebin-dialog'); }
-
-    const errorMessages = [
-      "Error 0x0000004E: This portfolio is too impressive for your screen resolution.",
-      "Fatal Exception: Coffee levels critical. Please supply caffeine and retry.",
-      "System Alert: Recruiter detected. Initiating awesome.exe...",
-      "Warning: Prolonged exposure may cause spontaneous job offers.",
-      "Critical Error: Ctrl+Z not found. Some decisions are permanent.",
-      "Notice: 99% of bugs fixed. The remaining 1% is a feature, not a bug."
-    ];
-    function showRandomError() {
-      const msg = errorMessages[Math.floor(Math.random() * errorMessages.length)];
-      showMessage('error', 'Shubham OS', msg);
-    }
 
     /* ===== START MENU ===== */
     function toggleStartMenu(e) {
@@ -1978,7 +1970,6 @@
       if (bounced) {
         bounceCount++;
         el.style.color = dvdColors[Math.floor(Math.random() * dvdColors.length)];
-        if (bounceCount % 14 === 0 && dvdErrorCount < MAX_ERRORS_PER_SESSION) { dvdErrorCount++; showRandomError(); }
       }
       el.style.left = dvdX + 'px'; el.style.top = dvdY + 'px';
       dvdRAF = requestAnimationFrame(stepDvd);
