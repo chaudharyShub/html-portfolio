@@ -125,6 +125,7 @@
       user-select: none;
       padding: 4px;
       border: 1px dotted transparent;
+      white-space: nowrap;
     }
 
     .desktop-icon:active {
@@ -1039,6 +1040,11 @@
         font-size: 16px;
       }
 
+      .desktop-icon svg {
+        width: 36px;
+        height: 36px;
+      }
+
       .skill-name {
         width: 100px;
       }
@@ -1187,12 +1193,17 @@
       <div class="start-item" onclick="openDos()">🖥 MS-DOS Prompt</div>
       <div class="start-item" onclick="openGame()">🐛 Debug Runner (game)</div>
       <div class="start-sep"></div>
-      <div class="start-item" onclick="openDisplayProperties()">🖼 Display Properties</div>
+      <div class="start-item" onclick="openDisplayProperties()"><svg viewBox="0 0 24 24" width="14" height="14">
+          <rect x="2" y="3" width="20" height="14" fill="#1084d0" stroke="#000" stroke-width="1" />
+          <rect x="8" y="19" width="8" height="2" fill="#808080" />
+        </svg> Display Properties</div>
       <div class="start-sep"></div>
       <!-- <a class="start-item" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">💾 Download Resume</a> -->
       <a class="start-item" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
       <a class="start-item" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank"
         rel="noopener">LinkedIn</a>
+      <a class="start-item" href="https://www.instagram.com/_shubham_chaudhary_/" target="_blank"
+        rel="noopener">Instagram</a>
       <div class="start-sep"></div>
       <div class="start-item" onclick="shutDown()">Shut Down...</div>
     </div>
@@ -1936,11 +1947,14 @@
       });
     }
     function ctxRefresh() { location.reload(); }
+    const DESKTOP_ICON_IDS = ['icon-recyclebin', 'icon-mycomputer', 'icon-game', 'icon-dos'];
+    function desktopIconPositions() {
+      const gap = window.innerWidth > 700 ? 90 : 95;
+      return DESKTOP_ICON_IDS.map((_, i) => [20, 20 + i * gap]);
+    }
     function ctxArrange() {
-      const positions = [[20, 20], [20, 130], [20, 240], [20, 350]];
-      const icons = ['icon-recyclebin', 'icon-mycomputer', 'icon-game', 'icon-dos'];
-      const shuffled = [...positions].sort(() => Math.random() - 0.5);
-      icons.forEach((id, i) => {
+      const shuffled = desktopIconPositions().sort(() => Math.random() - 0.5);
+      DESKTOP_ICON_IDS.forEach((id, i) => {
         const el = document.getElementById(id);
         el.style.left = shuffled[i][0] + 'px';
         el.style.top = shuffled[i][1] + 'px';
@@ -2233,6 +2247,12 @@
       makeResizable(document.getElementById('window'), { minWidth: 360, minHeight: 300 });
       makeDraggable(document.getElementById('dos-window'), document.getElementById('dos-title-bar'), { enableSnap: false });
       makeResizable(document.getElementById('dos-window'), { minWidth: 340, minHeight: 220 });
+      const iconPositions = desktopIconPositions();
+      DESKTOP_ICON_IDS.forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.style.left = iconPositions[i][0] + 'px';
+        el.style.top = iconPositions[i][1] + 'px';
+      });
       initIconDrag();
       initContextMenu();
       initContactForm();
