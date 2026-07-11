@@ -3,448 +3,1171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Shubham Chaudhary - Front End Developer Portfolio. 1990s retro style.">
-<title>Shubham Chaudhary - Portfolio</title>
+<title>Shubham Chaudhary — Frontend Engineer (Portfolio That Boots Like Windows 95)</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+<!-- Open Graph / Facebook, LinkedIn, WhatsApp, iMessage -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Shubham Chaudhary — This Portfolio Boots Like It's 1995">
+<meta property="og:description" content="A fully interactive Windows-95-style desktop: draggable windows, a real DOS prompt, joke error dialogs, and a bouncing DVD logo. 4+ years frontend experience, React, Next.js, Node.js.">
+<meta property="og:image" content="og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shubham Chaudhary — This Portfolio Boots Like It's 1995">
+<meta name="twitter:description" content="Draggable windows. A real DOS prompt. Joke error dialogs. A bouncing DVD logo. Yes, it's a real portfolio — 4+ years frontend experience.">
+<meta name="twitter:image" content="og-image.png">
+
 <style>
-/* Minimized CSS for layout, spacing, and responsive behavior only as requested */
-body {
-    background-color: #000000;
-    color: #FFFFFF;
-    font-family: "Courier New", Courier, monospace;
-    font-size: 16px;
-    line-height: 1.5;
-    margin: 0;
-    padding: 20px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-a {
-    color: #00FFFF;
-    text-decoration: underline;
-}
-a:visited {
-    color: #FF00FF;
-}
-h1, h2, h3 {
-    font-weight: normal; 
-    margin-top: 30px;
-    margin-bottom: 20px;
-}
-h1 {
-    font-size: 2em;
-    font-weight: bold;
-}
-h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-}
-h3 {
-    font-size: 1.25em;
-    font-weight: bold;
-}
-pre {
-    font-family: "Courier New", Courier, monospace;
-    white-space: pre-wrap;
-    word-break: break-word;
-    margin: 0;
-}
-.ascii-separator {
-    white-space: pre;
-    overflow: hidden;
-    margin: 30px 0;
-    font-weight: bold;
-}
-.section {
-    margin-bottom: 60px;
-}
-.terminal {
-    margin-top: 40px;
-    padding: 10px;
-    border: 1px solid #FFFFFF;
-}
-input, textarea, button, select {
-    font-family: "Courier New", Courier, monospace;
-    font-size: 16px;
-    background-color: #000000;
-    color: #FFFFFF;
-    border: 1px solid #FFFFFF;
-}
-#cursor {
-    display: inline-block;
-    width: 10px;
-    height: 1.2em;
-    background-color: #FFFFFF;
-    vertical-align: text-bottom;
-    animation: blink 1s step-end infinite;
-}
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-}
-/* Responsive */
-@media (max-width: 600px) {
-    body { padding: 15px; }
-    .ascii-separator { font-size: 12px; }
-}
+  :root {
+    --gray: #c0c0c0; --gray-dark: #808080; --white: #ffffff; --black: #000000;
+    --navy: #000080; --navy-light: #1084d0; --teal: #008080;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%; margin: 0; overflow: hidden; background: var(--teal);
+    font-family: "MS Sans Serif", Tahoma, Arial, sans-serif; font-size: 13px; color: var(--black);
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><polygon points="2,1 2,19 6.5,15.5 9,21.5 12,20.2 9.6,14.5 16,14.5" fill="black" stroke="white" stroke-width="1.2"/></svg>') 2 1, auto;
+    transition: background-color 0.4s ease;
+  }
+
+  #boot-screen { position: fixed; inset: 0; background: #000; color: #33ff33; font-family: "Courier New", monospace; font-size: 14px; padding: 30px; z-index: 1000; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.5s ease; cursor: default; }
+  #boot-text { white-space: pre-wrap; margin-bottom: 24px; min-height: 220px; }
+  .boot-progress-wrap { display: flex; align-items: center; gap: 10px; max-width: 420px; }
+  .boot-progress-bar { flex: 1; height: 16px; border: 1px solid #33ff33; }
+  #boot-progress-fill { height: 100%; width: 0%; background: #33ff33; }
+  #boot-progress-pct { width: 45px; }
+  .boot-skip-hint { margin-top: 18px; font-size: 11px; opacity: 0.65; }
+
+  .desktop-layer { position: fixed; inset: 0; bottom: 32px; z-index: 1; }
+  .desktop-icon { position: absolute; width: 76px; text-align: center; color: #fff; font-size: 11px; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); cursor: pointer; user-select: none; padding: 4px; border: 1px dotted transparent; }
+  .desktop-icon:active { border-color: rgba(255,255,255,0.5); }
+  .desktop-icon svg { display: block; margin: 0 auto 3px auto; }
+
+  #dvd-logo { position: fixed; z-index: 2; font-weight: bold; font-size: 18px; color: #00ff88; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); pointer-events: none; white-space: nowrap; font-family: "Courier New", monospace; letter-spacing: 1px; }
+
+  .taskbar { position: fixed; left: 0; right: 0; bottom: 0; height: 32px; background: var(--gray); border-top: 2px solid var(--white); display: flex; align-items: center; padding: 0 8px; gap: 8px; z-index: 90; font-size: 12px; }
+  .start-button, .taskbar-app-btn { display: flex; align-items: center; gap: 6px; font-weight: bold; border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); background: var(--gray); padding: 3px 10px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .start-button.active, .taskbar-app-btn.active { border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); background: #a8a8a8; }
+  .taskbar-sep { width: 1px; height: 22px; background: var(--gray-dark); border-right: 1px solid var(--white); }
+  .taskbar-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  #clock-behind { padding: 3px 8px; border: 1px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); background: var(--white); font-family: "Courier New", monospace; }
+
+  .start-menu { position: fixed; left: 4px; bottom: 34px; display: none; background: var(--gray); border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); box-shadow: 2px 2px 0 rgba(0,0,0,0.4); z-index: 95; min-width: 230px; max-height: 80vh; overflow-y: auto; }
+  .start-menu.open { display: flex; }
+  .start-menu-side { width: 26px; background: var(--navy); color: #fff; writing-mode: vertical-rl; transform: rotate(180deg); font-weight: bold; letter-spacing: 3px; padding: 8px 2px; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .start-menu-items { flex: 1; padding: 4px 0; }
+  .start-item { padding: 6px 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 9px; text-decoration: none; color: inherit; }
+  .start-item:hover { background: var(--navy); color: #fff; }
+  .start-sep { border-top: 1px solid var(--gray-dark); border-bottom: 1px solid var(--white); margin: 3px 6px; }
+
+  .window { position: fixed; left: 50%; top: 16px; transform: translateX(-50%); width: min(900px, 95vw); max-height: calc(94vh - 32px); background: var(--gray); border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); box-shadow: 3px 3px 0 rgba(0,0,0,0.4); z-index: 10; display: flex; flex-direction: column; transition: transform 0.3s ease, opacity 0.3s ease; }
+  .window.minimized { opacity: 0; pointer-events: none; transform: scale(0.05) translateY(500px); }
+  .window.maximized { left: 0 !important; top: 0 !important; transform: none !important; width: 100vw !important; max-height: calc(100vh - 32px) !important; height: calc(100vh - 32px) !important; }
+  .window.snapped-left, .window.snapped-right { top: 0 !important; transform: none !important; width: 50vw !important; max-height: calc(100vh - 32px) !important; height: calc(100vh - 32px) !important; }
+  .window.snapped-left { left: 0 !important; }
+  .window.snapped-right { left: 50vw !important; }
+
+  .subwindow { position: fixed; z-index: 15; background: var(--gray); border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); box-shadow: 3px 3px 0 rgba(0,0,0,0.4); width: 460px; height: 340px; left: 12%; top: 10%; display: none; flex-direction: column; }
+  .subwindow.maximized { left: 0 !important; top: 0 !important; width: 100vw !important; height: calc(100vh - 32px) !important; }
+
+  .window.maximized .resize-handle, .window.snapped-left .resize-handle, .window.snapped-right .resize-handle, .subwindow.maximized .resize-handle { display: none; }
+  .resize-handle { position: absolute; z-index: 20; }
+  .resize-n { top: -3px; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+  .resize-s { bottom: -3px; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+  .resize-e { top: 10px; bottom: 10px; right: -3px; width: 6px; cursor: ew-resize; }
+  .resize-w { top: 10px; bottom: 10px; left: -3px; width: 6px; cursor: ew-resize; }
+  .resize-ne { top: -3px; right: -3px; width: 13px; height: 13px; cursor: nesw-resize; }
+  .resize-nw { top: -3px; left: -3px; width: 13px; height: 13px; cursor: nwse-resize; }
+  .resize-se { bottom: -3px; right: -3px; width: 13px; height: 13px; cursor: nwse-resize; }
+  .resize-sw { bottom: -3px; left: -3px; width: 13px; height: 13px; cursor: nesw-resize; }
+
+  .title-bar { background: linear-gradient(90deg, var(--navy), var(--navy-light)); color: var(--white); font-weight: bold; padding: 4px 6px; display: flex; justify-content: space-between; align-items: center; cursor: grab; flex-shrink: 0; }
+  .title-bar.dragging { cursor: grabbing; }
+  .title-bar-left { display: flex; align-items: center; gap: 6px; }
+  .title-bar-buttons { display: flex; gap: 3px; }
+  .title-bar-buttons span { width: 16px; height: 14px; background: var(--gray); border: 1px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); font-size: 10px; line-height: 14px; text-align: center; color: var(--black); font-weight: bold; cursor: pointer; }
+  .title-bar-buttons span:active { border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); }
+
+  .menu-bar { background: var(--gray); padding: 3px 8px; border-bottom: 1px solid var(--gray-dark); display: flex; gap: 18px; font-size: 12px; flex-shrink: 0; }
+  .info-bar { padding: 6px 10px; border-bottom: 1px solid var(--gray-dark); font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 18px; background: var(--gray); flex-shrink: 0; }
+  .info-bar .status-dot { color: green; font-weight: bold; }
+  .content { padding: 12px; overflow-y: auto; flex: 1; }
+
+  fieldset.section { border: 2px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); margin: 0 0 16px 0; padding: 10px 12px 14px 12px; }
+  legend { padding: 0 6px; font-weight: bold; }
+  h3.sub { font-size: 12px; margin: 12px 0 4px 0; border-bottom: 1px dashed var(--gray-dark); padding-bottom: 2px; }
+  p { margin: 6px 0; line-height: 1.5; }
+  table { border-collapse: collapse; width: 100%; margin-top: 6px; background: var(--white); }
+  th, td { border: 1px solid var(--gray-dark); padding: 5px 7px; text-align: left; font-size: 12px; vertical-align: top; }
+  th { background: var(--gray); }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 10px; }
+  .stat-box { border: 2px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); padding: 8px 6px; text-align: center; background: var(--white); }
+  .stat-box.wide { grid-column: 1 / -1; }
+  .stat-box .num { font-weight: bold; font-size: 15px; font-family: "Courier New", monospace; }
+  .stat-box .lbl { font-size: 11px; color: var(--gray-dark); }
+
+  .skill-group { margin-bottom: 14px; }
+  .skill-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 12px; }
+  .skill-name { width: 130px; flex-shrink: 0; }
+  .skill-level { width: 80px; flex-shrink: 0; color: var(--gray-dark); font-size: 11px; }
+  .skill-bar-track { flex: 1; height: 14px; background: var(--white); border: 2px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); }
+  .skill-bar-fill { height: 100%; background: var(--navy); }
+  .skill-pct { width: 38px; text-align: right; flex-shrink: 0; }
+
+  .project-card { border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); margin-bottom: 12px; }
+  .project-title { background: var(--navy); color: var(--white); padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; font-size: 12px; }
+  .status-badge { background: var(--white); color: var(--black); padding: 0 5px; font-weight: normal; font-size: 11px; }
+  .project-body { padding: 8px 10px; background: var(--gray); }
+  .project-body .tech { font-size: 11px; color: #333; margin: 4px 0 8px 0; }
+
+  .exp-entry { border-bottom: 1px dashed var(--gray-dark); padding: 10px 0; }
+  .exp-entry:last-child { border-bottom: none; }
+  .exp-header { font-weight: bold; }
+  .exp-duration { font-size: 11px; color: var(--gray-dark); margin-bottom: 4px; }
+  .tag { display: inline-block; background: var(--white); border: 1px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); padding: 1px 6px; font-size: 11px; margin: 4px 4px 0 0; }
+
+  button, .btn { background: var(--gray); border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); padding: 5px 14px; font-family: inherit; font-size: 12px; cursor: pointer; color: var(--black); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  button:active, .btn:active { border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); }
+  .links-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+  label { display: block; font-size: 12px; margin: 8px 0 3px 0; }
+  input[type="text"], input[type="email"], textarea { border: 2px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); background: var(--white); font-family: inherit; font-size: 12px; padding: 4px 5px; width: 100%; max-width: 380px; }
+  textarea { resize: vertical; }
+
+  .status-bar { background: var(--gray); border-top: 1px solid var(--white); padding: 5px 10px; font-size: 11px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; flex-shrink: 0; }
+
+  .dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 200; }
+  .dialog-box { background: var(--gray); border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); width: 300px; box-shadow: 3px 3px 0 rgba(0,0,0,0.4); }
+  .dialog-box.wide { width: 380px; }
+  .dialog-title-bar { background: linear-gradient(90deg, var(--navy), var(--navy-light)); color: #fff; font-weight: bold; padding: 4px 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+  .dialog-close { cursor: pointer; width: 16px; height: 14px; background: var(--gray); border: 1px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); text-align: center; line-height: 14px; font-size: 10px; color: #000; }
+  .dialog-body { padding: 16px; text-align: center; font-size: 12px; }
+  .dialog-icon { margin-bottom: 8px; display: flex; justify-content: center; }
+  .dialog-buttons { margin-top: 14px; display: flex; gap: 8px; justify-content: center; }
+  .recycle-list { text-align: left; background: #fff; border: 1px solid var(--gray-dark); padding: 8px 10px; font-family: "Courier New", monospace; font-size: 11px; max-height: 200px; overflow-y: auto; margin-bottom: 4px; }
+  .recycle-list div { padding: 3px 0; border-bottom: 1px dotted #ccc; }
+
+  #game-stage { position: relative; width: 100%; height: 140px; background: #dff0ff; border: 2px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); overflow: hidden; cursor: pointer; }
+  #game-player { position: absolute; bottom: 2px; left: 20px; width: 22px; height: 30px; }
+  .player-body { position: absolute; bottom: 0; left: 3px; width: 16px; height: 16px; background: var(--navy); }
+  .player-head { position: absolute; bottom: 15px; left: 6px; width: 10px; height: 10px; background: #ffcc99; border: 1px solid #663300; }
+  .game-bug { position: absolute; bottom: 2px; width: 20px; height: 20px; }
+  #game-over-msg { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); font-weight: bold; flex-direction: column; gap: 6px; }
+
+  .dos-body { background: #000; color: #c0c0c0; font-family: "Courier New", monospace; font-size: 12px; padding: 10px; text-align: left; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .dos-output { flex: 1; overflow-y: auto; white-space: pre-wrap; margin-bottom: 6px; }
+  .dos-input-row { display: flex; gap: 6px; align-items: center; }
+  #dos-input { background: transparent; border: none; outline: none; color: #c0c0c0; font-family: inherit; font-size: 12px; flex: 1; }
+
+  .wallpaper-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 6px; }
+  .wallpaper-swatch { height: 44px; border: 2px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark); cursor: pointer; }
+  .wallpaper-swatch.selected { outline: 2px solid #000; outline-offset: 1px; }
+  .wallpaper-label { font-size: 9px; text-align: center; margin-top: 2px; color: #000; }
+
+  .context-menu { position: fixed; display: none; background: var(--gray); border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); z-index: 300; min-width: 190px; box-shadow: 2px 2px 0 rgba(0,0,0,0.4); font-size: 12px; }
+  .context-item { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .context-item:hover { background: var(--navy); color: #fff; }
+  .context-sep { border-top: 1px solid var(--gray-dark); border-bottom: 1px solid var(--white); margin: 2px 0; }
+
+  .toast { position: fixed; bottom: 40px; right: 14px; background: var(--gray); border: 2px solid; border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white); box-shadow: 2px 2px 0 rgba(0,0,0,0.4); padding: 10px 14px; font-size: 12px; max-width: 260px; z-index: 400; display: none; }
+  .toast.show { display: block; animation: toastIn 0.25s ease; }
+  @keyframes toastIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .toast-title { font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+  @media (max-width: 700px) {
+    .skill-name { width: 100px; } .skill-level { display: none; }
+    table, thead, tbody, th, td, tr { display: block; } th { display: none; }
+    td { border: none; border-bottom: 1px solid var(--gray-dark); }
+    td:first-child { font-weight: bold; background: var(--gray); }
+    .window { top: 8px; max-height: calc(96vh - 32px); }
+    .subwindow { width: 92vw; left: 4vw; top: 8vh; height: 60vh; }
+    .resize-handle { display: none; }
+  }
 </style>
 </head>
 <body>
 
-<div id="loading" style="display:block;">
-<pre>
-LOADING SYSTEM...
-INITIALIZING COMPONENTS...
-</pre>
-<p id="loading-bar">[                    ] 0%</p>
+<div id="boot-screen">
+  <pre id="boot-text"></pre>
+  <div class="boot-progress-wrap">
+    <div class="boot-progress-bar"><div id="boot-progress-fill"></div></div>
+    <span id="boot-progress-pct">0%</span>
+  </div>
+  <p class="boot-skip-hint">Press any key or click to skip...</p>
 </div>
 
-<div id="content" style="display:none;">
-
-<header id="header">
-<div class="ascii-separator">
-------------------------------------------------------------
-============================================================
-------------------------------------------------------------
-</div>
-<h1>SHUBHAM CHAUDHARY</h1>
-<nav>
-<p>
-[ <a href="#hero">Hero</a> ] 
-[ <a href="#about" accesskey="a">About (A)</a> ] 
-[ <a href="#skills" accesskey="s">Skills (S)</a> ] 
-[ <a href="#experience" accesskey="e">Experience (E)</a> ] 
-[ <a href="#projects" accesskey="p">Projects (P)</a> ] 
-[ <a href="#contact" accesskey="c">Contact (C)</a> ] 
-[ <a href="https://github.com/chaudharyShub" target="_blank" accesskey="r">Resume (R)</a> ]
-</p>
-</nav>
-<div class="ascii-separator">
-------------------------------------------------------------
-============================================================
-------------------------------------------------------------
-</div>
-</header>
-
-<main>
-    <section id="hero" class="section">
-        <h2><span id="typing-hero"></span><span id="cursor"></span></h2>
-        <p>
-            2+ years of experience crafting modern web applications with React.js, Next.js, Electron.js, Express.js, Node.js, basically with the MERN stack. I turn complex problems into elegant, scalable solutions.
-        </p>
-        <p>
-            Links: 
-            [ <a href="https://github.com/chaudharyShub" target="_blank">GitHub</a> ] 
-            [ <a href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank">LinkedIn</a> ] 
-            [ <a href="mailto:sc07807cs@gmail.com">Email</a> ]
-        </p>
-    </section>
-
-    <div class="ascii-separator">
-------------------------------------------------------------
-    </div>
-
-    <section id="about" class="section">
-        <h2>ABOUT.TXT</h2>
-        <p>
-            With 4+ years of total experience - 2 years as a Mechanical Engineer &amp; 2+ years as a Software Engineer - I've navigated a unique career path that fuses engineering precision with creative web development. I'm a full-stack engineer with hands-on experience building scalable web applications. I specialize in the MERN stack (frontend-heavy) and love crafting products that genuinely make a difference.
-        </p>
-        <h3>CORE_MODULES</h3>
-        <ul>
-            <li><b>Frontend Development:</b> Building responsive, accessible UIs with React, Next.js, and modern design systems. (React, Next.js, Tailwind, TypeScript, JavaScript)</li>
-            <li><b>Backend Development:</b> Designing RESTful APIs with Node.js and Express, integrating with SQL and NoSQL databases. (Node.js, Express, MongoDB, REST)</li>
-            <li><b>Desktop Applications:</b> Cross-platform desktop apps with Electron.js — web technologies meet native OS power. (Electron, React, IPC)</li>
-        </ul>
-        <h3>STATS.DAT</h3>
-        <p>
-            - Years Experience : 4+<br>
-            - Projects Delivered: 4+<br>
-            - Happy Clients    : 5+<br>
-            - Lines of Code    : 10K+
-        </p>
-    </section>
-
-    <div class="ascii-separator">
-------------------------------------------------------------
-    </div>
-
-    <section id="skills" class="section">
-        <h2>SKILLS.CFG</h2>
-<pre>
-Frontend
---------
-React.js        ███████████████████ 95%
-Next.js         ██████████████████ 88%
-TypeScript      ██████████████████ 90%
-JavaScript      ███████████████████ 95%
-Tailwind CSS    ██████████████████ 92%
-MUI             █████████████████ 85%
-HTML5           ███████████████████ 95%
-CSS3            ██████████████████ 92%
-Electron.js     ██████████████████ 90%
-
-Backend
--------
-Node.js         ██████████████████ 90%
-Express.js      ██████████████ 70%
-MongoDB         ██████████████ 70%
-
-Tools &amp; DevOps
---------------
-Git             ██████████████████ 90%
-Docker          ██████████████ 70%
-
-Cloud (Foundational)
---------------------
-AWS EC2         ██████████ 48%
-AWS S3          ██████████ 51%
-AWS Lambda      ██████████ 50%
-CI/CD           ██████████ 49%
-</pre>
-    </section>
-
-    <div class="ascii-separator">
-------------------------------------------------------------
-    </div>
-
-    <section id="experience" class="section">
-        <h2>EXPERIENCE.LOG</h2>
-<pre>
-WORK_HISTORY.LOG
-
---------------------------------------------------
-Company: Koru UX
-Role: Frontend Developer
-Duration: May 2026 — present
-Responsibilities:
-Frontend engineer specializing in React, Next.js, and Electron — building responsive, user-friendly interfaces with clean, optimized code. Translated requirements into production UI.
-Tags: React.js, Next.js, Electron.js, TypeScript, Tailwind, Material UI, Redux, Git
-
---------------------------------------------------
-Company: ShepHertz Technologies
-Role: Software Engineer
-Duration: April 2026 — May 2026
-Responsibilities:
-Building cross-platform desktop web browser using Electron.js, collaborating on features, optimizing performance, and shipping with modern tools and integrations.
-Tags: React.js, Electron.js, JavaScript, TypeScript, Tailwind, Cursor AI, Git
-
---------------------------------------------------
-Company: Quokka Labs
-Role: Software Engineer
-Duration: Sept 2022 — March 2026
-Responsibilities:
-Frontend engineer specializing in React, Next.js, and Electron — building responsive, user-friendly interfaces with clean, optimized code. Translated requirements into production UI and contributed to backend (Node, Express, MongoDB) when handling APIs and end-to-end functionality.
-Tags: React.js, Next.js, Electron.js, TypeScript, Tailwind, Node.js, Express.js, MongoDB, Material UI, Redux, REST APIs, Git
-
---------------------------------------------------
-Company: Riviera Home Furnishings
-Role: Mechanical Engineer
-Duration: June 2020 — June 2022
-Responsibilities:
-Led a team of 10–12 technicians in the maintenance department of a bathmat manufacturing plant. Owned preventive &amp; breakdown maintenance, scheduled repairs, identified root causes of equipment failures, coordinated with production, and upheld safety/quality standards to keep production uninterrupted.
-Tags: Supervision, Preventive Maintenance, Breakdown Maintenance, Project Management, Leadership, Ownership
---------------------------------------------------
-</pre>
-    </section>
-
-    <div class="ascii-separator">
-------------------------------------------------------------
-    </div>
-
-    <section id="projects" class="section">
-        <h2>PROJECTS/</h2>
-<pre>
---------------------------------------------------
-PROJECT_01.LOG
-Status: Completed
-Title: BrowseAnywhere Agent
-Stack: Electron.js, React.js, TypeScript, Cursor AI
-Description: Building cross-platform desktop web browser using Electron.js, collaborating on features, optimizing performance, and shipping with modern tools and integrations.
-Links: [ <a href="https://github.com/chaudharyShub" target="_blank">GitHub</a> ]
---------------------------------------------------
-PROJECT_02.LOG
-Status: Completed
-Title: RunTheDay (RTD)
-Stack: Next.js, TypeScript, Tailwind CSS, Node.js, Express.js, Redux, Material UI
-Description: A US-based race &amp; marathon registration and result-publishing platform with real-time interactions across Race Directors, Runners, and Volunteers.
-Links: [ <a href="https://runtheday.com" target="_blank">Live</a> ]
---------------------------------------------------
-PROJECT_03.LOG
-Status: Completed
-Title: SportZentric
-Stack: React.js, Tailwind CSS, React Hook Form, Styled Components, RTK Query
-Description: A sports-tech platform that lets coaches create and manage training batches, while athletes seamlessly join sessions and events to sharpen their skills.
-Links: [ <a href="https://github.com/chaudharyShub" target="_blank">GitHub</a> ]
---------------------------------------------------
-PROJECT_04.LOG
-Status: Completed
-Title: Desktop Application
-Stack: Electron.js, React.js, TypeScript, Node.js, MQTT, Redux
-Description: A cross-platform Windows &amp; Linux desktop app with a background service that monitors and logs power on/off events and sleep/wake cycles with high accuracy.
-Links: [ <a href="https://github.com/chaudharyShub" target="_blank">GitHub</a> ]
---------------------------------------------------
-</pre>
-    </section>
-
-    <div class="ascii-separator">
-------------------------------------------------------------
-    </div>
-
-    <section id="contact" class="section">
-        <h2>CONTACT.EXE</h2>
-        <p>Send me an electronic mail.</p>
-        <form action="mailto:sc07807cs@gmail.com" method="post" enctype="text/plain">
-            <p>
-                <label for="name">Name</label><br>
-                <input type="text" id="name" name="name" size="30">
-            </p>
-            <p>
-                <label for="email">Email</label><br>
-                <input type="email" id="email" name="email" size="30">
-            </p>
-            <p>
-                <label for="message">Message</label><br>
-                <textarea id="message" name="message" rows="5" cols="45"></textarea>
-            </p>
-            <p>
-                <button type="submit">[ Send ]</button>
-            </p>
-        </form>
-    </section>
-
-    <div class="terminal" id="terminal-section">
-        <label for="cmd">C:\Users\Visitor&gt;</label>
-        <input type="text" id="cmd" style="border:none;background:transparent;outline:none;width:50%;" autocomplete="off">
-        <div id="cmd-output"></div>
-    </div>
-</main>
-
-<footer id="footer">
-    <div class="ascii-separator">
-============================================================
-    </div>
-    <p>
-        Current Time: <span id="clock"></span><br>
-        Visitor Number: <span id="visitor-count">0000000</span><br>
-        Made with HTML | CSS | JavaScript | No Frameworks<br>
-        &copy; <span id="year"></span>
-    </p>
-</footer>
+<div class="desktop-layer">
+  <div class="desktop-icon" id="icon-recyclebin" style="left:20px; top:20px;" ondblclick="openRecycleBin()">
+    <svg viewBox="0 0 32 32" width="32" height="32">
+      <rect x="8" y="6" width="16" height="3" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+      <rect x="12" y="3" width="8" height="3" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+      <path d="M10 10 L11 27 L21 27 L22 10 Z" fill="#e8e8e8" stroke="#000" stroke-width="1"/>
+      <line x1="14" y1="12" x2="14.5" y2="25" stroke="#808080" stroke-width="1"/>
+      <line x1="16" y1="12" x2="16" y2="25" stroke="#808080" stroke-width="1"/>
+      <line x1="18" y1="12" x2="17.5" y2="25" stroke="#808080" stroke-width="1"/>
+    </svg>Recycle Bin
+  </div>
+  <div class="desktop-icon" id="icon-mycomputer" style="left:20px; top:130px;" ondblclick="ctxProperties()">
+    <svg viewBox="0 0 32 32" width="32" height="32">
+      <rect x="4" y="5" width="24" height="17" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+      <rect x="6" y="7" width="20" height="12" fill="#1084d0" stroke="#000060" stroke-width="1"/>
+      <rect x="12" y="22" width="8" height="3" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+      <rect x="9" y="25" width="14" height="2" fill="#808080" stroke="#000" stroke-width="1"/>
+    </svg>My Computer
+  </div>
+  <div class="desktop-icon" id="icon-game" style="left:20px; top:240px;" ondblclick="openGame()">
+    <svg viewBox="0 0 32 32" width="32" height="32">
+      <ellipse cx="16" cy="18" rx="8" ry="9" fill="#33aa33" stroke="#003300" stroke-width="1"/>
+      <circle cx="16" cy="8" r="4" fill="#33aa33" stroke="#003300" stroke-width="1"/>
+      <line x1="8" y1="12" x2="3" y2="8" stroke="#003300" stroke-width="1.5"/>
+      <line x1="24" y1="12" x2="29" y2="8" stroke="#003300" stroke-width="1.5"/>
+      <line x1="6" y1="18" x2="1" y2="18" stroke="#003300" stroke-width="1.5"/>
+      <line x1="26" y1="18" x2="31" y2="18" stroke="#003300" stroke-width="1.5"/>
+      <line x1="7" y1="24" x2="2" y2="28" stroke="#003300" stroke-width="1.5"/>
+      <line x1="25" y1="24" x2="30" y2="28" stroke="#003300" stroke-width="1.5"/>
+      <circle cx="13" cy="7" r="1" fill="#000"/><circle cx="19" cy="7" r="1" fill="#000"/>
+    </svg>Debug Runner
+  </div>
+  <div class="desktop-icon" id="icon-dos" style="left:20px; top:350px;" ondblclick="openDos()">
+    <svg viewBox="0 0 32 32" width="32" height="32">
+      <rect x="3" y="4" width="26" height="19" fill="#000" stroke="#000" stroke-width="1.5"/>
+      <text x="6" y="17" font-family="Courier New" font-size="9" fill="#33ff33">C:\&gt;_</text>
+      <rect x="3" y="25" width="26" height="3" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+    </svg>MS-DOS Prompt
+  </div>
 
 </div>
+<div id="dvd-logo">SHUBHAM OS</div>
+
+<div class="taskbar">
+  <button class="start-button" id="start-button" onclick="toggleStartMenu(event)">
+    <svg viewBox="0 0 16 16" width="16" height="16">
+      <rect x="0" y="0" width="7" height="7" fill="#ff4444"/><rect x="8" y="0" width="7" height="7" fill="#33cc33"/>
+      <rect x="0" y="8" width="7" height="7" fill="#3399ff"/><rect x="8" y="8" width="7" height="7" fill="#ffcc00"/>
+    </svg>Start
+  </button>
+  <div class="taskbar-sep"></div>
+  <button id="taskbar-window-btn" class="taskbar-app-btn active" onclick="toggleTaskbarWindow()">
+    <svg viewBox="0 0 16 16" width="14" height="14">
+      <rect x="2" y="1" width="10" height="14" fill="#fff" stroke="#000" stroke-width="1"/>
+      <polygon points="9,1 12,1 12,4" fill="#c0c0c0" stroke="#000" stroke-width="0.5"/>
+      <line x1="4" y1="6" x2="10" y2="6" stroke="#000" stroke-width="0.7"/>
+      <line x1="4" y1="8" x2="10" y2="8" stroke="#000" stroke-width="0.7"/>
+    </svg>Shubham.exe
+  </button>
+  <button id="taskbar-dos-btn" class="taskbar-app-btn" style="display:none;" onclick="toggleDosWindow()">
+    <svg viewBox="0 0 16 16" width="14" height="14"><rect x="1" y="1" width="14" height="11" fill="#000" stroke="#000" stroke-width="1"/><text x="2.5" y="9.5" font-family="Courier New" font-size="6.5" fill="#33ff33">C:\&gt;</text></svg>
+    MS-DOS Prompt
+  </button>
+  <div class="taskbar-right">
+    <div id="clock-behind">00:00:00</div>
+  </div>
+</div>
+
+<div class="start-menu" id="start-menu">
+  <div class="start-menu-side">SHUBHAM 95</div>
+  <div class="start-menu-items">
+    <div class="start-item" onclick="goToSection('about')">📁 About Me</div>
+    <div class="start-item" onclick="goToSection('skills')">📁 Skills</div>
+    <div class="start-item" onclick="goToSection('projects')">📁 Projects</div>
+    <div class="start-item" onclick="goToSection('experience')">📁 Experience</div>
+    <div class="start-item" onclick="goToSection('contact')">📁 Contact</div>
+    <div class="start-sep"></div>
+    <div class="start-item" onclick="openDos()">🖥 MS-DOS Prompt</div>
+    <div class="start-item" onclick="openGame()">🐛 Debug Runner (game)</div>
+    <div class="start-sep"></div>
+    <div class="start-item" onclick="openDisplayProperties()">🖼 Display Properties</div>
+    <div class="start-sep"></div>
+    <a class="start-item" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">💾 Download Resume</a>
+    <a class="start-item" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
+    <a class="start-item" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank" rel="noopener">LinkedIn</a>
+    <div class="start-sep"></div>
+    <div class="start-item" onclick="shutDown()">Shut Down...</div>
+  </div>
+</div>
+
+<div class="window" id="window">
+  <div class="resize-handle resize-n" data-dir="n"></div>
+  <div class="resize-handle resize-s" data-dir="s"></div>
+  <div class="resize-handle resize-e" data-dir="e"></div>
+  <div class="resize-handle resize-w" data-dir="w"></div>
+  <div class="resize-handle resize-ne" data-dir="ne"></div>
+  <div class="resize-handle resize-nw" data-dir="nw"></div>
+  <div class="resize-handle resize-se" data-dir="se"></div>
+  <div class="resize-handle resize-sw" data-dir="sw"></div>
+
+  <div class="title-bar" id="title-bar">
+    <div class="title-bar-left">
+      <svg viewBox="0 0 16 16" width="14" height="14">
+        <rect x="2" y="1" width="10" height="14" fill="#fff" stroke="#000" stroke-width="1"/>
+        <polygon points="9,1 12,1 12,4" fill="#c0c0c0" stroke="#000" stroke-width="0.5"/>
+        <line x1="4" y1="6" x2="10" y2="6" stroke="#000" stroke-width="0.7"/>
+        <line x1="4" y1="8" x2="10" y2="8" stroke="#000" stroke-width="0.7"/>
+      </svg>
+      <span>Shubham.exe — Portfolio Manager</span>
+    </div>
+    <div class="title-bar-buttons">
+      <span onclick="minimizeWindow()" title="Minimize">_</span>
+      <span onclick="toggleMaximize()" title="Maximize">&#9633;</span>
+      <span onclick="showCloseConfirm()" title="Close">&times;</span>
+    </div>
+  </div>
+
+  <div class="menu-bar"><span>File</span><span>Edit</span><span>View</span><span>Help</span></div>
+
+  <header class="info-bar">
+    <span><b>Name:</b> Shubham Chaudhary</span>
+    <span><b>Role:</b> Frontend Engineer</span>
+    <span><b>Status:</b> <span class="status-dot">&#9679;</span> ONLINE</span>
+    <span><b>Experience:</b> 4+ Years</span>
+  </header>
+
+  <div class="content">
+
+    <fieldset class="section" id="section-about">
+      <legend>About Me</legend>
+      <p>With 4+ years of total experience — 2 years as a Mechanical Engineer &amp; 2+ years as a Software Engineer — I've navigated a unique career path that fuses engineering precision with creative web development. I'm a full-stack engineer with hands-on experience building scalable web applications. I specialize in the MERN stack (frontend-heavy) and love crafting products that genuinely make a difference.</p>
+      <h3 class="sub">Core Modules</h3>
+      <table>
+        <tr><th>Area</th><th>Description</th><th>Tech</th></tr>
+        <tr><td>Frontend Development</td><td>Building responsive, accessible UIs with React, Next.js, and modern design systems.</td><td>React, Next.js, Tailwind, TypeScript, JavaScript</td></tr>
+        <tr><td>Backend Development</td><td>Designing RESTful APIs with Node.js and Express, integrating with SQL and NoSQL databases.</td><td>Node.js, Express, MongoDB, REST</td></tr>
+        <tr><td>Desktop Applications</td><td>Cross-platform desktop apps with Electron.js — web technologies meet native OS power.</td><td>Electron, React, IPC</td></tr>
+      </table>
+      <h3 class="sub">Stats.dat</h3>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="num">4+</div><div class="lbl">Years Experience</div></div>
+        <div class="stat-box"><div class="num">4+</div><div class="lbl">Projects Delivered</div></div>
+        <div class="stat-box"><div class="num">5+</div><div class="lbl">Happy Clients</div></div>
+        <div class="stat-box"><div class="num">10K+</div><div class="lbl">Lines of Code</div></div>
+        <div class="stat-box wide"><div class="num" id="uptime-display">calculating...</div><div class="lbl">Career Uptime (live, since June 2020)</div></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section" id="section-skills">
+      <legend>Skills.cfg</legend>
+      <div class="skill-group">
+        <h3 class="sub">Frontend</h3>
+        <div class="skill-row"><span class="skill-name">React.js</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:95%"></div></div><span class="skill-pct">95%</span></div>
+        <div class="skill-row"><span class="skill-name">Next.js</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:88%"></div></div><span class="skill-pct">88%</span></div>
+        <div class="skill-row"><span class="skill-name">TypeScript</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:90%"></div></div><span class="skill-pct">90%</span></div>
+        <div class="skill-row"><span class="skill-name">JavaScript</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:95%"></div></div><span class="skill-pct">95%</span></div>
+        <div class="skill-row"><span class="skill-name">Tailwind CSS</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:92%"></div></div><span class="skill-pct">92%</span></div>
+        <div class="skill-row"><span class="skill-name">MUI</span><span class="skill-level">Proficient</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:85%"></div></div><span class="skill-pct">85%</span></div>
+        <div class="skill-row"><span class="skill-name">HTML5</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:95%"></div></div><span class="skill-pct">95%</span></div>
+        <div class="skill-row"><span class="skill-name">CSS3</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:92%"></div></div><span class="skill-pct">92%</span></div>
+        <div class="skill-row"><span class="skill-name">Electron.js</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:90%"></div></div><span class="skill-pct">90%</span></div>
+      </div>
+      <div class="skill-group">
+        <h3 class="sub">Backend</h3>
+        <div class="skill-row"><span class="skill-name">Node.js</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:90%"></div></div><span class="skill-pct">90%</span></div>
+        <div class="skill-row"><span class="skill-name">Express.js</span><span class="skill-level">Proficient</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:70%"></div></div><span class="skill-pct">70%</span></div>
+        <div class="skill-row"><span class="skill-name">MongoDB</span><span class="skill-level">Proficient</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:70%"></div></div><span class="skill-pct">70%</span></div>
+      </div>
+      <div class="skill-group">
+        <h3 class="sub">Tools &amp; DevOps</h3>
+        <div class="skill-row"><span class="skill-name">Git</span><span class="skill-level">Advanced</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:90%"></div></div><span class="skill-pct">90%</span></div>
+        <div class="skill-row"><span class="skill-name">Docker</span><span class="skill-level">Proficient</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:70%"></div></div><span class="skill-pct">70%</span></div>
+      </div>
+      <div class="skill-group">
+        <h3 class="sub">Cloud (Learning)</h3>
+        <div class="skill-row"><span class="skill-name">AWS EC2</span><span class="skill-level">Sideloaded</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:48%"></div></div><span class="skill-pct">48%</span></div>
+        <div class="skill-row"><span class="skill-name">AWS S3</span><span class="skill-level">Sideloaded</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:51%"></div></div><span class="skill-pct">51%</span></div>
+        <div class="skill-row"><span class="skill-name">AWS Lambda</span><span class="skill-level">Sideloaded</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:50%"></div></div><span class="skill-pct">50%</span></div>
+        <div class="skill-row"><span class="skill-name">CI/CD</span><span class="skill-level">Sideloaded</span><div class="skill-bar-track"><div class="skill-bar-fill" style="width:49%"></div></div><span class="skill-pct">49%</span></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section" id="section-projects">
+      <legend>Projects\</legend>
+      <div class="project-card">
+        <div class="project-title"><span>BrowseAnywhere Agent</span><span class="status-badge">Completed</span></div>
+        <div class="project-body"><div class="tech">Tech: Electron.js, React.js, TypeScript, Cursor AI</div>
+        <p>Cross-platform desktop web browser built with Electron.js — collaborating on features, optimizing performance, and shipping with modern tools and integrations.</p>
+        <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub &#8599;</a></div>
+      </div>
+      <div class="project-card">
+        <div class="project-title"><span>RunTheDay (RTD)</span><span class="status-badge">Completed</span></div>
+        <div class="project-body"><div class="tech">Tech: Next.js, TypeScript, Tailwind CSS, Node.js, Express.js, Redux, Material UI</div>
+        <p>A US-based race &amp; marathon registration and result-publishing platform with real-time interactions across Race Directors, Runners, and Volunteers.</p>
+        <a class="btn" href="https://runtheday.com" target="_blank" rel="noopener">Live Site &#8599;</a></div>
+      </div>
+      <div class="project-card">
+        <div class="project-title"><span>SportZentric</span><span class="status-badge">Completed</span></div>
+        <div class="project-body"><div class="tech">Tech: React.js, Tailwind CSS, React Hook Form, Styled Components, RTK Query</div>
+        <p>A sports-tech platform that lets coaches create and manage training batches, while athletes seamlessly join sessions and events to sharpen their skills.</p>
+        <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub &#8599;</a></div>
+      </div>
+      <div class="project-card">
+        <div class="project-title"><span>Desktop Application</span><span class="status-badge">Completed</span></div>
+        <div class="project-body"><div class="tech">Tech: Electron.js, React.js, TypeScript, Node.js, MQTT, Redux</div>
+        <p>A cross-platform Windows &amp; Linux desktop app with a background service that monitors and logs power on/off events and sleep/wake cycles with high accuracy.</p>
+        <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub &#8599;</a></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section" id="section-experience">
+      <legend>Experience\logs\</legend>
+      <div class="exp-entry">
+        <div class="exp-header">Koru UX — Frontend Developer</div>
+        <div class="exp-duration">May 2026 — present</div>
+        <p>Frontend engineer specializing in React, Next.js, and Electron — building responsive, user-friendly interfaces with clean, optimized code. Translated requirements into production UI.</p>
+        <div><span class="tag">React.js</span><span class="tag">Next.js</span><span class="tag">Electron.js</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span><span class="tag">Material UI</span><span class="tag">Redux</span><span class="tag">Git</span></div>
+      </div>
+      <div class="exp-entry">
+        <div class="exp-header">ShepHertz Technologies — Software Engineer</div>
+        <div class="exp-duration">April 2026 — May 2026</div>
+        <p>Building cross-platform desktop web browser using Electron.js, collaborating on features, optimizing performance, and shipping with modern tools and integrations.</p>
+        <div><span class="tag">React.js</span><span class="tag">Electron.js</span><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span><span class="tag">Cursor AI</span><span class="tag">Git</span></div>
+      </div>
+      <div class="exp-entry">
+        <div class="exp-header">Quokka Labs — Software Engineer</div>
+        <div class="exp-duration">Sept 2022 — March 2026</div>
+        <p>Frontend engineer specializing in React, Next.js, and Electron — building responsive, user-friendly interfaces with clean, optimized code. Translated requirements into production UI and contributed to backend (Node, Express, MongoDB) when handling APIs and end-to-end functionality.</p>
+        <div><span class="tag">React.js</span><span class="tag">Next.js</span><span class="tag">Electron.js</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span><span class="tag">Node.js</span><span class="tag">Express.js</span><span class="tag">MongoDB</span><span class="tag">Material UI</span><span class="tag">Redux</span><span class="tag">REST APIs</span><span class="tag">Git</span></div>
+      </div>
+      <div class="exp-entry">
+        <div class="exp-header">Riviera Home Furnishings — Mechanical Engineer</div>
+        <div class="exp-duration">June 2020 — June 2022</div>
+        <p>Led a team of 10–12 technicians in the maintenance department of a bathmat manufacturing plant. Owned preventive &amp; breakdown maintenance, scheduled repairs, identified root causes of equipment failures, coordinated with production, and upheld safety/quality standards to keep production uninterrupted.</p>
+        <div><span class="tag">Supervision</span><span class="tag">Preventive Maintenance</span><span class="tag">Breakdown Maintenance</span><span class="tag">Project Management</span><span class="tag">Leadership</span><span class="tag">Ownership</span></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="section" id="section-contact">
+      <legend>Message.exe</legend>
+      <p>Recipient: Shubham</p>
+      <form id="contact-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email">
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="5"></textarea>
+        <p><button type="submit">[ Send ]</button></p>
+      </form>
+      <div class="links-row">
+        <a class="btn" href="mailto:sc07807cs@gmail.com">Email</a>
+        <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">
+          <svg viewBox="0 0 24 24" width="16" height="16"><rect x="3" y="3" width="18" height="18" fill="#c0c0c0" stroke="#000" stroke-width="1"/><rect x="6" y="3" width="9" height="6" fill="#fff" stroke="#000" stroke-width="1"/><rect x="6" y="14" width="12" height="6" fill="#fff" stroke="#000" stroke-width="1"/><rect x="14" y="4" width="2" height="4" fill="#000"/></svg>
+          Download Resume (PDF)
+        </a>
+      </div>
+    </fieldset>
+
+  </div>
+
+  <footer class="status-bar">
+    <span>Time: <span id="clock">00:00:00</span></span>
+    <span>Status: System Online</span>
+    <span>Made with HTML | CSS | JavaScript — No Frameworks</span>
+    <span>&copy; <span id="year"></span> Shubham Chaudhary</span>
+  </footer>
+</div>
+
+<!-- DOS PROMPT (floating subwindow: draggable, resizable, minimizable, maximizable) -->
+<div class="subwindow" id="dos-window">
+  <div class="resize-handle resize-n" data-dir="n"></div>
+  <div class="resize-handle resize-s" data-dir="s"></div>
+  <div class="resize-handle resize-e" data-dir="e"></div>
+  <div class="resize-handle resize-w" data-dir="w"></div>
+  <div class="resize-handle resize-ne" data-dir="ne"></div>
+  <div class="resize-handle resize-nw" data-dir="nw"></div>
+  <div class="resize-handle resize-se" data-dir="se"></div>
+  <div class="resize-handle resize-sw" data-dir="sw"></div>
+  <div class="title-bar" id="dos-title-bar">
+    <div class="title-bar-left">
+      <svg viewBox="0 0 16 16" width="14" height="14"><rect x="1" y="1" width="14" height="11" fill="#000" stroke="#000" stroke-width="1"/><text x="2.5" y="9.5" font-family="Courier New" font-size="6.5" fill="#33ff33">C:\&gt;</text></svg>
+      <span>MS-DOS Prompt</span>
+    </div>
+    <div class="title-bar-buttons">
+      <span onclick="minimizeDos()" title="Minimize">_</span>
+      <span onclick="toggleMaximizeDos()" title="Maximize">&#9633;</span>
+      <span onclick="closeDos()" title="Close">&times;</span>
+    </div>
+  </div>
+  <div class="dos-body">
+    <div id="dos-output" class="dos-output"></div>
+    <div class="dos-input-row">
+      <span>C:\Users\Shubham&gt;</span>
+      <input type="text" id="dos-input" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+</div>
+
+<div id="message-dialog" class="dialog-overlay">
+  <div class="dialog-box">
+    <div class="dialog-title-bar"><span id="msg-title">Shubham OS</span><span class="dialog-close" onclick="closeDialog('message-dialog')">&times;</span></div>
+    <div class="dialog-body"><div class="dialog-icon" id="msg-icon"></div><p id="msg-text"></p>
+    <div class="dialog-buttons"><button onclick="closeDialog('message-dialog')">OK</button></div></div>
+  </div>
+</div>
+
+<div id="close-confirm-dialog" class="dialog-overlay">
+  <div class="dialog-box">
+    <div class="dialog-title-bar"><span>Shubham OS</span><span class="dialog-close" onclick="closeDialog('close-confirm-dialog')">&times;</span></div>
+    <div class="dialog-body">
+      <div class="dialog-icon"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" fill="#1084d0" stroke="#000060" stroke-width="1"/><text x="12" y="17" font-size="13" font-family="Arial" font-weight="bold" fill="#fff" text-anchor="middle">?</text></svg></div>
+      <p>Are you sure you want to close Shubham.exe?<br><span style="font-size:11px;color:var(--gray-dark);">(Spoiler: you can't. But we'll minimize it for you.)</span></p>
+      <div class="dialog-buttons"><button onclick="confirmClose()">Yes</button><button onclick="closeDialog('close-confirm-dialog')">No</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="recyclebin-dialog" class="dialog-overlay">
+  <div class="dialog-box wide">
+    <div class="dialog-title-bar"><span>Recycle Bin</span><span class="dialog-close" onclick="closeDialog('recyclebin-dialog')">&times;</span></div>
+    <div class="dialog-body" style="text-align:left;">
+      <div class="recycle-list">
+        <div>console.log("why isn't this working")</div>
+        <div>old_resume_final_v2_FINAL.docx</div>
+        <div>unused_css.css</div>
+        <div>todo_list_i_will_never_finish.txt</div>
+        <div>a_bug_i_fixed_by_accident.js</div>
+        <div>impostor_syndrome.exe (access denied)</div>
+      </div>
+      <div class="dialog-buttons"><button onclick="closeDialog('recyclebin-dialog')">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="game-dialog" class="dialog-overlay">
+  <div class="dialog-box wide">
+    <div class="dialog-title-bar"><span>Debug_Runner.exe</span><span class="dialog-close" onclick="closeGame()">&times;</span></div>
+    <div class="dialog-body" style="padding:10px;">
+      <div id="game-stage" onclick="jump()">
+        <div id="game-player"><div class="player-body"></div><div class="player-head"></div></div>
+        <div id="game-over-msg">
+          <span>GAME OVER</span>
+          <span style="font-size:11px;font-weight:normal;">Score: <span id="game-final-score">0</span> | Best: <span id="game-best-score">0</span></span>
+          <button onclick="startGame()">Restart</button>
+        </div>
+      </div>
+      <p style="font-size:11px; margin-top:8px;">Press SPACE or tap the stage to jump over the bugs. Ship it before you crash it.</p>
+      <p style="font-size:12px;">Score: <span id="game-score">0</span> &nbsp; Best: <span id="game-best">0</span></p>
+      <div class="dialog-buttons"><button onclick="startGame()">Start / Restart</button><button onclick="closeGame()">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="display-dialog" class="dialog-overlay">
+  <div class="dialog-box wide">
+    <div class="dialog-title-bar"><span>Display Properties</span><span class="dialog-close" onclick="closeDialog('display-dialog')">&times;</span></div>
+    <div class="dialog-body" style="text-align:left;">
+      <p style="font-size:11px; margin-bottom:8px;">Background:</p>
+      <div id="wallpaper-grid" class="wallpaper-grid"></div>
+      <div class="dialog-buttons"><button onclick="pickRandomWallpaper()">🎲 Random</button><button onclick="closeDialog('display-dialog')">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="context-menu" class="context-menu">
+  <div class="context-item" onclick="ctxRefresh()"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 4 A8 8 0 1 1 4.5 8" fill="none" stroke="#000" stroke-width="2"/><polygon points="4,3 4,9 9,6" fill="#000"/></svg> Refresh</div>
+  <div class="context-item" onclick="ctxArrange()"><svg viewBox="0 0 16 16" width="14" height="14"><rect x="1" y="1" width="6" height="6" fill="#000"/><rect x="9" y="1" width="6" height="6" fill="#000"/><rect x="1" y="9" width="6" height="6" fill="#000"/><rect x="9" y="9" width="6" height="6" fill="#000"/></svg> Arrange Icons</div>
+  <div class="context-sep"></div>
+  <div class="context-item" onclick="openDisplayProperties()"><svg viewBox="0 0 24 24" width="14" height="14"><rect x="2" y="3" width="20" height="14" fill="#1084d0" stroke="#000" stroke-width="1"/><rect x="8" y="19" width="8" height="2" fill="#808080"/></svg> Display Properties</div>
+  <div class="context-item" onclick="ctxProperties()"><svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#1084d0" stroke="#000060" stroke-width="1"/><rect x="11" y="10" width="2" height="7" fill="#fff"/><rect x="11" y="6" width="2" height="2" fill="#fff"/></svg> Properties</div>
+  <div class="context-item" onclick="ctxNew()"><svg viewBox="0 0 16 16" width="14" height="14"><rect x="2" y="1" width="10" height="14" fill="#fff" stroke="#000" stroke-width="0.5"/><polygon points="9,1 12,1 12,4" fill="#c0c0c0" stroke="#000" stroke-width="0.5"/></svg> New Text Document</div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
-    // System Loader
-    window.onload = function() {
-        const loading = document.getElementById("loading");
-        const loadingBar = document.getElementById("loading-bar");
-        const content = document.getElementById("content");
-        
-        let progress = 0;
-        const totalBlocks = 20;
+  const ICONS = {
+    warning: '<svg viewBox="0 0 24 24" width="40" height="40"><polygon points="12,2 22,20 2,20" fill="#ffcc00" stroke="#000" stroke-width="1"/><rect x="11" y="9" width="2" height="6" fill="#000"/><rect x="11" y="16" width="2" height="2" fill="#000"/></svg>',
+    error: '<svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" fill="#cc0000" stroke="#660000" stroke-width="1"/><line x1="8" y1="8" x2="16" y2="16" stroke="#fff" stroke-width="2.5"/><line x1="16" y1="8" x2="8" y2="16" stroke="#fff" stroke-width="2.5"/></svg>',
+    info: '<svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" fill="#1084d0" stroke="#000060" stroke-width="1"/><rect x="11" y="10" width="2" height="7" fill="#fff"/><rect x="11" y="6" width="2" height="2" fill="#fff"/></svg>',
+    forbidden: '<svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" fill="#cc0000" stroke="#660000" stroke-width="1"/><rect x="5" y="10.5" width="14" height="3" fill="#fff"/></svg>',
+    bug: '<svg viewBox="0 0 32 32" width="20" height="20"><ellipse cx="16" cy="18" rx="8" ry="9" fill="#33aa33" stroke="#003300" stroke-width="1"/><circle cx="16" cy="8" r="4" fill="#33aa33" stroke="#003300" stroke-width="1"/><line x1="8" y1="12" x2="3" y2="8" stroke="#003300" stroke-width="1.5"/><line x1="24" y1="12" x2="29" y2="8" stroke="#003300" stroke-width="1.5"/><line x1="6" y1="18" x2="1" y2="18" stroke="#003300" stroke-width="1.5"/><line x1="26" y1="18" x2="31" y2="18" stroke="#003300" stroke-width="1.5"/><line x1="7" y1="24" x2="2" y2="28" stroke="#003300" stroke-width="1.5"/><line x1="25" y1="24" x2="30" y2="28" stroke="#003300" stroke-width="1.5"/><circle cx="13" cy="7" r="1" fill="#000"/><circle cx="19" cy="7" r="1" fill="#000"/></svg>'
+  };
 
-        const interval = setInterval(() => {
-            progress += Math.floor(Math.random() * 15) + 5;
-            if (progress > 100) progress = 100;
-            
-            const filledCount = Math.floor((progress / 100) * totalBlocks);
-            const emptyCount = totalBlocks - filledCount;
-            
-            const bar = "█".repeat(filledCount) + " ".repeat(emptyCount);
-            loadingBar.innerText = "[" + bar + "] " + progress + "%";
-            
-            if (progress >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    loading.style.display = "none";
-                    content.style.display = "block";
-                    startTyping();
-                }, 400);
-            }
-        }, 120);
-        
-        // Clock
-        function updateClock() {
-            document.getElementById("clock").innerText = new Date().toLocaleString();
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-        
-        // Year
-        document.getElementById("year").innerText = new Date().getFullYear();
-        
-        // Visitor Counter (Fake)
-        const count = Math.floor(Math.random() * 9000) + 1000;
-        document.getElementById("visitor-count").innerText = String(count).padStart(7, '0');
-        
-        // Keyboard Shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Ignore if in input/textarea
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            
-            const key = e.key.toLowerCase();
-            const sectionMap = {
-                'a': 'about',
-                'p': 'projects',
-                's': 'skills',
-                'e': 'experience',
-                'c': 'contact'
-            };
-            if (sectionMap[key]) {
-                const el = document.getElementById(sectionMap[key]);
-                if(el) el.scrollIntoView();
-            } else if (key === 'r') {
-                window.open('https://github.com/chaudharyShub', '_blank');
-            }
-        });
-        
-        // Fake Terminal
-        const cmdInput = document.getElementById('cmd');
-        const cmdOutput = document.getElementById('cmd-output');
-        
-        cmdInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const val = this.value.trim().toLowerCase();
-                this.value = '';
-                
-                let outputStr = '';
-                if (val === 'help') {
-                    outputStr = 'about\nprojects\nskills\nexperience\ncontact\nresume\nclear';
-                } else if (['about', 'projects', 'skills', 'experience', 'contact'].includes(val)) {
-                    document.getElementById(val).scrollIntoView();
-                    outputStr = 'Navigating to ' + val + '...';
-                } else if (val === 'resume') {
-                    window.open('https://github.com/chaudharyShub', '_blank');
-                    outputStr = 'Opening resume...';
-                } else if (val === 'clear') {
-                    cmdOutput.innerHTML = '';
-                    return;
-                } else if (val !== '') {
-                    outputStr = 'Bad command or file name: ' + val + '. Type "help" for a list of commands.';
-                }
-                
-                if (outputStr) {
-                    const line = document.createElement('div');
-                    line.innerHTML = '<br>C:\\Users\\Visitor&gt; ' + val + '<br><pre style="margin:0">' + outputStr + '</pre>';
-                    cmdOutput.appendChild(line);
-                }
-            }
-        });
-    };
-    
-    // Typing effect
-    function startTyping() {
-        const text = "Hi, I'm a Front End Developer";
-        const el = document.getElementById('typing-hero');
-        // Clear it first
-        el.innerText = "";
-        let i = 0;
-        const typeInterval = setInterval(() => {
-            el.innerText += text.charAt(i);
-            i++;
-            if (i >= text.length) clearInterval(typeInterval);
-        }, 80);
+  /* ===== BOOT SEQUENCE ===== */
+  const bootLines = [
+    "Shubham BIOS v3.0 — Copyright (C) Shubham Chaudhary",
+    "Initializing Memory... OK",
+    "Detecting Skills... React.js, Next.js, Node.js — OK",
+    "Mounting File System C:\\Users\\Shubham\\...",
+    "Loading Projects... OK",
+    "Loading Experience Logs... OK",
+    "Launching Shubham OS..."
+  ];
+  let bootFinished = false;
+  function runBoot() {
+    const textEl = document.getElementById('boot-text');
+    let i = 0;
+    function nextLine() {
+      if (i < bootLines.length) {
+        textEl.textContent += bootLines[i] + "\n";
+        i++;
+        setTimeout(nextLine, 300);
+      } else {
+        setTimeout(() => {
+          textEl.textContent += "Verifying disk integrity...\n";
+          setTimeout(startProgressBar, 400);
+        }, 200);
+      }
     }
+    nextLine();
+    document.addEventListener('keydown', bootKeyHandler);
+    document.getElementById('boot-screen').addEventListener('click', bootClickHandler);
+  }
+  function bootKeyHandler() { finishBoot(); }
+  function bootClickHandler() { finishBoot(); }
+  function startProgressBar() {
+    const fill = document.getElementById('boot-progress-fill');
+    const pct = document.getElementById('boot-progress-pct');
+    const duration = 1800; // fixed, so total boot time is predictable
+    const start = performance.now();
+    function tick(now) {
+      if (bootFinished) return;
+      const elapsed = now - start;
+      const p = Math.min(100, (elapsed / duration) * 100);
+      fill.style.width = p + '%';
+      pct.textContent = Math.floor(p) + '%';
+      if (p < 100) {
+        requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => { if (!bootFinished) finishBoot(); }, 300);
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  function finishBoot() {
+    if (bootFinished) return;
+    bootFinished = true;
+    document.removeEventListener('keydown', bootKeyHandler);
+    document.getElementById('boot-screen').removeEventListener('click', bootClickHandler);
+    const boot = document.getElementById('boot-screen');
+    boot.style.opacity = '0';
+    setTimeout(() => { boot.style.display = 'none'; initApp(); }, 500);
+  }
+
+  /* ===== GENERIC DRAG / RESIZE (used by main window + DOS subwindow) ===== */
+  function makeDraggable(win, titleBar, opts) {
+    opts = opts || {};
+    let dragging = false, offsetX = 0, offsetY = 0;
+    titleBar.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.title-bar-buttons')) return;
+      if (window.innerWidth < 700) return;
+      const isMax = win.classList.contains('maximized');
+      const isSnapped = win.classList.contains('snapped-left') || win.classList.contains('snapped-right');
+      if (isMax || isSnapped) {
+        win.classList.remove('maximized', 'snapped-left', 'snapped-right');
+        win.style.width = ''; win.style.height = ''; win.style.maxHeight = '';
+        win.style.left = (e.clientX - 150) + 'px';
+        win.style.top = Math.max(0, e.clientY - 14) + 'px';
+      }
+      dragging = true;
+      const rect = win.getBoundingClientRect();
+      offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
+      win.style.transform = 'none';
+      titleBar.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
+      const maxLeft = window.innerWidth - 100;
+      const maxTop = window.innerHeight - 32 - 40;
+      newLeft = Math.max(-win.offsetWidth + 120, Math.min(newLeft, maxLeft));
+      newTop = Math.max(0, Math.min(newTop, maxTop));
+      win.style.left = newLeft + 'px'; win.style.top = newTop + 'px';
+    });
+    document.addEventListener('mouseup', (e) => {
+      if (!dragging) return;
+      dragging = false;
+      titleBar.classList.remove('dragging');
+      document.body.style.userSelect = '';
+      if (opts.enableSnap) {
+        const zone = 8;
+        if (e.clientY <= zone) { win.classList.add('maximized'); }
+        else if (e.clientX <= zone) { win.style.width = ''; win.style.height = ''; win.style.left = ''; win.style.top = ''; win.classList.add('snapped-left'); }
+        else if (e.clientX >= window.innerWidth - zone) { win.style.width = ''; win.style.height = ''; win.style.left = ''; win.style.top = ''; win.classList.add('snapped-right'); }
+      }
+    });
+    titleBar.addEventListener('dblclick', (e) => {
+      if (e.target.closest('.title-bar-buttons')) return;
+      win.classList.remove('maximized', 'snapped-left', 'snapped-right');
+      win.style.width = ''; win.style.height = ''; win.style.maxHeight = '';
+      if (opts.onRecenter) opts.onRecenter();
+    });
+  }
+  function makeResizable(win, opts) {
+    opts = opts || {};
+    const minW = opts.minWidth || 360, minH = opts.minHeight || 260;
+    win.querySelectorAll('.resize-handle').forEach(handle => {
+      handle.addEventListener('mousedown', (e) => {
+        if (window.innerWidth < 700) return;
+        if (win.classList.contains('maximized') || win.classList.contains('snapped-left') || win.classList.contains('snapped-right')) return;
+        e.stopPropagation(); e.preventDefault();
+        const dir = handle.dataset.dir;
+        const startX = e.clientX, startY = e.clientY;
+        const rect = win.getBoundingClientRect();
+        const startW = rect.width, startH = rect.height, startLeft = rect.left, startTop = rect.top;
+        win.style.transform = 'none'; win.style.maxHeight = 'none';
+        function onMove(ev) {
+          let newW = startW, newH = startH, newLeft = startLeft, newTop = startTop;
+          const dx = ev.clientX - startX, dy = ev.clientY - startY;
+          if (dir.includes('e')) newW = Math.max(minW, startW + dx);
+          if (dir.includes('s')) newH = Math.max(minH, startH + dy);
+          if (dir.includes('w')) { newW = Math.max(minW, startW - dx); newLeft = startLeft + (startW - newW); }
+          if (dir.includes('n')) { newH = Math.max(minH, startH - dy); newTop = startTop + (startH - newH); }
+          newH = Math.min(newH, window.innerHeight - 32 - Math.max(0, newTop));
+          win.style.width = newW + 'px'; win.style.left = newLeft + 'px';
+          win.style.top = Math.max(0, newTop) + 'px'; win.style.height = newH + 'px';
+        }
+        function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  }
+  function centerWindow() {
+    const win = document.getElementById('window');
+    win.style.transform = 'none';
+    const rect = win.getBoundingClientRect();
+    win.style.left = Math.max(10, (window.innerWidth - rect.width) / 2) + 'px';
+    win.style.top = Math.max(10, (window.innerHeight - 32 - rect.height) / 2) + 'px';
+  }
+
+  /* ===== MAIN WINDOW CONTROLS ===== */
+  let dvdErrorCount = 0;
+  const MAX_ERRORS_PER_SESSION = 2;
+  function minimizeWindow() {
+    document.getElementById('window').classList.add('minimized');
+    document.getElementById('taskbar-window-btn').classList.remove('active');
+    dvdErrorCount = 0; bounceCount = 0;
+    startDvd();
+  }
+  function restoreWindow() {
+    document.getElementById('window').classList.remove('minimized');
+    document.getElementById('taskbar-window-btn').classList.add('active');
+    stopDvd();
+  }
+  function toggleTaskbarWindow() {
+    const win = document.getElementById('window');
+    if (win.classList.contains('minimized')) restoreWindow(); else minimizeWindow();
+  }
+  function toggleMaximize() {
+    const win = document.getElementById('window');
+    win.classList.remove('snapped-left', 'snapped-right');
+    win.classList.toggle('maximized');
+  }
+  function showCloseConfirm() { openDialog('close-confirm-dialog'); }
+  function confirmClose() { closeDialog('close-confirm-dialog'); minimizeWindow(); }
+
+  /* ===== DOS SUBWINDOW CONTROLS ===== */
+  function openDos() {
+    const win = document.getElementById('dos-window');
+    win.style.display = 'flex';
+    document.getElementById('taskbar-dos-btn').style.display = 'flex';
+    document.getElementById('taskbar-dos-btn').classList.add('active');
+    const out = document.getElementById('dos-output');
+    if (!out.textContent) appendDosLine("Shubham OS [Version 3.0]\n(C) Shubham Chaudhary. All rights reserved.\nType 'help' to see available commands.\n");
+    setTimeout(() => document.getElementById('dos-input').focus(), 50);
+  }
+  function minimizeDos() {
+    document.getElementById('dos-window').style.display = 'none';
+    document.getElementById('taskbar-dos-btn').classList.remove('active');
+  }
+  function restoreDos() {
+    document.getElementById('dos-window').style.display = 'flex';
+    document.getElementById('taskbar-dos-btn').classList.add('active');
+    setTimeout(() => document.getElementById('dos-input').focus(), 50);
+  }
+  function toggleDosWindow() {
+    const win = document.getElementById('dos-window');
+    if (win.style.display === 'none' || win.style.display === '') restoreDos(); else minimizeDos();
+  }
+  function toggleMaximizeDos() { document.getElementById('dos-window').classList.toggle('maximized'); }
+  function closeDos() {
+    document.getElementById('dos-window').style.display = 'none';
+    document.getElementById('taskbar-dos-btn').style.display = 'none';
+  }
+
+  /* ===== DIALOGS ===== */
+  function openDialog(id) { document.getElementById(id).style.display = 'flex'; }
+  function closeDialog(id) { document.getElementById(id).style.display = 'none'; }
+  function showMessage(type, title, message) {
+    document.getElementById('msg-icon').innerHTML = ICONS[type] || ICONS.info;
+    document.getElementById('msg-title').textContent = title;
+    document.getElementById('msg-text').textContent = message;
+    openDialog('message-dialog');
+  }
+  function openRecycleBin() { openDialog('recyclebin-dialog'); }
+
+  const errorMessages = [
+    "Error 0x0000004E: This portfolio is too impressive for your screen resolution.",
+    "Fatal Exception: Coffee levels critical. Please supply caffeine and retry.",
+    "System Alert: Recruiter detected. Initiating awesome.exe...",
+    "Warning: Prolonged exposure may cause spontaneous job offers.",
+    "Critical Error: Ctrl+Z not found. Some decisions are permanent.",
+    "Notice: 99% of bugs fixed. The remaining 1% is a feature, not a bug."
+  ];
+  function showRandomError() {
+    const msg = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+    showMessage('error', 'Shubham OS', msg);
+  }
+
+  /* ===== START MENU ===== */
+  function toggleStartMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('start-menu');
+    const btn = document.getElementById('start-button');
+    const isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('active', isOpen);
+  }
+  function goToSection(id) {
+    restoreWindow();
+    document.getElementById('start-menu').classList.remove('open');
+    document.getElementById('start-button').classList.remove('active');
+    setTimeout(() => {
+      const el = document.getElementById('section-' + id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 320);
+  }
+  function shutDown() {
+    document.getElementById('start-menu').classList.remove('open');
+    document.getElementById('start-button').classList.remove('active');
+    showMessage('info', 'Shubham OS', "It's now safe to close this tab. Just kidding — please stick around!");
+  }
+
+  /* ===== CONTEXT MENU ===== */
+  function initContextMenu() {
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const menu = document.getElementById('context-menu');
+      const x = Math.min(e.clientX, window.innerWidth - 200);
+      const y = Math.min(e.clientY, window.innerHeight - 190);
+      menu.style.left = x + 'px'; menu.style.top = y + 'px';
+      menu.style.display = 'block';
+    });
+    document.addEventListener('click', () => {
+      document.getElementById('context-menu').style.display = 'none';
+      document.getElementById('start-menu').classList.remove('open');
+      document.getElementById('start-button').classList.remove('active');
+    });
+  }
+  function ctxRefresh() { location.reload(); }
+  function ctxArrange() {
+    const positions = [[20,20],[20,130],[20,240],[20,350]];
+    const icons = ['icon-recyclebin','icon-mycomputer','icon-game','icon-dos'];
+    const shuffled = [...positions].sort(() => Math.random() - 0.5);
+    icons.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.style.left = shuffled[i][0] + 'px';
+      el.style.top = shuffled[i][1] + 'px';
+    });
+  }
+  function ctxProperties() {
+    showMessage('info', 'System Properties', 'Shubham OS v3.0 — Frontend Engineer — 4+ Years Experience — RAM: 640K — Status: Online');
+  }
+  function ctxNew() {
+    showMessage('forbidden', 'Shubham OS', "Access denied: you don't have permission to create files in this dimension.");
+  }
+
+  /* ===== DVD BOUNCE ===== */
+  let dvdX = 100, dvdY = 100, dvdDX = 2.2, dvdDY = 1.7, dvdRAF = null, bounceCount = 0;
+  const dvdColors = ['#ff0044', '#00ff88', '#ffaa00', '#00aaff', '#ff00ff', '#ffffff', '#33ff33'];
+  function stepDvd() {
+    const el = document.getElementById('dvd-logo');
+    const w = el.offsetWidth, h = el.offsetHeight;
+    const maxX = window.innerWidth - w;
+    const maxY = window.innerHeight - 32 - h;
+    dvdX += dvdDX; dvdY += dvdDY;
+    let bounced = false;
+    if (dvdX <= 0) { dvdX = 0; dvdDX *= -1; bounced = true; }
+    if (dvdX >= maxX) { dvdX = maxX; dvdDX *= -1; bounced = true; }
+    if (dvdY <= 0) { dvdY = 0; dvdDY *= -1; bounced = true; }
+    if (dvdY >= maxY) { dvdY = maxY; dvdDY *= -1; bounced = true; }
+    if (bounced) {
+      bounceCount++;
+      el.style.color = dvdColors[Math.floor(Math.random() * dvdColors.length)];
+      if (bounceCount % 14 === 0 && dvdErrorCount < MAX_ERRORS_PER_SESSION) { dvdErrorCount++; showRandomError(); }
+    }
+    el.style.left = dvdX + 'px'; el.style.top = dvdY + 'px';
+    dvdRAF = requestAnimationFrame(stepDvd);
+  }
+  function startDvd() { if (!dvdRAF) dvdRAF = requestAnimationFrame(stepDvd); }
+  function stopDvd() { if (dvdRAF) { cancelAnimationFrame(dvdRAF); dvdRAF = null; } }
+
+  /* ===== DRAGGABLE DESKTOP ICONS ===== */
+  function initIconDrag() {
+    document.querySelectorAll('.desktop-icon').forEach(icon => {
+      let dragging = false, offsetX = 0, offsetY = 0;
+      icon.addEventListener('mousedown', (e) => {
+        dragging = true;
+        const rect = icon.getBoundingClientRect();
+        offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        let newLeft = e.clientX - offsetX, newTop = e.clientY - offsetY;
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - icon.offsetWidth));
+        newTop = Math.max(0, Math.min(newTop, window.innerHeight - 32 - icon.offsetHeight));
+        icon.style.left = newLeft + 'px'; icon.style.top = newTop + 'px';
+      });
+      document.addEventListener('mouseup', () => { dragging = false; });
+    });
+  }
+
+  /* ===== CLOCKS + UPTIME ===== */
+  function updateClocks() {
+    const t = new Date().toLocaleTimeString();
+    const c1 = document.getElementById('clock'); if (c1) c1.textContent = t;
+    const c2 = document.getElementById('clock-behind'); if (c2) c2.textContent = t;
+  }
+  const CAREER_START = new Date('2020-06-01T00:00:00');
+  function updateUptime() {
+    const now = new Date();
+    let years = now.getFullYear() - CAREER_START.getFullYear();
+    let months = now.getMonth() - CAREER_START.getMonth();
+    let days = now.getDate() - CAREER_START.getDate();
+    let hours = now.getHours() - CAREER_START.getHours();
+    let minutes = now.getMinutes() - CAREER_START.getMinutes();
+    let seconds = now.getSeconds() - CAREER_START.getSeconds();
+    if (seconds < 0) { seconds += 60; minutes--; }
+    if (minutes < 0) { minutes += 60; hours--; }
+    if (hours < 0) { hours += 24; days--; }
+    if (days < 0) { const prevMonthDate = new Date(now.getFullYear(), now.getMonth(), 0); days += prevMonthDate.getDate(); months--; }
+    if (months < 0) { months += 12; years--; }
+    const el = document.getElementById('uptime-display');
+    if (el) el.textContent = years + 'y ' + months + 'm ' + days + 'd ' + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+  }
+
+  /* ===== TOAST ===== */
+  function showToast(title, msg) {
+    const t = document.getElementById('toast');
+    t.innerHTML = '<div class="toast-title">' + title + '</div><div>' + msg + '</div>';
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => { t.classList.remove('show'); }, 4500);
+  }
+  function downloadResumeFile() {
+    const a = document.createElement('a');
+    a.href = 'resume.pdf'; a.download = 'Shubham_Chaudhary_Resume.pdf';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  function initContactForm() {
+    document.getElementById('contact-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value || 'there';
+      const email = document.getElementById('email').value;
+      const message = document.getElementById('message').value;
+      const mailto = 'mailto:sc07807cs@gmail.com?subject=' + encodeURIComponent('Portfolio contact from ' + name) +
+        '&body=' + encodeURIComponent(message + '\n\nFrom: ' + name + ' (' + email + ')');
+      showToast('✔ Message ready to send', "Your email client should open now. Shubham will reply within 1 business day — or when he's done debugging.");
+      try {
+        const a = document.createElement('a');
+        a.href = mailto; a.style.display = 'none';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      } catch (err) { console.warn('Could not open mail client automatically:', err); }
+    });
+  }
+
+  /* ===== DEBUG RUNNER GAME ===== */
+  let gameRAF = null, gameRunning = false, gameScore = 0, gameSpeed = 3;
+  let playerY = 0, playerVY = 0, isJumping = false, bugs = [], gameFrame = 0;
+  let bestScore = parseInt(localStorage.getItem('debugRunnerBest') || '0');
+  function startGame() {
+    cancelAnimationFrame(gameRAF);
+    document.getElementById('game-over-msg').style.display = 'none';
+    document.querySelectorAll('.game-bug').forEach(b => b.remove());
+    gameScore = 0; gameSpeed = 3; playerY = 0; playerVY = 0; isJumping = false; bugs = []; gameFrame = 0; gameRunning = true;
+    document.getElementById('game-score').textContent = '0';
+    document.getElementById('game-best').textContent = bestScore;
+    updatePlayerPos();
+    gameRAF = requestAnimationFrame(gameLoop);
+  }
+  function jump() { if (!gameRunning || isJumping) return; isJumping = true; playerVY = 8; }
+  function updatePlayerPos() { document.getElementById('game-player').style.bottom = (2 + playerY) + 'px'; }
+  function spawnBug() {
+    const stage = document.getElementById('game-stage');
+    const el = document.createElement('div');
+    el.className = 'game-bug'; el.innerHTML = ICONS.bug;
+    const x = stage.offsetWidth;
+    el.style.left = x + 'px';
+    stage.appendChild(el);
+    bugs.push({ el: el, x: x });
+  }
+  function gameLoop() {
+    if (!gameRunning) return;
+    gameFrame++;
+    if (isJumping) {
+      playerY += playerVY; playerVY -= 0.6;
+      if (playerY <= 0) { playerY = 0; isJumping = false; playerVY = 0; }
+      updatePlayerPos();
+    }
+    if (gameFrame % Math.max(40, 90 - Math.floor(gameScore / 5)) === 0) spawnBug();
+    bugs.forEach(bug => { bug.x -= gameSpeed; bug.el.style.left = bug.x + 'px'; });
+    const playerLeft = 20, playerRight = 42, playerBottom = 2 + playerY, playerTop = playerBottom + 28;
+    for (let i = bugs.length - 1; i >= 0; i--) {
+      const bug = bugs[i];
+      if (bug.x < -24) { bug.el.remove(); bugs.splice(i, 1); continue; }
+      const bugLeft = bug.x, bugRight = bug.x + 18, bugBottom = 2, bugTop = 2 + 18;
+      const overlapX = bugRight > playerLeft && bugLeft < playerRight;
+      const overlapY = bugTop > playerBottom && bugBottom < playerTop;
+      if (overlapX && overlapY) { endGame(); return; }
+    }
+    if (gameFrame % 6 === 0) { gameScore++; document.getElementById('game-score').textContent = gameScore; }
+    if (gameFrame % 200 === 0) gameSpeed += 0.5;
+    gameRAF = requestAnimationFrame(gameLoop);
+  }
+  function endGame() {
+    gameRunning = false;
+    cancelAnimationFrame(gameRAF);
+    if (gameScore > bestScore) { bestScore = gameScore; localStorage.setItem('debugRunnerBest', bestScore); }
+    document.getElementById('game-final-score').textContent = gameScore;
+    document.getElementById('game-best-score').textContent = bestScore;
+    document.getElementById('game-best').textContent = bestScore;
+    document.getElementById('game-over-msg').style.display = 'flex';
+  }
+  function openGame() { openDialog('game-dialog'); startGame(); }
+  function closeGame() {
+    gameRunning = false; cancelAnimationFrame(gameRAF);
+    document.querySelectorAll('.game-bug').forEach(b => b.remove());
+    closeDialog('game-dialog');
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && document.getElementById('game-dialog').style.display === 'flex') { e.preventDefault(); jump(); }
+  });
+
+  /* ===== MS-DOS PROMPT COMMANDS ===== */
+  let dosHistory = [], dosHistoryIndex = 0;
+  const DOS_COMMANDS = {
+    help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  resume, github, linkedin, date, ver, echo <text>, clear, exit",
+    whoami: () => "Shubham Chaudhary — Frontend Engineer — 4+ years experience",
+    about: () => "Full-stack engineer specializing in the MERN stack (frontend-heavy).\n4+ years total: 2 yrs Mechanical Engineer + 2+ yrs Software Engineer.",
+    skills: () => "React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, MongoDB, Electron.js, Git, Docker",
+    projects: () => "1. BrowseAnywhere Agent\n2. RunTheDay (RTD)\n3. SportZentric\n4. Desktop Application\nSee the Projects section for full details.",
+    experience: () => "Koru UX (2026-present)\nShepHertz Technologies (2026)\nQuokka Labs (2022-2026)\nRiviera Home Furnishings (2020-2022)",
+    contact: () => { goToSection('contact'); return "Opening contact section..."; },
+    resume: () => { downloadResumeFile(); return "Downloading resume.pdf..."; },
+    github: () => { window.open('https://github.com/chaudharyShub', '_blank'); return "Opening GitHub..."; },
+    linkedin: () => { window.open('https://www.linkedin.com/in/shubham-chaudhary-4398bba8', '_blank'); return "Opening LinkedIn..."; },
+    date: () => new Date().toString(),
+    ver: () => "Shubham OS [Version 3.0]",
+    clear: () => { dosClear(); return null; },
+    exit: () => { closeDos(); return null; }
+  };
+  function appendDosLine(text) {
+    const out = document.getElementById('dos-output');
+    out.textContent += (out.textContent ? '\n' : '') + text;
+    out.scrollTop = out.scrollHeight;
+  }
+  function dosClear() { document.getElementById('dos-output').textContent = ''; }
+  function runDosCommand(raw) {
+    const cmd = raw.trim();
+    appendDosLine('C:\\Users\\Shubham> ' + cmd);
+    if (cmd === '') return;
+    const lower = cmd.toLowerCase();
+    if (lower === 'sudo hire-me') { appendDosLine("Permission granted. Redirecting to contact form..."); goToSection('contact'); return; }
+    if (lower.startsWith('rm -rf')) { appendDosLine("Nice try. This filesystem is read-only (and so is my resolve)."); return; }
+    if (lower === 'matrix') { appendDosLine("Wake up... there is no spoon, only React state."); return; }
+    if (lower.startsWith('echo ')) { appendDosLine(cmd.slice(5)); return; }
+    const key = lower.split(' ')[0];
+    if (DOS_COMMANDS[key]) {
+      const result = DOS_COMMANDS[key]();
+      if (result) appendDosLine(result);
+    } else {
+      appendDosLine("'" + cmd + "' is not recognized as an internal or external command.\nType 'help' for a list of available commands.");
+    }
+  }
+  function initDos() {
+    document.getElementById('dos-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = e.target.value; e.target.value = '';
+        runDosCommand(val);
+        dosHistory.push(val); dosHistoryIndex = dosHistory.length;
+      } else if (e.key === 'ArrowUp') {
+        if (dosHistoryIndex > 0) { dosHistoryIndex--; e.target.value = dosHistory[dosHistoryIndex] || ''; }
+        e.preventDefault();
+      } else if (e.key === 'ArrowDown') {
+        if (dosHistoryIndex < dosHistory.length - 1) { dosHistoryIndex++; e.target.value = dosHistory[dosHistoryIndex] || ''; }
+        else { dosHistoryIndex = dosHistory.length; e.target.value = ''; }
+        e.preventDefault();
+      }
+    });
+  }
+
+  /* ===== DISPLAY PROPERTIES / WALLPAPER ===== */
+  const WALLPAPERS = [
+    { id: 'teal', label: 'Teal', css: '#008080' },
+    { id: 'navy', label: 'Navy', css: '#000080' },
+    { id: 'maroon', label: 'Maroon', css: '#800000' },
+    { id: 'olive', label: 'Olive', css: '#808000' },
+    { id: 'charcoal', label: 'Charcoal', css: '#404040' },
+    { id: 'forest', label: 'Forest', css: '#004225' },
+    { id: 'stripes', label: 'Stripes', css: 'repeating-linear-gradient(45deg, #008080, #008080 10px, #006666 10px, #006666 20px)' },
+    { id: 'dots', label: 'Dot Grid', css: 'radial-gradient(#00b3b3 1.5px, #008080 1.5px)', size: '14px 14px' },
+    { id: 'grid', label: 'Terminal Grid', css: 'linear-gradient(#004d4d 1px, transparent 1px), linear-gradient(90deg, #004d4d 1px, transparent 1px), #002b2b', size: '18px 18px, 18px 18px, auto' }
+  ];
+  function applyWallpaperOnly(id) {
+    const wp = WALLPAPERS.find(w => w.id === id) || WALLPAPERS[0];
+    if (wp.css.includes('gradient')) {
+      document.body.style.backgroundImage = wp.css;
+      document.body.style.backgroundSize = wp.size || 'auto';
+      document.body.style.backgroundColor = '';
+    } else {
+      document.body.style.backgroundImage = 'none';
+      document.body.style.backgroundColor = wp.css;
+    }
+  }
+  function selectWallpaper(id) {
+    applyWallpaperOnly(id);
+    localStorage.setItem('shubhamOsWallpaper', id);
+    buildWallpaperGrid();
+  }
+  function pickRandomWallpaper() {
+    const random = WALLPAPERS[Math.floor(Math.random() * WALLPAPERS.length)];
+    selectWallpaper(random.id);
+  }
+  function buildWallpaperGrid() {
+    const grid = document.getElementById('wallpaper-grid');
+    const current = localStorage.getItem('shubhamOsWallpaper') || 'teal';
+    grid.innerHTML = WALLPAPERS.map(w => {
+      const style = w.css.includes('gradient')
+        ? ('background-image:' + w.css + (w.size ? ';background-size:' + w.size : ''))
+        : ('background-color:' + w.css);
+      return '<div><div class="wallpaper-swatch' + (w.id === current ? ' selected' : '') + '" style="' + style + '" onclick="selectWallpaper(\'' + w.id + '\')"></div><div class="wallpaper-label">' + w.label + '</div></div>';
+    }).join('');
+  }
+  function openDisplayProperties() { buildWallpaperGrid(); openDialog('display-dialog'); }
+
+  /* ===== INIT ===== */
+  function initApp() {
+    centerWindow();
+    makeDraggable(document.getElementById('window'), document.getElementById('title-bar'), { enableSnap: true, onRecenter: centerWindow });
+    makeResizable(document.getElementById('window'), { minWidth: 360, minHeight: 300 });
+    makeDraggable(document.getElementById('dos-window'), document.getElementById('dos-title-bar'), { enableSnap: false });
+    makeResizable(document.getElementById('dos-window'), { minWidth: 340, minHeight: 220 });
+    initIconDrag();
+    initContextMenu();
+    initContactForm();
+    initDos();
+    applyWallpaperOnly(localStorage.getItem('shubhamOsWallpaper') || 'teal');
+    updateClocks();
+    updateUptime();
+    setInterval(updateClocks, 1000);
+    setInterval(updateUptime, 1000);
+    document.getElementById('year').textContent = new Date().getFullYear();
+    dvdX = Math.random() * (window.innerWidth - 200);
+    dvdY = Math.random() * (window.innerHeight - 200);
+  }
+
+  window.addEventListener('DOMContentLoaded', runBoot);
 </script>
 
 </body>
