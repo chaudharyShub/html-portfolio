@@ -657,12 +657,24 @@
 
     .exp-header {
       font-weight: bold;
+      margin-bottom: 4px;
     }
 
     .exp-duration {
       font-size: 11px;
-      color: var(--gray-dark);
+      font-weight: bold;
+      color: var(--navy);
       margin-bottom: 4px;
+    }
+
+    .exp-total {
+      font-weight: normal;
+      color: var(--black);
+      background: var(--white);
+      border: 1px solid;
+      border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+      padding: 0 5px;
+      margin-left: 4px;
     }
 
     .tag {
@@ -720,6 +732,15 @@
       padding: 4px 5px;
       width: 100%;
       max-width: 380px;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+      background: var(--white);
     }
 
     textarea {
@@ -1161,7 +1182,7 @@
       <div class="start-sep"></div>
       <div class="start-item" onclick="openDisplayProperties()">🖼 Display Properties</div>
       <div class="start-sep"></div>
-      <a class="start-item" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">💾 Download Resume</a>
+      <!-- <a class="start-item" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">💾 Download Resume</a> -->
       <a class="start-item" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
       <a class="start-item" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank"
         rel="noopener">LinkedIn</a>
@@ -1373,10 +1394,9 @@
         <div class="project-card">
           <div class="project-title"><span>Agent Fabric</span><span class="status-badge">In Progress</span></div>
           <div class="project-body">
-            <div class="tech">Tech: Electron.js, React.js, TypeScript, Cursor AI</div>
-            <p>Cross-platform desktop web browser built with Electron.js - collaborating on features, optimizing
-              performance, and shipping with modern tools and integrations.</p>
-            <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub &#8599;</a>
+            <div class="tech">Tech: React.js, TypeScript, Cursor AI</div>
+            <p>An AI powered workflow and agent orchestration platform built in the spirit of enterprise
+              tools Fortune 500 teams use to manage and automate multi-agent workflows.</p>
           </div>
         </div>
         <div class="project-card">
@@ -1385,7 +1405,6 @@
             <div class="tech">Tech: Electron.js, React.js, TypeScript, Cursor AI</div>
             <p>Cross-platform desktop web browser built with Electron.js - collaborating on features, optimizing
               performance, and shipping with modern tools and integrations.</p>
-            <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub &#8599;</a>
           </div>
         </div>
         <div class="project-card">
@@ -1403,16 +1422,15 @@
             <div class="tech">Tech: React.js, Tailwind CSS, React Hook Form, Styled Components, RTK Query</div>
             <p>A sports-tech platform that lets coaches create and manage training batches, while athletes seamlessly
               join sessions and events to sharpen their skills.</p>
-            <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub &#8599;</a>
           </div>
         </div>
         <div class="project-card">
-          <div class="project-title"><span>Desktop Application</span><span class="status-badge">Completed</span></div>
+          <div class="project-title"><span>MDM Desktop Application</span><span class="status-badge">Completed</span>
+          </div>
           <div class="project-body">
             <div class="tech">Tech: Electron.js, React.js, TypeScript, Node.js, MQTT, Redux</div>
             <p>A cross-platform Windows &amp; Linux desktop app with a background service that monitors and logs power
               on/off events and sleep/wake cycles with high accuracy.</p>
-            <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub &#8599;</a>
           </div>
         </div>
       </fieldset>
@@ -1421,16 +1439,16 @@
         <legend>Experience\logs\</legend>
         <div class="exp-entry">
           <div class="exp-header">Koru UX - Frontend Developer</div>
-          <div class="exp-duration">May 2026 - present</div>
-          <p>Frontend engineer specializing in React, Next.js, and Electron - building responsive, user-friendly
-            interfaces with clean, optimized code. Translated requirements into production UI.</p>
+          <div class="exp-duration">May 2026 - present <span class="exp-total">~2 mos</span></div>
+          <p>Frontend engineer specializing in React, Next.js, and Electron. About couple of months in on my
+            first project here, so ask me about the plot twist later. Loving it so far.</p>
           <div><span class="tag">React.js</span><span class="tag">Next.js</span><span
               class="tag">Electron.js</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span><span
               class="tag">Material UI</span><span class="tag">Redux</span><span class="tag">Git</span></div>
         </div>
         <div class="exp-entry">
           <div class="exp-header">ShepHertz Technologies - Software Engineer</div>
-          <div class="exp-duration">April 2026 - May 2026</div>
+          <div class="exp-duration">April 2026 - May 2026 <span class="exp-total">~1 mo</span></div>
           <p>Building cross-platform desktop web browser using Electron.js, collaborating on features, optimizing
             performance, and shipping with modern tools and integrations.</p>
           <div><span class="tag">React.js</span><span class="tag">Electron.js</span><span
@@ -1439,7 +1457,7 @@
         </div>
         <div class="exp-entry">
           <div class="exp-header">Quokka Labs - Software Engineer</div>
-          <div class="exp-duration">Sept 2022 - March 2026</div>
+          <div class="exp-duration">Sept 2022 - March 2026 <span class="exp-total">3 yrs 6 mos</span></div>
           <p>Frontend engineer specializing in React, Next.js, and Electron - building responsive, user-friendly
             interfaces with clean, optimized code. Translated requirements into production UI and contributed to backend
             (Node, Express, MongoDB) when handling APIs and end-to-end functionality.</p>
@@ -1451,8 +1469,8 @@
         </div>
         <div class="exp-entry">
           <div class="exp-header">Riviera Home Furnishings - Mechanical Engineer</div>
-          <div class="exp-duration">June 2020 - June 2022</div>
-          <p>Led a team of 10–12 technicians in the maintenance department of a bathmat manufacturing plant. Owned
+          <div class="exp-duration">June 2020 - June 2022 <span class="exp-total">2 yrs</span></div>
+          <p>Led a team of 10-12 technicians in the maintenance department of a bathmat manufacturing plant. Owned
             preventive &amp; breakdown maintenance, scheduled repairs, identified root causes of equipment failures,
             coordinated with production, and upheld safety/quality standards to keep production uninterrupted.</p>
           <div><span class="tag">Supervision</span><span class="tag">Preventive Maintenance</span><span
@@ -1478,7 +1496,7 @@
           <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
           <a class="btn" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank"
             rel="noopener">LinkedIn</a>
-          <a class="btn" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">
+          <!-- <a class="btn" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">
             <svg viewBox="0 0 24 24" width="16" height="16">
               <rect x="3" y="3" width="18" height="18" fill="#c0c0c0" stroke="#000" stroke-width="1" />
               <rect x="6" y="3" width="9" height="6" fill="#fff" stroke="#000" stroke-width="1" />
@@ -1486,7 +1504,7 @@
               <rect x="14" y="4" width="2" height="4" fill="#000" />
             </svg>
             Download Resume (PDF)
-          </a>
+          </a> -->
         </div>
       </fieldset>
 
@@ -1524,7 +1542,7 @@
         <span onclick="closeDos()" title="Close">&times;</span>
       </div>
     </div>
-    <div class="dos-body">
+    <div class="dos-body" id="dos-body">
       <div id="dos-output" class="dos-output"></div>
       <div class="dos-input-row">
         <span>C:\Users\Shubham&gt;</span>
@@ -1554,8 +1572,8 @@
             <circle cx="12" cy="12" r="10" fill="#1084d0" stroke="#000060" stroke-width="1" /><text x="12" y="17"
               font-size="13" font-family="Arial" font-weight="bold" fill="#fff" text-anchor="middle">?</text>
           </svg></div>
-        <p>Are you sure you want to close Shubham.exe?<br><span style="font-size:11px;color:var(--gray-dark);">(Spoiler:
-            you can't. But we'll minimize it for you.)</span></p>
+        <p>Are you sure you want to close Shubham.exe?<br><span style="font-size:11px;color:var(--black);">(Spoiler:
+            you can't. But I'll minimize it for you.)</span></p>
         <div class="dialog-buttons"><button onclick="confirmClose()">Yes</button><button
             onclick="closeDialog('close-confirm-dialog')">No</button></div>
       </div>
@@ -2113,14 +2131,14 @@
     /* ===== MS-DOS PROMPT COMMANDS ===== */
     let dosHistory = [], dosHistoryIndex = 0;
     const DOS_COMMANDS = {
-      help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  resume, github, linkedin, date, ver, echo <text>, clear, exit",
+      help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  github, linkedin, date, ver, echo <text>, clear, exit",
       whoami: () => "Shubham Chaudhary - Frontend Engineer - 4+ years experience",
       about: () => "Full-stack engineer specializing in the MERN stack (frontend-heavy).\n4+ years total: 2 yrs Mechanical Engineer + 2+ yrs Software Engineer.",
       skills: () => "React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, MongoDB, Electron.js, Git, Docker",
       projects: () => "1. BrowseAnywhere Agent\n2. RunTheDay (RTD)\n3. SportZentric\n4. Desktop Application\nSee the Projects section for full details.",
       experience: () => "Koru UX (2026-present)\nShepHertz Technologies (2026)\nQuokka Labs (2022-2026)\nRiviera Home Furnishings (2020-2022)",
       contact: () => { goToSection('contact'); return "Opening contact section..."; },
-      resume: () => { downloadResumeFile(); return "Downloading resume.pdf..."; },
+      // resume: () => { downloadResumeFile(); return "Downloading resume.pdf..."; },
       github: () => { window.open('https://github.com/chaudharyShub', '_blank'); return "Opening GitHub..."; },
       linkedin: () => { window.open('https://www.linkedin.com/in/shubham-chaudhary-4398bba8', '_blank'); return "Opening LinkedIn..."; },
       date: () => new Date().toString(),
@@ -2152,6 +2170,11 @@
       }
     }
     function initDos() {
+      document.getElementById('dos-body').addEventListener('click', (e) => {
+        if (e.target.id === 'dos-input') return;
+        if (window.getSelection().toString()) return;
+        document.getElementById('dos-input').focus();
+      });
       document.getElementById('dos-input').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           const val = e.target.value; e.target.value = '';
