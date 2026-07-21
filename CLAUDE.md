@@ -3,7 +3,8 @@
 ## What this is
 A single-page portfolio site styled as an interactive Windows 95/98 desktop.
 Everything lives in `index.html` (plain HTML/CSS/JS, no frameworks, no build step).
-Supporting files: `resume.pdf`, `favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `og-image.png`.
+Supporting files: `resume.pdf`, `favicon.ico`, `favicon.png`, `apple-touch-icon.png`, `og-image.png`,
+`manifest.json`, `sw.js`, `icon-192.png`, `icon-512.png`, `robots.txt`, `sitemap.xml`.
 **These files must all stay in the same folder** — the HTML references them with relative paths.
 
 ## Design philosophy (do not violate without asking)
@@ -64,8 +65,7 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
 - **Link previews**: Open Graph + Twitter Card meta tags in `<head>`, `og-image.png` is a mockup
   of the site's own window chrome (screenshot-style, not a generic banner) with copy leading
   with the novelty hook ("boots like it's 1995") before the credentials.
-  **`og:image` currently uses a relative path — must be changed to an absolute URL once the
-  site has a real domain**, or link previews won't work when shared.
+  `og:image` is set to an absolute URL at `https://shubhamworks.vercel.app/og-image.png`.
 
 ## Features explicitly tried and REMOVED (don't re-add without being asked)
 - **Achievement system**: fully built (11 achievements, toast on unlock, progress tracker), then
@@ -80,13 +80,44 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
     play/pause/next/prev/scrub UX that was designed
   - A taskbar tray icon should reappear next to the clock only while something is playing
 
+## Features added (session 3)
+- **SEO**: `<meta name="description">` added (reuses og:description copy). JSON-LD `Person`
+  schema added to `<head>` with name, jobTitle, url, sameAs (GitHub + LinkedIn), description.
+  `robots.txt` and `sitemap.xml` already existed with the correct domain — no changes needed
+  there. Added a visually-hidden `<h1 class="sr-only">` as the page's single semantic h1
+  (screen-reader-only; Win95 aesthetic unchanged). Section headings remain as `<legend>` inside
+  `<fieldset>` which is accessible and sensible.
+- **PWA**: `<link rel="manifest" href="manifest.json">` and `<meta name="theme-color">` added
+  to `<head>`. `sw.js` service worker created (cache-first, pre-caches index.html, resume.pdf,
+  favicon/icon files, og-image.png, manifest.json; skips `/api/` requests). Registered from
+  index.html with a `'serviceWorker' in navigator` guard on the `load` event. Test in Chrome
+  DevTools → Application → Manifest to confirm installability.
+- **Contact form backend**: attempted (Vercel serverless function + Resend API), but reverted
+  at user request after hitting local-testing friction. Contact form is back to the original
+  `mailto:` approach. Revisit when ready to set up Resend.
+
+## Features added (session 2)
+- **InstallShield wizard for resume**: `openInstallWizard()` opens a 3-step fake installer
+  dialog with a wizard layout (navy sidebar with floppy disk graphic, step content on right,
+  Back/Next/Cancel footer). Step 1: Welcome. Step 2: license-agreement joke with a mandatory
+  checkbox. Step 3: progress bar animates 0→100% over exactly 1500ms (deterministic), then
+  auto-advances to "Setup Complete" state with a Finish button that downloads `resume.pdf`.
+  Cancel at any step closes without downloading. Wired to: Contact section button, Start menu
+  "Download Resume" item, and DOS `resume` command.
+
 ## Ideas discussed but NOT built (may come up again)
 - **Global Debug Runner leaderboard**: would require a real backend (Firebase/Supabase/etc.)
   since this is a static site with no server — currently high scores are per-visitor via
   `localStorage` only. Deliberately not pursued to avoid infra/maintenance overhead, unless the
   user wants to use it as a backend-skills showcase.
-- **BSOD easter egg**: escalation joke (after N error dialogs, show a full fake Blue Screen of
-  Death) was discussed as an idea but never implemented.
+- **Desktop mascot**: designed and built, then reverted at user request — keep for later if asked.
+- **BSOD easter egg**: designed and built (triggered after 5 DVD-bounce error dialogs), then
+  reverted at user request alongside the mascot — keep for later if asked.
+- **Open-sourcing this project**: explicitly considered and declined. This is a personal, private
+  project. Do not suggest open-sourcing, adding a LICENSE file, or adding "fork this template"
+  content unless the user brings it up.
+- **Multiplayer cursors** (live cursor presence via PartyKit or similar): considered and removed
+  from scope. Do not suggest it again unless the user brings it up.
 - **Achievements**, revisited above — removed once, don't re-add speculatively.
 
 ## Content source

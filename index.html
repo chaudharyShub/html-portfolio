@@ -28,7 +28,40 @@
     content="Draggable windows. A real DOS prompt. Joke error dialogs. A bouncing DVD logo. Yes, it's a real portfolio - 4+ years frontend experience.">
   <meta name="twitter:image" content="https://shubhamworks.vercel.app/og-image.png">
 
+  <!-- SEO -->
+  <meta name="description" content="A fully interactive Windows-95-style desktop: draggable windows, a real DOS prompt, joke error dialogs, and a bouncing DVD logo. 4+ years frontend experience, React, Next.js, Node.js.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Shubham Chaudhary",
+    "jobTitle": "Frontend Engineer",
+    "url": "https://shubhamworks.vercel.app/",
+    "sameAs": [
+      "https://github.com/chaudharyShub",
+      "https://www.linkedin.com/in/shubham-chaudhary-4398bba8"
+    ],
+    "description": "A fully interactive Windows-95-style desktop: draggable windows, a real DOS prompt, joke error dialogs, and a bouncing DVD logo. 4+ years frontend experience, React, Next.js, Node.js."
+  }
+  </script>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000080">
+
   <style>
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     :root {
       --gray: #c0c0c0;
       --gray-dark: #808080;
@@ -1032,6 +1065,59 @@
       gap: 6px;
     }
 
+    /* ===== INSTALL WIZARD ===== */
+    .wizard-box { width: 460px; }
+    .wizard-body { display: flex; min-height: 230px; }
+    .wizard-sidebar {
+      width: 120px;
+      background: var(--navy);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 8px 12px;
+      gap: 10px;
+    }
+    .wizard-sidebar-title {
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .wizard-content {
+      flex: 1;
+      padding: 18px 16px;
+      font-size: 12px;
+    }
+    .wizard-content h3 {
+      margin: 0 0 12px 0;
+      font-size: 13px;
+      border-bottom: 1px solid var(--gray-dark);
+      padding-bottom: 6px;
+    }
+    .wizard-footer {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      padding: 8px 12px 10px;
+      border-top: 1px solid var(--gray-dark);
+    }
+    #wizard-progress-track {
+      width: 100%;
+      height: 18px;
+      border: 2px solid;
+      border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+      background: var(--white);
+      margin: 12px 0 6px;
+    }
+    #wizard-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--navy);
+    }
+
     @media (max-width: 700px) {
       input[type="text"],
       input[type="email"],
@@ -1198,7 +1284,7 @@
           <rect x="8" y="19" width="8" height="2" fill="#808080" />
         </svg> Display Properties</div>
       <div class="start-sep"></div>
-      <!-- <a class="start-item" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">💾 Download Resume</a> -->
+      <div class="start-item" onclick="openInstallWizard(); document.getElementById('start-menu').classList.remove('open'); document.getElementById('start-button').classList.remove('active');">💾 Download Resume</div>
       <a class="start-item" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
       <a class="start-item" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank"
         rel="noopener">LinkedIn</a>
@@ -1246,6 +1332,7 @@
     </header>
 
     <div class="content">
+      <h1 class="sr-only">Shubham Chaudhary — Frontend Engineer Portfolio</h1>
 
       <fieldset class="section" id="section-about">
         <legend>About Me</legend>
@@ -1514,7 +1601,7 @@
           <a class="btn" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
           <a class="btn" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank"
             rel="noopener">LinkedIn</a>
-          <!-- <a class="btn" href="resume.pdf" download="Shubham_Chaudhary_Resume.pdf">
+          <button class="btn" onclick="openInstallWizard()">
             <svg viewBox="0 0 24 24" width="16" height="16">
               <rect x="3" y="3" width="18" height="18" fill="#c0c0c0" stroke="#000" stroke-width="1" />
               <rect x="6" y="3" width="9" height="6" fill="#fff" stroke="#000" stroke-width="1" />
@@ -1522,7 +1609,7 @@
               <rect x="14" y="4" width="2" height="4" fill="#000" />
             </svg>
             Download Resume (PDF)
-          </a> -->
+          </button>
         </div>
       </fieldset>
 
@@ -1680,6 +1767,34 @@
         <rect x="2" y="1" width="10" height="14" fill="#fff" stroke="#000" stroke-width="0.5" />
         <polygon points="9,1 12,1 12,4" fill="#c0c0c0" stroke="#000" stroke-width="0.5" />
       </svg> New Text Document</div>
+  </div>
+
+  <!-- Install Wizard -->
+  <div id="install-wizard" class="dialog-overlay">
+    <div class="dialog-box wizard-box">
+      <div class="dialog-title-bar">
+        <span>Shubham_Resume.exe Setup</span>
+        <span class="dialog-close" onclick="closeWizard()">&times;</span>
+      </div>
+      <div class="wizard-body">
+        <div class="wizard-sidebar">
+          <svg viewBox="0 0 36 36" width="56" height="56">
+            <rect x="2" y="2" width="32" height="32" rx="2" fill="#c0c0c0" stroke="#808080" stroke-width="1.5"/>
+            <rect x="4" y="14" width="28" height="18" fill="#ffffff" stroke="#808080" stroke-width="1"/>
+            <rect x="11" y="2" width="16" height="10" fill="#808080" stroke="#606060" stroke-width="1"/>
+            <rect x="13" y="4" width="10" height="6" fill="#404040"/>
+            <rect x="4" y="30" width="4" height="4" fill="#a0a0a0"/>
+          </svg>
+          <div class="wizard-sidebar-title">Shubham<br>Resume<br>Setup</div>
+        </div>
+        <div class="wizard-content" id="wizard-content"></div>
+      </div>
+      <div class="wizard-footer">
+        <button id="wizard-back" onclick="wizardBack()">&lt; Back</button>
+        <button id="wizard-next" onclick="wizardNext()">Next &gt;</button>
+        <button onclick="closeWizard()">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <div id="toast" class="toast"></div>
@@ -2066,6 +2181,66 @@
       });
     }
 
+    /* ===== INSTALL WIZARD ===== */
+    let wizardStep = 0;
+    function openInstallWizard() {
+      wizardStep = 0;
+      renderWizardStep();
+      openDialog('install-wizard');
+    }
+    function closeWizard() { closeDialog('install-wizard'); }
+    function wizardBack() {
+      if (wizardStep === 1) { wizardStep = 0; renderWizardStep(); }
+    }
+    function wizardNext() {
+      if (wizardStep === 0) {
+        wizardStep = 1; renderWizardStep();
+      } else if (wizardStep === 1) {
+        if (!document.getElementById('wizard-agree').checked) {
+          showToast('Setup Wizard', 'You must accept the license agreement to continue.');
+          return;
+        }
+        wizardStep = 2; renderWizardStep(); startWizardProgress();
+      } else if (wizardStep === 3) {
+        downloadResumeFile(); closeWizard();
+      }
+    }
+    function renderWizardStep() {
+      const content = document.getElementById('wizard-content');
+      const nextBtn = document.getElementById('wizard-next');
+      const backBtn = document.getElementById('wizard-back');
+      if (wizardStep === 0) {
+        content.innerHTML = '<h3>Welcome to Resume Setup Wizard</h3><p>The Setup Wizard will install <b>Shubham_Chaudhary_Resume.pdf</b> on your computer.</p><p style="margin-top:10px;">It is recommended that you close all other browser tabs before continuing. (Just kidding.)</p><p style="margin-top:10px;">Click <b>Next</b> to continue.</p>';
+        nextBtn.textContent = 'Next >'; nextBtn.disabled = false; backBtn.disabled = true;
+      } else if (wizardStep === 1) {
+        content.innerHTML = '<h3>Ready to Install</h3><p>The Wizard is ready to begin installation.</p><fieldset style="border:2px solid;border-color:var(--gray-dark) var(--white) var(--white) var(--gray-dark);padding:10px;margin:10px 0;"><p style="font-style:italic;font-size:11px;margin:0 0 10px;line-height:1.5;">&ldquo;By clicking Next, you agree that this resume may cause spontaneous interview requests, uncontrollable urge to hire, and general excitement about frontend engineering. Shubham is not liable for career-altering decisions.&rdquo;</p><label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="wizard-agree"> I accept the terms of this license agreement</label></fieldset>';
+        nextBtn.textContent = 'Next >'; nextBtn.disabled = false; backBtn.disabled = false;
+      } else if (wizardStep === 2) {
+        content.innerHTML = '<h3>Installing...</h3><p>Please wait while credentials are being compiled.</p><div id="wizard-progress-track"><div id="wizard-progress-fill"></div></div><p id="wizard-status" style="font-size:11px;color:var(--gray-dark);">Copying files...</p>';
+        nextBtn.textContent = 'Next >'; nextBtn.disabled = true; backBtn.disabled = true;
+      } else if (wizardStep === 3) {
+        content.innerHTML = '<h3>Setup Complete</h3><div style="display:flex;align-items:flex-start;gap:12px;margin:12px 0;">' + ICONS.info + '<p style="margin:0;">Shubham_Chaudhary_Resume.pdf has been successfully installed.<br><br>Click <b>Finish</b> to exit Setup and open your resume.</p></div>';
+        nextBtn.textContent = 'Finish'; nextBtn.disabled = false; backBtn.disabled = true;
+      }
+    }
+    function startWizardProgress() {
+      const duration = 1500;
+      const start = performance.now();
+      const msgs = ['Copying files...', 'Registering experience entries...', 'Installing skill modules...', 'Compiling achievements...', 'Done.'];
+      function tick(now) {
+        if (wizardStep !== 2) return;
+        const p = Math.min(100, ((now - start) / duration) * 100);
+        const fill = document.getElementById('wizard-progress-fill');
+        const status = document.getElementById('wizard-status');
+        if (!fill) return;
+        fill.style.width = p + '%';
+        if (status) status.textContent = msgs[Math.min(Math.floor(p / 22), msgs.length - 1)];
+        if (p < 100) { requestAnimationFrame(tick); }
+        else { setTimeout(() => { wizardStep = 3; renderWizardStep(); }, 300); }
+      }
+      requestAnimationFrame(tick);
+    }
+
     /* ===== DEBUG RUNNER GAME ===== */
     let gameRAF = null, gameRunning = false, gameScore = 0, gameSpeed = 3;
     let playerY = 0, playerVY = 0, isJumping = false, bugs = [], gameFrame = 0;
@@ -2143,7 +2318,7 @@
       projects: () => "1. BrowseAnywhere Agent\n2. RunTheDay (RTD)\n3. SportZentric\n4. Desktop Application\nSee the Projects section for full details.",
       experience: () => "Koru UX (2026-present)\nShepHertz Technologies (2026)\nQuokka Labs (2022-2026)\nRiviera Home Furnishings (2020-2022)",
       contact: () => { goToSection('contact'); return "Opening contact section..."; },
-      // resume: () => { downloadResumeFile(); return "Downloading resume.pdf..."; },
+      resume: () => { openInstallWizard(); return "Launching Resume Setup Wizard..."; },
       github: () => { window.open('https://github.com/chaudharyShub', '_blank'); return "Opening GitHub..."; },
       linkedin: () => { window.open('https://www.linkedin.com/in/shubham-chaudhary-4398bba8', '_blank'); return "Opening LinkedIn..."; },
       date: () => new Date().toString(),
@@ -2268,6 +2443,14 @@
     }
 
     window.addEventListener('DOMContentLoaded', runBoot);
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.warn('SW registration failed:', err);
+        });
+      });
+    }
   </script>
 
 </body>
