@@ -80,6 +80,27 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
     play/pause/next/prev/scrub UX that was designed
   - A taskbar tray icon should reappear next to the clock only while something is playing
 
+## Features added (session 4)
+Six interactive/visual features, all opt-in or localStorage-backed. New localStorage keys:
+- `shubhamOsTheme` — theme id ('win95' / 'win98' / 'terminal'). Early-applied in a `<head>` inline
+  script to avoid flash of default state. Exposed via Display Properties as 3 swatch buttons.
+- `shubhamOsCrt` — '1' if CRT scanlines+vignette overlay is enabled. Toggle in Display Properties.
+  Overlay is a fixed `#crt-overlay` div with `pointer-events:none`, z-index 999.
+- `shubhamOsCursorTrail` — '1' if mouse trail is enabled. 10 pooled DOM dots recycled on mousemove,
+  throttled to ~25 fps, fade via CSS opacity transition.
+- `shubhamOsVisitCount` — incrementing integer, incremented on DOMContentLoaded (before runBoot).
+  On visit ≥ 2, replaces bootLines[1] with "Welcome back. Session #N." (no timing change).
+- `shubhamOsVisitorNum` — seeded counter starting 3100–4900, incremented +1–7 on each visit.
+  Displayed in the footer status bar as a retro green LCD chip (`No. 004821`). NOT a real global
+  count — displayed with a `title` attribute noting it's locally seeded.
+- Startup chime: Web Audio API, two sine-wave tones (G4+C5), fires only on explicit button click
+  during boot. Button is visible during boot screen, hides itself after playing. Never autoplays.
+- Display Properties dialog extended: now has Theme (top), Background (middle), CRT+Trail toggles
+  (bottom). Dialog body has `id="theme-swatches"` rebuilt on open.
+- Terminal theme uses `[data-theme="terminal"]` attribute on `<body>` for a single CSS override
+  (`.exp-duration` color fix). Theme application also sets `data-theme` on `document.documentElement`
+  from the early `<head>` script.
+
 ## Features added (session 3)
 - **SEO**: `<meta name="description">` added (reuses og:description copy). JSON-LD `Person`
   schema added to `<head>` with name, jobTitle, url, sameAs (GitHub + LinkedIn), description.

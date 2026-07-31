@@ -49,6 +49,23 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000080">
 
+  <script>
+    /* Apply saved theme immediately to prevent flash of default state */
+    (function () {
+      var id = localStorage.getItem('shubhamOsTheme');
+      if (!id || id === 'win95') return;
+      var T = {
+        win98: { '--gray': '#b4c4d8', '--gray-dark': '#4a6a90', '--white': '#e8f0ff', '--black': '#000818', '--navy': '#003399', '--navy-light': '#0060cc', '--teal': '#2050a0' },
+        terminal: { '--gray': '#0a120a', '--gray-dark': '#33ff33', '--white': '#1a2b1a', '--black': '#33ff33', '--navy': '#001800', '--navy-light': '#004000', '--teal': '#000000' }
+      };
+      var theme = T[id];
+      if (!theme) return;
+      var root = document.documentElement;
+      for (var k in theme) root.style.setProperty(k, theme[k]);
+      document.documentElement.setAttribute('data-theme', id);
+    })();
+  </script>
+
   <style>
     .sr-only {
       position: absolute;
@@ -1150,6 +1167,74 @@
       background: var(--navy);
     }
 
+    /* ===== CRT OVERLAY ===== */
+    #crt-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 3px,
+          rgba(0, 0, 0, 0.05) 3px,
+          rgba(0, 0, 0, 0.05) 4px
+        ),
+        radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.38) 100%);
+    }
+
+    /* ===== CURSOR TRAIL ===== */
+    .cursor-trail {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--navy);
+      pointer-events: none;
+      z-index: 997;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+    .cursor-trail.active { opacity: 0.6; }
+
+    /* ===== VISITOR COUNTER ===== */
+    .visitor-counter {
+      font-family: "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      background: #000;
+      color: #33ff33;
+      padding: 1px 6px;
+      border: 1px solid var(--gray-dark);
+    }
+
+    /* ===== THEME SWATCHES (Display Properties) ===== */
+    .theme-swatch-wrap {
+      text-align: center;
+      cursor: pointer;
+      flex: 1;
+    }
+    .theme-swatch-preview {
+      height: 34px;
+      border: 2px solid;
+      border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .theme-swatch-preview.selected {
+      outline: 2px solid var(--black);
+      outline-offset: 1px;
+    }
+    .theme-swatch-label {
+      font-size: 9px;
+      margin-top: 3px;
+      color: var(--black);
+    }
+
+    /* Terminal theme readability override */
+    [data-theme="terminal"] .exp-duration { color: var(--gray-dark); }
+
     @media (max-width: 700px) {
       input[type="text"],
       input[type="email"],
@@ -1214,6 +1299,8 @@
 </head>
 
 <body>
+  <div id="crt-overlay"></div>
+
   <div id="boot-screen">
     <pre id="boot-text"></pre>
     <div class="boot-progress-wrap">
@@ -1223,6 +1310,7 @@
       <span id="boot-progress-pct">0%</span>
     </div>
     <p class="boot-skip-hint">Press any key or click to skip...</p>
+    <button id="boot-chime-btn" onclick="playStartupChime()" style="margin-top:14px; background:transparent; border:1px solid #33ff33; color:#33ff33; font-family:'Courier New',monospace; font-size:11px; padding:3px 10px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; align-self:flex-start;">&#9834; Play startup sound</button>
   </div>
 
   <div class="desktop-layer">
@@ -1654,6 +1742,7 @@
       <span>Status: System Online</span>
       <span>Made with HTML | CSS | JavaScript - No Frameworks</span>
       <span>&copy; <span id="year"></span> Shubham Chaudhary</span>
+      <span class="visitor-counter" id="visitor-counter" title="Locally seeded — playful, not a real global count">No. 000000</span>
     </footer>
   </div>
 
@@ -1767,11 +1856,23 @@
     <div class="dialog-box wide">
       <div class="dialog-title-bar"><span>Display Properties</span><span class="dialog-close"
           onclick="closeDialog('display-dialog')">&times;</span></div>
-      <div class="dialog-body" style="text-align:left;">
-        <p style="font-size:11px; margin-bottom:8px;">Background:</p>
+      <div class="dialog-body" style="text-align:left; padding:12px 16px;">
+        <p style="font-size:11px; margin-bottom:6px;"><b>Theme:</b></p>
+        <div id="theme-swatches" style="display:flex; gap:8px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--gray-dark);"></div>
+        <p style="font-size:11px; margin-bottom:8px;"><b>Background:</b></p>
         <div id="wallpaper-grid" class="wallpaper-grid"></div>
-        <div class="dialog-buttons"><button onclick="pickRandomWallpaper()">🎲 Random</button><button
-            onclick="closeDialog('display-dialog')">Close</button></div>
+        <div style="margin-top:10px; border-top:1px solid var(--gray-dark); padding-top:8px; display:flex; gap:18px;">
+          <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-size:12px; margin:0;">
+            <input type="checkbox" id="crt-toggle" onchange="toggleCrt(this.checked)"> CRT Scanlines
+          </label>
+          <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-size:12px; margin:0;">
+            <input type="checkbox" id="cursor-trail-toggle" onchange="toggleCursorTrail(this.checked)"> Mouse Trails
+          </label>
+        </div>
+        <div class="dialog-buttons" style="margin-top:12px;">
+          <button onclick="pickRandomWallpaper()">&#127922; Random</button>
+          <button onclick="closeDialog('display-dialog')">Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2434,6 +2535,121 @@
       });
     }
 
+    /* ===== THEME SWITCHER ===== */
+    const THEMES = {
+      win95: { '--gray': '#c0c0c0', '--gray-dark': '#808080', '--white': '#ffffff', '--black': '#000000', '--navy': '#000080', '--navy-light': '#1084d0', '--teal': '#008080' },
+      win98: { '--gray': '#b4c4d8', '--gray-dark': '#4a6a90', '--white': '#e8f0ff', '--black': '#000818', '--navy': '#003399', '--navy-light': '#0060cc', '--teal': '#2050a0' },
+      terminal: { '--gray': '#0a120a', '--gray-dark': '#33ff33', '--white': '#1a2b1a', '--black': '#33ff33', '--navy': '#001800', '--navy-light': '#004000', '--teal': '#000000' }
+    };
+    const THEME_NAMES = { win95: 'Win95 Gray', win98: 'Win98 Blue', terminal: 'Terminal' };
+
+    function applyTheme(id) {
+      const theme = THEMES[id] || THEMES.win95;
+      const root = document.documentElement;
+      Object.entries(theme).forEach(([k, v]) => root.style.setProperty(k, v));
+      document.body.setAttribute('data-theme', id);
+      localStorage.setItem('shubhamOsTheme', id);
+      const savedWp = localStorage.getItem('shubhamOsWallpaper') || 'teal';
+      if (savedWp === 'teal') {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundSize = '';
+        document.body.style.backgroundColor = theme['--teal'];
+      }
+    }
+    function selectTheme(id) {
+      applyTheme(id);
+      buildThemeSwatches();
+      buildWallpaperGrid();
+    }
+    function buildThemeSwatches() {
+      const container = document.getElementById('theme-swatches');
+      if (!container) return;
+      const current = localStorage.getItem('shubhamOsTheme') || 'win95';
+      container.innerHTML = Object.entries(THEMES).map(([id, vars]) => {
+        const sel = id === current;
+        return `<div class="theme-swatch-wrap" onclick="selectTheme('${id}')">
+          <div class="theme-swatch-preview${sel ? ' selected' : ''}">
+            <div style="position:absolute;top:0;left:0;right:0;height:11px;background:${vars['--navy']};"></div>
+            <div style="position:absolute;top:11px;left:0;right:0;bottom:0;background:${vars['--gray']};"></div>
+          </div>
+          <div class="theme-swatch-label">${THEME_NAMES[id]}</div>
+        </div>`;
+      }).join('');
+    }
+
+    /* ===== CRT FILTER ===== */
+    function applyCrt(enabled) {
+      document.getElementById('crt-overlay').style.display = enabled ? 'block' : 'none';
+    }
+    function toggleCrt(enabled) {
+      localStorage.setItem('shubhamOsCrt', enabled ? '1' : '0');
+      applyCrt(enabled);
+    }
+
+    /* ===== CURSOR TRAIL ===== */
+    const trailPool = [];
+    let trailEnabled = false, trailIndex = 0, lastTrailMs = 0;
+
+    function initCursorTrail() {
+      for (let i = 0; i < 10; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'cursor-trail';
+        document.body.appendChild(dot);
+        trailPool.push(dot);
+      }
+      document.addEventListener('mousemove', (e) => {
+        if (!trailEnabled) return;
+        const now = Date.now();
+        if (now - lastTrailMs < 40) return;
+        lastTrailMs = now;
+        const dot = trailPool[trailIndex % 10];
+        trailIndex++;
+        dot.style.left = (e.clientX - 3) + 'px';
+        dot.style.top = (e.clientY - 3) + 'px';
+        dot.classList.remove('active');
+        void dot.offsetWidth;
+        dot.classList.add('active');
+      });
+    }
+    function toggleCursorTrail(enabled) {
+      trailEnabled = enabled;
+      localStorage.setItem('shubhamOsCursorTrail', enabled ? '1' : '0');
+      if (!enabled) trailPool.forEach(d => d.classList.remove('active'));
+    }
+
+    /* ===== STARTUP CHIME ===== */
+    function playStartupChime() {
+      const btn = document.getElementById('boot-chime-btn');
+      if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        function tone(freq, start, dur, vol) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine'; osc.frequency.value = freq;
+          gain.gain.setValueAtTime(vol, start);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+          osc.start(start); osc.stop(start + dur);
+        }
+        const t = ctx.currentTime;
+        tone(392, t, 0.35, 0.22);
+        tone(523, t + 0.3, 0.6, 0.18);
+        setTimeout(() => { if (btn) btn.style.display = 'none'; }, 1300);
+      } catch (e) {
+        if (btn) { btn.textContent = '♪ Unavailable'; }
+      }
+    }
+
+    /* ===== VISITOR COUNTER ===== */
+    function initVisitorCounter() {
+      let num = parseInt(localStorage.getItem('shubhamOsVisitorNum') || '0');
+      num = num ? num + Math.floor(Math.random() * 7) + 1 : 3100 + Math.floor(Math.random() * 1800);
+      localStorage.setItem('shubhamOsVisitorNum', num);
+      const el = document.getElementById('visitor-counter');
+      if (el) el.textContent = 'No. ' + String(num).padStart(6, '0');
+    }
+
     /* ===== DISPLAY PROPERTIES / WALLPAPER ===== */
     const WALLPAPERS = [
       { id: 'teal', label: 'Teal', css: '#008080' },
@@ -2476,7 +2692,15 @@
         return '<div><div class="wallpaper-swatch' + (w.id === current ? ' selected' : '') + '" style="' + style + '" onclick="selectWallpaper(\'' + w.id + '\')"></div><div class="wallpaper-label">' + w.label + '</div></div>';
       }).join('');
     }
-    function openDisplayProperties() { buildWallpaperGrid(); openDialog('display-dialog'); }
+    function openDisplayProperties() {
+      buildWallpaperGrid();
+      buildThemeSwatches();
+      const crtCb = document.getElementById('crt-toggle');
+      if (crtCb) crtCb.checked = localStorage.getItem('shubhamOsCrt') === '1';
+      const trailCb = document.getElementById('cursor-trail-toggle');
+      if (trailCb) trailCb.checked = localStorage.getItem('shubhamOsCursorTrail') === '1';
+      openDialog('display-dialog');
+    }
 
     /* ===== INIT ===== */
     function initApp() {
@@ -2497,6 +2721,11 @@
       initContactForm();
       initDos();
       applyWallpaperOnly(localStorage.getItem('shubhamOsWallpaper') || 'teal');
+      applyTheme(localStorage.getItem('shubhamOsTheme') || 'win95');
+      applyCrt(localStorage.getItem('shubhamOsCrt') === '1');
+      initCursorTrail();
+      trailEnabled = localStorage.getItem('shubhamOsCursorTrail') === '1';
+      initVisitorCounter();
       updateClocks();
       updateUptime();
       setInterval(updateClocks, 1000);
@@ -2506,7 +2735,12 @@
       dvdY = Math.random() * (window.innerHeight - 200);
     }
 
-    window.addEventListener('DOMContentLoaded', runBoot);
+    window.addEventListener('DOMContentLoaded', () => {
+      const vc = (parseInt(localStorage.getItem('shubhamOsVisitCount') || '0')) + 1;
+      localStorage.setItem('shubhamOsVisitCount', vc);
+      if (vc > 1) bootLines[1] = 'Welcome back. Session #' + vc + '.';
+      runBoot();
+    });
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
