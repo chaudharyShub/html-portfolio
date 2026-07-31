@@ -1310,7 +1310,6 @@
       <span id="boot-progress-pct">0%</span>
     </div>
     <p class="boot-skip-hint">Press any key or click to skip...</p>
-    <button id="boot-chime-btn" onclick="playStartupChime()" style="margin-top:14px; background:transparent; border:1px solid #33ff33; color:#33ff33; font-family:'Courier New',monospace; font-size:11px; padding:3px 10px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; align-self:flex-start;">&#9834; Play startup sound</button>
   </div>
 
   <div class="desktop-layer">
@@ -1999,6 +1998,7 @@
       bootFinished = true;
       document.removeEventListener('keydown', bootKeyHandler);
       document.getElementById('boot-screen').removeEventListener('click', bootClickHandler);
+      playStartupChime();
       const boot = document.getElementById('boot-screen');
       boot.style.opacity = '0';
       setTimeout(() => { boot.style.display = 'none'; initApp(); }, 500);
