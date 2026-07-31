@@ -47,8 +47,13 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
   felt spammy, so don't increase the frequency without being asked.
 - **Right-click context menu**: custom menu (Refresh, Arrange Icons, Display Properties,
   Properties, New Text Document joke).
-- **Display Properties / wallpaper picker**: solid colors + CSS-generated patterns (stripes, dot
-  grid, terminal grid) — no real Microsoft wallpapers (copyright). Persisted via `localStorage`.
+- **Display Properties / wallpaper picker**: 9 wallpapers total, persisted via `localStorage`
+  under `shubhamOsWallpaper`. Four solid/pattern entries: Teal (default), Navy, Maroon, Stripes.
+  Five scenic SVG entries: Sunset Hills, City Dusk, Countryside, Beach, Space (files:
+  `wallpaper-sunset-hills.svg`, `wallpaper-city-dusk.svg`, `wallpaper-countryside.svg`,
+  `wallpaper-beach.svg`, `wallpaper-space.svg`). SVG entries use `type: file` pattern in the
+  WALLPAPERS array — `applyWallpaperOnly` sets `background-image: url(file)`, `background-size:
+  cover`, `background-position: center` for these. No real Microsoft wallpapers (copyright).
 - **Contact form**: constructs a `mailto:` link. IMPORTANT bug we already fixed once: the toast
   confirmation must fire **before** attempting `window.location.href` navigation (wrapped in
   try/catch), because in some sandboxed/preview contexts setting `location.href` to a mailto
@@ -80,6 +85,42 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
     play/pause/next/prev/scrub UX that was designed
   - A taskbar tray icon should reappear next to the clock only while something is playing
 
+## Window animation system (session 5)
+All window/dialog animations are managed entirely via inline JS `style.transition` — no CSS
+transition declarations on `.window` or `.subwindow` (the old `transition: transform 0.3s ease`
+on `.window` was removed). The `.window.minimized` CSS rule was removed entirely; hidden state
+is tracked via the JS property `winEl._isMinimized`.
+
+Shared helpers (both #window and #dos-window reuse them):
+- `animateWindowToTaskbar(winEl, btnEl, onDone)` — shrinks winEl into btnEl via
+  `translate + scale` transform over 200ms ease-in. Computes scale/offset from live
+  `getBoundingClientRect()` on both elements. Sets `pointerEvents: none` during flight.
+  Calls `onDone()` at 215ms (which should `display:none` and reset styles).
+- `animateWindowFromTaskbar(winEl, btnEl, onDone)` — reverse: winEl must already be
+  `display:flex, transform:none` before calling. Sets the FROM transform (button position),
+  forces reflow, then transitions to `transform:none` over 200ms ease-out.
+
+Other animations:
+- **Open (main window)**: `scale(0.94)→scale(1)` + opacity 0→1 over 170ms on first `initApp()`.
+- **Open (DOS, fresh)**: `scale(0.9)` + opacity 0→1 over 150ms when opened from hidden state.
+- **Maximize/restore toggle** (both windows): quick opacity 0.75→1 crossfade (~80ms+150ms)
+  bracketing the class change — avoids layout transition issues with `!important` overrides.
+- **DOS close** (✕ button): `scale(0.94)` + opacity fade over 120ms before `display:none`.
+- **Dialogs**: `openDialog` → `.dialog-box` scale 0.92→1 + opacity over 130ms. `closeDialog`
+  → 0.92 + opacity over 100ms, then `display:none`. Overlay's `_closeTid` prevents open/close
+  race conditions.
+
+Guards:
+- `winEl._animating` flag prevents stacking/interrupting animations. `toggleTaskbarWindow`
+  and `toggleDosWindow` are no-ops while `_animating` is true.
+- `restoreWindow` / `restoreDos` cancel in-progress minimize via `clearTimeout(win._animTid)`
+  and reset styles before starting the reverse animation.
+- `const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches` — all
+  animations skip entirely (instant show/hide) when this is true.
+- Drag/resize handles are unaffected: `makeDraggable` sets `transform: none` on mousedown which
+  cancels any in-flight animation, but only during live drag (acceptable). The 8-edge
+  `makeResizable` handlers have no interaction with the animation system.
+
 ## Features added (session 4)
 Six interactive/visual features, all opt-in or localStorage-backed. New localStorage keys:
 - `shubhamOsTheme` — theme id ('win95' / 'win98' / 'terminal'). Early-applied in a `<head>` inline
@@ -93,8 +134,8 @@ Six interactive/visual features, all opt-in or localStorage-backed. New localSto
 - `shubhamOsVisitorNum` — seeded counter starting 3100–4900, incremented +1–7 on each visit.
   Displayed in the footer status bar as a retro green LCD chip (`No. 004821`). NOT a real global
   count — displayed with a `title` attribute noting it's locally seeded.
-- Startup chime: Web Audio API, two sine-wave tones (G4+C5), fires only on explicit button click
-  during boot. Button is visible during boot screen, hides itself after playing. Never autoplays.
+- Startup chime: was built (Web Audio API, G4+C5 tones), then removed — browser autoplay policy
+  makes it unreliable for first-time visitors with no interaction. No audio logic remains.
 - Display Properties dialog extended: now has Theme (top), Background (middle), CRT+Trail toggles
   (bottom). Dialog body has `id="theme-swatches"` rebuilt on open.
 - Terminal theme uses `[data-theme="terminal"]` attribute on `<body>` for a single CSS override

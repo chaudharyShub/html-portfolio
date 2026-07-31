@@ -335,13 +335,6 @@
       z-index: 10;
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
-    .window.minimized {
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(0.05) translateY(500px);
     }
 
     .window.maximized {
@@ -1998,10 +1991,52 @@
       bootFinished = true;
       document.removeEventListener('keydown', bootKeyHandler);
       document.getElementById('boot-screen').removeEventListener('click', bootClickHandler);
-      playStartupChime();
       const boot = document.getElementById('boot-screen');
       boot.style.opacity = '0';
       setTimeout(() => { boot.style.display = 'none'; initApp(); }, 500);
+    }
+
+    /* ===== ANIMATION HELPERS ===== */
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Shrinks winEl down into btnEl's position, then calls onDone (which should hide winEl).
+    function animateWindowToTaskbar(winEl, btnEl, onDone) {
+      const wr = winEl.getBoundingClientRect();
+      const br = btnEl.getBoundingClientRect();
+      const sx = Math.max(0.03, br.width / wr.width);
+      const sy = Math.max(0.03, br.height / wr.height);
+      const tx = (br.left + br.width / 2) - (wr.left + wr.width / 2);
+      const ty = (br.top + br.height / 2) - (wr.top + wr.height / 2);
+      clearTimeout(winEl._animTid);
+      winEl.style.transition = 'transform 0.2s ease-in, opacity 0.18s ease-in';
+      winEl.style.transform = `translate(${tx}px,${ty}px) scale(${sx},${sy})`;
+      winEl.style.opacity = '0';
+      winEl.style.pointerEvents = 'none';
+      winEl._animTid = setTimeout(() => { winEl.style.transition = ''; onDone(); }, 215);
+    }
+
+    // Grows winEl from btnEl's position to its natural (already-laid-out) position.
+    // winEl must be display:flex and transform:none before calling this.
+    function animateWindowFromTaskbar(winEl, btnEl, onDone) {
+      const br = btnEl.getBoundingClientRect();
+      const wr = winEl.getBoundingClientRect();
+      const sx = Math.max(0.03, br.width / wr.width);
+      const sy = Math.max(0.03, br.height / wr.height);
+      const tx = (br.left + br.width / 2) - (wr.left + wr.width / 2);
+      const ty = (br.top + br.height / 2) - (wr.top + wr.height / 2);
+      clearTimeout(winEl._animTid);
+      winEl.style.transition = 'none';
+      winEl.style.transform = `translate(${tx}px,${ty}px) scale(${sx},${sy})`;
+      winEl.style.opacity = '0';
+      void winEl.offsetWidth;
+      winEl.style.transition = 'transform 0.2s ease-out, opacity 0.16s ease-out';
+      winEl.style.transform = 'none';
+      winEl.style.opacity = '';
+      winEl._animTid = setTimeout(() => {
+        winEl.style.transition = '';
+        winEl.style.pointerEvents = '';
+        onDone();
+      }, 215);
     }
 
     /* ===== GENERIC DRAG / RESIZE (used by main window + DOS subwindow) ===== */
@@ -2095,24 +2130,59 @@
 
     /* ===== MAIN WINDOW CONTROLS ===== */
     function minimizeWindow() {
-      document.getElementById('window').classList.add('minimized');
-      document.getElementById('taskbar-window-btn').classList.remove('active');
+      const win = document.getElementById('window');
+      const btn = document.getElementById('taskbar-window-btn');
+      if (win._animating) return;
+      win._animating = true;
+      win._isMinimized = true;
+      btn.classList.remove('active');
       bounceCount = 0;
       startDvd();
+      if (reducedMotion) { win.style.display = 'none'; win._animating = false; return; }
+      animateWindowToTaskbar(win, btn, () => {
+        win.style.display = 'none';
+        win.style.transform = 'none';
+        win.style.opacity = '';
+        win.style.pointerEvents = '';
+        win._animating = false;
+      });
     }
     function restoreWindow() {
-      document.getElementById('window').classList.remove('minimized');
-      document.getElementById('taskbar-window-btn').classList.add('active');
+      const win = document.getElementById('window');
+      const btn = document.getElementById('taskbar-window-btn');
+      if (!win._isMinimized && !win._animating) return;
+      clearTimeout(win._animTid);
+      win._isMinimized = false;
+      win._animating = true;
+      btn.classList.add('active');
       stopDvd();
+      win.style.transition = 'none';
+      win.style.transform = 'none';
+      win.style.opacity = '';
+      win.style.pointerEvents = '';
+      win.style.display = 'flex';
+      if (reducedMotion) { win._animating = false; return; }
+      void win.offsetWidth;
+      animateWindowFromTaskbar(win, btn, () => { win._animating = false; });
     }
     function toggleTaskbarWindow() {
       const win = document.getElementById('window');
-      if (win.classList.contains('minimized')) restoreWindow(); else minimizeWindow();
+      if (win._animating) return;
+      if (win._isMinimized) restoreWindow(); else minimizeWindow();
     }
     function toggleMaximize() {
       const win = document.getElementById('window');
       win.classList.remove('snapped-left', 'snapped-right');
-      win.classList.toggle('maximized');
+      if (reducedMotion || win._animating) { win.classList.toggle('maximized'); return; }
+      win._animating = true;
+      win.style.transition = 'opacity 0.07s linear';
+      win.style.opacity = '0.75';
+      setTimeout(() => {
+        win.classList.toggle('maximized');
+        win.style.transition = 'opacity 0.15s ease-out';
+        win.style.opacity = '';
+        setTimeout(() => { win.style.transition = ''; win._animating = false; }, 160);
+      }, 80);
     }
     function showCloseConfirm() { openDialog('close-confirm-dialog'); }
     function confirmClose() { closeDialog('close-confirm-dialog'); minimizeWindow(); }
@@ -2120,35 +2190,140 @@
     /* ===== DOS SUBWINDOW CONTROLS ===== */
     function openDos() {
       const win = document.getElementById('dos-window');
-      win.style.display = 'flex';
-      document.getElementById('taskbar-dos-btn').style.display = 'flex';
-      document.getElementById('taskbar-dos-btn').classList.add('active');
+      const btn = document.getElementById('taskbar-dos-btn');
+      btn.style.display = 'flex';
+      btn.classList.add('active');
       const out = document.getElementById('dos-output');
       if (!out.textContent) appendDosLine("Shubham OS [Version 3.0]\n(C) Shubham Chaudhary. All rights reserved.\nType 'help' to see available commands.\n");
+      if (win._isMinimized) { restoreDos(); return; }
+      const wasHidden = win.style.display !== 'flex';
+      win.style.display = 'flex';
+      if (wasHidden && !reducedMotion) {
+        win.style.transition = 'none';
+        win.style.transform = 'scale(0.9)';
+        win.style.opacity = '0';
+        void win.offsetWidth;
+        win.style.transition = 'transform 0.15s ease-out, opacity 0.15s ease-out';
+        win.style.transform = '';
+        win.style.opacity = '';
+        setTimeout(() => { win.style.transition = ''; }, 165);
+      }
       setTimeout(() => document.getElementById('dos-input').focus(), 50);
     }
     function minimizeDos() {
-      document.getElementById('dos-window').style.display = 'none';
-      document.getElementById('taskbar-dos-btn').classList.remove('active');
+      const win = document.getElementById('dos-window');
+      const btn = document.getElementById('taskbar-dos-btn');
+      if (win._animating) return;
+      win._animating = true;
+      win._isMinimized = true;
+      btn.classList.remove('active');
+      if (reducedMotion) { win.style.display = 'none'; win._animating = false; return; }
+      animateWindowToTaskbar(win, btn, () => {
+        win.style.display = 'none';
+        win.style.transform = '';
+        win.style.opacity = '';
+        win.style.pointerEvents = '';
+        win._animating = false;
+      });
     }
     function restoreDos() {
-      document.getElementById('dos-window').style.display = 'flex';
-      document.getElementById('taskbar-dos-btn').classList.add('active');
-      setTimeout(() => document.getElementById('dos-input').focus(), 50);
+      const win = document.getElementById('dos-window');
+      const btn = document.getElementById('taskbar-dos-btn');
+      clearTimeout(win._animTid);
+      win._isMinimized = false;
+      win._animating = true;
+      btn.classList.add('active');
+      win.style.transition = 'none';
+      win.style.transform = '';
+      win.style.opacity = '';
+      win.style.pointerEvents = '';
+      win.style.display = 'flex';
+      if (reducedMotion) {
+        win._animating = false;
+        setTimeout(() => document.getElementById('dos-input').focus(), 50);
+        return;
+      }
+      void win.offsetWidth;
+      animateWindowFromTaskbar(win, btn, () => {
+        win._animating = false;
+        setTimeout(() => document.getElementById('dos-input').focus(), 50);
+      });
     }
     function toggleDosWindow() {
       const win = document.getElementById('dos-window');
-      if (win.style.display === 'none' || win.style.display === '') restoreDos(); else minimizeDos();
+      if (win._animating) return;
+      if (win._isMinimized || win.style.display === 'none' || win.style.display === '') restoreDos(); else minimizeDos();
     }
-    function toggleMaximizeDos() { document.getElementById('dos-window').classList.toggle('maximized'); }
+    function toggleMaximizeDos() {
+      const win = document.getElementById('dos-window');
+      if (reducedMotion || win._animating) { win.classList.toggle('maximized'); return; }
+      win._animating = true;
+      win.style.transition = 'opacity 0.07s linear';
+      win.style.opacity = '0.75';
+      setTimeout(() => {
+        win.classList.toggle('maximized');
+        win.style.transition = 'opacity 0.15s ease-out';
+        win.style.opacity = '';
+        setTimeout(() => { win.style.transition = ''; win._animating = false; }, 160);
+      }, 80);
+    }
     function closeDos() {
-      document.getElementById('dos-window').style.display = 'none';
-      document.getElementById('taskbar-dos-btn').style.display = 'none';
+      const win = document.getElementById('dos-window');
+      const btn = document.getElementById('taskbar-dos-btn');
+      win._isMinimized = false;
+      clearTimeout(win._animTid);
+      if (reducedMotion || win._animating) {
+        win.style.display = 'none';
+        btn.style.display = 'none';
+        return;
+      }
+      win._animating = true;
+      win.style.transition = 'transform 0.12s ease-in, opacity 0.12s ease-in';
+      win.style.transform = 'scale(0.94)';
+      win.style.opacity = '0';
+      win.style.pointerEvents = 'none';
+      setTimeout(() => {
+        win.style.display = 'none';
+        win.style.transition = '';
+        win.style.transform = '';
+        win.style.opacity = '';
+        win.style.pointerEvents = '';
+        win._animating = false;
+        btn.style.display = 'none';
+      }, 130);
     }
 
     /* ===== DIALOGS ===== */
-    function openDialog(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeDialog(id) { document.getElementById(id).style.display = 'none'; }
+    function openDialog(id) {
+      const overlay = document.getElementById(id);
+      clearTimeout(overlay._closeTid);
+      overlay.style.display = 'flex';
+      if (reducedMotion) return;
+      const box = overlay.querySelector('.dialog-box');
+      box.style.transition = 'none';
+      box.style.transform = 'scale(0.92)';
+      box.style.opacity = '0';
+      void box.offsetWidth;
+      box.style.transition = 'transform 0.13s ease-out, opacity 0.13s ease-out';
+      box.style.transform = '';
+      box.style.opacity = '';
+      setTimeout(() => { box.style.transition = ''; }, 145);
+    }
+    function closeDialog(id) {
+      const overlay = document.getElementById(id);
+      if (reducedMotion) { overlay.style.display = 'none'; return; }
+      const box = overlay.querySelector('.dialog-box');
+      clearTimeout(overlay._closeTid);
+      box.style.transition = 'transform 0.1s ease-in, opacity 0.1s ease-in';
+      box.style.transform = 'scale(0.92)';
+      box.style.opacity = '0';
+      overlay._closeTid = setTimeout(() => {
+        overlay.style.display = 'none';
+        box.style.transition = '';
+        box.style.transform = '';
+        box.style.opacity = '';
+      }, 110);
+    }
     function showMessage(type, title, message) {
       document.getElementById('msg-icon').innerHTML = ICONS[type] || ICONS.info;
       document.getElementById('msg-title').textContent = title;
@@ -2618,28 +2793,6 @@
     }
 
     /* ===== STARTUP CHIME ===== */
-    function playStartupChime() {
-      const btn = document.getElementById('boot-chime-btn');
-      if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        function tone(freq, start, dur, vol) {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sine'; osc.frequency.value = freq;
-          gain.gain.setValueAtTime(vol, start);
-          gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
-          osc.start(start); osc.stop(start + dur);
-        }
-        const t = ctx.currentTime;
-        tone(392, t, 0.35, 0.22);
-        tone(523, t + 0.3, 0.6, 0.18);
-        setTimeout(() => { if (btn) btn.style.display = 'none'; }, 1300);
-      } catch (e) {
-        if (btn) { btn.textContent = '♪ Unavailable'; }
-      }
-    }
 
     /* ===== VISITOR COUNTER ===== */
     function initVisitorCounter() {
@@ -2652,24 +2805,32 @@
 
     /* ===== DISPLAY PROPERTIES / WALLPAPER ===== */
     const WALLPAPERS = [
-      { id: 'teal', label: 'Teal', css: '#008080' },
-      { id: 'navy', label: 'Navy', css: '#000080' },
-      { id: 'maroon', label: 'Maroon', css: '#800000' },
-      { id: 'olive', label: 'Olive', css: '#808000' },
-      { id: 'charcoal', label: 'Charcoal', css: '#404040' },
-      { id: 'forest', label: 'Forest', css: '#004225' },
-      { id: 'stripes', label: 'Stripes', css: 'repeating-linear-gradient(45deg, #008080, #008080 10px, #006666 10px, #006666 20px)' },
-      { id: 'dots', label: 'Dot Grid', css: 'radial-gradient(#00b3b3 1.5px, #008080 1.5px)', size: '14px 14px' },
-      { id: 'grid', label: 'Terminal Grid', css: 'linear-gradient(#004d4d 1px, transparent 1px), linear-gradient(90deg, #004d4d 1px, transparent 1px), #002b2b', size: '18px 18px, 18px 18px, auto' }
+      { id: 'teal',        label: 'Teal',         css: '#008080' },
+      { id: 'navy',        label: 'Navy',          css: '#000080' },
+      { id: 'maroon',      label: 'Maroon',        css: '#800000' },
+      { id: 'stripes',     label: 'Stripes',       css: 'repeating-linear-gradient(45deg, #008080, #008080 10px, #006666 10px, #006666 20px)' },
+      { id: 'sunset',      label: 'Sunset Hills',  file: 'wallpaper-sunset-hills.svg' },
+      { id: 'city',        label: 'City Dusk',     file: 'wallpaper-city-dusk.svg' },
+      { id: 'countryside', label: 'Countryside',   file: 'wallpaper-countryside.svg' },
+      { id: 'beach',       label: 'Beach',         file: 'wallpaper-beach.svg' },
+      { id: 'space',       label: 'Space',         file: 'wallpaper-space.svg' }
     ];
     function applyWallpaperOnly(id) {
       const wp = WALLPAPERS.find(w => w.id === id) || WALLPAPERS[0];
-      if (wp.css.includes('gradient')) {
+      if (wp.file) {
+        document.body.style.backgroundImage = 'url(' + wp.file + ')';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundColor = '';
+      } else if (wp.css.includes('gradient')) {
         document.body.style.backgroundImage = wp.css;
         document.body.style.backgroundSize = wp.size || 'auto';
+        document.body.style.backgroundPosition = '';
         document.body.style.backgroundColor = '';
       } else {
         document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundSize = '';
+        document.body.style.backgroundPosition = '';
         document.body.style.backgroundColor = wp.css;
       }
     }
@@ -2686,9 +2847,11 @@
       const grid = document.getElementById('wallpaper-grid');
       const current = localStorage.getItem('shubhamOsWallpaper') || 'teal';
       grid.innerHTML = WALLPAPERS.map(w => {
-        const style = w.css.includes('gradient')
-          ? ('background-image:' + w.css + (w.size ? ';background-size:' + w.size : ''))
-          : ('background-color:' + w.css);
+        const style = w.file
+          ? ('background-image:url(' + w.file + ');background-size:cover;background-position:center')
+          : w.css.includes('gradient')
+            ? ('background-image:' + w.css + (w.size ? ';background-size:' + w.size : ''))
+            : ('background-color:' + w.css);
         return '<div><div class="wallpaper-swatch' + (w.id === current ? ' selected' : '') + '" style="' + style + '" onclick="selectWallpaper(\'' + w.id + '\')"></div><div class="wallpaper-label">' + w.label + '</div></div>';
       }).join('');
     }
@@ -2706,6 +2869,17 @@
     function initApp() {
       switchTab('home');
       centerWindow();
+      if (!reducedMotion) {
+        const win = document.getElementById('window');
+        win.style.transition = 'none';
+        win.style.transform = 'scale(0.94)';
+        win.style.opacity = '0';
+        void win.offsetWidth;
+        win.style.transition = 'transform 0.17s ease-out, opacity 0.17s ease-out';
+        win.style.transform = 'scale(1)';
+        win.style.opacity = '';
+        setTimeout(() => { win.style.transition = ''; win.style.transform = 'none'; }, 190);
+      }
       makeDraggable(document.getElementById('window'), document.getElementById('title-bar'), { enableSnap: true, onRecenter: centerWindow });
       makeResizable(document.getElementById('window'), { minWidth: 360, minHeight: 300 });
       makeDraggable(document.getElementById('dos-window'), document.getElementById('dos-title-bar'), { enableSnap: false });

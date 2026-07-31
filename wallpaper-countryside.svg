@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">
+  <rect x="0" y="0" width="320" height="200" fill="#78c8ff"/>
+  <circle cx="60" cy="38" r="20" fill="#fff096"/>
+  <g fill="#ffffff">
+    <ellipse cx="150" cy="40" rx="22" ry="12"/><ellipse cx="150" cy="28" rx="12" ry="10"/>
+    <ellipse cx="190" cy="45" rx="22" ry="12"/><ellipse cx="190" cy="33" rx="12" ry="10"/>
+    <ellipse cx="230" cy="35" rx="22" ry="12"/><ellipse cx="230" cy="23" rx="12" ry="10"/>
+  </g>
+  <polygon points="0,150 160,95 320,150" fill="#78be46"/>
+  <rect x="0" y="150" width="320" height="50" fill="#5aa032"/>
+  <rect x="250" y="110" width="8" height="40" fill="#5a3c1e"/>
+  <ellipse cx="254" cy="105" rx="24" ry="20" fill="#288c32"/>
+  <g stroke="#966e46" stroke-width="3">
+    <line x1="0" y1="170" x2="0" y2="150"/>
+    <line x1="20" y1="170" x2="20" y2="150"/>
+    <line x1="40" y1="170" x2="40" y2="150"/>
+    <line x1="60" y1="170" x2="60" y2="150"/>
+    <line x1="80" y1="170" x2="80" y2="150"/>
+    <line x1="100" y1="170" x2="100" y2="150"/>
+    <line x1="0" y1="158" x2="100" y2="158"/>
+  </g>
+</svg>
