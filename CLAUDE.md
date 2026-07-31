@@ -120,6 +120,16 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
   from scope. Do not suggest it again unless the user brings it up.
 - **Achievements**, revisited above — removed once, don't re-add speculatively.
 
+## Confirmed AI tooling experience (as of July 2026 — do not re-ask)
+- **Cursor AI**: the only AI tool in active use — tagged across 3 experience entries and Agent
+  Fabric. Treat as "Advanced" (88%) in skills.
+- **LLM APIs**: none integrated directly in code. No OpenAI, Anthropic, or Gemini API usage.
+  Do not add API-level AI skills without re-confirming.
+- **Agentic orchestration**: Agent Fabric is the sole project. No other agentic systems built.
+  Do not claim broader agentic experience unless confirmed.
+- **Prompt Engineering**: listed as "Proficient" (78%) in skills — a soft/workflow skill, not
+  an API or framework claim.
+
 ## Content source
 All resume/bio/skills/experience/project content came from the user directly (not invented).
 If asked to add new experience/projects/skills, ask the user for the real content rather than

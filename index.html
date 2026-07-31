@@ -496,14 +496,46 @@
       border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
     }
 
-    .menu-bar {
+    .tab-bar {
       background: var(--gray);
-      padding: 3px 8px;
-      border-bottom: 1px solid var(--gray-dark);
+      padding: 4px 6px 0;
+      border-bottom: 2px solid var(--gray-dark);
       display: flex;
-      gap: 18px;
+      gap: 3px;
       font-size: 12px;
       flex-shrink: 0;
+      align-items: flex-end;
+    }
+
+    .tab {
+      padding: 4px 18px 5px;
+      cursor: pointer;
+      background: #b0b0b0;
+      color: #222;
+      border-top: 1px solid var(--white);
+      border-left: 1px solid var(--white);
+      border-right: 1px solid var(--gray-dark);
+      border-bottom: 1px solid var(--gray-dark);
+      user-select: none;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab:hover:not(.active) {
+      background: #cacaca;
+    }
+
+    .tab.active {
+      background: var(--gray);
+      color: var(--black);
+      font-weight: bold;
+      border-top: 2px solid var(--white);
+      border-left: 2px solid var(--white);
+      border-right: 1px solid var(--gray-dark);
+      border-bottom: 2px solid var(--gray);
+      padding-bottom: 7px;
+      margin-bottom: -2px;
+      z-index: 1;
     }
 
     .info-bar {
@@ -1322,13 +1354,18 @@
       </div>
     </div>
 
-    <div class="menu-bar"><span>File</span><span>Edit</span><span>View</span><span>Help</span></div>
+    <div class="tab-bar">
+      <div class="tab active" id="tab-home" onclick="switchTab('home')">Home</div>
+      <div class="tab" id="tab-about" onclick="switchTab('about')">About</div>
+      <div class="tab" id="tab-projects" onclick="switchTab('projects')">Projects</div>
+      <div class="tab" id="tab-contact" onclick="switchTab('contact')">Contact</div>
+    </div>
 
     <header class="info-bar">
       <span><b>Name:</b> Shubham Chaudhary</span>
       <span><b>Role:</b> Frontend Engineer</span>
       <span><b>Status:</b> <span class="status-dot">&#9679;</span> ONLINE</span>
-      <span><b>Experience:</b> 4+ Years</span>
+      <span><b>Experience:</b> <span id="exp-years-info">—</span></span>
     </header>
 
     <div class="content">
@@ -1339,7 +1376,9 @@
         <p>With 6+ years of total experience - 2 years as a Mechanical Engineer &amp; 4+ years as a Software Engineer,
           I've navigated a unique career path that fuses engineering precision with creative web development. I'm a
           full-stack engineer with hands-on experience building scalable web applications. I specialize in the MERN
-          stack (frontend-heavy) and love crafting products that genuinely make a difference.</p>
+          stack (frontend-heavy) and love crafting products that genuinely make a difference. Lately, that's included
+          building with AI too - using Cursor AI to ship faster and working on Agent Fabric, a platform for
+          orchestrating multi-agent workflows.</p>
         <h3 class="sub">Core Modules</h3>
         <table>
           <tr>
@@ -1362,11 +1401,16 @@
             <td>Cross-platform desktop apps with Electron.js - web technologies meet native OS power.</td>
             <td>Electron, React, IPC</td>
           </tr>
+          <tr>
+            <td>AI &amp; Agentic Systems</td>
+            <td>Building AI-assisted workflows and multi-agent orchestration tools.</td>
+            <td>Cursor AI</td>
+          </tr>
         </table>
         <h3 class="sub">Stats.dat</h3>
         <div class="stats-grid">
           <div class="stat-box">
-            <div class="num">4+</div>
+            <div class="num" id="years-exp-stat">—</div>
             <div class="lbl">Years Experience</div>
           </div>
           <div class="stat-box">
@@ -1470,26 +1514,16 @@
           </div>
         </div>
         <div class="skill-group">
-          <h3 class="sub">Cloud (Learning)</h3>
-          <div class="skill-row"><span class="skill-name">AWS EC2</span><span class="skill-level">Sideloaded</span>
+          <h3 class="sub">AI Tools &amp; Workflows</h3>
+          <div class="skill-row"><span class="skill-name">Cursor AI</span><span class="skill-level">Advanced</span>
             <div class="skill-bar-track">
-              <div class="skill-bar-fill" style="width:48%"></div>
-            </div><span class="skill-pct">48%</span>
+              <div class="skill-bar-fill" style="width:88%"></div>
+            </div><span class="skill-pct">88%</span>
           </div>
-          <div class="skill-row"><span class="skill-name">AWS S3</span><span class="skill-level">Sideloaded</span>
+          <div class="skill-row"><span class="skill-name">Prompt Engineering</span><span class="skill-level">Proficient</span>
             <div class="skill-bar-track">
-              <div class="skill-bar-fill" style="width:51%"></div>
-            </div><span class="skill-pct">51%</span>
-          </div>
-          <div class="skill-row"><span class="skill-name">AWS Lambda</span><span class="skill-level">Sideloaded</span>
-            <div class="skill-bar-track">
-              <div class="skill-bar-fill" style="width:50%"></div>
-            </div><span class="skill-pct">50%</span>
-          </div>
-          <div class="skill-row"><span class="skill-name">CI/CD</span><span class="skill-level">Sideloaded</span>
-            <div class="skill-bar-track">
-              <div class="skill-bar-fill" style="width:49%"></div>
-            </div><span class="skill-pct">49%</span>
+              <div class="skill-bar-fill" style="width:78%"></div>
+            </div><span class="skill-pct">78%</span>
           </div>
         </div>
       </fieldset>
@@ -1500,8 +1534,8 @@
           <div class="project-title"><span>Agent Fabric</span><span class="status-badge">In Progress</span></div>
           <div class="project-body">
             <div class="tech">Tech: React.js, TypeScript, Cursor AI</div>
-            <p>An AI powered workflow and agent orchestration platform built in the spirit of enterprise
-              tools Fortune 500 teams use to manage and automate multi-agent workflows.</p>
+            <p>An AI-native workflow and agent orchestration platform - the kind of internal tooling Fortune
+              500 teams are building right now to coordinate LLM-driven automation at scale.</p>
           </div>
         </div>
         <div class="project-card">
@@ -1522,20 +1556,20 @@
           </div>
         </div>
         <div class="project-card">
-          <div class="project-title"><span>SportZentric</span><span class="status-badge">Completed</span></div>
-          <div class="project-body">
-            <div class="tech">Tech: React.js, Tailwind CSS, React Hook Form, Styled Components, RTK Query</div>
-            <p>A sports-tech platform that lets coaches create and manage training batches, while athletes seamlessly
-              join sessions and events to sharpen their skills.</p>
-          </div>
-        </div>
-        <div class="project-card">
           <div class="project-title"><span>MDM Desktop Application</span><span class="status-badge">Completed</span>
           </div>
           <div class="project-body">
             <div class="tech">Tech: Electron.js, React.js, TypeScript, Node.js, MQTT, Redux</div>
             <p>A cross-platform Windows &amp; Linux desktop app with a background service that monitors and logs power
               on/off events and sleep/wake cycles with high accuracy.</p>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="project-title"><span>SportZentric</span><span class="status-badge">Completed</span></div>
+          <div class="project-body">
+            <div class="tech">Tech: React.js, Tailwind CSS, React Hook Form, Styled Components, RTK Query</div>
+            <p>A sports-tech platform that lets coaches create and manage training batches, while athletes seamlessly
+              join sessions and events to sharpen their skills.</p>
           </div>
         </div>
       </fieldset>
@@ -2030,14 +2064,38 @@
       const isOpen = menu.classList.toggle('open');
       btn.classList.toggle('active', isOpen);
     }
+    const TABS = ['home', 'about', 'projects', 'contact'];
+    const TAB_SECTIONS = {
+      home:     ['about', 'skills', 'projects', 'experience', 'contact'],
+      about:    ['about', 'experience'],
+      projects: ['projects', 'skills'],
+      contact:  ['contact']
+    };
+    const ALL_SECTIONS = ['about', 'skills', 'projects', 'experience', 'contact'];
+    const SECTION_TO_TAB = { about: 'about', experience: 'about', skills: 'projects', projects: 'projects', contact: 'contact' };
+
+    function switchTab(tabId) {
+      TABS.forEach(t => document.getElementById('tab-' + t).classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      const visible = TAB_SECTIONS[tabId];
+      const projEl = document.getElementById('section-projects');
+      const skillsEl = document.getElementById('section-skills');
+      if (tabId === 'projects') {
+        skillsEl.parentNode.insertBefore(projEl, skillsEl);
+      } else {
+        projEl.parentNode.insertBefore(skillsEl, projEl);
+      }
+      ALL_SECTIONS.forEach(s => {
+        document.getElementById('section-' + s).style.display = visible.includes(s) ? '' : 'none';
+      });
+      document.querySelector('.content').scrollTop = 0;
+    }
+
     function goToSection(id) {
       restoreWindow();
       document.getElementById('start-menu').classList.remove('open');
       document.getElementById('start-button').classList.remove('active');
-      setTimeout(() => {
-        const el = document.getElementById('section-' + id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 320);
+      switchTab(SECTION_TO_TAB[id] || 'about');
     }
     function shutDown() {
       document.getElementById('start-menu').classList.remove('open');
@@ -2133,7 +2191,7 @@
       const c1 = document.getElementById('clock'); if (c1) c1.textContent = t;
       const c2 = document.getElementById('clock-behind'); if (c2) c2.textContent = t;
     }
-    const CAREER_START = new Date('2020-06-01T00:00:00');
+    const CAREER_START = new Date('2020-06-20T00:00:00');
     function updateUptime() {
       const now = new Date();
       let years = now.getFullYear() - CAREER_START.getFullYear();
@@ -2148,7 +2206,12 @@
       if (days < 0) { const prevMonthDate = new Date(now.getFullYear(), now.getMonth(), 0); days += prevMonthDate.getDate(); months--; }
       if (months < 0) { months += 12; years--; }
       const el = document.getElementById('uptime-display');
-      if (el) el.textContent = years + 'y ' + months + 'm ' + days + 'd ' + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+      if (el) el.textContent = years + 'y ' + months + 'm ' + days + 'd ' + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '00');
+      const label = years + '+ Years';
+      const stat = document.getElementById('years-exp-stat');
+      if (stat) stat.textContent = years + '+';
+      const info = document.getElementById('exp-years-info');
+      if (info) info.textContent = label;
     }
 
     /* ===== TOAST ===== */
@@ -2312,10 +2375,10 @@
     let dosHistory = [], dosHistoryIndex = 0;
     const DOS_COMMANDS = {
       help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  github, linkedin, date, ver, echo <text>, clear, exit",
-      whoami: () => "Shubham Chaudhary - Frontend Engineer - 4+ years experience",
-      about: () => "Full-stack engineer specializing in the MERN stack (frontend-heavy).\n4+ years total: 2 yrs Mechanical Engineer + 2+ yrs Software Engineer.",
-      skills: () => "React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, MongoDB, Electron.js, Git, Docker",
-      projects: () => "1. BrowseAnywhere Agent\n2. RunTheDay (RTD)\n3. SportZentric\n4. Desktop Application\nSee the Projects section for full details.",
+      whoami: () => "Shubham Chaudhary - Frontend Engineer - 6+ years experience, building with AI agents",
+      about: () => "Full-stack engineer specializing in the MERN stack (frontend-heavy).\n6+ years total: 2 yrs Mechanical Engineer + 4+ yrs Software Engineer.\nBuilding with AI via Cursor AI and Agent Fabric (multi-agent orchestration).",
+      skills: () => "React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, MongoDB, Electron.js, Git, Docker, Cursor AI, Prompt Engineering",
+      projects: () => "1. Agent Fabric\n2. BrowseAnywhere Agent\n3. RunTheDay (RTD)\n4. SportZentric\n5. Desktop Application\nSee the Projects section for full details.",
       experience: () => "Koru UX (2026-present)\nShepHertz Technologies (2026)\nQuokka Labs (2022-2026)\nRiviera Home Furnishings (2020-2022)",
       contact: () => { goToSection('contact'); return "Opening contact section..."; },
       resume: () => { openInstallWizard(); return "Launching Resume Setup Wizard..."; },
@@ -2417,6 +2480,7 @@
 
     /* ===== INIT ===== */
     function initApp() {
+      switchTab('home');
       centerWindow();
       makeDraggable(document.getElementById('window'), document.getElementById('title-bar'), { enableSnap: true, onRecenter: centerWindow });
       makeResizable(document.getElementById('window'), { minWidth: 360, minHeight: 300 });
