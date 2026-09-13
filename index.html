@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shubham Chaudhary - Frontend Engineer (Portfolio That Boots Like Windows 95)</title>
+  <title>Shubham Chaudhary - Full Stack Engineer (Portfolio That Boots Like Windows 95)</title>
 
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -29,13 +29,14 @@
   <meta name="twitter:image" content="https://shubhamworks.vercel.app/og-image.png">
 
   <!-- SEO -->
-  <meta name="description" content="A fully interactive Windows-95-style desktop: draggable windows, a real DOS prompt, joke error dialogs, and a bouncing DVD logo. 4+ years frontend experience, React, Next.js, Node.js.">
+  <meta name="description"
+    content="A fully interactive Windows-95-style desktop: draggable windows, a real DOS prompt, joke error dialogs, and a bouncing DVD logo. 4+ years frontend experience, React, Next.js, Node.js.">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Shubham Chaudhary",
-    "jobTitle": "Frontend Engineer",
+    "jobTitle": "Full Stack Engineer",
     "url": "https://shubhamworks.vercel.app/",
     "sameAs": [
       "https://github.com/chaudharyShub",
@@ -1108,8 +1109,15 @@
     }
 
     /* ===== INSTALL WIZARD ===== */
-    .wizard-box { width: 460px; }
-    .wizard-body { display: flex; min-height: 230px; }
+    .wizard-box {
+      width: 460px;
+    }
+
+    .wizard-body {
+      display: flex;
+      min-height: 230px;
+    }
+
     .wizard-sidebar {
       width: 120px;
       background: var(--navy);
@@ -1120,6 +1128,7 @@
       padding: 20px 8px 12px;
       gap: 10px;
     }
+
     .wizard-sidebar-title {
       color: #ffffff;
       font-size: 10px;
@@ -1128,17 +1137,20 @@
       line-height: 1.5;
       word-break: break-word;
     }
+
     .wizard-content {
       flex: 1;
       padding: 18px 16px;
       font-size: 12px;
     }
+
     .wizard-content h3 {
       margin: 0 0 12px 0;
       font-size: 13px;
       border-bottom: 1px solid var(--gray-dark);
       padding-bottom: 6px;
     }
+
     .wizard-footer {
       display: flex;
       gap: 6px;
@@ -1146,6 +1158,7 @@
       padding: 8px 12px 10px;
       border-top: 1px solid var(--gray-dark);
     }
+
     #wizard-progress-track {
       width: 100%;
       height: 18px;
@@ -1154,6 +1167,7 @@
       background: var(--white);
       margin: 12px 0 6px;
     }
+
     #wizard-progress-fill {
       height: 100%;
       width: 0%;
@@ -1168,13 +1182,11 @@
       pointer-events: none;
       z-index: 999;
       background-image:
-        repeating-linear-gradient(
-          to bottom,
+        repeating-linear-gradient(to bottom,
           transparent 0px,
           transparent 3px,
           rgba(0, 0, 0, 0.05) 3px,
-          rgba(0, 0, 0, 0.05) 4px
-        ),
+          rgba(0, 0, 0, 0.05) 4px),
         radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.38) 100%);
     }
 
@@ -1189,7 +1201,10 @@
       opacity: 0;
       transition: opacity 0.45s ease;
     }
-    .cursor-trail.active { opacity: 0.6; }
+
+    .cursor-trail.active {
+      opacity: 0.6;
+    }
 
     /* ===== VISITOR COUNTER ===== */
     .visitor-counter {
@@ -1208,6 +1223,7 @@
       cursor: pointer;
       flex: 1;
     }
+
     .theme-swatch-preview {
       height: 34px;
       border: 2px solid;
@@ -1215,10 +1231,12 @@
       position: relative;
       overflow: hidden;
     }
+
     .theme-swatch-preview.selected {
       outline: 2px solid var(--black);
       outline-offset: 1px;
     }
+
     .theme-swatch-label {
       font-size: 9px;
       margin-top: 3px;
@@ -1226,9 +1244,12 @@
     }
 
     /* Terminal theme readability override */
-    [data-theme="terminal"] .exp-duration { color: var(--gray-dark); }
+    [data-theme="terminal"] .exp-duration {
+      color: var(--gray-dark);
+    }
 
     @media (max-width: 700px) {
+
       input[type="text"],
       input[type="email"],
       textarea,
@@ -1396,7 +1417,9 @@
           <rect x="8" y="19" width="8" height="2" fill="#808080" />
         </svg> Display Properties</div>
       <div class="start-sep"></div>
-      <div class="start-item" onclick="openInstallWizard(); document.getElementById('start-menu').classList.remove('open'); document.getElementById('start-button').classList.remove('active');">💾 Download Resume</div>
+      <div class="start-item"
+        onclick="openInstallWizard(); document.getElementById('start-menu').classList.remove('open'); document.getElementById('start-button').classList.remove('active');">
+        💾 Download Resume</div>
       <a class="start-item" href="https://github.com/chaudharyShub" target="_blank" rel="noopener">GitHub</a>
       <a class="start-item" href="https://www.linkedin.com/in/shubham-chaudhary-4398bba8" target="_blank"
         rel="noopener">LinkedIn</a>
@@ -1443,13 +1466,13 @@
 
     <header class="info-bar">
       <span><b>Name:</b> Shubham Chaudhary</span>
-      <span><b>Role:</b> Frontend Engineer</span>
+      <span><b>Role:</b> Full Stack Engineer</span>
       <span><b>Status:</b> <span class="status-dot">&#9679;</span> ONLINE</span>
       <span><b>Experience:</b> <span id="exp-years-info">—</span></span>
     </header>
 
     <div class="content">
-      <h1 class="sr-only">Shubham Chaudhary — Frontend Engineer Portfolio</h1>
+      <h1 class="sr-only">Shubham Chaudhary — Full Stack Engineer Portfolio</h1>
 
       <fieldset class="section" id="section-about">
         <legend>About Me</legend>
@@ -1457,8 +1480,8 @@
           I've navigated a unique career path that fuses engineering precision with creative web development. I'm a
           full-stack engineer with hands-on experience building scalable web applications. I specialize in the full
           stack (frontend-heavy) and love crafting products that genuinely make a difference. Lately, that's included
-          building with AI too - using Cursor AI to ship faster and working on Agent Fabric, a platform for
-          orchestrating multi-agent workflows.</p>
+          building with AI too. Using Cursor AI and Claude Code to enhance productivity, experiment faster, and build
+          smarter, more efficient software.</p>
         <h3 class="sub">Core Modules</h3>
         <table>
           <tr>
@@ -1469,17 +1492,17 @@
           <tr>
             <td>Frontend Development</td>
             <td>Building responsive, accessible UIs with React, Next.js, and modern design systems.</td>
-            <td>React, Next.js, Tailwind, TypeScript, JavaScript</td>
+            <td>React.js, Next.js, Tailwind, TypeScript, JavaScript</td>
           </tr>
           <tr>
             <td>Backend Development</td>
             <td>Designing RESTful APIs with Node.js and Express, integrating with SQL and NoSQL databases.</td>
-            <td>Node.js, Express, PostgreSQL</td>
+            <td>Node.js, Express.js, PostgreSQL, Docker</td>
           </tr>
           <tr>
             <td>Desktop Applications</td>
             <td>Cross-platform desktop apps with Electron.js - web technologies meet native OS power.</td>
-            <td>Electron, React, IPC</td>
+            <td>Electron.js, React.js, IPC</td>
           </tr>
           <tr>
             <td>AI &amp; Agentic Systems</td>
@@ -1600,7 +1623,13 @@
               <div class="skill-bar-fill" style="width:90%"></div>
             </div><span class="skill-pct">90%</span>
           </div>
-          <div class="skill-row"><span class="skill-name">Prompt Engineering</span><span class="skill-level">Proficient</span>
+          <div class="skill-row"><span class="skill-name">Claude Code</span><span class="skill-level">Advanced</span>
+            <div class="skill-bar-track">
+              <div class="skill-bar-fill" style="width:88%"></div>
+            </div><span class="skill-pct">88%</span>
+          </div>
+          <div class="skill-row"><span class="skill-name">Prompt Engineering</span><span
+              class="skill-level">Proficient</span>
             <div class="skill-bar-track">
               <div class="skill-bar-fill" style="width:85%"></div>
             </div><span class="skill-pct">85%</span>
@@ -1659,11 +1688,12 @@
         <div class="exp-entry">
           <div class="exp-header">Koru UX - Frontend Developer</div>
           <div class="exp-duration">May 2026 - present <span class="exp-total">~5 mos</span></div>
-          <p>Frontend engineer specializing in React, Next.js, and Electron. About couple of months in on my
-            first project here, so ask me about the plot twist later. Loving it so far.</p>
-          <div><span class="tag">React.js</span><span class="tag">Cursor</span><span
-              class="tag">Claude</span><span class="tag">TypeScript</span><span class="tag">Tailwind</span><span
-              class="tag">Playwright</span><span class="tag">Redux</span><span class="tag">Git</span></div>
+          <p>Frontend engineer specializing in React.js, Next.js, and Electron.js. Worked on an AI-native workflow and agent
+            orchestration platform - the kind of internal tooling Fortune 500 teams are building right now to coordinate
+            LLM-driven automation at scale.</p>
+          <div><span class="tag">React.js</span><span class="tag">Cursor</span><span class="tag">Claude</span><span
+              class="tag">TypeScript</span><span class="tag">Tailwind</span><span class="tag">Playwright</span><span
+              class="tag">Redux</span><span class="tag">Git</span><span class="tag">PostgreSQL</span></div>
         </div>
         <!-- <div class="exp-entry">
           <div class="exp-header">ShepHertz Technologies - Software Engineer</div>
@@ -1700,7 +1730,7 @@
 
       <fieldset class="section" id="section-contact">
         <legend>Message.exe</legend>
-        <p>Recipient: Shubham</p>
+        <p>Recipient: Shubham Chaudhary</p>
         <form id="contact-form">
           <label for="name">Name:</label>
           <input type="text" id="name" name="name">
@@ -1734,7 +1764,8 @@
       <span>Status: System Online</span>
       <span>Made with HTML | CSS | JavaScript - No Frameworks</span>
       <span>&copy; <span id="year"></span> Shubham Chaudhary</span>
-      <span class="visitor-counter" id="visitor-counter" title="Locally seeded — playful, not a real global count">No. 000000</span>
+      <span class="visitor-counter" id="visitor-counter" title="Locally seeded — playful, not a real global count">No.
+        000000</span>
     </footer>
   </div>
 
@@ -1850,7 +1881,9 @@
           onclick="closeDialog('display-dialog')">&times;</span></div>
       <div class="dialog-body" style="text-align:left; padding:12px 16px;">
         <p style="font-size:11px; margin-bottom:6px;"><b>Theme:</b></p>
-        <div id="theme-swatches" style="display:flex; gap:8px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--gray-dark);"></div>
+        <div id="theme-swatches"
+          style="display:flex; gap:8px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--gray-dark);">
+        </div>
         <p style="font-size:11px; margin-bottom:8px;"><b>Background:</b></p>
         <div id="wallpaper-grid" class="wallpaper-grid"></div>
         <div style="margin-top:10px; border-top:1px solid var(--gray-dark); padding-top:8px; display:flex; gap:18px;">
@@ -1906,11 +1939,11 @@
       <div class="wizard-body">
         <div class="wizard-sidebar">
           <svg viewBox="0 0 36 36" width="56" height="56">
-            <rect x="2" y="2" width="32" height="32" rx="2" fill="#c0c0c0" stroke="#808080" stroke-width="1.5"/>
-            <rect x="4" y="14" width="28" height="18" fill="#ffffff" stroke="#808080" stroke-width="1"/>
-            <rect x="11" y="2" width="16" height="10" fill="#808080" stroke="#606060" stroke-width="1"/>
-            <rect x="13" y="4" width="10" height="6" fill="#404040"/>
-            <rect x="4" y="30" width="4" height="4" fill="#a0a0a0"/>
+            <rect x="2" y="2" width="32" height="32" rx="2" fill="#c0c0c0" stroke="#808080" stroke-width="1.5" />
+            <rect x="4" y="14" width="28" height="18" fill="#ffffff" stroke="#808080" stroke-width="1" />
+            <rect x="11" y="2" width="16" height="10" fill="#808080" stroke="#606060" stroke-width="1" />
+            <rect x="13" y="4" width="10" height="6" fill="#404040" />
+            <rect x="4" y="30" width="4" height="4" fill="#a0a0a0" />
           </svg>
           <div class="wizard-sidebar-title">Shubham<br>Resume<br>Setup</div>
         </div>
@@ -2342,10 +2375,10 @@
     }
     const TABS = ['home', 'about', 'projects', 'contact'];
     const TAB_SECTIONS = {
-      home:     ['about', 'skills', 'projects', 'experience', 'contact'],
-      about:    ['about', 'experience'],
+      home: ['about', 'skills', 'projects', 'experience', 'contact'],
+      about: ['about', 'experience'],
       projects: ['projects', 'skills'],
-      contact:  ['contact']
+      contact: ['contact']
     };
     const ALL_SECTIONS = ['about', 'skills', 'projects', 'experience', 'contact'];
     const SECTION_TO_TAB = { about: 'about', experience: 'about', skills: 'projects', projects: 'projects', contact: 'contact' };
@@ -2410,7 +2443,7 @@
       });
     }
     function ctxProperties() {
-      showMessage('info', 'System Properties', 'Shubham OS v3.0 - Frontend Engineer - 4+ Years Experience - RAM: 640K - Status: Online');
+      showMessage('info', 'System Properties', 'Shubham OS v3.0 - Full Stack Engineer - 4+ Years Experience - RAM: 640K - Status: Online');
     }
     function ctxNew() {
       showMessage('forbidden', 'Shubham OS', "Access denied: you don't have permission to create files in this dimension.");
@@ -2500,7 +2533,7 @@
     }
     function downloadResumeFile() {
       const a = document.createElement('a');
-      a.href = 'Shubham_resume.pdf'; a.download = 'Shubham_resume.pdf'; a.setAttribute('target', '_blank'); 
+      a.href = 'Shubham_resume.pdf'; a.download = 'Shubham_resume.pdf'; a.setAttribute('target', '_blank');
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
     function initContactForm() {
@@ -2651,7 +2684,7 @@
     let dosHistory = [], dosHistoryIndex = 0;
     const DOS_COMMANDS = {
       help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  github, linkedin, date, ver, echo <text>, clear, exit",
-      whoami: () => "Shubham Chaudhary - Frontend Engineer - 6+ years experience, building with AI agents",
+      whoami: () => "Shubham Chaudhary - Full Stack Engineer - 6+ years experience, building with AI agents",
       about: () => "Full-stack engineer specializing in the full stack (frontend-heavy).\n6+ years total: 2 yrs Mechanical Engineer + 4+ yrs Software Engineer.\nBuilding with AI via Cursor AI and Agent Fabric (multi-agent orchestration).",
       skills: () => "React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, PostgreSQL, Electron.js, Git, Docker, Cursor AI, Prompt Engineering",
       // projects: () => "1. Agent Fabric\n2. BrowseAnywhere Agent\n3. RunTheDay (RTD)\n4. SportZentric\n5. Desktop Application\nSee the Projects section for full details.",
@@ -2807,15 +2840,15 @@
 
     /* ===== DISPLAY PROPERTIES / WALLPAPER ===== */
     const WALLPAPERS = [
-      { id: 'teal',        label: 'Teal',         css: '#008080' },
-      { id: 'navy',        label: 'Navy',          css: '#000080' },
-      { id: 'maroon',      label: 'Maroon',        css: '#800000' },
-      { id: 'stripes',     label: 'Stripes',       css: 'repeating-linear-gradient(45deg, #008080, #008080 10px, #006666 10px, #006666 20px)' },
-      { id: 'sunset',      label: 'Sunset Hills',  file: 'wallpaper-sunset-hills.svg' },
-      { id: 'city',        label: 'City Dusk',     file: 'wallpaper-city-dusk.svg' },
-      { id: 'countryside', label: 'Countryside',   file: 'wallpaper-countryside.svg' },
-      { id: 'beach',       label: 'Beach',         file: 'wallpaper-beach.svg' },
-      { id: 'space',       label: 'Space',         file: 'wallpaper-space.svg' }
+      { id: 'teal', label: 'Teal', css: '#008080' },
+      { id: 'navy', label: 'Navy', css: '#000080' },
+      { id: 'maroon', label: 'Maroon', css: '#800000' },
+      { id: 'stripes', label: 'Stripes', css: 'repeating-linear-gradient(45deg, #008080, #008080 10px, #006666 10px, #006666 20px)' },
+      { id: 'sunset', label: 'Sunset Hills', file: 'wallpaper-sunset-hills.svg' },
+      { id: 'city', label: 'City Dusk', file: 'wallpaper-city-dusk.svg' },
+      { id: 'countryside', label: 'Countryside', file: 'wallpaper-countryside.svg' },
+      { id: 'beach', label: 'Beach', file: 'wallpaper-beach.svg' },
+      { id: 'space', label: 'Space', file: 'wallpaper-space.svg' }
     ];
     function applyWallpaperOnly(id) {
       const wp = WALLPAPERS.find(w => w.id === id) || WALLPAPERS[0];
