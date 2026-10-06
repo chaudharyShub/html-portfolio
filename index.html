@@ -723,6 +723,25 @@
       margin: 4px 0 8px 0;
     }
 
+    .cert-body {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .cert-meta {
+      font-size: 11px;
+      color: #333;
+      margin: 4px 0 8px 0;
+      line-height: 1.6;
+    }
+
+    .cert-img {
+      max-width: 100%;
+      border: 2px inset var(--gray-dark);
+      margin-bottom: 10px;
+    }
+
     .exp-entry {
       border-bottom: 1px dashed var(--gray-dark);
       padding: 10px 0;
@@ -1412,6 +1431,9 @@
       <div class="start-item" onclick="openDos()">🖥 MS-DOS Prompt</div>
       <div class="start-item" onclick="openGame()">🐛 Debug Runner (game)</div>
       <div class="start-sep"></div>
+      <div class="start-item"
+        onclick="openDialog('cert-dialog'); document.getElementById('start-menu').classList.remove('open'); document.getElementById('start-button').classList.remove('active');">
+        🎓 My Certificates</div>
       <div class="start-item" onclick="openDisplayProperties()"><svg viewBox="0 0 24 24" width="14" height="14">
           <rect x="2" y="3" width="20" height="14" fill="#1084d0" stroke="#000" stroke-width="1" />
           <rect x="8" y="19" width="8" height="2" fill="#808080" />
@@ -1668,6 +1690,30 @@
         </div>
       </fieldset>
 
+      <fieldset class="section" id="section-certifications">
+        <legend>Certifications\</legend>
+        <div class="project-card">
+          <div class="project-title"><span class="cert-name"></span><span class="status-badge">Certified</span></div>
+          <div class="project-body cert-body">
+            <svg viewBox="0 0 48 56" width="48" height="56" aria-hidden="true" style="flex-shrink:0">
+              <path d="M14 34 L8 54 L16 49 L22 55 L26 38 Z" fill="#800000" stroke="#000" stroke-width="1" />
+              <path d="M34 34 L40 54 L32 49 L26 55 L22 38 Z" fill="#000080" stroke="#000" stroke-width="1" />
+              <circle cx="24" cy="21" r="18" fill="#c0c0c0" stroke="#000" stroke-width="1" />
+              <circle cx="24" cy="21" r="14" fill="#000080" stroke="#fff" stroke-width="1" />
+              <path d="M24 10 L27 18 L35 18 L29 23 L31 31 L24 26 L17 31 L19 23 L13 18 L21 18 Z" fill="#ffff00"
+                stroke="#000" stroke-width="0.5" />
+            </svg>
+            <div>
+              <div class="tech">Issuer: Amazon Web Services (AWS)</div>
+              <div class="cert-meta"></div>
+              <a class="btn cert-verify" target="_blank" rel="noopener" style="display:none">Verify &#8599;</a>
+              <button class="btn cert-view" onclick="openDialog('cert-dialog')" style="display:none">View
+                Certificate</button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
       <fieldset class="section" id="section-projects">
         <legend>Projects\</legend>
         <div class="project-card">
@@ -1878,6 +1924,23 @@
           <div>impostor_syndrome.exe (access denied)</div>
         </div>
         <div class="dialog-buttons"><button onclick="closeDialog('recyclebin-dialog')">Close</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cert-dialog" class="dialog-overlay">
+    <div class="dialog-box wide">
+      <div class="dialog-title-bar"><span>My Certificates</span><span class="dialog-close"
+          onclick="closeDialog('cert-dialog')">&times;</span></div>
+      <div class="dialog-body" style="text-align:left;">
+        <div class="project-title"><span class="cert-name"></span></div>
+        <div class="cert-meta" style="padding-top:6px">Issuer: Amazon Web Services (AWS)</div>
+        <div class="cert-meta cert-dialog-meta"></div>
+        <img class="cert-img" alt="AWS Certified Cloud Practitioner certificate" style="display:none">
+        <div class="dialog-buttons">
+          <a class="btn cert-verify" target="_blank" rel="noopener" style="display:none">Verify &#8599;</a>
+          <button onclick="closeDialog('cert-dialog')">Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2408,12 +2471,47 @@
     }
     const TABS = ['home', 'about', 'projects', 'contact'];
     const TAB_SECTIONS = {
-      home: ['about', 'skills', 'projects', 'experience', 'contact'],
+      home: ['about', 'skills', 'certifications', 'projects', 'experience', 'contact'],
       about: ['about', 'experience'],
-      projects: ['projects', 'skills'],
+      projects: ['projects', 'skills', 'certifications'],
       contact: ['contact']
     };
-    const ALL_SECTIONS = ['about', 'skills', 'projects', 'experience', 'contact'];
+    const ALL_SECTIONS = ['about', 'skills', 'certifications', 'projects', 'experience', 'contact'];
+
+    /* ===== CERTIFICATION ===== Fill the blank fields below; empty ones are hidden automatically. */
+    const CERT = {
+      // name: 'AWS Certified Cloud Practitioner',
+      // issued: '',        // e.g. 'Sep 2026'
+      // expires: '',       // e.g. 'Sep 2029'
+      // credentialId: '',
+      // verifyUrl: '',     // Credly / AWS validation link
+      // file: ''           // e.g. 'aws-cloud-practitioner.png' (same folder as index.html)
+      name: 'AWS Certified Cloud Practitioner',
+      issued: 'Sep 2026',
+      expires: 'Sep 2029',
+      credentialId: '...',
+      verifyUrl: 'https://www.credly.com/badges/...',
+      file: 'aws-cloud-practitioner.png'
+    };
+    function certLines() {
+      return [['Issued', CERT.issued], ['Expires', CERT.expires], ['Credential ID', CERT.credentialId]]
+        .filter(r => r[1]).map(r => r[0] + ': ' + r[1]);
+    }
+    function renderCert() {
+      document.querySelectorAll('.cert-name').forEach(el => { el.textContent = CERT.name; });
+      const lines = certLines();
+      document.querySelectorAll('#section-certifications .cert-meta, .cert-dialog-meta').forEach(el => {
+        el.replaceChildren(...lines.flatMap((l, i) => i ? [document.createElement('br'), l] : [l]));
+      });
+      document.querySelectorAll('.cert-verify').forEach(el => {
+        el.style.display = CERT.verifyUrl ? '' : 'none';
+        if (CERT.verifyUrl) el.href = CERT.verifyUrl;
+      });
+      document.querySelectorAll('.cert-view').forEach(el => { el.style.display = CERT.file ? '' : 'none'; });
+      const img = document.querySelector('#cert-dialog .cert-img');
+      if (CERT.file) { img.src = CERT.file; img.style.display = ''; }
+    }
+    document.addEventListener('DOMContentLoaded', renderCert);
     const SECTION_TO_TAB = { about: 'about', experience: 'about', skills: 'projects', projects: 'projects', contact: 'contact' };
 
     function switchTab(tabId) {
@@ -2426,6 +2524,7 @@
         skillsEl.parentNode.insertBefore(projEl, skillsEl);
       } else {
         projEl.parentNode.insertBefore(skillsEl, projEl);
+        projEl.parentNode.insertBefore(document.getElementById('section-certifications'), projEl);
       }
       ALL_SECTIONS.forEach(s => {
         document.getElementById('section-' + s).style.display = visible.includes(s) ? '' : 'none';
@@ -2716,8 +2815,9 @@
     /* ===== MS-DOS PROMPT COMMANDS ===== */
     let dosHistory = [], dosHistoryIndex = 0;
     const DOS_COMMANDS = {
-      help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  github, linkedin, date, ver, echo <text>, clear, exit",
-      whoami: () => "Shubham Chaudhary - Full Stack Engineer - 6+ years experience, building with AI agents",
+      help: () => "Available commands:\n  whoami, about, skills, certs, projects, experience, contact,\n  github, linkedin, date, ver, echo <text>, clear, exit",
+      certs: () => [CERT.name + " (Amazon Web Services)", ...certLines()].join("\n") + (CERT.verifyUrl ? "\nVerify: " + CERT.verifyUrl : ""),
+      whoami: () => "Shubham Chaudhary - Full Stack Engineer - 4 years experience, building with AI agents",
       about: () => "Full-stack engineer specializing in the full stack (frontend-heavy).\n6+ years total: 2 yrs Mechanical Engineer + 4+ yrs Software Engineer.\nBuilding with AI via Cursor AI and Agent Fabric (multi-agent orchestration).",
       skills: () => "React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, PostgreSQL, Electron.js, Git, Docker, Cursor AI, Prompt Engineering",
       // projects: () => "1. Agent Fabric\n2. BrowseAnywhere Agent\n3. RunTheDay (RTD)\n4. SportZentric\n5. Desktop Application\nSee the Projects section for full details.",
