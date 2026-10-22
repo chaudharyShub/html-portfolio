@@ -4,7 +4,7 @@
 
 **A portfolio that boots like it's 1995.**
 
-A single-page portfolio dressed up as an interactive Windows 95 desktop —
+A single-page portfolio dressed up as an interactive Windows 95 desktop -
 draggable windows, a working DOS prompt, a Start menu, and a few easter eggs.
 
 [**▶ Visit the live site**](https://shubhamworks.vercel.app)
@@ -29,7 +29,7 @@ Instead of a typical landing page, it is a small Win95-style "operating system":
 the site plays a BIOS boot sequence, then opens a single window containing
 About, Skills, Projects, Experience and Contact.
 
-The whole thing is plain HTML, CSS and JavaScript in one `index.html` —
+The whole thing is plain HTML, CSS and JavaScript in one `index.html` -
 no frameworks, no bundler, no dependencies.
 
 ## Features
@@ -66,7 +66,7 @@ worth a try.
 
 ## Run locally
 
-Serve the folder with any static server — opening `index.html` straight from
+Serve the folder with any static server - opening `index.html` straight from
 disk can break relative paths in some browsers.
 
 ```bash
