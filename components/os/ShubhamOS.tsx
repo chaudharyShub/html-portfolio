@@ -14,7 +14,7 @@ import { CloseConfirmDialog, MessageDialog, RecycleBinDialog } from '@/component
 import { DosWindow } from '@/components/windows/DosWindow';
 import { MainWindow, type MainWindowProps } from '@/components/windows/MainWindow';
 import { BootScreen } from './BootScreen';
-import { OsProvider, useOsActions, useOsState } from './OsProvider';
+import { OsProvider, useOsActions } from './OsProvider';
 import { useDesktopEvents } from './useDesktopEvents';
 
 /**
@@ -31,7 +31,6 @@ export function ShubhamOS(props: MainWindowProps) {
 
 function Desktop(props: MainWindowProps) {
   const { bootComplete } = useOsActions();
-  const { windows } = useOsState();
   useDesktopEvents();
 
   // DOM order mirrors the original page; stacking is mostly controlled by z-index in CSS.
@@ -40,7 +39,7 @@ function Desktop(props: MainWindowProps) {
       <DisplayEffects />
       <BootScreen onFinish={bootComplete} />
       <DesktopIcons />
-      <DvdLogo active={windows.main === 'minimized'} />
+      <DvdLogo />
       <Taskbar />
       <StartMenu />
       <MainWindow {...props} />

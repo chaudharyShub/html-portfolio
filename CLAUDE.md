@@ -74,8 +74,9 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
   `localStorage`.
 - **Desktop icons**: Recycle Bin, My Computer, Debug Runner, MS-DOS Prompt — all draggable
   around the desktop layer independently of the window.
-- **DVD bounce easter egg**: "SHUBHAM OS" text bounces around the desktop layer only while the
-  main window is minimized. It used to trigger a joke error dialog every 14th bounce (reduced from
+- **DVD bounce easter egg**: "SHUBHAM OS" text bounces around the desktop layer **all the time**,
+  behind every window (changed Oct 2026 at the user's request; it originally bounced only while the
+  main window was minimized and froze in place otherwise). Still under `prefers-reduced-motion`. It used to trigger a joke error dialog every 14th bounce (reduced from
   every 4th because it felt spammy); those dialogs were later **removed entirely** in commit
   `f6ed8d3` ("remove random dialog boxes"). Only the bounce remains — don't re-add the dialogs
   without being asked.
