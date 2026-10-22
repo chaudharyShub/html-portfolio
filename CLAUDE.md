@@ -85,6 +85,33 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
     play/pause/next/prev/scrub UX that was designed
   - A taskbar tray icon should reappear next to the clock only while something is playing
 
+## Ask Shubham chat (session 6)
+An "Ask Shubham" chat subwindow (`#chat-window`, bot persona "ShubhamBot", speaks about Shubham in
+the third person — never as him). Opened from a desktop icon, Start menu, taskbar button, or the DOS
+`ask` / `ask <question>` command.
+- **Single source of truth: `profile.json`** (repo root, publicly served). Both answer paths read it.
+  Fields `location`, `availability`, `additionalFacts`, `faq` were left empty on purpose — only the
+  user fills them; don't invent values. Phone number deliberately NOT included (public bot).
+- **Primary (B): `api/chat.js`** — Vercel Node serverless function using `@anthropic-ai/sdk`
+  (the only npm dependency; `package.json` exists only for this, the site still has no build step).
+  Needs `ANTHROPIC_API_KEY` in Vercel env vars. Model defaults to `claude-opus-5-5` (effort `low`,
+  server-side refusal fallbacks on); override with `CHAT_MODEL` env var (e.g. `claude-haiku-4-5`,
+  which skips effort/fallbacks automatically). Guards: POST only, same-origin check, input
+  validation (≤12 turns, ≤500 chars/message), best-effort in-memory per-IP rate limit (20/10 min,
+  per instance — not a real global limit). Strict system prompt: profile-only facts, decline
+  off-topic, no guessing.
+- **Fallback (A): `offlineAnswer()`** in index.html — keyword/intent matcher over the same
+  `profile.json`. Used whenever `/api/chat` fails. 404/405/501/503 disable the API for the session
+  (no backend, e.g. `python3 -m http.server` returns 501 for POST); 429/5xx/network fall back per
+  message and retry the API next time. Status line at the bottom shows "Mode: AI" vs "Mode: Offline".
+- Model output is rendered with `textContent` only (no innerHTML) — keep it that way.
+- **Subwindow helpers refactor**: DOS-specific open/minimize/restore/toggle/maximize/close were
+  generalized into `openSubwindow` / `minimizeSubwindow` / `restoreSubwindow` / `toggleSubwindow` /
+  `toggleMaximizeSubwindow` / `closeSubwindow(winId, btnId, inputId)`. `openDos()` etc. and
+  `openChat()` etc. are thin wrappers. `bringSubwindowToFront()` handles z-order between subwindows.
+  Reuse these for any future subwindow.
+- Local testing of the AI path needs `vercel dev`; with the python server you'll only see offline mode.
+
 ## Window animation system (session 5)
 All window/dialog animations are managed entirely via inline JS `style.transition` — no CSS
 transition declarations on `.window` or `.subwindow` (the old `transition: transform 0.3s ease`
@@ -209,7 +236,8 @@ inventing placeholder text — this reflects a real person's actual career histo
 ## Known constraints
 - No build step, no frameworks — keep it plain HTML/CSS/JS.
 - No backend — anything requiring persistence beyond `localStorage` needs an explicit decision
-  to add real infrastructure.
+  to add real infrastructure. (Exception, decided in session 6: the single `api/chat.js` Vercel
+  function for the chat feature. It is stateless.)
 - Test locally with a real server (`python3 -m http.server 8000`), not `file://` — relative
   paths for `resume.pdf` and favicons can behave inconsistently opened directly from disk in
   some browsers.

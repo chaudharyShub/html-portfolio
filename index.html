@@ -1243,8 +1243,92 @@
       color: var(--black);
     }
 
+    /* ===== ASK SHUBHAM CHAT ===== */
+    .chat-window {
+      width: 400px;
+      height: 440px;
+      left: auto;
+      right: 8%;
+      top: 8%;
+    }
+
+    .chat-body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 6px;
+    }
+
+    .chat-log {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      background: var(--white);
+      border: 2px solid;
+      border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+      padding: 6px 8px;
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: left;
+    }
+
+    .chat-msg {
+      margin-bottom: 6px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .chat-who {
+      font-weight: bold;
+    }
+
+    .chat-msg.user .chat-who {
+      color: var(--navy);
+    }
+
+    .chat-msg.bot .chat-who {
+      color: #800000;
+    }
+
+    .chat-msg.typing {
+      color: var(--gray-dark);
+      font-style: italic;
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .chat-suggestions button {
+      padding: 2px 8px;
+      font-size: 11px;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 6px;
+      margin: 0;
+    }
+
+    .chat-input-row input[type="text"] {
+      flex: 1;
+      max-width: none;
+    }
+
+    .chat-status {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-top: 1px solid var(--gray-dark);
+      flex-shrink: 0;
+    }
+
     /* Terminal theme readability override */
-    [data-theme="terminal"] .exp-duration {
+    [data-theme="terminal"] .exp-duration,
+    [data-theme="terminal"] .chat-msg .chat-who {
       color: var(--gray-dark);
     }
 
@@ -1366,6 +1450,14 @@
         <rect x="3" y="25" width="26" height="3" fill="#c0c0c0" stroke="#000" stroke-width="1" />
       </svg>MS-DOS Prompt
     </div>
+    <div class="desktop-icon" id="icon-chat" style="left:20px; top:460px;" ondblclick="openChat()">
+      <svg viewBox="0 0 32 32" width="32" height="32">
+        <path d="M11 2 H30 V15 H26 V19 L22 15 H11 Z" fill="#ffcc00" stroke="#000" stroke-width="1" />
+        <path d="M2 8 H22 V22 H11 L6 28 V22 H2 Z" fill="#fff" stroke="#000" stroke-width="1" />
+        <text x="12" y="19.5" font-family="Arial" font-size="12" font-weight="bold" fill="#000080"
+          text-anchor="middle">?</text>
+      </svg>Ask Shubham
+    </div>
   </div>
 
   <div id="dvd-logo">SHUBHAM OS</div>
@@ -1395,6 +1487,13 @@
       </svg>
       MS-DOS Prompt
     </button>
+    <button id="taskbar-chat-btn" class="taskbar-app-btn" style="display:none;" onclick="toggleChatWindow()">
+      <svg viewBox="0 0 16 16" width="14" height="14">
+        <path d="M1 2 H15 V11 H7 L3 15 V11 H1 Z" fill="#fff" stroke="#000" stroke-width="1" /><text x="8" y="9.5"
+          font-family="Arial" font-size="8" font-weight="bold" fill="#000080" text-anchor="middle">?</text>
+      </svg>
+      Ask Shubham
+    </button>
     <div class="taskbar-right">
       <div id="clock-behind">00:00:00</div>
     </div>
@@ -1409,6 +1508,7 @@
       <div class="start-item" onclick="goToSection('experience')">📁 Experience</div>
       <div class="start-item" onclick="goToSection('contact')">📁 Contact</div>
       <div class="start-sep"></div>
+      <div class="start-item" onclick="openChat()">💬 Ask Shubham (chat)</div>
       <div class="start-item" onclick="openDos()">🖥 MS-DOS Prompt</div>
       <div class="start-item" onclick="openGame()">🐛 Debug Runner (game)</div>
       <div class="start-sep"></div>
@@ -1835,6 +1935,42 @@
     </div>
   </div>
 
+  <!-- ASK SHUBHAM CHAT (floating subwindow, same controls as the DOS prompt) -->
+  <div class="subwindow chat-window" id="chat-window">
+    <div class="resize-handle resize-n" data-dir="n"></div>
+    <div class="resize-handle resize-s" data-dir="s"></div>
+    <div class="resize-handle resize-e" data-dir="e"></div>
+    <div class="resize-handle resize-w" data-dir="w"></div>
+    <div class="resize-handle resize-ne" data-dir="ne"></div>
+    <div class="resize-handle resize-nw" data-dir="nw"></div>
+    <div class="resize-handle resize-se" data-dir="se"></div>
+    <div class="resize-handle resize-sw" data-dir="sw"></div>
+    <div class="title-bar" id="chat-title-bar">
+      <div class="title-bar-left">
+        <svg viewBox="0 0 16 16" width="14" height="14">
+          <path d="M1 2 H15 V11 H7 L3 15 V11 H1 Z" fill="#fff" stroke="#000" stroke-width="1" /><text x="8" y="9.5"
+            font-family="Arial" font-size="8" font-weight="bold" fill="#000080" text-anchor="middle">?</text>
+        </svg>
+        <span>Ask Shubham - ShubhamBot</span>
+      </div>
+      <div class="title-bar-buttons">
+        <span onclick="minimizeChat()" title="Minimize">_</span>
+        <span onclick="toggleMaximizeChat()" title="Maximize">&#9633;</span>
+        <span onclick="closeChat()" title="Close">&times;</span>
+      </div>
+    </div>
+    <div class="chat-body">
+      <div class="chat-log" id="chat-log" aria-live="polite"></div>
+      <div class="chat-suggestions" id="chat-suggestions"></div>
+      <form class="chat-input-row" id="chat-form">
+        <input type="text" id="chat-input" maxlength="500" autocomplete="off"
+          placeholder="Ask about Shubham's skills, projects, experience..." aria-label="Your question">
+        <button type="submit" id="chat-send">Send</button>
+      </form>
+    </div>
+    <div class="chat-status" id="chat-status">Answers come only from Shubham's profile.</div>
+  </div>
+
   <div id="message-dialog" class="dialog-overlay">
     <div class="dialog-box">
       <div class="dialog-title-bar"><span id="msg-title">Shubham OS</span><span class="dialog-close"
@@ -2253,15 +2389,20 @@
     function showCloseConfirm() { openDialog('close-confirm-dialog'); }
     function confirmClose() { closeDialog('close-confirm-dialog'); minimizeWindow(); }
 
-    /* ===== DOS SUBWINDOW CONTROLS ===== */
-    function openDos() {
-      const win = document.getElementById('dos-window');
-      const btn = document.getElementById('taskbar-dos-btn');
+    /* ===== SUBWINDOW CONTROLS (shared by DOS prompt + chat) ===== */
+    function bringSubwindowToFront(win) {
+      document.querySelectorAll('.subwindow').forEach(w => { w.style.zIndex = w === win ? '16' : ''; });
+    }
+    function focusLater(inputId) {
+      if (inputId) setTimeout(() => document.getElementById(inputId).focus(), 50);
+    }
+    function openSubwindow(winId, btnId, inputId) {
+      const win = document.getElementById(winId);
+      const btn = document.getElementById(btnId);
       btn.style.display = 'flex';
       btn.classList.add('active');
-      const out = document.getElementById('dos-output');
-      if (!out.textContent) appendDosLine("Shubham OS [Version 3.0]\n(C) Shubham Chaudhary. All rights reserved.\nType 'help' to see available commands.\n");
-      if (win._isMinimized) { restoreDos(); return; }
+      bringSubwindowToFront(win);
+      if (win._isMinimized) { restoreSubwindow(winId, btnId, inputId); return; }
       const wasHidden = win.style.display !== 'flex';
       win.style.display = 'flex';
       if (wasHidden && !reducedMotion) {
@@ -2274,11 +2415,11 @@
         win.style.opacity = '';
         setTimeout(() => { win.style.transition = ''; }, 165);
       }
-      setTimeout(() => document.getElementById('dos-input').focus(), 50);
+      focusLater(inputId);
     }
-    function minimizeDos() {
-      const win = document.getElementById('dos-window');
-      const btn = document.getElementById('taskbar-dos-btn');
+    function minimizeSubwindow(winId, btnId) {
+      const win = document.getElementById(winId);
+      const btn = document.getElementById(btnId);
       if (win._animating) return;
       win._animating = true;
       win._isMinimized = true;
@@ -2292,13 +2433,14 @@
         win._animating = false;
       });
     }
-    function restoreDos() {
-      const win = document.getElementById('dos-window');
-      const btn = document.getElementById('taskbar-dos-btn');
+    function restoreSubwindow(winId, btnId, inputId) {
+      const win = document.getElementById(winId);
+      const btn = document.getElementById(btnId);
       clearTimeout(win._animTid);
       win._isMinimized = false;
       win._animating = true;
       btn.classList.add('active');
+      bringSubwindowToFront(win);
       win.style.transition = 'none';
       win.style.transform = '';
       win.style.opacity = '';
@@ -2306,22 +2448,22 @@
       win.style.display = 'flex';
       if (reducedMotion) {
         win._animating = false;
-        setTimeout(() => document.getElementById('dos-input').focus(), 50);
+        focusLater(inputId);
         return;
       }
       void win.offsetWidth;
       animateWindowFromTaskbar(win, btn, () => {
         win._animating = false;
-        setTimeout(() => document.getElementById('dos-input').focus(), 50);
+        focusLater(inputId);
       });
     }
-    function toggleDosWindow() {
-      const win = document.getElementById('dos-window');
+    function toggleSubwindow(winId, btnId, inputId) {
+      const win = document.getElementById(winId);
       if (win._animating) return;
-      if (win._isMinimized || win.style.display === 'none' || win.style.display === '') restoreDos(); else minimizeDos();
+      if (win._isMinimized || win.style.display === 'none' || win.style.display === '') restoreSubwindow(winId, btnId, inputId); else minimizeSubwindow(winId, btnId);
     }
-    function toggleMaximizeDos() {
-      const win = document.getElementById('dos-window');
+    function toggleMaximizeSubwindow(winId) {
+      const win = document.getElementById(winId);
       if (reducedMotion || win._animating) { win.classList.toggle('maximized'); return; }
       win._animating = true;
       win.style.transition = 'opacity 0.07s linear';
@@ -2333,9 +2475,9 @@
         setTimeout(() => { win.style.transition = ''; win._animating = false; }, 160);
       }, 80);
     }
-    function closeDos() {
-      const win = document.getElementById('dos-window');
-      const btn = document.getElementById('taskbar-dos-btn');
+    function closeSubwindow(winId, btnId) {
+      const win = document.getElementById(winId);
+      const btn = document.getElementById(btnId);
       win._isMinimized = false;
       clearTimeout(win._animTid);
       if (reducedMotion || win._animating) {
@@ -2358,6 +2500,32 @@
         btn.style.display = 'none';
       }, 130);
     }
+
+    /* ===== DOS SUBWINDOW ===== */
+    function openDos() {
+      const out = document.getElementById('dos-output');
+      if (!out.textContent) appendDosLine("Shubham OS [Version 3.0]\n(C) Shubham Chaudhary. All rights reserved.\nType 'help' to see available commands.\n");
+      openSubwindow('dos-window', 'taskbar-dos-btn', 'dos-input');
+    }
+    function minimizeDos() { minimizeSubwindow('dos-window', 'taskbar-dos-btn'); }
+    function toggleDosWindow() { toggleSubwindow('dos-window', 'taskbar-dos-btn', 'dos-input'); }
+    function toggleMaximizeDos() { toggleMaximizeSubwindow('dos-window'); }
+    function closeDos() { closeSubwindow('dos-window', 'taskbar-dos-btn'); }
+
+    /* ===== CHAT SUBWINDOW ===== */
+    function openChat(question) {
+      if (!document.getElementById('chat-log').childElementCount) {
+        appendChatMsg('bot', "Hi! I'm ShubhamBot. Ask me anything about Shubham's skills, projects, experience or how to reach him.");
+        renderChatSuggestions();
+      }
+      loadChatProfile();
+      openSubwindow('chat-window', 'taskbar-chat-btn', 'chat-input');
+      if (question) sendChatMessage(question);
+    }
+    function minimizeChat() { minimizeSubwindow('chat-window', 'taskbar-chat-btn'); }
+    function toggleChatWindow() { toggleSubwindow('chat-window', 'taskbar-chat-btn', 'chat-input'); }
+    function toggleMaximizeChat() { toggleMaximizeSubwindow('chat-window'); }
+    function closeChat() { closeSubwindow('chat-window', 'taskbar-chat-btn'); }
 
     /* ===== DIALOGS ===== */
     function openDialog(id) {
@@ -2462,7 +2630,7 @@
       });
     }
     function ctxRefresh() { location.reload(); }
-    const DESKTOP_ICON_IDS = ['icon-recyclebin', 'icon-mycomputer', 'icon-game', 'icon-dos'];
+    const DESKTOP_ICON_IDS = ['icon-recyclebin', 'icon-mycomputer', 'icon-game', 'icon-dos', 'icon-chat'];
     function desktopIconPositions() {
       const gap = window.innerWidth > 700 ? 90 : 95;
       return DESKTOP_ICON_IDS.map((_, i) => [20, 20 + i * gap]);
@@ -2716,7 +2884,7 @@
     /* ===== MS-DOS PROMPT COMMANDS ===== */
     let dosHistory = [], dosHistoryIndex = 0;
     const DOS_COMMANDS = {
-      help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  github, linkedin, date, ver, echo <text>, clear, exit",
+      help: () => "Available commands:\n  whoami, about, skills, projects, experience, contact,\n  ask <question>, github, linkedin, date, ver, echo <text>, clear, exit",
       whoami: () => "Shubham Chaudhary - Full Stack Engineer - 4+ years experience, building with AI agents",
       about: () => "Full-stack engineer specializing in the full stack (frontend-heavy).\n4+ years as a Software Engineer (plus 2 yrs prior as a Mechanical Engineer).\nBuilding with AI via Cursor AI and Agent Fabric (multi-agent orchestration).",
       skills: () => "React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, PostgreSQL, Electron.js, Git, Docker, Cursor AI, Prompt Engineering",
@@ -2726,6 +2894,7 @@
       experience: () => "Koru UX (2026-2026)\nQuokka Labs (2022-2026)\nRiviera Home Furnishings (2020-2022)",
       contact: () => { goToSection('contact'); return "Opening contact section..."; },
       resume: () => { openInstallWizard(); return "Launching Resume Setup Wizard..."; },
+      ask: () => { openChat(); return "Launching ShubhamBot..."; },
       github: () => { window.open('https://github.com/chaudharyShub', '_blank'); return "Opening GitHub..."; },
       linkedin: () => { window.open('https://www.linkedin.com/in/shubham-chaudhary-4398bba8', '_blank'); return "Opening LinkedIn..."; },
       date: () => new Date().toString(),
@@ -2748,6 +2917,7 @@
       if (lower.startsWith('rm -rf')) { appendDosLine("Nice try. This filesystem is read-only (and so is my resolve)."); return; }
       if (lower === 'matrix') { appendDosLine("Wake up... there is no spoon, only React state."); return; }
       if (lower.startsWith('echo ')) { appendDosLine(cmd.slice(5)); return; }
+      if (lower.startsWith('ask ')) { appendDosLine("Forwarding your question to ShubhamBot..."); openChat(cmd.slice(4)); return; }
       const key = lower.split(' ')[0];
       if (DOS_COMMANDS[key]) {
         const result = DOS_COMMANDS[key]();
@@ -2775,6 +2945,177 @@
           else { dosHistoryIndex = dosHistory.length; e.target.value = ''; }
           e.preventDefault();
         }
+      });
+    }
+
+    /* ===== ASK SHUBHAM CHAT =====
+       Primary: /api/chat (Vercel function -> Claude, answers from profile.json).
+       Fallback: offlineAnswer() keyword matcher over the same profile.json, used
+       whenever the API is missing (local server, file://), rate limited or erroring. */
+    const CHAT_SUGGESTIONS = ["What's his tech stack?", 'Tell me about Agent Fabric', 'How many years of experience?', 'How can I contact him?'];
+    let chatHistory = [], chatBusy = false, chatApiAvailable = true, chatProfile = null, chatProfilePromise = null;
+
+    function loadChatProfile() {
+      if (!chatProfilePromise) {
+        chatProfilePromise = fetch('profile.json')
+          .then(r => (r.ok ? r.json() : null))
+          .catch(() => null)
+          .then(p => { chatProfile = p; if (!p) chatProfilePromise = null; return p; });
+      }
+      return chatProfilePromise;
+    }
+    function appendChatMsg(who, text) {
+      const log = document.getElementById('chat-log');
+      const row = document.createElement('div');
+      row.className = 'chat-msg ' + who;
+      const name = document.createElement('span');
+      name.className = 'chat-who';
+      name.textContent = who === 'user' ? 'You: ' : 'ShubhamBot: ';
+      const body = document.createElement('span');
+      body.textContent = text;
+      row.append(name, body);
+      log.appendChild(row);
+      log.scrollTop = log.scrollHeight;
+      return row;
+    }
+    function renderChatSuggestions() {
+      const box = document.getElementById('chat-suggestions');
+      box.innerHTML = '';
+      CHAT_SUGGESTIONS.forEach(q => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = q;
+        b.onclick = () => sendChatMessage(q);
+        box.appendChild(b);
+      });
+    }
+    function setChatStatus(text) { document.getElementById('chat-status').textContent = text; }
+    function setChatBusy(busy) {
+      chatBusy = busy;
+      document.getElementById('chat-input').disabled = busy;
+      document.getElementById('chat-send').disabled = busy;
+    }
+
+    async function sendChatMessage(raw) {
+      const text = (raw || '').trim().slice(0, 500);
+      if (!text || chatBusy) return;
+      setChatBusy(true);
+      document.getElementById('chat-suggestions').style.display = 'none';
+      appendChatMsg('user', text);
+      chatHistory.push({ role: 'user', content: text });
+      const typing = document.createElement('div');
+      typing.className = 'chat-msg typing';
+      typing.textContent = 'ShubhamBot is typing...';
+      document.getElementById('chat-log').appendChild(typing);
+
+      let reply = chatApiAvailable ? await askChatApi() : null;
+      if (!reply) {
+        await loadChatProfile();
+        reply = offlineAnswer(text);
+      }
+      typing.remove();
+      appendChatMsg('bot', reply);
+      chatHistory.push({ role: 'assistant', content: reply });
+      setChatBusy(false);
+      focusLater('chat-input');
+    }
+    async function askChatApi() {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 30000);
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: chatHistory.slice(-12) }),
+          signal: ctrl.signal
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.reply) { setChatStatus('Mode: AI (answers from Shubham\'s profile)'); return data.reply; }
+        } else if ([404, 405, 501, 503].includes(res.status)) {
+          chatApiAvailable = false; // no backend here; stop retrying this session
+        }
+      } catch (err) { /* network error or timeout: fall through to offline */ }
+      finally { clearTimeout(tid); }
+      setChatStatus('Mode: Offline (basic answers only)');
+      return null;
+    }
+
+    function offlineAnswer(question) {
+      const p = chatProfile;
+      if (!p) return "I'm in offline mode and couldn't load Shubham's profile. You can reach him at sc07807cs@gmail.com.";
+      const email = p.contact.email;
+      const q = ' ' + question.toLowerCase().replace(/[^a-z0-9.+#\s]/g, ' ').replace(/\.(\s|$)/g, ' ').replace(/\s+/g, ' ') + ' ';
+      const has = (...words) => words.some(w => q.includes(' ' + w));
+      const mentions = (term) => q.includes(' ' + term.toLowerCase() + ' ');
+      const unknown = (what) => "I don't have details on " + what + ". Best to ask Shubham directly at " + email + '.';
+
+      // Custom Q&A from profile.json -> faq: [{ "keywords": [...], "answer": "..." }]
+      let bestFaq = null, bestScore = 0;
+      (p.faq || []).forEach(f => {
+        const score = (f.keywords || []).filter(k => q.includes(k.toLowerCase())).length;
+        if (score > bestScore) { bestScore = score; bestFaq = f; }
+      });
+      if (bestFaq) return bestFaq.answer;
+
+      // "RunTheDay (RTD)" -> runtheday, rtd; "Agent Fabric" -> agent fabric, agentfabric
+      const aliases = (name) => {
+        const lower = name.toLowerCase();
+        const base = lower.split(' (')[0];
+        const paren = (lower.match(/\(([^)]+)\)/) || [])[1];
+        return [base, base.replace(/\s+/g, ''), paren && paren.split(' ')[0]].filter(Boolean);
+      };
+      const project = p.projects.find(pr => aliases(pr.name).some(mentions));
+      if (project) return project.name + ': ' + project.description + ' Tech: ' + project.tech.join(', ') + '.' + (project.link ? ' Live at ' + project.link : '');
+
+      const job = p.experience.find(e => mentions(e.company.split(' ')[0]));
+      if (job) return 'At ' + job.company + ' (' + job.period + ') Shubham worked as ' + job.role + '. ' + job.highlights[0];
+
+      const allSkills = Object.values(p.skills).flat();
+      const named = allSkills.filter(s => {
+        const base = s.name.toLowerCase();
+        const short = base.replace(/\.js$/, '').replace(/ css$/, '');
+        return mentions(base) || (!['next', 'express'].includes(short) && mentions(short));
+      });
+      if (named.length) return named.map(s => 'Shubham rates ' + s.name + ' as ' + s.level + ' (' + s.percent + '%).').join(' ');
+      const other = (p.otherTechUsed || []).filter(t => mentions(t.split(' (')[0]));
+      if (other.length) return 'Shubham has worked with ' + other.join(', ') + ' in his projects and roles.';
+
+      if (has('contact', 'email', 'reach', 'hire', 'hiring', 'linkedin', 'github', 'phone', 'call')) {
+        return 'Email: ' + email + '\nLinkedIn: ' + p.contact.linkedin + '\nGitHub: ' + p.contact.github + '\nOr use the contact form in the main window.';
+      }
+      if (has('resume', 'cv')) return 'You can grab the resume from the Contact section, the Start menu, or by typing "resume" in the MS-DOS Prompt.';
+      if (has('education', 'degree', 'college', 'universit', 'study', 'studied', 'mba', 'b.tech', 'btech', 'qualification')) {
+        return p.education.map(e => e.degree + ', ' + e.institution + ' (' + e.period + ')').join('\n');
+      }
+      if (has('achievement', 'award', 'recogni', 'accomplish')) return (p.achievements || []).join(' ') || unknown('awards');
+      if (has('availab', 'open to', 'looking for', 'notice', 'join', 'start date')) return p.availability || unknown('his current availability');
+      if (has('where', 'location', 'based', 'live', 'relocat', 'remote', 'city')) return p.location || unknown('where he is based');
+      if (has('salary', 'ctc', 'compensation', 'rate', 'pay')) return unknown('compensation');
+      if (has('year', 'how long', 'senior')) return 'Shubham has 4+ years of software experience. ' + p.careerNote;
+      if (mentions('ai') || has('cursor', 'claude', 'agent', 'llm', 'prompt', 'gpt')) {
+        return 'Shubham builds with AI-assisted workflows: ' + p.skills['AI Tools & Workflows'].map(s => s.name + ' (' + s.level + ')').join(', ') + '. He also worked on Agent Fabric, an enterprise platform for building, governing and monitoring AI agents.';
+      }
+      if (has('experience', 'work', 'job', 'compan', 'career', 'employ', 'role', 'position')) {
+        return p.experience.map(e => e.company + ': ' + e.role + ', ' + e.period).join('\n');
+      }
+      if (has('project', 'built', 'build', 'portfolio', 'app')) {
+        return p.projects.map(pr => pr.name + ' - ' + pr.description.split('. ')[0].replace(/\.$/, '') + '.').join('\n');
+      }
+      if (has('skill', 'stack', 'tech', 'know', 'language', 'framework', 'tool', 'good at', 'strength')) {
+        return Object.entries(p.skills).map(([group, list]) => group + ': ' + list.map(s => s.name).join(', ')).join('\n');
+      }
+      if (has('who', 'about', 'yourself', 'himself', 'summary', 'introduce', 'background')) return p.summary;
+      if (['hi', 'hello', 'hey', 'yo', 'namaste'].some(mentions)) return "Hello! Ask me about Shubham's skills, projects, experience, education or how to contact him.";
+      return "I'm in offline mode, so I can only answer basic questions about Shubham's skills, projects, experience, education and contact details. For anything else, email him at " + email + '.';
+    }
+    function initChat() {
+      document.getElementById('chat-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const val = input.value;
+        input.value = '';
+        sendChatMessage(val);
       });
     }
 
@@ -2952,6 +3293,9 @@
       makeResizable(document.getElementById('window'), { minWidth: 360, minHeight: 300 });
       makeDraggable(document.getElementById('dos-window'), document.getElementById('dos-title-bar'), { enableSnap: false });
       makeResizable(document.getElementById('dos-window'), { minWidth: 340, minHeight: 220 });
+      makeDraggable(document.getElementById('chat-window'), document.getElementById('chat-title-bar'), { enableSnap: false });
+      makeResizable(document.getElementById('chat-window'), { minWidth: 320, minHeight: 280 });
+      document.querySelectorAll('.subwindow').forEach(w => w.addEventListener('mousedown', () => bringSubwindowToFront(w)));
       const iconPositions = desktopIconPositions();
       DESKTOP_ICON_IDS.forEach((id, i) => {
         const el = document.getElementById(id);
@@ -2962,6 +3306,7 @@
       initContextMenu();
       initContactForm();
       initDos();
+      initChat();
       applyWallpaperOnly(localStorage.getItem('shubhamOsWallpaper') || 'teal');
       applyTheme(localStorage.getItem('shubhamOsTheme') || 'win95');
       applyCrt(localStorage.getItem('shubhamOsCrt') === '1');

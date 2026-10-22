@@ -1,0 +1,12 @@
+{
+  "name": "shubham-os",
+  "private": true,
+  "description": "Dependencies for the /api/chat serverless function. The site itself has no build step.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.134.0"
+  }
+}

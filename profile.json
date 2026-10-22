@@ -1,0 +1,135 @@
+{
+  "name": "Shubham Chaudhary",
+  "headline": "Full Stack Engineer (frontend-heavy)",
+  "summary": "Full stack developer (frontend-heavy) with 4+ years of software experience building production web and desktop applications. Specializes in React.js, Next.js, JavaScript and TypeScript on the frontend, backed by Node.js, Express.js APIs and PostgreSQL data layers. Comfortable owning a feature end to end, from UI architecture and state management through REST API design and deployment, with working knowledge of Docker, Nginx, CI/CD pipelines and AWS fundamentals.",
+  "careerNote": "Software career started in Sept 2022. Before that, worked 2 years (June 2020 - June 2022) as a Mechanical Engineer.",
+  "location": "",
+  "availability": "",
+  "contact": {
+    "email": "sc07807cs@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/shubham-chaudhary-4398bba8",
+    "github": "https://github.com/chaudharyShub",
+    "portfolio": "https://shubhamworks.vercel.app/",
+    "resume": "Download from the Contact section of this site, the Start menu, or the 'resume' command in the MS-DOS Prompt."
+  },
+  "skills": {
+    "Frontend": [
+      { "name": "React.js", "level": "Advanced", "percent": 95 },
+      { "name": "Next.js", "level": "Advanced", "percent": 88 },
+      { "name": "TypeScript", "level": "Advanced", "percent": 90 },
+      { "name": "JavaScript", "level": "Advanced", "percent": 95 },
+      { "name": "Tailwind CSS", "level": "Advanced", "percent": 92 },
+      { "name": "Material UI", "level": "Proficient", "percent": 85 },
+      { "name": "HTML5", "level": "Advanced", "percent": 95 },
+      { "name": "CSS3", "level": "Advanced", "percent": 92 },
+      { "name": "Redux", "level": "Advanced", "percent": 90 },
+      { "name": "RTK Query", "level": "Advanced", "percent": 90 },
+      { "name": "Electron.js", "level": "Advanced", "percent": 90 }
+    ],
+    "Backend": [
+      { "name": "Node.js", "level": "Advanced", "percent": 90 },
+      { "name": "Express.js", "level": "Proficient", "percent": 70 },
+      { "name": "PostgreSQL", "level": "Proficient", "percent": 70 }
+    ],
+    "Tools & DevOps": [
+      { "name": "Git", "level": "Advanced", "percent": 90 },
+      { "name": "Docker", "level": "Proficient", "percent": 80 },
+      { "name": "CI/CD", "level": "Intermediate", "percent": 55 },
+      { "name": "Nginx", "level": "Intermediate", "percent": 50 },
+      { "name": "AWS", "level": "Intermediate", "percent": 50 }
+    ],
+    "AI Tools & Workflows": [
+      { "name": "Cursor AI", "level": "Advanced", "percent": 90 },
+      { "name": "Claude Code", "level": "Advanced", "percent": 88 },
+      { "name": "Prompt Engineering", "level": "Proficient", "percent": 85 }
+    ]
+  },
+  "otherTechUsed": ["REST APIs", "WebSocket", "Firebase (OTP auth)", "MongoDB", "Drupal", "Electron-store", "React Hook Form", "Styled Components", "Vite", "Mantine", "Playwright", "MQTT", "ChatGPT", "Gemini"],
+  "softSkills": ["Leadership", "Communication", "Public Speaking", "Time Management"],
+  "experience": [
+    {
+      "company": "Koru UX",
+      "role": "Frontend Developer (Full-time)",
+      "period": "May 2026 - Sept 2026",
+      "duration": "~5 months",
+      "location": "Pune, Maharashtra",
+      "highlights": [
+        "Frontend Developer on Agent Fabric UI, a React 19+ TypeScript enterprise web app built with Vite, Mantine and Redux Toolkit Query, enabling teams to configure, test, qualify and govern AI agents across their full lifecycle.",
+        "Developed the Trust Studio verification UI for testing AI agents across Identity, Consistency, Boundary and Evidence 'gates', surfacing per-scenario pass/fail results and gate-level qualification status.",
+        "Used Cursor for AI-assisted coding, debugging and iterative development."
+      ],
+      "tech": ["React.js", "TypeScript", "Redux Toolkit Query", "Mantine", "Vite", "Cursor", "Claude", "Tailwind", "Playwright", "Git", "PostgreSQL"]
+    },
+    {
+      "company": "Quokka Labs",
+      "role": "Software Engineer (Frontend Developer, Full-time)",
+      "period": "Sept 2022 - March 2026",
+      "duration": "3 years 6 months",
+      "location": "Noida, Uttar Pradesh",
+      "highlights": [
+        "Engineered RunTheDay, a US-based race registration and results platform (Next.js, React.js, TypeScript, Tailwind, Material UI, Redux) with real-time multi-role interactions.",
+        "Implemented WebSocket for live race results and Firebase OTP-based authentication and onboarding.",
+        "Built and updated backend REST APIs with Node.js, Express.js and MongoDB during critical production support for RunTheDay.",
+        "Developed a cross-platform Windows/Linux desktop app for Edique (Electron.js, Node.js, React.js, TypeScript) with auto-update and auto-start, logging power on/off and sleep/wake events and sending minute-wise heartbeat data over WebSocket.",
+        "Built SportZentric, a sports batch creation and registration platform plus its Admin Panel (React.js, RTK Query, Styled Components, Material UI, React Hook Form) with Firebase OTP onboarding.",
+        "Developed REST API integrations between Drupal and external services and maintained Drupal-based web applications."
+      ],
+      "tech": ["React.js", "Next.js", "Electron.js", "TypeScript", "Tailwind", "Node.js", "Express.js", "PostgreSQL", "Material UI", "Redux", "REST APIs", "Git"]
+    },
+    {
+      "company": "Riviera Home Furnishings",
+      "role": "Mechanical Engineer",
+      "period": "June 2020 - June 2022",
+      "duration": "2 years",
+      "location": "",
+      "highlights": [
+        "Led a team of 10-12 technicians in the maintenance department of a bathmat manufacturing plant.",
+        "Owned preventive and breakdown maintenance, scheduled repairs, found root causes of equipment failures, coordinated with production and upheld safety and quality standards."
+      ],
+      "tech": ["Supervision", "Preventive Maintenance", "Breakdown Maintenance", "Project Management", "Leadership"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Agent Fabric",
+      "description": "Enterprise platform for building, governing and monitoring AI agents across their full lifecycle: a single React/TypeScript web app spanning agent configuration, workflow building, governance policies, pre-release testing and certification, and production monitoring. Built while at Koru UX.",
+      "tech": ["React.js", "TypeScript", "Cursor AI"],
+      "link": ""
+    },
+    {
+      "name": "RunTheDay (RTD)",
+      "description": "US-based full stack platform for creating and registering for races (marathons) and viewing live results, supporting multiple roles (Race Directors, Runners, Volunteers) with real-time, WebSocket-driven interactions.",
+      "tech": ["Next.js", "TypeScript", "Tailwind CSS", "Node.js", "Express.js", "Redux", "Material UI"],
+      "link": "https://runtheday.com"
+    },
+    {
+      "name": "Edique (MDM Desktop Application)",
+      "description": "Cross-platform Windows/Linux desktop app and background service built with Electron.js that tracks system activity and streams power logs and timestamps to a server every minute.",
+      "tech": ["Electron.js", "React.js", "TypeScript", "Node.js", "MQTT", "Redux"],
+      "link": ""
+    },
+    {
+      "name": "SportZentric",
+      "description": "Sports platform connecting coaches and players, allowing coaches to create paid training batches that players can discover and join.",
+      "tech": ["React.js", "Tailwind CSS", "React Hook Form", "Styled Components", "RTK Query"],
+      "link": ""
+    }
+  ],
+  "achievements": [
+    "Star Performer of the Month at Quokka Labs (April 2024), for delivering high-impact features on the Edique project under tight deadlines."
+  ],
+  "education": [
+    {
+      "institution": "Amity University Online (Noida)",
+      "degree": "MBA, dual specialization in IT & Data Analytics",
+      "period": "July 2025 - July 2027, in progress"
+    },
+    {
+      "institution": "Vidya College Engineering (Meerut)",
+      "degree": "B.Tech, Mechanical Engineering",
+      "period": "June 2013 - June 2017"
+    }
+  ],
+  "additionalFacts": [],
+  "faq": []
+}

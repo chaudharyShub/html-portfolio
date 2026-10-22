@@ -30,7 +30,8 @@ the site plays a BIOS boot sequence, then opens a single window containing
 About, Skills, Projects, Experience and Contact.
 
 The whole thing is plain HTML, CSS and JavaScript in one `index.html` —
-no frameworks, no bundler, no dependencies.
+no frameworks, no bundler. The only dependency is the Anthropic SDK, used by the
+`api/chat.js` serverless function behind the chat window.
 
 ## Features
 
@@ -39,6 +40,7 @@ no frameworks, no bundler, no dependencies.
 | **Boot screen** | BIOS-style startup sequence. Click or press any key to skip. |
 | **Window manager** | Drag, resize from 8 edges, minimize, maximize, and snap to screen edges. |
 | **MS-DOS Prompt** | A real command parser with history (↑ / ↓). |
+| **Ask Shubham** | A chat window that answers questions about me from `profile.json`, using Claude via a Vercel function, with an offline keyword fallback. |
 | **Start menu & taskbar** | Quick links, a live clock, and animated minimize-to-taskbar. |
 | **Desktop** | Draggable icons and a custom right-click menu. |
 | **Display Properties** | 3 themes (Win95, Win98, Terminal), 9 wallpapers, CRT scanlines, cursor trail. |
