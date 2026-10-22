@@ -1,0 +1,62 @@
+/* Small screens. Kept last so these overrides win. */
+@media (max-width: 700px) {
+
+  input[type="text"],
+  input[type="email"],
+  textarea,
+  #dos-input {
+    font-size: 16px;
+  }
+
+  .desktop-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .skill-name {
+    width: 100px;
+  }
+
+  .skill-level {
+    display: none;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  th {
+    display: none;
+  }
+
+  td {
+    border: none;
+    border-bottom: 1px solid var(--gray-dark);
+  }
+
+  td:first-child {
+    font-weight: bold;
+    background: var(--gray);
+  }
+
+  .window {
+    top: 8px;
+    max-height: calc(96vh - 32px);
+  }
+
+  .subwindow {
+    width: 92vw;
+    left: 4vw;
+    top: 8vh;
+    height: 60vh;
+  }
+
+  .resize-handle {
+    display: none;
+  }
+}

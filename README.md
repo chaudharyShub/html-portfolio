@@ -9,14 +9,14 @@ draggable windows, a working DOS prompt, a Start menu, and a few easter eggs.
 
 [**▶ Visit the live site**](https://shubhamworks.vercel.app)
 
-![HTML](https://img.shields.io/badge/HTML-single%20file-000080?style=flat-square)
-![CSS](https://img.shields.io/badge/CSS-hand--written-008080?style=flat-square)
-![JavaScript](https://img.shields.io/badge/JavaScript-vanilla-c0c0c0?style=flat-square)
-![Build](https://img.shields.io/badge/build%20step-none-800000?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-App%20Router-000080?style=flat-square)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-008080?style=flat-square)
+![CSS](https://img.shields.io/badge/CSS-hand--written-c0c0c0?style=flat-square)
+![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react-800000?style=flat-square)
 
 <br>
 
-<img src="og-image.png" alt="Preview of the Shubham OS portfolio window" width="720">
+<img src="public/og-image.png" alt="Preview of the Shubham OS portfolio window" width="720">
 
 </div>
 
@@ -29,8 +29,9 @@ Instead of a typical landing page, it is a small Win95-style "operating system":
 the site plays a BIOS boot sequence, then opens a single window containing
 About, Skills, Projects, Experience and Contact.
 
-The whole thing is plain HTML, CSS and JavaScript in one `index.html` -
-no frameworks, no bundler, no dependencies.
+It is a Next.js (App Router) app written in TypeScript with hand-written CSS -
+no UI libraries, no CSS framework. All portfolio content is rendered on the
+server, so it is in the HTML for search engines before any JavaScript runs.
 
 ## Features
 
@@ -42,12 +43,14 @@ no frameworks, no bundler, no dependencies.
 | **Start menu & taskbar** | Quick links, a live clock, and animated minimize-to-taskbar. |
 | **Desktop** | Draggable icons and a custom right-click menu. |
 | **Display Properties** | 3 themes (Win95, Win98, Terminal), 9 wallpapers, CRT scanlines, cursor trail. |
+| **Contact form** | Sends via Web3Forms (with a honeypot spam trap); falls back to your mail app via `mailto:`. |
 | **Resume Setup Wizard** | An InstallShield-style installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
-| **Installable** | Works offline as a PWA via a cache-first service worker. |
+| **Installable** | Works offline as a PWA via a service worker. |
 
 All preferences are stored in `localStorage`, and every animation respects
-`prefers-reduced-motion`.
+`prefers-reduced-motion`. Menus, tabs, title-bar buttons and dialogs are
+keyboard operable (Enter/Space to activate, Escape to close).
 
 ## Try the DOS prompt
 
@@ -66,31 +69,109 @@ worth a try.
 
 ## Run locally
 
-Serve the folder with any static server - opening `index.html` straight from
-disk can break relative paths in some browsers.
+Requires Node.js 20.9+ (developed on Node 24) and npm.
 
 ```bash
-python -m http.server 8000
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Then open <http://localhost:8000>.
+Other scripts:
+
+```bash
+npm run build      # production build (also type-checks)
+npm start          # serve the production build
+npm run lint       # ESLint (Next.js + React Compiler rules)
+npm run typecheck  # tsc --noEmit
+```
+
+The service worker is only registered in production builds (`npm run build && npm start`),
+so development never serves stale cached bundles.
 
 ## Project structure
 
 ```text
-.
-├── index.html              # the entire site: markup, styles, scripts
-├── sw.js                   # service worker (offline cache)
-├── manifest.json           # PWA manifest
-├── Shubham_resume.pdf      # downloadable resume
-├── wallpaper-*.svg         # five scenic wallpapers
-├── og-image.png            # link preview image
-├── favicon.* / icon-*.png  # winking CRT monitor icon set
-└── robots.txt, sitemap.xml # SEO
+app/
+  layout.tsx            # <html>, metadata, pre-paint theme script, SW registration
+  page.tsx              # the single page: server-rendered sections -> desktop
+  not-found.tsx         # Win95-style 404
+  sitemap.ts robots.ts manifest.ts
+  globals.css           # imports the stylesheets in styles/
+components/
+  os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
+  windows/              # generic Window (drag/resize/snap/animate), MainWindow, DosWindow
+  desktop/              # icons, taskbar, Start menu, context menu, DVD logo, toast, effects
+  dialogs/              # generic Dialog + message, recycle bin, game, display props, wizard
+  portfolio/            # About, Skills, Projects, Experience, Contact (server components)
+  live/                 # small client readouts: clock, uptime, year, visitor counter
+  icons/                # hand-drawn Win95-style SVG icons
+data/                   # portfolio content: profile, about, skills, projects, experience
+lib/                    # site config, themes, wallpapers, DOS parser, storage, animations
+styles/                 # the original CSS, split by area (class names unchanged)
+public/                 # resume PDF, icons, og-image, wallpapers, sw.js
 ```
 
-All files need to stay in the same folder, since `index.html` references them
-with relative paths.
+### How it fits together
+
+- **Content is data.** Edit `data/*.ts` to change projects, experience or skills.
+  Entries with `hidden: true` are kept but not rendered.
+- **Server vs client.** Portfolio sections are Server Components. They are passed as
+  props into the client-side desktop (`components/os/ShubhamOS.tsx`), which only decides
+  which sections a tab shows and in what order.
+- **State.** `OsProvider` holds dialogs, menus, tabs, toasts and window status in a
+  reducer and exposes stable actions (`useOsActions()`), e.g. `showToast`, `showMessage`,
+  `openDialog`, `goToSection`, `openDos`.
+- **Windows.** `components/windows/Window.tsx` is the one draggable/resizable window
+  implementation. Reuse it for any new window instead of duplicating drag/resize logic.
+- **Preferences** use small `localStorage`-backed stores (`lib/preferences.ts`) read
+  through `useSyncExternalStore`, so server HTML and the first client render always match.
+
+## Deploy to Vercel
+
+The repo includes `vercel.json` with `"framework": "nextjs"`, so Vercel builds it as a
+Next.js app (important because this project previously deployed as a static site).
+
+1. Push the branch and open the project on Vercel (or run `vercel` / `vercel --prod`).
+2. Check **Project Settings → Build & Development**: Framework Preset *Next.js*,
+   build command `next build`, and no custom output directory left over from the static setup.
+3. Add the environment variable `WEB3FORMS_ACCESS_KEY` (see below) and deploy.
+
+## Contact form (Web3Forms)
+
+1. Create a free access key at [web3forms.com](https://web3forms.com) with the email address
+   that should receive messages.
+2. Set `WEB3FORMS_ACCESS_KEY` in Vercel (**Settings → Environment Variables**, Production
+   and Preview) and in `.env.local` for local testing, then redeploy. The value is read at build time
+   (the page is statically generated), so changing it needs a redeploy.
+
+How it behaves:
+
+- With a key: the message is sent from the page, a toast confirms it and the form clears.
+- If sending fails (network error, quota reached): the visitor's email app opens with the
+  message prefilled instead.
+- Without a key: the form only uses the `mailto:` fallback (the original behavior).
+- A hidden `botcheck` checkbox catches simple bots; their submissions are silently dropped.
+- The key is visible in the page source by design: Web3Forms only accepts browser submissions on the
+  free plan (server-side calls need a paid plan with a safelisted IP), and their docs state the key
+  is public. It can only deliver messages to your inbox.
+  If spam becomes a problem, add Cloudflare Turnstile or hCaptcha.
+
+## Custom domain
+
+1. In Vercel: **Project → Settings → Domains → Add**, enter your domain and follow the
+   DNS instructions (an `A` record for the apex domain or a `CNAME` for `www`).
+2. Set **`NEXT_PUBLIC_SITE_URL`** to the new origin (e.g. `https://your-domain.com`) in
+   **Settings → Environment Variables** for *Production*, then redeploy.
+
+The site URL drives the canonical link, Open Graph/Twitter URLs, JSON-LD, `sitemap.xml`
+and `robots.txt`. It is resolved in `lib/site.ts` in this order:
+
+1. `NEXT_PUBLIC_SITE_URL`, if set
+2. `VERCEL_PROJECT_PRODUCTION_URL` (set automatically by Vercel; it prefers your custom
+   domain once one is attached)
+3. `https://shubhamworks.vercel.app`
+
+See `.env.example`. After switching domains, re-submit the sitemap in Google Search Console.
 
 ## Design notes
 

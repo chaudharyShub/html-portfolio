@@ -1,0 +1,32 @@
+/* Optional visual effects toggled in Display Properties. */
+/* ===== CRT OVERLAY ===== */
+#crt-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background-image:
+    repeating-linear-gradient(to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0, 0, 0, 0.05) 3px,
+      rgba(0, 0, 0, 0.05) 4px),
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.38) 100%);
+}
+
+/* ===== CURSOR TRAIL ===== */
+.cursor-trail {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: var(--navy);
+  pointer-events: none;
+  z-index: 997;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.cursor-trail.active {
+  opacity: 0.6;
+}

@@ -1,0 +1,446 @@
+/* Dialogs and the apps that live in them (Debug Runner, Display Properties, Setup Wizard) + DOS console. */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.dialog-box {
+  background: var(--gray);
+  border: 2px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  width: 300px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+.dialog-box.wide {
+  width: 380px;
+}
+
+.dialog-title-bar {
+  background: linear-gradient(90deg, var(--navy), var(--navy-light));
+  color: #fff;
+  font-weight: bold;
+  padding: 4px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.dialog-close {
+  cursor: pointer;
+  width: 16px;
+  height: 14px;
+  background: var(--gray);
+  border: 1px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  text-align: center;
+  line-height: 14px;
+  font-size: 10px;
+  color: #000;
+}
+
+.dialog-body {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.dialog-icon {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.dialog-buttons {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.recycle-list {
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--gray-dark);
+  padding: 8px 10px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 4px;
+}
+
+.recycle-list div {
+  padding: 3px 0;
+  border-bottom: 1px dotted #ccc;
+}
+
+#game-stage {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: #dff0ff;
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#game-player {
+  position: absolute;
+  bottom: 2px;
+  left: 20px;
+  width: 22px;
+  height: 30px;
+}
+
+.player-body {
+  position: absolute;
+  bottom: 0;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: var(--navy);
+}
+
+.player-head {
+  position: absolute;
+  bottom: 15px;
+  left: 6px;
+  width: 10px;
+  height: 10px;
+  background: #ffcc99;
+  border: 1px solid #663300;
+}
+
+.game-bug {
+  position: absolute;
+  bottom: 2px;
+  width: 20px;
+  height: 20px;
+}
+
+#game-over-msg {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dos-body {
+  background: #000;
+  color: #c0c0c0;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  padding: 10px;
+  text-align: left;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dos-output {
+  flex: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  margin-bottom: 6px;
+}
+
+.dos-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+#dos-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #c0c0c0;
+  font-family: inherit;
+  font-size: 12px;
+  flex: 1;
+}
+
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.wallpaper-swatch {
+  height: 44px;
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  cursor: pointer;
+}
+
+.wallpaper-swatch.selected {
+  outline: 2px solid #000;
+  outline-offset: 1px;
+}
+
+.wallpaper-label {
+  font-size: 9px;
+  text-align: center;
+  margin-top: 2px;
+  color: #000;
+}
+
+/* ===== INSTALL WIZARD ===== */
+.wizard-box {
+  width: 460px;
+}
+
+.wizard-body {
+  display: flex;
+  min-height: 230px;
+}
+
+.wizard-sidebar {
+  width: 120px;
+  background: var(--navy);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 8px 12px;
+  gap: 10px;
+}
+
+.wizard-sidebar-title {
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.wizard-content {
+  flex: 1;
+  padding: 18px 16px;
+  font-size: 12px;
+}
+
+.wizard-content h3 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--gray-dark);
+  padding-bottom: 6px;
+}
+
+.wizard-footer {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--gray-dark);
+}
+
+#wizard-progress-track {
+  width: 100%;
+  height: 18px;
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  background: var(--white);
+  margin: 12px 0 6px;
+}
+
+#wizard-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--navy);
+}
+
+/* ===== THEME SWATCHES (Display Properties) ===== */
+.theme-swatch-wrap {
+  text-align: center;
+  cursor: pointer;
+  flex: 1;
+}
+
+.theme-swatch-preview {
+  height: 34px;
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-swatch-preview.selected {
+  outline: 2px solid var(--black);
+  outline-offset: 1px;
+}
+
+.theme-swatch-label {
+  font-size: 9px;
+  margin-top: 3px;
+  color: var(--black);
+}
+
+/* ===== Classes replacing inline styles from the original markup ===== */
+.dialog-body.align-left {
+  text-align: left;
+}
+
+.dialog-body.compact {
+  padding: 10px;
+}
+
+.dialog-body.display-body {
+  text-align: left;
+  padding: 12px 16px;
+}
+
+.dialog-note {
+  font-size: 11px;
+  color: var(--black);
+}
+
+.game-over-sub {
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.game-hint {
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+.game-score-line {
+  font-size: 12px;
+}
+
+.display-heading {
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.display-heading.spaced {
+  margin-bottom: 8px;
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-dark);
+}
+
+.theme-swatch-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 11px;
+}
+
+.theme-swatch-body {
+  position: absolute;
+  top: 11px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.display-toggles {
+  margin-top: 10px;
+  border-top: 1px solid var(--gray-dark);
+  padding-top: 8px;
+  display: flex;
+  gap: 18px;
+}
+
+.display-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  margin: 0;
+}
+
+.dialog-buttons.spaced {
+  margin-top: 12px;
+}
+
+.wizard-spaced {
+  margin-top: 10px;
+}
+
+.wizard-license {
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.wizard-license-text {
+  font-style: italic;
+  font-size: 11px;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.wizard-agree {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.wizard-status {
+  font-size: 11px;
+  color: var(--gray-dark);
+}
+
+.wizard-complete {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.wizard-complete p {
+  margin: 0;
+}
+
+/* Dialogs receive focus programmatically when opened; no focus ring on the box itself. */
+.dialog-box:focus {
+  outline: none;
+}
+
+/* ===== 404 page ===== */
+.not-found {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.not-found .dialog-box {
+  max-width: 100%;
+}
+
+.not-found-heading {
+  font-size: 13px;
+  margin: 0 0 6px;
+}

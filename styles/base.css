@@ -1,0 +1,99 @@
+/* Base: theme variables, page defaults and shared form controls (from the original index.html). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:root {
+  --gray: #c0c0c0;
+  --gray-dark: #808080;
+  --white: #ffffff;
+  --black: #000000;
+  --navy: #000080;
+  --navy-light: #1084d0;
+  --teal: #008080;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--teal);
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--black);
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><polygon points="2,1 2,19 6.5,15.5 9,21.5 12,20.2 9.6,14.5 16,14.5" fill="black" stroke="white" stroke-width="1.2"/></svg>') 2 1, auto;
+  transition: background-color 0.4s ease;
+}
+
+button,
+.btn {
+  background: var(--gray);
+  border: 2px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  padding: 5px 14px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--black);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+button:active,
+.btn:active {
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+}
+
+.links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  margin: 8px 0 3px 0;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  background: var(--white);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 5px;
+  width: 100%;
+  max-width: 380px;
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  background: var(--white);
+}
+
+textarea {
+  resize: vertical;
+}

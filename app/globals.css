@@ -1,0 +1,12 @@
+/*
+ * Global styles, split by area. Order matters: it mirrors the original single stylesheet,
+ * with small-screen overrides last.
+ */
+@import '../styles/base.css';
+@import '../styles/boot.css';
+@import '../styles/desktop.css';
+@import '../styles/window.css';
+@import '../styles/portfolio.css';
+@import '../styles/dialogs.css';
+@import '../styles/effects.css';
+@import '../styles/responsive.css';
