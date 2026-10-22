@@ -47,6 +47,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Resume Setup Wizard** | An InstallShield-style installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
+| **Analytics** | Vercel Web Analytics (cookieless page views), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage`, and every animation respects
 `prefers-reduced-motion`. Menus, tabs, title-bar buttons and dialogs are
@@ -155,6 +156,17 @@ How it behaves:
   free plan (server-side calls need a paid plan with a safelisted IP), and their docs state the key
   is public. It can only deliver messages to your inbox.
   If spam becomes a problem, add Cloudflare Turnstile or hCaptcha.
+
+## Web Analytics
+
+The site uses [Vercel Web Analytics](https://vercel.com/docs/analytics) (`<Analytics />` in
+`app/layout.tsx`). To see data:
+
+1. In Vercel, open the project → **Analytics** tab → **Enable** (once per project).
+2. Deploy. Page views appear in the Analytics tab within a few minutes of visits.
+
+The component is only rendered in builds made on Vercel (`process.env.VERCEL`), because its script
+is served by Vercel itself; local `npm run dev` / `npm start` don't load it.
 
 ## Custom domain
 

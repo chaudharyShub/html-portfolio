@@ -1,29 +1,32 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { prefersReducedMotion } from '@/lib/motion';
 
 const COLORS = ['#ff0044', '#00ff88', '#ffaa00', '#00aaff', '#ff00ff', '#ffffff', '#33ff33'];
 const TASKBAR_HEIGHT = 32;
 
 /**
- * "SHUBHAM OS" text that bounces around the desktop while the main window is minimized.
- * Position is written per animation frame directly to the element.
+ * "SHUBHAM OS" text that bounces around the desktop, behind all windows, the whole time.
+ * Under prefers-reduced-motion it stays still. Position is written per animation frame
+ * directly to the element.
  */
-export function DvdLogo({ active }: { active: boolean }) {
+export function DvdLogo() {
   const ref = useRef<HTMLDivElement>(null);
-  const motion = useRef<{ x: number; y: number; dx: number; dy: number } | null>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!active || !el) return;
-    // Random start position, chosen once per page load (the first time it bounces).
-    motion.current ??= {
+    if (!el) return;
+    // Random start position, chosen once per page load.
+    const m = {
       x: Math.random() * (window.innerWidth - 200),
       y: Math.random() * (window.innerHeight - 200),
       dx: 2.2,
       dy: 1.7,
     };
-    const m = motion.current;
+    el.style.left = `${m.x}px`;
+    el.style.top = `${m.y}px`;
+    if (prefersReducedMotion()) return;
     let frame = 0;
     const step = () => {
       const maxX = window.innerWidth - el.offsetWidth;
@@ -58,7 +61,7 @@ export function DvdLogo({ active }: { active: boolean }) {
     };
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [active]);
+  }, []);
 
   return (
     <div id="dvd-logo" ref={ref} aria-hidden="true">
