@@ -13,7 +13,7 @@ export function StatusBar() {
         </span>
       </span>
       <span>Status: System Online</span>
-      <span>Made with HTML | CSS | JavaScript - No Frameworks</span>
+      <span>Made with Next.js | React | TypeScript</span>
       <span>
         &copy; <CurrentYear /> {PROFILE.name}
       </span>
