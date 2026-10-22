@@ -1,0 +1,235 @@
+/* Desktop layer: icons, DVD logo, taskbar, Start menu, context menu, toast. */
+.desktop-layer {
+  position: fixed;
+  inset: 0;
+  bottom: 32px;
+  z-index: 1;
+}
+
+.desktop-icon {
+  position: absolute;
+  width: 76px;
+  text-align: center;
+  color: #fff;
+  font-size: 11px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  user-select: none;
+  padding: 4px;
+  border: 1px dotted transparent;
+  white-space: nowrap;
+}
+
+.desktop-icon:active {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.desktop-icon svg {
+  display: block;
+  margin: 0 auto 3px auto;
+}
+
+#dvd-logo {
+  position: fixed;
+  z-index: 2;
+  font-weight: bold;
+  font-size: 18px;
+  color: #00ff88;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+}
+
+.taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32px;
+  background: var(--gray);
+  border-top: 2px solid var(--white);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+  z-index: 90;
+  font-size: 12px;
+}
+
+.start-button,
+.taskbar-app-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  border: 2px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  background: var(--gray);
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.start-button.active,
+.taskbar-app-btn.active {
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  background: #a8a8a8;
+}
+
+.taskbar-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--gray-dark);
+  border-right: 1px solid var(--white);
+}
+
+.taskbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#clock-behind {
+  padding: 3px 8px;
+  border: 1px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  background: var(--white);
+  font-family: "Courier New", monospace;
+}
+
+.start-menu {
+  position: fixed;
+  left: 4px;
+  bottom: 34px;
+  display: none;
+  background: var(--gray);
+  border: 2px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+  z-index: 95;
+  min-width: 230px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.start-menu.open {
+  display: flex;
+}
+
+.start-menu-side {
+  width: 26px;
+  background: var(--navy);
+  color: #fff;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-weight: bold;
+  letter-spacing: 3px;
+  padding: 8px 2px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.start-menu-items {
+  flex: 1;
+  padding: 4px 0;
+}
+
+.start-item {
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.start-item:hover {
+  background: var(--navy);
+  color: #fff;
+}
+
+.start-sep {
+  border-top: 1px solid var(--gray-dark);
+  border-bottom: 1px solid var(--white);
+  margin: 3px 6px;
+}
+
+.context-menu {
+  position: fixed;
+  display: none;
+  background: var(--gray);
+  border: 2px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  z-index: 300;
+  min-width: 190px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+}
+
+.context-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.context-item:hover {
+  background: var(--navy);
+  color: #fff;
+}
+
+.context-sep {
+  border-top: 1px solid var(--gray-dark);
+  border-bottom: 1px solid var(--white);
+  margin: 2px 0;
+}
+
+.toast {
+  position: fixed;
+  bottom: 40px;
+  right: 14px;
+  background: var(--gray);
+  border: 2px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+  padding: 10px 14px;
+  font-size: 12px;
+  max-width: 260px;
+  z-index: 400;
+  display: none;
+}
+
+.toast.show {
+  display: block;
+  animation: toastIn 0.25s ease;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toast-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

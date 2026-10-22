@@ -21,3 +21,12 @@ desktop.ini
 # Editor folders
 .vscode/
 .idea/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Local env files (keep the documented example)
+!.env.example

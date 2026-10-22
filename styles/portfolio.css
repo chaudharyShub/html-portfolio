@@ -1,0 +1,215 @@
+/* Portfolio sections inside the main window. */
+fieldset.section {
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  margin: 0 0 16px 0;
+  padding: 10px 12px 14px 12px;
+}
+
+legend {
+  padding: 0 6px;
+  font-weight: bold;
+}
+
+h3.sub {
+  font-size: 12px;
+  margin: 12px 0 4px 0;
+  border-bottom: 1px dashed var(--gray-dark);
+  padding-bottom: 2px;
+}
+
+p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 6px;
+  background: var(--white);
+}
+
+th,
+td {
+  border: 1px solid var(--gray-dark);
+  padding: 5px 7px;
+  text-align: left;
+  font-size: 12px;
+  vertical-align: top;
+}
+
+th {
+  background: var(--gray);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.stat-box {
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  padding: 8px 6px;
+  text-align: center;
+  background: var(--white);
+}
+
+.stat-box.wide {
+  grid-column: 1 / -1;
+}
+
+.stat-box .num {
+  font-weight: bold;
+  font-size: 15px;
+  font-family: "Courier New", monospace;
+}
+
+.stat-box .lbl {
+  font-size: 11px;
+  color: var(--gray-dark);
+}
+
+.skill-group {
+  margin-bottom: 14px;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 0;
+  font-size: 12px;
+}
+
+.skill-name {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.skill-level {
+  width: 80px;
+  flex-shrink: 0;
+  color: var(--gray-dark);
+  font-size: 11px;
+}
+
+.skill-bar-track {
+  flex: 1;
+  height: 14px;
+  background: var(--white);
+  border: 2px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+}
+
+.skill-bar-fill {
+  height: 100%;
+  background: var(--navy);
+}
+
+.skill-pct {
+  width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.project-card {
+  border: 2px solid;
+  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
+  margin-bottom: 12px;
+}
+
+.project-title {
+  background: var(--navy);
+  color: var(--white);
+  padding: 4px 8px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.status-badge {
+  background: var(--white);
+  color: var(--black);
+  padding: 0 5px;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+.project-body {
+  padding: 8px 10px;
+  background: var(--gray);
+}
+
+.project-body .tech {
+  font-size: 11px;
+  color: #333;
+  margin: 4px 0 8px 0;
+}
+
+.exp-entry {
+  border-bottom: 1px dashed var(--gray-dark);
+  padding: 10px 0;
+}
+
+.exp-entry:last-child {
+  border-bottom: none;
+}
+
+.exp-header {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.exp-duration {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.exp-total {
+  font-weight: normal;
+  color: var(--black);
+  background: var(--white);
+  border: 1px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  padding: 0 5px;
+  margin-left: 4px;
+}
+
+.tag {
+  display: inline-block;
+  background: var(--white);
+  border: 1px solid;
+  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  padding: 1px 6px;
+  font-size: 11px;
+  margin: 4px 4px 0 0;
+}
+
+/* Terminal theme readability override */
+[data-theme="terminal"] .exp-duration {
+  color: var(--gray-dark);
+}
+
+/* Project/job titles are <h3> for document structure; keep the original inline look. */
+.project-name {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+h3.exp-header {
+  margin-top: 0;
+  font-size: inherit;
+}
+
+/* Contact form spam trap: never shown to people. */
+.honeypot {
+  display: none !important;
+}
