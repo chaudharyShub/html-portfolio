@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import type { ReactNode } from 'react';
 import { ServiceWorkerRegistrar } from '@/components/shared/ServiceWorkerRegistrar';
 import { PROFILE } from '@/data/profile';
@@ -56,6 +57,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         {children}
         <ServiceWorkerRegistrar />
+        {/* Vercel Web Analytics (cookieless page views). Its script is served only by Vercel, so it is
+            rendered only in builds made on Vercel; local dev/start would just get a 404. */}
+        {process.env.VERCEL && <Analytics />}
       </body>
     </html>
   );
