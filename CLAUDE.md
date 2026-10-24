@@ -159,7 +159,7 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
   client form as a prop — Web3Forms rejects server-side/proxied submissions on the free plan, so the
   browser must submit and the key is public by design); otherwise, or if sending fails, falls back to
   a prefilled `mailto:` link. Hidden `botcheck` checkbox honeypot (submissions with it ticked are
-  silently "accepted" and dropped). Email + message are `required`. Spam limits (Oct 2026): a ref
+  silently "accepted" and dropped). Email + message are `required`; the form has `noValidate` and checks them itself (`validate()` in `ContactForm.tsx`) so errors show inline in the site style (red ring + `.field-error` message linked via `aria-describedby`, first bad field focused) instead of the browser's bubble. Spam limits (Oct 2026): a ref
   (`sendingRef`) blocks burst submits fired in the same tick, and each visitor may send up to 5 messages
   per minute via Web3Forms (send times as a JSON array in `shubhamOsContactSends` in localStorage, plus an in-memory copy; a "Please wait"
   toast keeps the typed text). hCaptcha (free on Web3Forms) is the next step only if spam shows up. The Email button in the links

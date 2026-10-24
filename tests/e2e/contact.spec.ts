@@ -25,6 +25,32 @@ test('sends a message and clears the form', async ({ page }) => {
   await expect(page.getByLabel('Message:')).toHaveValue('');
 });
 
+test('an empty or invalid form shows inline errors in the site style and sends nothing', async ({ page }) => {
+  const sent = await stubWeb3Forms(page);
+  await openContact(page);
+  const send = page.getByRole('button', { name: 'Send', exact: true });
+  const email = page.getByLabel('Email:');
+  const message = page.getByLabel('Message:');
+
+  await send.click();
+  await expect(email).toHaveAccessibleDescription('Enter your email address so Shubham can reply.');
+  await expect(message).toHaveAccessibleDescription('Write a message before sending.');
+  await expect(email).toBeFocused();
+  // The browser's own validation bubble is off.
+  expect(await email.evaluate((el: HTMLInputElement) => el.validationMessage === '' || el.form?.noValidate)).toBe(true);
+
+  await email.fill('not-an-email');
+  await expect(email).not.toHaveAttribute('aria-invalid'); // typing clears the error
+  await send.click();
+  await expect(email).toHaveAccessibleDescription(/valid email address/);
+
+  await fillForm(page);
+  await send.click();
+  await expect(toast(page)).toContainText('Message sent');
+  await expect(page.locator('.field-error')).toHaveCount(0);
+  expect(sent.count).toBe(1);
+});
+
 test('many submits fired at the same instant send only once', async ({ page }) => {
   const sent = await stubWeb3Forms(page, { delayMs: 400 });
   await openContact(page);
