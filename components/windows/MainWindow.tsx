@@ -27,7 +27,7 @@ export function MainWindow({ sections, infoBar, statusBar }: MainWindowProps) {
       ref={mainWindow}
       id="window"
       variant="window"
-      title="Shubham — Portfolio"
+      title="Shubham - Portfolio"
       getDockIcon={() => actions.getDockIcon('main')}
       initiallyOpen
       enableSnap
@@ -125,7 +125,7 @@ function TabbedContent({ sections }: { sections: Record<SectionId, ReactNode> })
 
   return (
     <main ref={contentRef} className="content">
-      <h1 className="sr-only">Shubham Chaudhary — Full Stack Engineer Portfolio</h1>
+      <h1 className="sr-only">Shubham Chaudhary - Full Stack Engineer Portfolio</h1>
       <div ref={panelRef} id={CONTENT_ID} role="tabpanel" aria-labelledby={`tab-${tab}`}>
         {sectionOrder(tab).map((id) => (
           <div key={id} className="section-slot" hidden={!visible.includes(id)}>

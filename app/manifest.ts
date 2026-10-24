@@ -3,7 +3,7 @@ import { SITE } from '@/lib/site';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Shubham OS — Portfolio',
+    name: 'Shubham OS - Portfolio',
     short_name: SITE.name,
     description: "Shubham Chaudhary's portfolio, styled as an interactive macOS-style desktop.",
     start_url: '/',

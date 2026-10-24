@@ -13,7 +13,7 @@ export function DosWindow() {
       ref={dosWindow}
       id="dos-window"
       variant="subwindow"
-      title="Terminal — zsh"
+      title="Terminal - zsh"
       getDockIcon={() => actions.getDockIcon('dos')}
       initiallyOpen={false}
       minWidth={340}

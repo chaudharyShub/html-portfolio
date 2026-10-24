@@ -14,7 +14,7 @@ function useCareerUptime() {
 /** Whole years since the career start, e.g. "4+" or "4+ Years". */
 export function YearsExperience({ withUnit = false }: { withUnit?: boolean }) {
   const uptime = useCareerUptime();
-  if (!uptime) return <>—</>;
+  if (!uptime) return <>-</>;
   return <>{withUnit ? `${uptime.years}+ Years` : `${uptime.years}+`}</>;
 }
 
