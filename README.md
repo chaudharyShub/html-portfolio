@@ -50,7 +50,8 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Analytics** | Vercel Web Analytics (cookieless page views), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage`, and every animation respects
-`prefers-reduced-motion`. Menus, tabs, title-bar buttons and dialogs are
+`prefers-reduced-motion`. On phones, desktop icons open with a single tap and the window
+buttons are finger-sized. Menus, tabs, title-bar buttons and dialogs are
 keyboard operable (Enter/Space to activate, Escape to close).
 
 ## Try the DOS prompt
@@ -84,7 +85,19 @@ npm run build      # production build (also type-checks)
 npm start          # serve the production build
 npm run lint       # ESLint (Next.js + React Compiler rules)
 npm run typecheck  # tsc --noEmit
+npm run test:e2e   # browser tests (Playwright)
 ```
+
+### Browser tests
+
+`npm run test:e2e` builds the site into its own folder (`.next-e2e`, so your normal build is
+untouched), starts it on port 3200 and runs the tests in `tests/e2e/` in Chromium, at desktop
+size and at phone size (375×667, touch). They cover the boot screen, tabs, the DOS prompt, saved
+themes, the contact form (sending, burst submits, the 5-per-minute limit, the honeypot, the
+mail-app fallback) and the phone layout.
+
+The tests never send real mail: they use a fake Web3Forms key and stub `api.web3forms.com`.
+First time on a new machine, install the browser with `npx playwright install chromium`.
 
 The service worker is only registered in production builds (`npm run build && npm start`),
 so development never serves stale cached bundles.
@@ -109,6 +122,7 @@ components/
   icons/                # hand-drawn Win95-style SVG icons
 data/                   # portfolio content: profile, about, skills, projects, experience
 lib/                    # site config, themes, wallpapers, DOS parser, storage, animations
+tests/e2e/              # Playwright browser tests (desktop + phone)
 styles/                 # the original CSS, split by area (class names unchanged)
 public/                 # resume PDF, icons, og-image, wallpapers, sw.js
 ```

@@ -5,7 +5,9 @@ import { PROFILE } from '@/data/profile';
 export function About() {
   return (
     <fieldset className="section" id="section-about">
-      <legend>About Me</legend>
+      <legend>
+        <h2>About Me</h2>
+      </legend>
       <p>{ABOUT_SUMMARY}</p>
       <h3 className="sub">Core Modules</h3>
       <table>

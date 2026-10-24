@@ -3,7 +3,9 @@ import { SKILL_GROUPS } from '@/data/skills';
 export function Skills() {
   return (
     <fieldset className="section" id="section-skills">
-      <legend>Skills.cfg</legend>
+      <legend>
+        <h2>Skills.cfg</h2>
+      </legend>
       {SKILL_GROUPS.map((group) => (
         <div className="skill-group" key={group.title}>
           <h3 className="sub">{group.title}</h3>

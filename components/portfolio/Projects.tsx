@@ -3,7 +3,9 @@ import { VISIBLE_PROJECTS } from '@/data/projects';
 export function Projects() {
   return (
     <fieldset className="section" id="section-projects">
-      <legend>Projects\</legend>
+      <legend>
+        <h2>Projects\</h2>
+      </legend>
       {VISIBLE_PROJECTS.map((project) => (
         <article className="project-card" key={project.name}>
           <div className="project-title">

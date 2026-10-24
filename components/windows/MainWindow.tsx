@@ -78,13 +78,15 @@ function TabbedContent({ sections }: { sections: Record<SectionId, ReactNode> })
   }, [tab, tabRequest]);
 
   return (
-    <main ref={contentRef} className="content" id={CONTENT_ID} role="tabpanel" aria-labelledby={`tab-${tab}`}>
+    <main ref={contentRef} className="content">
       <h1 className="sr-only">Shubham Chaudhary — Full Stack Engineer Portfolio</h1>
-      {sectionOrder(tab).map((id) => (
-        <div key={id} className="section-slot" hidden={!visible.includes(id)}>
-          {sections[id]}
-        </div>
-      ))}
+      <div id={CONTENT_ID} role="tabpanel" aria-labelledby={`tab-${tab}`}>
+        {sectionOrder(tab).map((id) => (
+          <div key={id} className="section-slot" hidden={!visible.includes(id)}>
+            {sections[id]}
+          </div>
+        ))}
+      </div>
     </main>
   );
 }

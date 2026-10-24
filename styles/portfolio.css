@@ -11,6 +11,12 @@ legend {
   font-weight: bold;
 }
 
+/* Section titles are <h2> for document structure; keep the plain legend look. */
+legend h2 {
+  font: inherit;
+  margin: 0;
+}
+
 h3.sub {
   font-size: 12px;
   margin: 12px 0 4px 0;

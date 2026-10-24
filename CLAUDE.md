@@ -120,6 +120,24 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
   with the novelty hook ("boots like it's 1995") before the credentials.
   `og:image` is set to an absolute URL at `https://shubhamworks.vercel.app/og-image.png`.
 
+## Phone + accessibility pass (Oct 2026)
+Checked at phone/tablet sizes and with Lighthouse (accessibility 91 → 100; performance ~80 on
+Lighthouse's throttled phone, limited mainly by React hydration of the whole desktop, which was
+left as is).
+- Title-bar and dialog close buttons are 26x24 under `(max-width: 700px), (pointer: coarse)`;
+  the 16x14 Win95 size stays on desktop.
+- Dialogs keep an 8px margin on phones; taskbar app buttons ellipsize (labels are in
+  `.taskbar-app-label`), Start and the clock never shrink.
+- Phones in landscape (`max-height: 500px`) hide the info bar (name/role/status), which repeats
+  the About section.
+- Desktop icons: double-click with a mouse, single tap on touch (iOS doesn't reliably fire
+  dblclick). Their accessible name is the visible label (the icon SVGs are aria-hidden).
+- Section titles are `<h2>` inside each `<legend>` (styled to look unchanged) so headings go
+  h1 → h2 → h3. `<main>` is the landmark; the `role="tabpanel"` is on the div inside it.
+- DVD logo moves with `transform` and measures its size only on start/resize (it used to set
+  left/top and read offsetWidth every frame, forcing a layout per frame). Its text comes from CSS
+  `::before` since it's pure decoration (aria-hidden).
+
 ## Features explicitly tried and REMOVED (don't re-add without being asked)
 - **Achievement system**: fully built (11 achievements, toast on unlock, progress tracker), then
   completely removed because it "wasn't looking good." All traces were stripped from the code.
@@ -259,6 +277,14 @@ inventing placeholder text — this reflects a real person's actual career histo
   `next`, `react`, `react-dom`, `@vercel/analytics` — don't add libraries without a clear reason. npm is the package manager.
 - No backend — anything requiring persistence beyond `localStorage` needs an explicit decision
   to add real infrastructure.
-- Run locally with `npm run dev`; verify with `npm run build`, `npm run lint`, `npm run typecheck`.
+- Run locally with `npm run dev`; verify with `npm run build`, `npm run lint`, `npm run typecheck`,
+  `npm run test:e2e`.
+- **Browser tests** (Oct 2026): Playwright (`@playwright/test`, dev-only, pinned 1.64.0 because it
+  matches the Chromium build installed on the user's machine). `playwright.config.ts` builds into
+  `.next-e2e` (via `NEXT_DIST_DIR`, read in `next.config.ts`) so the normal `.next` build is never
+  replaced, with a fake `WEB3FORMS_ACCESS_KEY`; contact tests also stub `api.web3forms.com` and the
+  service worker is blocked. Never let tests send real mail (the user's Web3Forms quota is small).
+  `tsconfig.json` lists `.next-e2e/types` by hand so `next build` doesn't rewrite the file.
+  Projects: `desktop` (all specs except mobile) and `phone` (375x667 touch, `mobile.spec.ts`).
   The lint config includes the React Compiler rules (`react-hooks/refs`, `immutability`, ...) —
   fix the design rather than disabling them.
