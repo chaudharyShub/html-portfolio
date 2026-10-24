@@ -2,17 +2,19 @@
 
 # 🖥️ Shubham OS
 
-**A portfolio that boots like it's 1995.**
+**A portfolio that looks and moves like a Mac - and like an iPhone on your phone.**
 
-A single-page portfolio dressed up as an interactive Windows 95 desktop -
-draggable windows, a working DOS prompt, a Start menu, and a few easter eggs.
+A single-page portfolio dressed up as an interactive macOS-style desktop -
+a menu bar, a magnifying Dock, windows with traffic-light buttons, a working
+Terminal and a few easter eggs. On phones it becomes an iOS-style Home Screen
+with full-screen apps, sheets and a tab bar.
 
 [**▶ Visit the live site**](https://shubhamworks.vercel.app)
 
-![Next.js](https://img.shields.io/badge/Next.js-App%20Router-000080?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-008080?style=flat-square)
-![CSS](https://img.shields.io/badge/CSS-hand--written-c0c0c0?style=flat-square)
-![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20analytics-800000?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-App%20Router-1d1d1f?style=flat-square)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-0066cc?style=flat-square)
+![CSS](https://img.shields.io/badge/CSS-hand--written-6e6e73?style=flat-square)
+![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20analytics-34c759?style=flat-square)
 
 <br>
 
@@ -25,9 +27,10 @@ draggable windows, a working DOS prompt, a Start menu, and a few easter eggs.
 ## About
 
 This is the personal portfolio of **Shubham Chaudhary**, Full Stack Engineer.
-Instead of a typical landing page, it is a small Win95-style "operating system":
-the site plays a BIOS boot sequence, then opens a single window containing
-About, Skills, Projects, Experience and Contact.
+Instead of a typical landing page, it is a small Apple-inspired "operating system":
+the site plays a short startup screen, then opens a single window containing
+About, Skills, Projects, Experience and Contact. Desktops get the macOS look;
+phones (portrait, or landscape on a touch screen) get the iOS look.
 
 It is a Next.js (App Router) app written in TypeScript with hand-written CSS -
 no UI libraries, no CSS framework. All portfolio content is rendered on the
@@ -37,33 +40,36 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 
 | | |
 |---|---|
-| **Boot screen** | BIOS-style startup sequence. Click or press any key to skip. |
-| **Window manager** | Drag, resize from 8 edges, minimize, maximize, and snap to screen edges. |
-| **MS-DOS Prompt** | A real command parser with history (↑ / ↓). |
-| **Start menu & taskbar** | Quick links, a live clock, and animated minimize-to-taskbar. |
+| **Startup screen** | Logo, progress bar and boot steps. Click or press any key to skip. |
+| **Windows** | Traffic-light buttons, drag, resize from 8 edges, zoom (with a smooth glide), snap to screen edges, and a genie-like minimize into the Dock. |
+| **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies under the pointer and bounces apps as they launch. |
+| **Terminal** | A real command parser with history (↑ / ↓). |
 | **Desktop** | Draggable icons and a custom right-click menu. |
-| **Display Properties** | 3 themes (Win95, Win98, Terminal), 9 wallpapers, CRT scanlines, cursor trail. |
+| **System Settings** | Light / Dark / Auto appearance, 9 wallpapers, CRT scanlines and mouse trails (iOS-style switches). |
+| **iOS on phones** | Full-screen apps with a tab bar and a home indicator (tap or swipe up to go home), a Home Screen and dock, action sheet, bottom sheets and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
-| **Resume Setup Wizard** | An InstallShield-style installer that "installs" the resume PDF. |
+| **Resume Installer** | A macOS-Installer-style wizard that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
 | **Analytics** | Vercel Web Analytics (cookieless page views), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage`, and every animation respects
-`prefers-reduced-motion`. On phones, desktop icons open with a single tap and the window
-buttons are finger-sized. Menus, tabs, title-bar buttons and dialogs are
-keyboard operable (Enter/Space to activate, Escape to close).
+`prefers-reduced-motion`. Menus, tabs, window buttons and dialogs are keyboard
+operable (Enter/Space to activate, Escape to close).
 
-## Try the DOS prompt
+The look is inspired by Apple's, not copied: no Apple logo, icons, wallpapers or
+fonts are used. Text uses the device's system font (so Apple devices show their own).
 
-Open **MS-DOS Prompt** from the desktop or Start menu and type `help`.
+## Try the Terminal
+
+Open **Terminal** from the Dock, the desktop or the logo menu and type `help`.
 
 ```text
-C:\Users\Shubham> whoami
-C:\Users\Shubham> skills
-C:\Users\Shubham> projects
-C:\Users\Shubham> resume
-C:\Users\Shubham> sudo hire-me
+shubham@portfolio ~ % whoami
+shubham@portfolio ~ % skills
+shubham@portfolio ~ % projects
+shubham@portfolio ~ % resume
+shubham@portfolio ~ % sudo hire-me
 ```
 
 There are a few undocumented commands too. Minimizing the main window is also
@@ -92,9 +98,10 @@ npm run test:e2e   # browser tests (Playwright)
 
 `npm run test:e2e` builds the site into its own folder (`.next-e2e`, so your normal build is
 untouched), starts it on port 3200 and runs the tests in `tests/e2e/` in Chromium, at desktop
-size and at phone size (375×667, touch). They cover the boot screen, tabs, the DOS prompt, saved
-themes, the contact form (sending, burst submits, the 5-per-minute limit, the honeypot, the
-mail-app fallback) and the phone layout.
+size and at phone size (375×667, touch). They cover the boot screen, tabs, the Terminal, Dock
+minimize/restore, the quit prompt, saved appearance, the contact form (sending, burst submits,
+the 5-per-minute limit, the honeypot, the mail-app fallback) and the iOS phone layout
+(full-screen app, tab bar, Home Screen, action sheet, bottom sheets).
 
 The tests never send real mail: they use a fake Web3Forms key and stub `api.web3forms.com`.
 First time on a new machine, install the browser with `npx playwright install chromium`.
@@ -108,22 +115,22 @@ so development never serves stale cached bundles.
 app/
   layout.tsx            # <html>, metadata, pre-paint theme script, SW registration
   page.tsx              # the single page: server-rendered sections -> desktop
-  not-found.tsx         # Win95-style 404
+  not-found.tsx         # macOS-style 404 alert
   sitemap.ts robots.ts manifest.ts
   globals.css           # imports the stylesheets in styles/
 components/
   os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
-  windows/              # generic Window (drag/resize/snap/animate), MainWindow, DosWindow
-  desktop/              # icons, taskbar, Start menu, context menu, DVD logo, toast, effects
-  dialogs/              # generic Dialog + message, recycle bin, game, display props, wizard
+  windows/              # generic Window (drag/resize/snap/animate), MainWindow, DosWindow (Terminal)
+  desktop/              # menu bar, Dock, logo menu, icons, context menu, bouncing logo, notifications
+  dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)
   live/                 # small client readouts: clock, career stats, year, visitor counter
   shared/               # JSON-LD script, service worker registration
-  icons/                # hand-drawn Win95-style SVG icons
+  icons/                # hand-drawn app tiles and line icons (Apple-inspired, not Apple assets)
 data/                   # portfolio content: profile, about, skills, projects, experience
-lib/                    # site config, themes, wallpapers, DOS parser, storage, animations
+lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion
 tests/e2e/              # Playwright browser tests (desktop + phone)
-styles/                 # the original CSS, split by area (class names unchanged)
+styles/                 # CSS by area; ios.css holds the phone layout
 public/                 # resume PDF, icons, og-image, wallpapers, sw.js
 ```
 
@@ -136,7 +143,7 @@ public/                 # resume PDF, icons, og-image, wallpapers, sw.js
   which sections a tab shows and in what order.
 - **State.** `OsProvider` holds dialogs, menus, tabs, toasts and window status in a
   reducer and exposes stable actions (`useOsActions()`), e.g. `showToast`, `showMessage`,
-  `openDialog`, `goToSection`, `openDos`.
+  `openDialog`, `goToSection`, `openDos`, `toggleMenu`.
 - **Windows.** `components/windows/Window.tsx` is the one draggable/resizable window
   implementation. Reuse it for any new window instead of duplicating drag/resize logic.
 - **Preferences** use small `localStorage`-backed stores (`lib/preferences.ts`) read
@@ -207,12 +214,16 @@ See `.env.example`. After switching domains, re-submit the sitemap in Google Sea
 
 ## Design notes
 
-- The Win95 bevel is the design: gray `#c0c0c0`, navy `#000080`, inset and
-  outset borders, and nothing more modern than that.
-- Icons and wallpapers are hand-drawn SVG, inspired by the era rather than
-  copied from it. No Microsoft assets are used.
-- One scrolling window, kept deliberately simple, rather than a full desktop
-  simulator.
+- macOS on desktop, iOS on phones, chosen by one media query
+  (`(max-width: 700px), (max-height: 500px) and (pointer: coarse)`, also `PHONE_QUERY`
+  in `lib/motion.ts`). Same components; `styles/ios.css` restyles them.
+- Colors are CSS variables in `styles/base.css`, with a light and a dark set. The blue is
+  `#0066cc` (light) / `#4da3ff` text and `#0068d6` buttons (dark), so small text passes
+  WCAG AA contrast.
+- Motion uses Apple-like curves (`cubic-bezier(0.32, 0.72, 0, 1)` and a gentle spring);
+  everything is skipped under `prefers-reduced-motion`.
+- Icons and wallpapers are hand-made, inspired by Apple's style rather than copied from it.
+- One scrolling window, kept deliberately simple, rather than a full desktop simulator.
 
 ## Contact
 

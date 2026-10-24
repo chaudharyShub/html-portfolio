@@ -2,22 +2,41 @@
 
 import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { pressableProps } from '@/lib/a11y';
-import { animatePopIn, prefersReducedMotion, resetAnimationStyles } from '@/lib/motion';
+import {
+  animatePopIn,
+  animatePopOut,
+  animateSheetIn,
+  animateSheetOut,
+  APPLE_EASE,
+  isPhoneLayout,
+  prefersReducedMotion,
+  resetAnimationStyles,
+} from '@/lib/motion';
 
 interface DialogProps {
   open: boolean;
   title: string;
   onClose: () => void;
+  /**
+   * 'alert': icon + bold title + message + buttons (macOS/iOS alert).
+   * 'panel': a small window with a title bar; a bottom sheet on phones.
+   */
+  kind?: 'alert' | 'panel';
+  /** Alert icon, shown above the title. */
+  icon?: ReactNode;
   /** Extra classes for the box, e.g. "wide" or "wizard-box". */
   boxClassName?: string;
   children: ReactNode;
 }
 
+const CLOSE_MS = 180;
+
 /**
- * Win95 modal dialog. Stays mounted while closed (so app state like the DOS-style game survives),
- * pops in at 130ms and out at 100ms, and is skipped entirely under reduced motion.
+ * Modal dialog. Stays mounted while closed (so app state like the game survives). Alerts spring
+ * in, panels pop in on desktop and slide up as sheets on phones; all of it is skipped under
+ * reduced motion. Focus moves in on open and returns on close; Escape closes.
  */
-export function Dialog({ open, title, onClose, boxClassName, children }: DialogProps) {
+export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassName, children }: DialogProps) {
   const titleId = useId();
   const boxRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -33,26 +52,29 @@ export function Dialog({ open, title, onClose, boxClassName, children }: DialogP
   useLayoutEffect(() => {
     const box = boxRef.current;
     if (!box) return;
+    const sheet = kind === 'panel' && isPhoneLayout();
     if (open) {
       if (document.activeElement instanceof HTMLElement && !box.contains(document.activeElement)) {
         returnFocus.current = document.activeElement;
       }
       box.focus({ preventScroll: true });
       if (prefersReducedMotion()) return;
-      const timer = animatePopIn(box, 0.92, 130, 145);
+      let timer: number;
+      if (sheet) timer = animateSheetIn(box);
+      else if (kind === 'alert' && isPhoneLayout()) timer = animatePopIn(box, 1.12, 260, 280, APPLE_EASE);
+      else timer = animatePopIn(box, 0.9, 340, 360);
       return () => window.clearTimeout(timer);
     }
     if (box.contains(document.activeElement)) returnFocus.current?.focus({ preventScroll: true });
     if (!closing) return;
-    box.style.transition = 'transform 0.1s ease-in, opacity 0.1s ease-in';
-    box.style.transform = 'scale(0.92)';
-    box.style.opacity = '0';
+    if (sheet) animateSheetOut(box, CLOSE_MS);
+    else animatePopOut(box, 0.95, CLOSE_MS);
     const timer = window.setTimeout(() => {
       resetAnimationStyles(box);
       setClosing(false);
-    }, 110);
+    }, CLOSE_MS + 10);
     return () => window.clearTimeout(timer);
-  }, [open, closing]);
+  }, [open, closing, kind]);
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -62,22 +84,45 @@ export function Dialog({ open, title, onClose, boxClassName, children }: DialogP
   };
 
   return (
-    <div className="dialog-overlay" style={{ display: open || closing ? 'flex' : 'none' }}>
+    <div
+      className={`dialog-overlay dialog-overlay--${kind}${closing ? ' closing' : ''}`}
+      style={{ display: open || closing ? 'flex' : 'none' }}
+      onClick={(e) => {
+        // Tapping the dimmed area closes a sheet, like iOS.
+        if (e.target === e.currentTarget && kind === 'panel' && isPhoneLayout()) onClose();
+      }}
+    >
       <div
         ref={boxRef}
-        className={['dialog-box', boxClassName].filter(Boolean).join(' ')}
-        role="dialog"
+        className={['dialog-box', `dialog-box--${kind}`, boxClassName].filter(Boolean).join(' ')}
+        role={kind === 'alert' ? 'alertdialog' : 'dialog'}
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
-        <div className="dialog-title-bar">
-          <span id={titleId}>{title}</span>
-          <span className="dialog-close" {...pressableProps} onClick={onClose} aria-label="Close" title="Close">
-            &times;
-          </span>
-        </div>
+        {kind === 'alert' ? (
+          <>
+            {icon && <div className="dialog-icon">{icon}</div>}
+            <h2 className="alert-title" id={titleId}>
+              {title}
+            </h2>
+          </>
+        ) : (
+          <div className="dialog-title-bar">
+            <span className="tl tl-close dialog-close" {...pressableProps} onClick={onClose} aria-label="Close" title="Close">
+              <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
+                <path d="M2.6 2.6l4.8 4.8M7.4 2.6L2.6 7.4" />
+              </svg>
+              <span className="sheet-done" aria-hidden="true">
+                Done
+              </span>
+            </span>
+            <span className="dialog-title" id={titleId}>
+              {title}
+            </span>
+          </div>
+        )}
         {children}
       </div>
     </div>

@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { openDesktop } from './helpers';
 
+/** Phones get the iOS layout: full-screen apps, a Home Screen, sheets and a dock. */
+
 async function noHorizontalScroll(page: Page) {
   const { scrollWidth, clientWidth } = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -9,58 +11,81 @@ async function noHorizontalScroll(page: Page) {
   expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
 }
 
-async function insideViewport(page: Page, selector: string) {
-  const box = await page.locator(selector).boundingBox();
-  const viewport = page.viewportSize();
-  expect(box && viewport).toBeTruthy();
-  if (!box || !viewport) return;
-  expect(box.x).toBeGreaterThanOrEqual(0);
-  expect(box.y).toBeGreaterThanOrEqual(0);
-  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
-  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+async function box(page: Page, selector: string) {
+  const b = await page.locator(selector).boundingBox();
+  expect(b).toBeTruthy();
+  return b!;
 }
 
-test('the page fits a phone screen', async ({ page }) => {
+async function goHome(page: Page) {
+  await page.locator('#window .home-indicator').tap();
+  await expect(page.locator('#window')).toBeHidden();
+}
+
+test('the portfolio opens as a full-screen app', async ({ page }) => {
   await openDesktop(page);
   await noHorizontalScroll(page);
-  await insideViewport(page, '#window');
+  await page.waitForTimeout(700); // let the open animation settle
+  const win = await box(page, '#window');
+  const viewport = page.viewportSize()!;
+  expect(Math.round(win.x)).toBe(0);
+  expect(Math.round(win.y)).toBe(0);
+  expect(Math.round(win.width)).toBe(viewport.width);
+  expect(Math.round(win.height)).toBe(viewport.height);
+  // macOS window buttons are hidden on phones.
+  await expect(page.locator('#window .traffic-lights')).toBeHidden();
 });
 
-test('window buttons are big enough to tap', async ({ page }) => {
+test('the tab bar sits at the bottom and switches sections', async ({ page }) => {
   await openDesktop(page);
-  for (const name of ['Minimize', 'Maximize', 'Close']) {
-    const box = await page.locator('#window').getByRole('button', { name, exact: true }).boundingBox();
-    expect(box?.width).toBeGreaterThanOrEqual(24);
-    expect(box?.height).toBeGreaterThanOrEqual(24);
-  }
+  const bar = await box(page, '#window .tab-bar-wrap');
+  expect(bar.y + bar.height).toBeCloseTo(page.viewportSize()!.height, 0);
+  await page.getByRole('tab', { name: 'Contact' }).tap();
+  await expect(page.locator('#contact-form')).toBeVisible();
 });
 
-test('taskbar stays on one line with the DOS prompt open', async ({ page }) => {
+test('the home indicator goes to the Home Screen and the dock reopens the app', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#start-button').tap();
-  await page.getByRole('menuitem', { name: 'MS-DOS Prompt' }).tap();
-  await expect(page.locator('#taskbar-dos-btn')).toBeVisible();
-  await insideViewport(page, '#dos-window');
-  for (const id of ['#start-button', '#taskbar-window-btn', '#taskbar-dos-btn', '#clock-behind']) {
-    await insideViewport(page, id);
-    const box = await page.locator(id).boundingBox();
-    expect(box?.height).toBeLessThanOrEqual(32);
-  }
+  await goHome(page);
+  await expect(page.locator('#icon-mycomputer')).toBeVisible();
+  await expect(page.locator('#dock-more')).toBeVisible();
+  await page.locator('#taskbar-window-btn').tap();
+  await expect(page.locator('#window')).toBeVisible();
 });
 
-test('dialogs keep a margin from the screen edges', async ({ page }) => {
+test('a single tap opens a Home Screen icon', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#start-button').tap();
-  await page.getByRole('menuitem', { name: 'Display Properties' }).tap();
-  const box = await page.getByRole('dialog', { name: 'Display Properties' }).boundingBox();
-  const width = page.viewportSize()?.width ?? 0;
-  expect(box?.x).toBeGreaterThanOrEqual(4);
-  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(width - 4);
-});
-
-test('a single tap opens a desktop icon', async ({ page }) => {
-  await openDesktop(page);
-  await page.locator('#window').getByRole('button', { name: 'Minimize', exact: true }).tap();
+  await goHome(page);
   await page.locator('#icon-mycomputer').tap();
   await expect(page.getByText('Shubham OS v3.0')).toBeVisible();
+});
+
+test('the More button opens an action sheet with Cancel on screen', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  await page.locator('#dock-more').tap();
+  const cancel = page.getByRole('menuitem', { name: 'Cancel' });
+  await expect(cancel).toBeVisible();
+  await page.waitForTimeout(600); // let the sheet finish sliding up
+  const c = (await cancel.boundingBox())!;
+  expect(c.y + c.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  await cancel.tap();
+  await expect(page.locator('#start-menu')).toBeHidden();
+});
+
+test('Settings opens as a bottom sheet', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  await page.locator('#dock-settings').tap();
+  const sheet = page.getByRole('dialog', { name: 'System Settings' });
+  await expect(sheet).toBeVisible();
+  // Let the slide-up finish before measuring.
+  await page.waitForTimeout(600);
+  const b = (await sheet.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(b.x).toBe(0);
+  expect(b.width).toBe(viewport.width);
+  expect(Math.round(b.y + b.height)).toBe(viewport.height);
+  await sheet.getByRole('button', { name: 'Close' }).first().tap();
+  await expect(sheet).toBeHidden();
 });

@@ -33,6 +33,6 @@ export const SITE = {
       "Draggable windows. A real DOS prompt. Joke error dialogs. A bouncing DVD logo. Yes, it's a real portfolio - 4+ years frontend experience.",
     image: { url: '/og-image.png', width: 1200, height: 630, alt: 'Preview of the Shubham OS portfolio window' },
   },
-  themeColor: '#000080',
-  backgroundColor: '#008080',
+  themeColor: '#1d1d1f',
+  backgroundColor: '#6a5acd',
 } as const;

@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { recordVisit } from '@/lib/preferences';
 
 const BOOT_LINES = [
-  'Shubham BIOS v3.0 - Copyright (C) Shubham Chaudhary',
+  'Shubham OS v3.0 - Copyright (C) Shubham Chaudhary',
   'Initializing Memory... OK',
   'Detecting Skills... React.js, Next.js, Node.js - OK',
-  'Mounting File System C:\\Users\\Shubham\\...',
+  'Mounting /Users/shubham...',
   'Loading Projects... OK',
   'Loading Experience Logs... OK',
   'Launching Shubham OS...',
@@ -26,7 +26,7 @@ const FADE_MS = 500;
 
 type Phase = 'booting' | 'fading' | 'done';
 
-/** BIOS-style boot sequence. Any key or click skips it. */
+/** Startup screen: logo, progress bar and the current boot step. Any key or click skips it. */
 export function BootScreen({ onFinish }: { onFinish: () => void }) {
   const [lines, setLines] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
@@ -86,14 +86,19 @@ export function BootScreen({ onFinish }: { onFinish: () => void }) {
       onClick={finish}
       style={{ opacity: phase === 'booting' ? undefined : 0, display: phase === 'done' ? 'none' : undefined }}
     >
-      <pre id="boot-text">{lines.map((line) => `${line}\n`).join('')}</pre>
-      <div className="boot-progress-wrap">
-        <div className="boot-progress-bar">
-          <div id="boot-progress-fill" style={{ width: `${progress}%` }} />
-        </div>
-        <span id="boot-progress-pct">{Math.floor(progress)}%</span>
+      <svg className="boot-logo" viewBox="0 0 20 20" width="88" height="88" focusable="false">
+        <rect x="2" y="2.5" width="16" height="11.5" rx="2.5" fill="currentColor" />
+        <rect x="7" y="15" width="6" height="1.6" rx=".6" fill="currentColor" />
+        <rect x="5" y="16.8" width="10" height="1.4" rx=".7" fill="currentColor" />
+        <circle cx="7.3" cy="7" r="1.2" fill="#000" />
+        <path d="M11.4 7.1h2.4M7 10.1c1.6 1.4 4.4 1.4 6 0" stroke="#000" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+      </svg>
+      <div className="boot-progress-bar">
+        <div id="boot-progress-fill" style={{ width: `${progress}%` }} />
       </div>
-      <p className="boot-skip-hint">Press any key or click to skip...</p>
+      {/* The current boot step (the old BIOS lines, shown one at a time). */}
+      <p id="boot-text">{lines[lines.length - 1] ?? ''}</p>
+      <p className="boot-skip-hint">Press any key or click to skip</p>
     </div>
   );
 }

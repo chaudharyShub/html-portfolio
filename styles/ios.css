@@ -1,0 +1,559 @@
+/*
+ * iOS layout for phones (portrait, or landscape on a touch screen). Kept last so these
+ * overrides win. Keep the query in sync with PHONE_QUERY in lib/motion.ts.
+ * Windows become full-screen apps, the desktop becomes the Home Screen, the logo menu
+ * becomes an action sheet and panels become bottom sheets.
+ */
+@media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
+  :root {
+    --menubar-h: 0px;
+    --dock-reserve: 0px;
+  }
+
+  /* Safari already shows the real status bar, so there is no menu bar here. */
+  .menubar,
+  .resize-handle,
+  .traffic-lights {
+    display: none;
+  }
+
+  /* 16px stops iOS from zooming into focused fields. */
+  input[type="text"],
+  input[type="email"],
+  textarea,
+  #dos-input {
+    font-size: 16px;
+  }
+
+  /* ===== Home Screen ===== */
+  .desktop-layer {
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-content: start;
+    justify-items: center;
+    row-gap: 24px;
+    padding: calc(env(safe-area-inset-top) + 40px) 16px 140px;
+  }
+
+  .desktop-icon {
+    position: static;
+    width: auto;
+    padding: 0;
+    gap: 6px;
+    font-size: 11px;
+    border-radius: 0;
+  }
+
+  .desktop-icon .app-icon {
+    width: 60px !important;
+    height: 60px !important;
+    transition: transform 0.2s var(--ease-spring), filter 0.2s ease;
+  }
+
+  .desktop-icon:active .app-icon {
+    transform: scale(0.9);
+  }
+
+  .desktop-icon:focus .desktop-icon-label {
+    background: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Terminal lives in the dock on phones. */
+  #icon-dos {
+    display: none;
+  }
+
+  /* ===== Dock ===== */
+  .dock {
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 5;
+  }
+
+  .dock-list {
+    align-items: center;
+    gap: 20px;
+    padding: 14px 18px;
+    border-radius: 32px;
+  }
+
+  .dock-button .app-icon {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
+  .dock-button:active {
+    transform: scale(0.9);
+  }
+
+  .dock-mac-only,
+  .dock-label,
+  .dock-dot {
+    display: none;
+  }
+
+  .dock-ios-only {
+    display: flex;
+  }
+
+  /* ===== Apps (the two windows) ===== */
+  .window,
+  .subwindow {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    transform: none;
+    border-radius: 0 !important;
+    box-shadow: none;
+  }
+
+  /* The whole app scrolls (iOS style): bars stay pinned, the footer ends the page. */
+  .window {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--content-bg);
+  }
+
+  .window > * {
+    flex-shrink: 0;
+  }
+
+  .window .content {
+    flex: none;
+    overflow: visible;
+    padding: 16px 16px 8px;
+  }
+
+  .title-bar {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    height: calc(44px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 16px 0;
+    border-bottom: 0.5px solid var(--separator);
+    cursor: default;
+  }
+
+  .title-text {
+    font-size: 17px;
+  }
+
+  .info-bar {
+    justify-content: flex-start;
+    padding: 10px 16px;
+  }
+
+  .status-bar {
+    justify-content: center;
+    text-align: center;
+    margin-bottom: calc(env(safe-area-inset-bottom) + 78px);
+    background: transparent;
+    border-top: 0;
+  }
+
+  /* iOS tab bar */
+  .window .tab-bar-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    padding: 6px 0 calc(env(safe-area-inset-bottom) + 18px);
+    background: var(--material-strong);
+    -webkit-backdrop-filter: blur(30px) saturate(1.8);
+    backdrop-filter: blur(30px) saturate(1.8);
+    border-top: 0.5px solid var(--separator);
+    border-bottom: 0;
+  }
+
+  .tab-bar {
+    display: flex;
+    width: 100%;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .tab-pill {
+    display: none;
+  }
+
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 0;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-2);
+    transition: color 0.2s ease;
+  }
+
+  .tab:not(.active):hover {
+    color: var(--text-2);
+  }
+
+  .tab.active {
+    color: var(--accent);
+  }
+
+  .tab-glyph {
+    display: block;
+  }
+
+  /* Home indicator: tap or swipe up to go to the Home Screen. */
+  .home-indicator {
+    display: block;
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    z-index: 6;
+    width: 180px;
+    height: calc(env(safe-area-inset-bottom) + 24px);
+    margin-left: -90px;
+    touch-action: none;
+    cursor: pointer;
+  }
+
+  .home-indicator::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom) * 0.4 + 6px);
+    width: 134px;
+    height: 5px;
+    margin-left: -67px;
+    border-radius: 3px;
+    background: var(--text);
+    opacity: 0.85;
+  }
+
+  /* Terminal app */
+  .subwindow {
+    background: #1c1c1e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .subwindow .title-bar {
+    height: calc(44px + env(safe-area-inset-top));
+    background: #2c2c2e;
+  }
+
+  .dos-body {
+    padding: 12px 14px calc(env(safe-area-inset-bottom) + 30px);
+    font-size: 13px;
+  }
+
+  .subwindow .home-indicator::before {
+    background: #fff;
+  }
+
+  /* ===== Logo menu as an action sheet ===== */
+  .menu-scrim.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 94;
+    background: rgba(0, 0, 0, 0.3);
+    animation: overlayIn 0.25s ease-out;
+  }
+
+  .app-menu {
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    min-width: 0;
+    max-height: 82dvh;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .app-menu.open {
+    animation: sheetUp 0.45s var(--ease-apple);
+  }
+
+  @keyframes sheetUp {
+    from {
+      transform: translateY(110%);
+    }
+  }
+
+  .menu-group {
+    background: var(--material-strong);
+    -webkit-backdrop-filter: blur(30px) saturate(1.8);
+    backdrop-filter: blur(30px) saturate(1.8);
+  }
+
+  .app-menu > .menu-group:first-child {
+    border-radius: 14px 14px 0 0;
+  }
+
+  .app-menu > .menu-group:nth-last-child(2) {
+    border-radius: 0 0 14px 14px;
+  }
+
+  /* One rounded block with hairlines between all items (the group gaps are drawn as hairlines). */
+  .menu-sep {
+    display: none;
+  }
+
+  .menu-item {
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: 0;
+    border-top: 0.5px solid var(--separator);
+    font-size: 17px;
+    color: var(--accent);
+  }
+
+  .app-menu > .menu-group:first-child .menu-item:first-child,
+  .menu-cancel .menu-item {
+    border-top: 0;
+  }
+
+  .menu-item:hover,
+  .menu-item:focus-visible {
+    background: transparent;
+    color: var(--accent);
+  }
+
+  .menu-item:active {
+    background: var(--fill);
+  }
+
+  /* Cancel stays visible at the bottom even when the list scrolls. */
+  .menu-cancel {
+    display: block;
+    position: sticky;
+    bottom: 0;
+    margin-top: 8px;
+    border-radius: 14px;
+    background: var(--window-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .menu-cancel .menu-item {
+    font-weight: 600;
+  }
+
+  /* ===== Panels as bottom sheets ===== */
+  .dialog-overlay--panel {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .dialog-box--panel,
+  .dialog-box--panel.wide,
+  .dialog-box--panel.wizard-box {
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 14px 14px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .dialog-title-bar {
+    height: 54px;
+    padding: 6px 70px 0;
+  }
+
+  /* Grabber */
+  .dialog-title-bar::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 36px;
+    height: 5px;
+    margin-left: -18px;
+    border-radius: 3px;
+    background: var(--fill-strong);
+  }
+
+  .dialog-title {
+    font-size: 17px;
+  }
+
+  .dialog-close {
+    left: auto;
+    right: 14px;
+    width: auto;
+    height: auto;
+    margin-top: 3px;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .dialog-close svg {
+    display: none;
+  }
+
+  .sheet-done {
+    display: inline;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .wizard-body {
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .wizard-sidebar {
+    width: auto;
+    flex-direction: row;
+    padding: 12px 16px;
+    border-right: 0;
+    border-bottom: 0.5px solid var(--separator);
+  }
+
+  .wizard-sidebar .app-icon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .wizard-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+  }
+
+  .wizard-steps li {
+    margin: 0;
+  }
+
+  .wizard-content {
+    padding: 16px;
+  }
+
+  .wizard-footer {
+    flex-wrap: wrap;
+  }
+
+  /* ===== Alerts ===== */
+  .dialog-box--alert {
+    width: 270px;
+    padding: 20px 16px 0;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .alert-title {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .alert-text {
+    font-size: 13px;
+  }
+
+  .dialog-box--alert .dialog-buttons {
+    gap: 0;
+    margin: 18px -16px 0;
+    border-top: 0.5px solid var(--separator);
+  }
+
+  .dialog-box--alert .dialog-buttons > button,
+  .dialog-box--alert .dialog-buttons > .btn {
+    padding: 11px 8px;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--accent);
+    font-size: 17px;
+    font-weight: 400;
+  }
+
+  .dialog-box--alert .dialog-buttons > * + * {
+    border-left: 0.5px solid var(--separator);
+  }
+
+  .dialog-box--alert .dialog-buttons > .btn-primary {
+    font-weight: 600;
+  }
+
+  /* ===== Notification banner drops from the top ===== */
+  .toast {
+    top: calc(env(safe-area-inset-top) + 8px);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+  }
+
+  .toast-inner {
+    animation-name: toastDrop;
+  }
+
+  @keyframes toastDrop {
+    from {
+      opacity: 0;
+      transform: translateY(-140%);
+    }
+  }
+
+  /* ===== Portfolio content ===== */
+  fieldset.section {
+    padding: 16px;
+  }
+
+  .skill-name {
+    width: 110px;
+  }
+
+  .skill-level {
+    display: none;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  th {
+    display: none;
+  }
+
+  tr + tr {
+    border-top: 0.5px solid var(--separator);
+  }
+
+  td {
+    border-top: 0;
+    padding: 4px 12px;
+  }
+
+  td:first-child {
+    padding-top: 10px;
+  }
+
+  td:last-child {
+    padding-bottom: 10px;
+    color: var(--text-2);
+  }
+}
+
+/* Phones held sideways: the name/role bar repeats the About section, so give the space to content. */
+@media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  .info-bar {
+    display: none;
+  }
+}

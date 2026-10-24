@@ -1,6 +1,5 @@
 /*
- * Global styles, split by area. Order matters: it mirrors the original single stylesheet,
- * with small-screen overrides last.
+ * Global styles, split by area. Order matters: the iOS (phone) overrides come last.
  */
 @import '../styles/base.css';
 @import '../styles/boot.css';
@@ -9,4 +8,4 @@
 @import '../styles/portfolio.css';
 @import '../styles/dialogs.css';
 @import '../styles/effects.css';
-@import '../styles/responsive.css';
+@import '../styles/ios.css';

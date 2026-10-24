@@ -82,7 +82,7 @@ export function ContactForm({ accessKey }: { accessKey: string }) {
     } else {
       openMailFallback(
         msg,
-        'Message.exe has encountered a problem',
+        "Message couldn't be sent",
         "Couldn't send right now, so your email app should open with the message instead.",
       );
     }
@@ -99,8 +99,8 @@ export function ContactForm({ accessKey }: { accessKey: string }) {
       {/* Honeypot (Web3Forms "botcheck"): hidden from people and assistive tech, left in for bots. */}
       <input type="checkbox" name="botcheck" className="honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" />
       <p>
-        <button type="submit" disabled={sending}>
-          {sending ? '[ Sending... ]' : '[ Send ]'}
+        <button type="submit" className="btn-primary" disabled={sending}>
+          {sending ? 'Sending…' : 'Send'}
         </button>
       </p>
     </form>

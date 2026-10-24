@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
-import { DosSmallIcon } from '@/components/icons';
 import { useOsApi, type WindowStatus } from '@/components/os/OsProvider';
 import { appendDosLines, DOS_BANNER, DOS_PROMPT, runDosCommand, type DosEffects } from '@/lib/dos';
 import { Window } from './Window';
 
-/** Floating MS-DOS Prompt. Output persists across minimize/close; only `clear` empties it. */
+/** Terminal window (an app on phones). Output persists across minimize/close; only `clear` empties it. */
 export function DosWindow() {
   const { connect: { dosWindow }, actions } = useOsApi();
   return (
@@ -14,9 +13,8 @@ export function DosWindow() {
       ref={dosWindow}
       id="dos-window"
       variant="subwindow"
-      title="MS-DOS Prompt"
-      icon={<DosSmallIcon />}
-      getTaskbarButton={() => actions.getTaskbarButton('dos')}
+      title="Terminal — zsh"
+      getDockIcon={() => actions.getDockIcon('dos')}
       initiallyOpen={false}
       minWidth={340}
       minHeight={220}
@@ -100,7 +98,7 @@ function DosConsole() {
           ref={inputRef}
           type="text"
           id="dos-input"
-          aria-label="DOS command"
+          aria-label="Terminal command"
           autoComplete="off"
           spellCheck={false}
           onKeyDown={onKeyDown}

@@ -1,214 +1,178 @@
 /**
- * Hand-drawn Win95-style SVG icons (ported 1:1 from the original markup).
+ * Hand-drawn icons in an Apple-inspired style (not Apple assets): app tiles are a CSS
+ * rounded square (see `.app-icon` in styles/desktop.css) holding a simple white glyph.
  * Decorative by default: callers provide visible text or an aria-label nearby.
  */
 
-interface IconProps {
-  size?: number;
-}
+import type { ReactNode } from 'react';
 
 const decorative = { 'aria-hidden': true, focusable: false } as const;
 
-export function RecycleBinIcon({ size = 32 }: IconProps) {
+export type AppIconName = 'portfolio' | 'terminal' | 'game' | 'settings' | 'resume' | 'trash' | 'drive' | 'more';
+
+const GLYPHS: Record<AppIconName, ReactNode> = {
+  portfolio: (
+    <>
+      <circle cx="16" cy="12.5" r="4.6" fill="#fff" />
+      <path d="M7.5 25.5c.9-4.6 4.3-7.2 8.5-7.2s7.6 2.6 8.5 7.2" fill="#fff" />
+    </>
+  ),
+  terminal: (
+    <>
+      <path d="M8.5 11.5l5 4.5-5 4.5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16 21.5h7.5" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+    </>
+  ),
+  game: (
+    <>
+      <ellipse cx="16" cy="18" rx="6" ry="7" fill="#fff" />
+      <circle cx="16" cy="9.5" r="3.4" fill="#fff" />
+      <path d="M10 14.5l-3.5-2M22 14.5l3.5-2M9.5 19H5.5M22.5 19h4M10.5 23.5l-3 2.5M21.5 23.5l3 2.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M16 12.5v12" stroke="#2f9e44" strokeWidth="1.4" />
+    </>
+  ),
+  settings: (
+    <>
+      <circle cx="16" cy="16" r="8.5" fill="none" stroke="#fff" strokeWidth="3.2" strokeDasharray="3.1 2.15" />
+      <circle cx="16" cy="16" r="5.4" fill="none" stroke="#fff" strokeWidth="2.2" />
+      <circle cx="16" cy="16" r="1.8" fill="#fff" />
+    </>
+  ),
+  resume: (
+    <>
+      <path d="M10 6.5h8.5l4.5 4.5v14.5H10z" fill="#fff" />
+      <path d="M18.5 6.5V11H23" fill="none" stroke="#d0d7e2" strokeWidth="1.2" />
+      <path d="M16.5 13.5v7.5M13.4 18l3.1 3.2 3.1-3.2" fill="none" stroke="#e8590c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M9.5 11h13l-1.2 15h-10.6z" fill="#fff" />
+      <path d="M8 9.2h16" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M13.5 9V7.4h5V9" fill="none" stroke="#fff" strokeWidth="1.6" />
+      <path d="M13.3 13.5l.5 10M16 13.5v10M18.7 13.5l-.5 10" stroke="#aab4c3" strokeWidth="1.2" />
+    </>
+  ),
+  drive: (
+    <>
+      <rect x="6" y="11" width="20" height="11" rx="2.5" fill="#fff" />
+      <circle cx="22" cy="18.5" r="1.3" fill="#34c759" />
+      <path d="M9 18.5h8" stroke="#aab4c3" strokeWidth="1.4" strokeLinecap="round" />
+    </>
+  ),
+  more: (
+    <>
+      <circle cx="9.5" cy="16" r="2.4" fill="#fff" />
+      <circle cx="16" cy="16" r="2.4" fill="#fff" />
+      <circle cx="22.5" cy="16" r="2.4" fill="#fff" />
+    </>
+  ),
+};
+
+/** App tile: rounded square with the app's color (CSS) and a white glyph. */
+export function AppIcon({ name, size = 48 }: { name: AppIconName; size?: number }) {
   return (
-    <svg viewBox="0 0 32 32" width={size} height={size} {...decorative}>
-      <rect x="8" y="6" width="16" height="3" fill="#c0c0c0" stroke="#000" strokeWidth="1" />
-      <rect x="12" y="3" width="8" height="3" fill="#c0c0c0" stroke="#000" strokeWidth="1" />
-      <path d="M10 10 L11 27 L21 27 L22 10 Z" fill="#e8e8e8" stroke="#000" strokeWidth="1" />
-      <line x1="14" y1="12" x2="14.5" y2="25" stroke="#808080" strokeWidth="1" />
-      <line x1="16" y1="12" x2="16" y2="25" stroke="#808080" strokeWidth="1" />
-      <line x1="18" y1="12" x2="17.5" y2="25" stroke="#808080" strokeWidth="1" />
+    <span className={`app-icon app-icon--${name}`} style={{ width: size, height: size }} aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="100%" height="100%" focusable="false">
+        {GLYPHS[name]}
+      </svg>
+    </span>
+  );
+}
+
+/** Menu-bar logo: a little monitor that winks (same idea as the favicon). Uses currentColor. */
+export function BrandMark() {
+  return (
+    <svg viewBox="0 0 20 20" width="16" height="16" {...decorative}>
+      <rect x="2" y="2.5" width="16" height="11.5" rx="2.5" fill="currentColor" />
+      <rect x="7" y="15" width="6" height="1.6" rx=".6" fill="currentColor" />
+      <rect x="5" y="16.8" width="10" height="1.4" rx=".7" fill="currentColor" />
+      <circle cx="7.3" cy="7" r="1.2" fill="var(--menubar-bg-solid, #fff)" />
+      <path d="M11.4 7.1h2.4M7 10.1c1.6 1.4 4.4 1.4 6 0" stroke="var(--menubar-bg-solid, #fff)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
 
-export function MyComputerIcon({ size = 32 }: IconProps) {
+/* ===== Line glyphs (currentColor) ===== */
+
+const line = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
+
+export type TabGlyphName = 'home' | 'about' | 'projects' | 'contact';
+
+/** Icons for the iOS tab bar (hidden on desktop). */
+export function TabGlyph({ name }: { name: TabGlyphName }) {
   return (
-    <svg viewBox="0 0 32 32" width={size} height={size} {...decorative}>
-      <rect x="4" y="5" width="24" height="17" fill="#c0c0c0" stroke="#000" strokeWidth="1" />
-      <rect x="6" y="7" width="20" height="12" fill="#1084d0" stroke="#000060" strokeWidth="1" />
-      <rect x="12" y="22" width="8" height="3" fill="#c0c0c0" stroke="#000" strokeWidth="1" />
-      <rect x="9" y="25" width="14" height="2" fill="#808080" stroke="#000" strokeWidth="1" />
+    <svg viewBox="0 0 24 24" width="24" height="24" className="tab-glyph" {...decorative}>
+      {name === 'home' && <path d="M4 11.2L12 4.5l8 6.7V20h-5.2v-5.4H9.2V20H4z" {...line} />}
+      {name === 'about' && (
+        <>
+          <circle cx="12" cy="8.5" r="3.8" {...line} />
+          <path d="M4.8 20c.8-3.9 3.7-6 7.2-6s6.4 2.1 7.2 6" {...line} />
+        </>
+      )}
+      {name === 'projects' && (
+        <>
+          <rect x="3.5" y="7" width="17" height="12.5" rx="2.5" {...line} />
+          <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17" {...line} />
+        </>
+      )}
+      {name === 'contact' && (
+        <>
+          <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" {...line} />
+          <path d="M4.5 7l7.5 6 7.5-6" {...line} />
+        </>
+      )}
     </svg>
   );
 }
 
-/** The Debug Runner bug (desktop icon and in-game enemy). */
-export function BugIcon({ size = 32 }: IconProps) {
-  return (
-    <svg viewBox="0 0 32 32" width={size} height={size} {...decorative}>
-      <ellipse cx="16" cy="18" rx="8" ry="9" fill="#33aa33" stroke="#003300" strokeWidth="1" />
-      <circle cx="16" cy="8" r="4" fill="#33aa33" stroke="#003300" strokeWidth="1" />
-      <line x1="8" y1="12" x2="3" y2="8" stroke="#003300" strokeWidth="1.5" />
-      <line x1="24" y1="12" x2="29" y2="8" stroke="#003300" strokeWidth="1.5" />
-      <line x1="6" y1="18" x2="1" y2="18" stroke="#003300" strokeWidth="1.5" />
-      <line x1="26" y1="18" x2="31" y2="18" stroke="#003300" strokeWidth="1.5" />
-      <line x1="7" y1="24" x2="2" y2="28" stroke="#003300" strokeWidth="1.5" />
-      <line x1="25" y1="24" x2="30" y2="28" stroke="#003300" strokeWidth="1.5" />
-      <circle cx="13" cy="7" r="1" fill="#000" />
-      <circle cx="19" cy="7" r="1" fill="#000" />
-    </svg>
-  );
-}
-
-export function DosDesktopIcon({ size = 32 }: IconProps) {
-  return (
-    <svg viewBox="0 0 32 32" width={size} height={size} {...decorative}>
-      <rect x="3" y="4" width="26" height="19" fill="#000" stroke="#000" strokeWidth="1.5" />
-      <text x="6" y="17" fontFamily="Courier New" fontSize="9" fill="#33ff33">
-        {'C:\\>_'}
-      </text>
-      <rect x="3" y="25" width="26" height="3" fill="#c0c0c0" stroke="#000" strokeWidth="1" />
-    </svg>
-  );
-}
-
-/** Small DOS icon for the title bar and taskbar. */
-export function DosSmallIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" {...decorative}>
-      <rect x="1" y="1" width="14" height="11" fill="#000" stroke="#000" strokeWidth="1" />
-      <text x="2.5" y="9.5" fontFamily="Courier New" fontSize="6.5" fill="#33ff33">
-        {'C:\\>'}
-      </text>
-    </svg>
-  );
-}
-
-/** "Shubham.exe" document icon for the title bar and taskbar. */
-export function DocumentIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" {...decorative}>
-      <rect x="2" y="1" width="10" height="14" fill="#fff" stroke="#000" strokeWidth="1" />
-      <polygon points="9,1 12,1 12,4" fill="#c0c0c0" stroke="#000" strokeWidth="0.5" />
-      <line x1="4" y1="6" x2="10" y2="6" stroke="#000" strokeWidth="0.7" />
-      <line x1="4" y1="8" x2="10" y2="8" stroke="#000" strokeWidth="0.7" />
-    </svg>
-  );
-}
-
-export function StartLogo() {
-  return (
-    <svg viewBox="0 0 16 16" width="16" height="16" {...decorative}>
-      <rect x="0" y="0" width="7" height="7" fill="#ff4444" />
-      <rect x="8" y="0" width="7" height="7" fill="#33cc33" />
-      <rect x="0" y="8" width="7" height="7" fill="#3399ff" />
-      <rect x="8" y="8" width="7" height="7" fill="#ffcc00" />
-    </svg>
-  );
-}
-
-export function DisplayIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" {...decorative}>
-      <rect x="2" y="3" width="20" height="14" fill="#1084d0" stroke="#000" strokeWidth="1" />
-      <rect x="8" y="19" width="8" height="2" fill="#808080" />
-    </svg>
-  );
-}
-
-export function RefreshIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" {...decorative}>
-      <path d="M12 4 A8 8 0 1 1 4.5 8" fill="none" stroke="#000" strokeWidth="2" />
-      <polygon points="4,3 4,9 9,6" fill="#000" />
-    </svg>
-  );
-}
-
-export function ArrangeIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" {...decorative}>
-      <rect x="1" y="1" width="6" height="6" fill="#000" />
-      <rect x="9" y="1" width="6" height="6" fill="#000" />
-      <rect x="1" y="9" width="6" height="6" fill="#000" />
-      <rect x="9" y="9" width="6" height="6" fill="#000" />
-    </svg>
-  );
-}
-
-export function PropertiesIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" {...decorative}>
-      <circle cx="12" cy="12" r="10" fill="#1084d0" stroke="#000060" strokeWidth="1" />
-      <rect x="11" y="10" width="2" height="7" fill="#fff" />
-      <rect x="11" y="6" width="2" height="2" fill="#fff" />
-    </svg>
-  );
-}
-
-export function NewDocumentIcon() {
+export function DownloadIcon() {
   return (
     <svg viewBox="0 0 16 16" width="14" height="14" {...decorative}>
-      <rect x="2" y="1" width="10" height="14" fill="#fff" stroke="#000" strokeWidth="0.5" />
-      <polygon points="9,1 12,1 12,4" fill="#c0c0c0" stroke="#000" strokeWidth="0.5" />
+      <path d="M8 2v8M4.5 6.8L8 10.3l3.5-3.5M3 13.5h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-export function FloppyIcon() {
+/** The bugs in the Debug Runner game. */
+export function BugIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 24 24" width="16" height="16" {...decorative}>
-      <rect x="3" y="3" width="18" height="18" fill="#c0c0c0" stroke="#000" strokeWidth="1" />
-      <rect x="6" y="3" width="9" height="6" fill="#fff" stroke="#000" strokeWidth="1" />
-      <rect x="6" y="14" width="12" height="6" fill="#fff" stroke="#000" strokeWidth="1" />
-      <rect x="14" y="4" width="2" height="4" fill="#000" />
+    <svg viewBox="0 0 24 24" width={size} height={size} {...decorative}>
+      <ellipse cx="12" cy="14" rx="5" ry="6" fill="#34c759" />
+      <circle cx="12" cy="7" r="3" fill="#30a14e" />
+      <path d="M7 11L4 9M17 11l3-2M7 15H3.5M17 15h3.5M7.5 18.5L5 21M16.5 18.5L19 21" stroke="#1f7a35" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
 
-export function WizardDiskIcon() {
-  return (
-    <svg viewBox="0 0 36 36" width="56" height="56" {...decorative}>
-      <rect x="2" y="2" width="32" height="32" rx="2" fill="#c0c0c0" stroke="#808080" strokeWidth="1.5" />
-      <rect x="4" y="14" width="28" height="18" fill="#ffffff" stroke="#808080" strokeWidth="1" />
-      <rect x="11" y="2" width="16" height="10" fill="#808080" stroke="#606060" strokeWidth="1" />
-      <rect x="13" y="4" width="10" height="6" fill="#404040" />
-      <rect x="4" y="30" width="4" height="4" fill="#a0a0a0" />
-    </svg>
-  );
-}
-
-/* ===== 40px dialog icons ===== */
+/* ===== Alert icons ===== */
 
 export type DialogIconType = 'info' | 'warning' | 'error' | 'forbidden' | 'question';
 
 export function DialogIcon({ type }: { type: DialogIconType }) {
+  const red = type === 'error' || type === 'forbidden';
   return (
-    <svg viewBox="0 0 24 24" width="40" height="40" {...decorative}>
-      {type === 'warning' && (
+    <svg viewBox="0 0 48 48" width="56" height="56" className="dialog-glyph" {...decorative}>
+      {type === 'warning' ? (
         <>
-          <polygon points="12,2 22,20 2,20" fill="#ffcc00" stroke="#000" strokeWidth="1" />
-          <rect x="11" y="9" width="2" height="6" fill="#000" />
-          <rect x="11" y="16" width="2" height="2" fill="#000" />
+          <path d="M24 5L44.5 41h-41z" fill="#ffcc00" stroke="#e0a800" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M24 18v11" stroke="#1d1d1f" strokeWidth="3.4" strokeLinecap="round" />
+          <circle cx="24" cy="35" r="2.1" fill="#1d1d1f" />
         </>
-      )}
-      {type === 'error' && (
+      ) : (
         <>
-          <circle cx="12" cy="12" r="10" fill="#cc0000" stroke="#660000" strokeWidth="1" />
-          <line x1="8" y1="8" x2="16" y2="16" stroke="#fff" strokeWidth="2.5" />
-          <line x1="16" y1="8" x2="8" y2="16" stroke="#fff" strokeWidth="2.5" />
-        </>
-      )}
-      {type === 'info' && (
-        <>
-          <circle cx="12" cy="12" r="10" fill="#1084d0" stroke="#000060" strokeWidth="1" />
-          <rect x="11" y="10" width="2" height="7" fill="#fff" />
-          <rect x="11" y="6" width="2" height="2" fill="#fff" />
-        </>
-      )}
-      {type === 'forbidden' && (
-        <>
-          <circle cx="12" cy="12" r="10" fill="#cc0000" stroke="#660000" strokeWidth="1" />
-          <rect x="5" y="10.5" width="14" height="3" fill="#fff" />
-        </>
-      )}
-      {type === 'question' && (
-        <>
-          <circle cx="12" cy="12" r="10" fill="#1084d0" stroke="#000060" strokeWidth="1" />
-          <text x="12" y="17" fontSize="13" fontFamily="Arial" fontWeight="bold" fill="#fff" textAnchor="middle">
-            ?
-          </text>
+          <circle cx="24" cy="24" r="21" fill={red ? '#ff3b30' : '#0a84ff'} />
+          {type === 'info' && (
+            <>
+              <circle cx="24" cy="14.5" r="2.6" fill="#fff" />
+              <path d="M24 21.5v14" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+            </>
+          )}
+          {type === 'question' && (
+            <path d="M18.5 18.5a5.6 5.6 0 1 1 7.9 5.1c-1.6.8-2.4 1.8-2.4 3.6v1.3M24 35.2v.3" fill="none" stroke="#fff" strokeWidth="3.6" strokeLinecap="round" />
+          )}
+          {type === 'error' && <path d="M17 17l14 14M31 17L17 31" stroke="#fff" strokeWidth="4" strokeLinecap="round" />}
+          {type === 'forbidden' && <path d="M14 24h20" stroke="#fff" strokeWidth="4.4" strokeLinecap="round" />}
         </>
       )}
     </svg>

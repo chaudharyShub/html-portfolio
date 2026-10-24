@@ -3,8 +3,10 @@
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/motion';
 
-const COLORS = ['#ff0044', '#00ff88', '#ffaa00', '#00aaff', '#ff00ff', '#ffffff', '#33ff33'];
-const TASKBAR_HEIGHT = 32;
+const COLORS = ['#ff375f', '#30d158', '#ff9f0a', '#0a84ff', '#bf5af2', '#ffffff', '#64d2ff'];
+/** Keep in sync with --menubar-h / --dock-reserve in styles/base.css. */
+const MENUBAR_HEIGHT = 28;
+const DOCK_RESERVE = 84;
 
 /**
  * "SHUBHAM OS" text that bounces around the desktop, behind all windows, the whole time.
@@ -20,7 +22,7 @@ export function DvdLogo() {
     // Random start position, chosen once per page load.
     const m = {
       x: Math.random() * (window.innerWidth - 200),
-      y: Math.random() * (window.innerHeight - 200),
+      y: MENUBAR_HEIGHT + Math.random() * (window.innerHeight - 200),
       dx: 2.2,
       dy: 1.7,
     };
@@ -34,7 +36,7 @@ export function DvdLogo() {
     let maxY = 0;
     const measure = () => {
       maxX = window.innerWidth - el.offsetWidth;
-      maxY = window.innerHeight - TASKBAR_HEIGHT - el.offsetHeight;
+      maxY = window.innerHeight - DOCK_RESERVE - el.offsetHeight;
     };
     measure();
     window.addEventListener('resize', measure);
@@ -54,8 +56,8 @@ export function DvdLogo() {
         m.dx *= -1;
         bounced = true;
       }
-      if (m.y <= 0) {
-        m.y = 0;
+      if (m.y <= MENUBAR_HEIGHT) {
+        m.y = MENUBAR_HEIGHT;
         m.dy *= -1;
         bounced = true;
       }

@@ -4,7 +4,7 @@ export function Projects() {
   return (
     <fieldset className="section" id="section-projects">
       <legend>
-        <h2>Projects\</h2>
+        <h2>Projects</h2>
       </legend>
       {VISIBLE_PROJECTS.map((project) => (
         <article className="project-card" key={project.name}>

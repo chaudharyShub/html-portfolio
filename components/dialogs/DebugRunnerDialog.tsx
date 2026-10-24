@@ -161,8 +161,8 @@ export function DebugRunnerDialog() {
   useEffect(() => () => cancelAnimationFrame(raf.current), []);
 
   return (
-    <Dialog open={open} title="Debug_Runner.exe" onClose={actions.closeGame} boxClassName="wide">
-      <div className="dialog-body compact">
+    <Dialog open={open} title="Debug Runner" onClose={actions.closeGame} boxClassName="wide">
+      <div className="dialog-body">
         <div
           id="game-stage"
           ref={stageRef}
@@ -180,11 +180,11 @@ export function DebugRunnerDialog() {
             </div>
           ))}
           <div id="game-over-msg" style={{ display: view.gameOver ? 'flex' : 'none' }} role="status">
-            <span>GAME OVER</span>
+            <span className="game-over-title">Game Over</span>
             <span className="game-over-sub">
               Score: <span>{view.score}</span> | Best: <span>{best}</span>
             </span>
-            <button type="button" onClick={start}>
+            <button type="button" className="btn-primary" onClick={start}>
               Restart
             </button>
           </div>
@@ -194,11 +194,11 @@ export function DebugRunnerDialog() {
           Score: <span>{view.score}</span> &nbsp; Best: <span>{best}</span>
         </p>
         <div className="dialog-buttons">
-          <button type="button" onClick={start}>
-            Start / Restart
-          </button>
           <button type="button" onClick={actions.closeGame}>
             Close
+          </button>
+          <button type="button" className="btn-primary" onClick={start}>
+            Start / Restart
           </button>
         </div>
       </div>

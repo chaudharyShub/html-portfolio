@@ -1,11 +1,10 @@
 'use client';
 
-import { ArrangeIcon, DisplayIcon, NewDocumentIcon, PropertiesIcon, RefreshIcon } from '@/components/icons';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
 
-const MENU_WIDTH = 200;
-const MENU_HEIGHT = 190;
+const MENU_WIDTH = 250;
+const MENU_HEIGHT = 170;
 
 /** Clamps the right-click position so the menu stays on screen. */
 export function contextMenuPosition(clientX: number, clientY: number) {
@@ -29,21 +28,22 @@ export function ContextMenu() {
       aria-label="Desktop menu"
       style={contextMenu ? { display: 'block', left: contextMenu.x, top: contextMenu.y } : undefined}
     >
-      <div {...item} onClick={() => window.location.reload()}>
-        <RefreshIcon /> Refresh
-      </div>
-      <div {...item} onClick={actions.arrangeIcons}>
-        <ArrangeIcon /> Arrange Icons
+      <div {...item} onClick={actions.denyNewTextDocument}>
+        New Folder
       </div>
       <div className="context-sep" role="separator" />
-      <div {...item} onClick={() => actions.openDialog('display')}>
-        <DisplayIcon /> Display Properties
-      </div>
       <div {...item} onClick={actions.showSystemProperties}>
-        <PropertiesIcon /> Properties
+        Get Info
       </div>
-      <div {...item} onClick={actions.denyNewTextDocument}>
-        <NewDocumentIcon /> New Text Document
+      <div {...item} onClick={() => actions.openDialog('display')}>
+        Change Wallpaper…
+      </div>
+      <div className="context-sep" role="separator" />
+      <div {...item} onClick={actions.arrangeIcons}>
+        Clean Up
+      </div>
+      <div {...item} onClick={() => window.location.reload()}>
+        Reload
       </div>
     </div>
   );

@@ -1,67 +1,93 @@
-/* Portfolio sections inside the main window. */
+/* Portfolio sections inside the main window: grouped cards. */
 fieldset.section {
-  border: 2px solid;
-  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
-  margin: 0 0 16px 0;
-  padding: 10px 12px 14px 12px;
+  min-width: 0;
+  margin: 0 0 16px;
+  padding: 18px 20px 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--shadow-card);
 }
 
+/* The legend floats inside the card so it lays out like a normal heading. */
 legend {
-  padding: 0 6px;
-  font-weight: bold;
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 6px;
 }
 
-/* Section titles are <h2> for document structure; keep the plain legend look. */
+legend + * {
+  clear: both;
+}
+
 legend h2 {
-  font: inherit;
   margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 h3.sub {
+  margin: 20px 0 8px;
   font-size: 12px;
-  margin: 12px 0 4px 0;
-  border-bottom: 1px dashed var(--gray-dark);
-  padding-bottom: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
 }
 
 p {
   margin: 6px 0;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 table {
-  border-collapse: collapse;
   width: 100%;
   margin-top: 6px;
-  background: var(--white);
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
 }
 
 th,
 td {
-  border: 1px solid var(--gray-dark);
-  padding: 5px 7px;
+  padding: 9px 12px;
   text-align: left;
-  font-size: 12px;
   vertical-align: top;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 th {
-  background: var(--gray);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+td {
+  border-top: 0.5px solid var(--separator);
+}
+
+td:first-child {
+  font-weight: 600;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .stat-box {
-  border: 2px solid;
-  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
-  padding: 8px 6px;
+  padding: 14px 10px;
+  border-radius: 12px;
+  background: var(--surface);
   text-align: center;
-  background: var(--white);
 }
 
 .stat-box.wide {
@@ -69,150 +95,148 @@ th {
 }
 
 .stat-box .num {
-  font-weight: bold;
-  font-size: 15px;
-  font-family: "Courier New", monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-box .lbl {
-  font-size: 11px;
-  color: var(--gray-dark);
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-2);
 }
 
 .skill-group {
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .skill-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 5px 0;
-  font-size: 12px;
+  gap: 10px;
+  margin: 7px 0;
+  font-size: 13px;
 }
 
 .skill-name {
-  width: 130px;
+  width: 140px;
   flex-shrink: 0;
+  font-weight: 500;
 }
 
 .skill-level {
-  width: 80px;
+  width: 84px;
   flex-shrink: 0;
-  color: var(--gray-dark);
-  font-size: 11px;
+  font-size: 12px;
+  color: var(--text-2);
 }
 
 .skill-bar-track {
   flex: 1;
-  height: 14px;
-  background: var(--white);
-  border: 2px solid;
-  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fill-strong);
+  overflow: hidden;
 }
 
 .skill-bar-fill {
   height: 100%;
-  background: var(--navy);
+  border-radius: 3px;
+  background: linear-gradient(90deg, #5ac8fa, var(--accent));
 }
 
 .skill-pct {
   width: 38px;
-  text-align: right;
   flex-shrink: 0;
+  text-align: right;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
 }
 
 .project-card {
-  border: 2px solid;
-  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
   margin-bottom: 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
 }
 
 .project-title {
-  background: var(--navy);
-  color: var(--white);
-  padding: 4px 8px;
-  font-weight: bold;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  gap: 10px;
+  padding: 14px 16px 0;
+}
+
+/* Project/job titles are <h3> for document structure. */
+.project-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .status-badge {
-  background: var(--white);
-  color: var(--black);
-  padding: 0 5px;
-  font-weight: normal;
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--green) 16%, transparent);
+  color: var(--green-text);
   font-size: 11px;
+  font-weight: 600;
 }
 
 .project-body {
-  padding: 8px 10px;
-  background: var(--gray);
+  padding: 4px 16px 16px;
 }
 
 .project-body .tech {
-  font-size: 11px;
-  color: #333;
-  margin: 4px 0 8px 0;
+  margin: 4px 0 8px;
+  font-size: 12px;
+  color: var(--text-2);
 }
 
 .exp-entry {
-  border-bottom: 1px dashed var(--gray-dark);
-  padding: 10px 0;
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--separator);
 }
 
 .exp-entry:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 
-.exp-header {
-  font-weight: bold;
-  margin-bottom: 4px;
+h3.exp-header {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .exp-duration {
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--navy);
   margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .exp-total {
-  font-weight: normal;
-  color: var(--black);
-  background: var(--white);
-  border: 1px solid;
-  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
-  padding: 0 5px;
-  margin-left: 4px;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--text);
+  font-weight: 500;
 }
 
 .tag {
   display: inline-block;
-  background: var(--white);
-  border: 1px solid;
-  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
-  padding: 1px 6px;
-  font-size: 11px;
-  margin: 4px 4px 0 0;
-}
-
-/* Terminal theme readability override */
-[data-theme="terminal"] .exp-duration {
-  color: var(--gray-dark);
-}
-
-/* Project/job titles are <h3> for document structure; keep the original inline look. */
-.project-name {
-  margin: 0;
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-h3.exp-header {
-  margin-top: 0;
-  font-size: inherit;
+  margin: 6px 6px 0 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--fill);
+  font-size: 12px;
+  color: var(--text);
 }
 
 /* Contact form spam trap: never shown to people. */

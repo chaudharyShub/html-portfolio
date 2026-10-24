@@ -1,40 +1,68 @@
 'use client';
 
-import { useEffect, useImperativeHandle, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode, type Ref } from 'react';
+import {
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  type Ref,
+} from 'react';
 import { flushSync } from 'react-dom';
 import type { WindowHandle, WindowStatus } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
-import { animateFromTaskbar, animatePopIn, animateToTaskbar, prefersReducedMotion, resetAnimationStyles } from '@/lib/motion';
+import {
+  animateFromDock,
+  animatePopIn,
+  animatePopOut,
+  animateToDock,
+  APPLE_EASE,
+  isPhoneLayout,
+  prefersReducedMotion,
+  resetAnimationStyles,
+} from '@/lib/motion';
 
 type WindowMode = 'normal' | 'maximized' | 'snapped-left' | 'snapped-right';
 type ResizeDir = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
 const RESIZE_DIRS: ResizeDir[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
-const TASKBAR_HEIGHT = 32;
+/** Keep in sync with --menubar-h / --dock-reserve in styles/base.css. */
+const MENUBAR_HEIGHT = 28;
+const DOCK_RESERVE = 84;
 const SNAP_ZONE = 8;
+/** A swipe up of at least this many px on the home indicator goes to the Home Screen. */
+const HOME_SWIPE_PX = 24;
+
+/**
+ * Clears animation leftovers. A window that has been positioned (centered/dragged) keeps
+ * `transform: none`, otherwise the CSS centering transform would shift it sideways.
+ */
+function resetWindowStyles(el: HTMLElement) {
+  resetAnimationStyles(el);
+  if (el.style.left) el.style.transform = 'none';
+}
+
 /** Disables text selection on the page while a window is being dragged. */
 function setPageTextSelection(enabled: boolean) {
   document.body.style.userSelect = enabled ? '' : 'none';
 }
-
-/** Below this width windows are fixed in place (drag/resize disabled), as in the original. */
-const MIN_INTERACTIVE_WIDTH = 700;
 
 interface WindowProps {
   ref?: Ref<WindowHandle>;
   id: string;
   variant: 'window' | 'subwindow';
   title: string;
-  icon: ReactNode;
-  /** The taskbar button this window minimizes into / restores from. */
-  getTaskbarButton: () => HTMLElement | null;
+  /** The dock icon this window minimizes into / restores from. */
+  getDockIcon: () => HTMLElement | null;
   initiallyOpen: boolean;
   /** Drag to the screen edges to snap left/right, or to the top to maximize. */
   enableSnap?: boolean;
   recenterOnDoubleClick?: boolean;
   minWidth: number;
   minHeight: number;
-  /** The title-bar close (x) button. */
+  /** The red close button. */
   onCloseRequest: () => void;
   onStatusChange: (status: WindowStatus) => void;
   /** Called shortly after the window becomes visible (open/restore). */
@@ -43,19 +71,34 @@ interface WindowProps {
   children: ReactNode;
 }
 
+const CloseGlyph = () => (
+  <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
+    <path d="M2.6 2.6l4.8 4.8M7.4 2.6L2.6 7.4" />
+  </svg>
+);
+const MinimizeGlyph = () => (
+  <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
+    <path d="M2.2 5h5.6" />
+  </svg>
+);
+const ZoomGlyph = () => (
+  <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
+    <path className="fill" d="M2.4 6.6V2.4h4.2zM7.6 3.4v4.2H3.4z" />
+  </svg>
+);
+
 /**
- * A draggable, resizable, minimizable, maximizable Win95 window.
- * Discrete state (visible, maximized/snapped, dragging) is React state; live geometry during
- * drag/resize and the minimize/restore animations are written to the element directly so they
- * stay smooth and can measure layout.
+ * A draggable, resizable, minimizable, zoomable macOS-style window; on phones it is a
+ * full-screen iOS app with a home indicator. Discrete state (visible, maximized/snapped,
+ * dragging) is React state; live drag/resize geometry and animations are written to the
+ * element directly so they stay smooth and can measure layout.
  */
 export function Window({
   ref,
   id,
   variant,
   title,
-  icon,
-  getTaskbarButton,
+  getDockIcon,
   initiallyOpen,
   enableSnap = false,
   recenterOnDoubleClick = false,
@@ -76,6 +119,7 @@ export function Window({
   const animating = useRef(false);
   const animTimer = useRef<number | undefined>(undefined);
   const detachPointer = useRef<(() => void) | null>(null);
+  const swipeStartY = useRef<number | null>(null);
   const callbacks = useRef({ onStatusChange, onShown });
 
   useEffect(() => {
@@ -98,33 +142,33 @@ export function Window({
       callbacks.current.onStatusChange(next);
     };
     const shownSoon = () => window.setTimeout(() => callbacks.current.onShown?.(), 50);
+    const hideNow = () => flushSync(() => setHidden(true));
 
     const center = () => {
       const el = elRef.current;
-      if (!el) return;
+      if (!el || isPhoneLayout()) return;
       el.style.transform = 'none';
       const rect = el.getBoundingClientRect();
+      const free = window.innerHeight - MENUBAR_HEIGHT - DOCK_RESERVE;
       el.style.left = `${Math.max(10, (window.innerWidth - rect.width) / 2)}px`;
-      el.style.top = `${Math.max(10, (window.innerHeight - TASKBAR_HEIGHT - rect.height) / 2)}px`;
+      el.style.top = `${MENUBAR_HEIGHT + Math.max(8, (free - rect.height) / 2)}px`;
     };
 
     const minimize = () => {
       const el = elRef.current;
-      if (!el || animating.current) return;
+      if (!el || animating.current || status.current !== 'open') return;
       animating.current = true;
       setStatus('minimized');
-      const button = getTaskbarButton();
-      if (prefersReducedMotion() || !button) {
-        setHidden(true);
+      const icon = getDockIcon();
+      if (prefersReducedMotion() || !icon) {
+        hideNow();
         animating.current = false;
         return;
       }
       window.clearTimeout(animTimer.current);
-      animTimer.current = animateToTaskbar(el, button, () => {
-        setHidden(true);
-        el.style.transform = 'none';
-        el.style.opacity = '';
-        el.style.pointerEvents = '';
+      animTimer.current = animateToDock(el, icon, () => {
+        hideNow();
+        resetWindowStyles(el);
         animating.current = false;
       });
     };
@@ -136,19 +180,15 @@ export function Window({
       window.clearTimeout(animTimer.current);
       setStatus('open');
       animating.current = true;
-      el.style.transition = 'none';
-      el.style.transform = 'none';
-      el.style.opacity = '';
-      el.style.pointerEvents = '';
+      resetWindowStyles(el);
       flushSync(() => setHidden(false));
-      const button = getTaskbarButton();
-      if (prefersReducedMotion() || !button) {
+      const icon = getDockIcon();
+      if (prefersReducedMotion() || !icon) {
         animating.current = false;
         shownSoon();
         return;
       }
-      void el.offsetWidth;
-      animTimer.current = animateFromTaskbar(el, button, () => {
+      animTimer.current = animateFromDock(el, icon, () => {
         animating.current = false;
         shownSoon();
       });
@@ -165,7 +205,7 @@ export function Window({
       setStatus('open');
       if (wasClosed) {
         flushSync(() => setHidden(false));
-        if (!prefersReducedMotion()) animatePopIn(el, 0.9, 150, 165);
+        if (!prefersReducedMotion()) animatePopIn(el, 0.88, 380, 400, APPLE_EASE);
       }
       shownSoon();
     };
@@ -175,8 +215,8 @@ export function Window({
       if (!el) return;
       window.clearTimeout(animTimer.current);
       const finish = () => {
-        setHidden(true);
-        resetAnimationStyles(el);
+        hideNow();
+        resetWindowStyles(el);
         animating.current = false;
         setStatus('closed');
       };
@@ -185,11 +225,9 @@ export function Window({
         return;
       }
       animating.current = true;
-      el.style.transition = 'transform 0.12s ease-in, opacity 0.12s ease-in';
-      el.style.transform = 'scale(0.94)';
-      el.style.opacity = '0';
       el.style.pointerEvents = 'none';
-      animTimer.current = window.setTimeout(finish, 130);
+      animatePopOut(el, 0.9, 180);
+      animTimer.current = window.setTimeout(finish, 190);
     };
 
     return {
@@ -209,17 +247,7 @@ export function Window({
         if (!el) return;
         center();
         if (prefersReducedMotion()) return;
-        el.style.transition = 'none';
-        el.style.transform = 'scale(0.94)';
-        el.style.opacity = '0';
-        void el.offsetWidth;
-        el.style.transition = 'transform 0.17s ease-out, opacity 0.17s ease-out';
-        el.style.transform = 'scale(1)';
-        el.style.opacity = '';
-        window.setTimeout(() => {
-          el.style.transition = '';
-          el.style.transform = 'none';
-        }, 190);
+        animatePopIn(el, 0.92, 520, 540, APPLE_EASE);
       },
     };
   });
@@ -234,18 +262,26 @@ export function Window({
       setMode(toggleMaximized);
       return;
     }
+    // Animate between the old and new frame (FLIP) so zooming glides like macOS.
     animating.current = true;
-    el.style.transition = 'opacity 0.07s linear';
-    el.style.opacity = '0.75';
+    const before = el.getBoundingClientRect();
+    flushSync(() => setMode(toggleMaximized));
+    const after = el.getBoundingClientRect();
+    const sx = before.width / after.width;
+    const sy = before.height / after.height;
+    el.animate(
+      [
+        {
+          transformOrigin: 'top left',
+          transform: `translate(${before.left - after.left}px, ${before.top - after.top}px) scale(${sx}, ${sy})`,
+        },
+        { transformOrigin: 'top left', transform: 'none' },
+      ],
+      { duration: 340, easing: APPLE_EASE },
+    );
     window.setTimeout(() => {
-      setMode(toggleMaximized);
-      el.style.transition = 'opacity 0.15s ease-out';
-      el.style.opacity = '';
-      window.setTimeout(() => {
-        el.style.transition = '';
-        animating.current = false;
-      }, 160);
-    }, 80);
+      animating.current = false;
+    }, 350);
   };
 
   const clearSize = (el: HTMLElement) => {
@@ -274,15 +310,15 @@ export function Window({
   const onTitleMouseDown = (e: ReactMouseEvent<HTMLDivElement>) => {
     const el = elRef.current;
     if (!el || e.button !== 0) return;
-    if ((e.target as HTMLElement).closest('.title-bar-buttons')) return;
-    if (window.innerWidth < MIN_INTERACTIVE_WIDTH) return;
+    if ((e.target as HTMLElement).closest('.traffic-lights')) return;
+    if (isPhoneLayout()) return;
 
     if (mode !== 'normal') {
       // Dragging a maximized/snapped window pops it back to normal size under the cursor.
       flushSync(() => setMode('normal'));
       clearSize(el);
       el.style.left = `${e.clientX - 150}px`;
-      el.style.top = `${Math.max(0, e.clientY - 14)}px`;
+      el.style.top = `${Math.max(MENUBAR_HEIGHT, e.clientY - 14)}px`;
     }
     const rect = el.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
@@ -294,9 +330,9 @@ export function Window({
     trackPointer(
       (ev) => {
         const maxLeft = window.innerWidth - 100;
-        const maxTop = window.innerHeight - TASKBAR_HEIGHT - 40;
+        const maxTop = window.innerHeight - DOCK_RESERVE;
         const left = Math.max(-el.offsetWidth + 120, Math.min(ev.clientX - offsetX, maxLeft));
-        const top = Math.max(0, Math.min(ev.clientY - offsetY, maxTop));
+        const top = Math.max(MENUBAR_HEIGHT, Math.min(ev.clientY - offsetY, maxTop));
         el.style.left = `${left}px`;
         el.style.top = `${top}px`;
       },
@@ -310,16 +346,22 @@ export function Window({
           el.style.top = '';
           setMode(side);
         };
-        if (ev.clientY <= SNAP_ZONE) setMode('maximized');
+        if (ev.clientY <= MENUBAR_HEIGHT + SNAP_ZONE) setMode('maximized');
         else if (ev.clientX <= SNAP_ZONE) snapTo('snapped-left');
         else if (ev.clientX >= window.innerWidth - SNAP_ZONE) snapTo('snapped-right');
       },
     );
   };
 
+  // macOS: double-clicking the title bar zooms the window.
   const onTitleDoubleClick = (e: ReactMouseEvent<HTMLDivElement>) => {
     const el = elRef.current;
-    if (!el || (e.target as HTMLElement).closest('.title-bar-buttons')) return;
+    if (!el || (e.target as HTMLElement).closest('.traffic-lights')) return;
+    if (isPhoneLayout()) return;
+    if (mode === 'normal' && recenterOnDoubleClick) {
+      toggleMaximize();
+      return;
+    }
     flushSync(() => setMode('normal'));
     clearSize(el);
     if (recenterOnDoubleClick) handle.current?.center();
@@ -327,7 +369,7 @@ export function Window({
 
   const onResizeMouseDown = (dir: ResizeDir, e: ReactMouseEvent<HTMLDivElement>) => {
     const el = elRef.current;
-    if (!el || window.innerWidth < MIN_INTERACTIVE_WIDTH || mode !== 'normal') return;
+    if (!el || isPhoneLayout() || mode !== 'normal') return;
     e.stopPropagation();
     e.preventDefault();
     const startX = e.clientX;
@@ -354,14 +396,26 @@ export function Window({
           height = Math.max(minHeight, rect.height - dy);
           top = rect.top + (rect.height - height);
         }
-        height = Math.min(height, window.innerHeight - TASKBAR_HEIGHT - Math.max(0, top));
+        top = Math.max(MENUBAR_HEIGHT, top);
+        height = Math.min(height, window.innerHeight - top - 8);
         el.style.width = `${width}px`;
         el.style.left = `${left}px`;
-        el.style.top = `${Math.max(0, top)}px`;
+        el.style.top = `${top}px`;
         el.style.height = `${height}px`;
       },
       () => {},
     );
+  };
+
+  // iOS home indicator: a tap or a swipe up goes back to the Home Screen.
+  const onHomePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    swipeStartY.current = e.clientY;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onHomePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const start = swipeStartY.current;
+    swipeStartY.current = null;
+    if (start !== null && start - e.clientY >= HOME_SWIPE_PX) handle.current?.minimize();
   };
 
   const className = [variant, mode !== 'normal' ? mode : ''].filter(Boolean).join(' ');
@@ -389,28 +443,42 @@ export function Window({
         onMouseDown={onTitleMouseDown}
         onDoubleClick={onTitleDoubleClick}
       >
-        <div className="title-bar-left">
-          {icon}
-          <span id={titleId}>{title}</span>
-        </div>
-        <div className="title-bar-buttons">
-          <span {...pressableProps} onClick={() => handle.current?.minimize()} title="Minimize" aria-label="Minimize">
-            _
+        <div className="traffic-lights">
+          <span className="tl tl-close" {...pressableProps} onClick={onCloseRequest} title="Close" aria-label="Close">
+            <CloseGlyph />
           </span>
           <span
+            className="tl tl-min"
+            {...pressableProps}
+            onClick={() => handle.current?.minimize()}
+            title="Minimize"
+            aria-label="Minimize"
+          >
+            <MinimizeGlyph />
+          </span>
+          <span
+            className="tl tl-zoom"
             {...pressableProps}
             onClick={toggleMaximize}
-            title="Maximize"
+            title="Zoom"
             aria-label={mode === 'maximized' ? 'Restore' : 'Maximize'}
           >
-            &#9633;
-          </span>
-          <span {...pressableProps} onClick={onCloseRequest} title="Close" aria-label="Close">
-            &times;
+            <ZoomGlyph />
           </span>
         </div>
+        <span className="title-text" id={titleId}>
+          {title}
+        </span>
       </div>
       {children}
+      <div
+        className="home-indicator"
+        {...pressableProps}
+        aria-label="Go to Home Screen"
+        onClick={() => handle.current?.minimize()}
+        onPointerDown={onHomePointerDown}
+        onPointerUp={onHomePointerUp}
+      />
     </div>
   );
 }

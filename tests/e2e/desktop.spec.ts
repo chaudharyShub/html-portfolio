@@ -22,16 +22,16 @@ test('a key press skips the boot screen and shows the portfolio', async ({ page 
 test('tabs switch the visible sections', async ({ page }) => {
   await openDesktop(page);
   await page.getByRole('tab', { name: 'Projects' }).click();
-  await expect(page.getByRole('heading', { name: 'Projects\\' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About Me' })).toBeHidden();
   await page.getByRole('tab', { name: 'Contact' }).click();
   await expect(page.locator('#contact-form')).toBeVisible();
 });
 
-test('DOS prompt runs commands and clears', async ({ page }) => {
+test('Terminal runs commands and clears', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#start-button').click();
-  await page.getByRole('menuitem', { name: 'MS-DOS Prompt' }).click();
+  await page.getByRole('menuitem', { name: 'Terminal' }).click();
   const input = page.locator('#dos-input');
   const output = page.locator('#dos-window [role="log"]');
   await expect(input).toBeVisible();
@@ -49,14 +49,35 @@ test('DOS prompt runs commands and clears', async ({ page }) => {
   await expect(output).not.toContainText('whoami');
 });
 
-test('theme choice is saved and applied again after a reload', async ({ page }) => {
+test('appearance choice is saved and applied again after a reload', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#start-button').click();
-  await page.getByRole('menuitem', { name: 'Display Properties' }).click();
-  await page.getByRole('radio', { name: 'Terminal' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'terminal');
+  await page.getByRole('menuitem', { name: 'System Settings' }).click();
+  await page.getByRole('radio', { name: 'Dark' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
   await page.reload();
   // Applied by the pre-paint script, before the boot screen is even skipped.
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'terminal');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});
+
+test('minimizing sends the window to the Dock and the Dock icon brings it back', async ({ page }) => {
+  await openDesktop(page);
+  const win = page.locator('#window');
+  await win.getByRole('button', { name: 'Minimize', exact: true }).click();
+  await expect(win).toBeHidden();
+  // The Dock magnifies under the pointer, so don't wait for the icon to hold still.
+  await page.locator('#taskbar-window-btn').click({ force: true });
+  await expect(win).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'About Me' })).toBeVisible();
+});
+
+test('the close button asks before "quitting" and then minimizes', async ({ page }) => {
+  await openDesktop(page);
+  const win = page.locator('#window');
+  await win.getByRole('button', { name: 'Close', exact: true }).click();
+  const alert = page.getByRole('alertdialog', { name: 'Are you sure you want to quit Shubham?' });
+  await expect(alert).toBeVisible();
+  await alert.getByRole('button', { name: 'Quit' }).click();
+  await expect(win).toBeHidden();
 });

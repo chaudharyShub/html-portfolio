@@ -1,36 +1,37 @@
-/* Window chrome shared by the main window and the DOS prompt, plus main-window bars. */
+/* Windows: macOS chrome shared by the portfolio window and Terminal, plus the portfolio's bars. */
 .window {
   position: fixed;
   left: 50%;
-  top: 16px;
+  top: calc(var(--menubar-h) + 16px);
   transform: translateX(-50%);
-  width: min(900px, 95vw);
-  max-height: calc(94vh - 32px);
-  background: var(--gray);
-  border: 2px solid;
-  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  width: min(920px, 94vw);
+  max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve) - 28px);
   z-index: 10;
   display: flex;
   flex-direction: column;
+  background: var(--window-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow-window);
+  overflow: hidden;
 }
 
 .window.maximized {
   left: 0 !important;
-  top: 0 !important;
+  top: var(--menubar-h) !important;
   transform: none !important;
   width: 100vw !important;
-  max-height: calc(100vh - 32px) !important;
-  height: calc(100vh - 32px) !important;
+  max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  border-radius: 0 0 12px 12px;
 }
 
 .window.snapped-left,
 .window.snapped-right {
-  top: 0 !important;
+  top: var(--menubar-h) !important;
   transform: none !important;
   width: 50vw !important;
-  max-height: calc(100vh - 32px) !important;
-  height: calc(100vh - 32px) !important;
+  max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
 }
 
 .window.snapped-left {
@@ -41,26 +42,30 @@
   left: 50vw !important;
 }
 
+/* Terminal: always dark, slightly translucent. */
 .subwindow {
   position: fixed;
   z-index: 15;
-  background: var(--gray);
-  border: 2px solid;
-  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
-  width: 460px;
-  height: 340px;
-  left: 12%;
-  top: 10%;
+  width: 580px;
+  height: 370px;
+  left: 14%;
+  top: 14%;
   display: none;
   flex-direction: column;
+  background: rgba(28, 28, 30, 0.9);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), 0 0 0 0.5px rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  color: #e5e5ea;
 }
 
 .subwindow.maximized {
   left: 0 !important;
-  top: 0 !important;
+  top: var(--menubar-h) !important;
   width: 100vw !important;
-  height: calc(100vh - 32px) !important;
+  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
 }
 
 .window.maximized .resize-handle,
@@ -77,31 +82,31 @@
 
 .resize-n {
   top: -3px;
-  left: 10px;
-  right: 10px;
+  left: 12px;
+  right: 12px;
   height: 6px;
   cursor: ns-resize;
 }
 
 .resize-s {
   bottom: -3px;
-  left: 10px;
-  right: 10px;
+  left: 12px;
+  right: 12px;
   height: 6px;
   cursor: ns-resize;
 }
 
 .resize-e {
-  top: 10px;
-  bottom: 10px;
+  top: 12px;
+  bottom: 12px;
   right: -3px;
   width: 6px;
   cursor: ew-resize;
 }
 
 .resize-w {
-  top: 10px;
-  bottom: 10px;
+  top: 12px;
+  bottom: 12px;
   left: -3px;
   width: 6px;
   cursor: ew-resize;
@@ -110,165 +115,227 @@
 .resize-ne {
   top: -3px;
   right: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nesw-resize;
 }
 
 .resize-nw {
   top: -3px;
   left: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nwse-resize;
 }
 
 .resize-se {
   bottom: -3px;
   right: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nwse-resize;
 }
 
 .resize-sw {
   bottom: -3px;
   left: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nesw-resize;
 }
 
+/* ===== Title bar + traffic lights ===== */
 .title-bar {
-  background: linear-gradient(90deg, var(--navy), var(--navy-light));
-  color: var(--white);
-  font-weight: bold;
-  padding: 4px 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: grab;
+  position: relative;
   flex-shrink: 0;
-}
-
-.title-bar.dragging {
-  cursor: grabbing;
-}
-
-.title-bar-left {
+  height: 40px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  padding: 0 80px;
+  background: var(--titlebar);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  user-select: none;
+  cursor: default;
 }
 
-.title-bar-buttons {
+.subwindow .title-bar {
+  height: 32px;
+  background: rgba(54, 54, 58, 0.9);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.5);
+  color: #d1d1d6;
+}
+
+.title-text {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.traffic-lights {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  gap: 3px;
+  gap: 8px;
 }
 
-.title-bar-buttons span {
-  width: 16px;
-  height: 14px;
-  background: var(--gray);
-  border: 1px solid;
-  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
-  font-size: 10px;
-  line-height: 14px;
-  text-align: center;
-  color: var(--black);
-  font-weight: bold;
-  cursor: pointer;
+.tl {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
+  cursor: default;
 }
 
-.title-bar-buttons span:active {
-  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+.tl-close {
+  background: #ff5f57;
+}
+
+.tl-min {
+  background: #febc2e;
+}
+
+.tl-zoom {
+  background: #28c840;
+}
+
+.tl svg {
+  width: 8px;
+  height: 8px;
+  opacity: 0;
+  stroke: rgba(0, 0, 0, 0.6);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  fill: none;
+  transition: opacity 0.1s ease;
+}
+
+.tl svg .fill {
+  fill: rgba(0, 0, 0, 0.6);
+  stroke: none;
+}
+
+.traffic-lights:hover .tl svg,
+.dialog-title-bar:hover .tl svg,
+.tl:focus-visible svg {
+  opacity: 1;
+}
+
+.tl:active {
+  filter: brightness(0.8);
+}
+
+/* ===== Toolbar: segmented control ===== */
+.tab-bar-wrap {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px 10px;
+  background: var(--titlebar);
+  border-bottom: 0.5px solid var(--separator);
 }
 
 .tab-bar {
-  background: var(--gray);
-  padding: 4px 6px 0;
-  border-bottom: 2px solid var(--gray-dark);
-  display: flex;
-  gap: 3px;
-  font-size: 12px;
-  flex-shrink: 0;
-  align-items: flex-end;
+  position: relative;
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--fill);
+}
+
+.tab-pill {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 0;
+  border-radius: 6px;
+  background: var(--segment-pill);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  transition: transform 0.36s var(--ease-apple), width 0.36s var(--ease-apple);
 }
 
 .tab {
-  padding: 4px 18px 5px;
-  cursor: pointer;
-  background: #b0b0b0;
-  color: #222;
-  border-top: 1px solid var(--white);
-  border-left: 1px solid var(--white);
-  border-right: 1px solid var(--gray-dark);
-  border-bottom: 1px solid var(--gray-dark);
+  position: relative;
+  z-index: 1;
+  padding: 4px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: default;
   user-select: none;
   white-space: nowrap;
-  position: relative;
 }
 
-.tab:hover:not(.active) {
-  background: #cacaca;
+.tab:not(.active):hover {
+  color: var(--text-2);
 }
 
-.tab.active {
-  background: var(--gray);
-  color: var(--black);
-  font-weight: bold;
-  border-top: 2px solid var(--white);
-  border-left: 2px solid var(--white);
-  border-right: 1px solid var(--gray-dark);
-  border-bottom: 2px solid var(--gray);
-  padding-bottom: 7px;
-  margin-bottom: -2px;
-  z-index: 1;
+.tab-glyph {
+  display: none;
 }
 
+/* ===== Info bar, content, footer ===== */
 .info-bar {
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--gray-dark);
-  font-size: 12px;
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 18px;
-  background: var(--gray);
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 4px 22px;
+  padding: 8px 20px;
+  background: var(--window-bg);
+  border-bottom: 0.5px solid var(--separator);
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.info-bar b {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .info-bar .status-dot {
-  color: green;
-  font-weight: bold;
+  color: var(--green);
 }
 
 .content {
-  padding: 12px;
-  overflow-y: auto;
   flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 8px;
+  background: var(--content-bg);
 }
 
 .status-bar {
-  background: var(--gray);
-  border-top: 1px solid var(--white);
-  padding: 5px 10px;
-  font-size: 11px;
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 6px;
-  flex-shrink: 0;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 7px 16px;
+  background: var(--titlebar);
+  border-top: 0.5px solid var(--separator);
+  font-size: 11px;
+  color: var(--text-2);
 }
 
-/* ===== VISITOR COUNTER ===== */
 .visitor-counter {
-  font-family: "Courier New", monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  background: #000;
-  color: #33ff33;
-  padding: 1px 6px;
-  border: 1px solid var(--gray-dark);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--text);
 }
 
 /* Each section sits in a layout-neutral slot so tabs can hide/reorder server-rendered sections. */
@@ -277,5 +344,10 @@
 }
 
 .section-slot[hidden] {
+  display: none;
+}
+
+/* The iOS home indicator only exists on phones. */
+.home-indicator {
   display: none;
 }

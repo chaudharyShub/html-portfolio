@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { crtPreference, cursorTrailPreference, themePreference, wallpaperPreference } from '@/lib/preferences';
-import { applyThemeToDocument, THEMES } from '@/lib/themes';
+import { applyThemeToDocument } from '@/lib/themes';
 import { findWallpaper, wallpaperStyle } from '@/lib/wallpapers';
 
 /**
@@ -20,8 +20,8 @@ export function DisplayEffects() {
   }, [theme]);
 
   useEffect(() => {
-    Object.assign(document.body.style, wallpaperStyle(findWallpaper(wallpaper), THEMES[theme].vars['--teal']));
-  }, [wallpaper, theme]);
+    Object.assign(document.body.style, wallpaperStyle(findWallpaper(wallpaper)));
+  }, [wallpaper]);
 
   return (
     <>

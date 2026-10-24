@@ -18,7 +18,7 @@ test('sends a message and clears the form', async ({ page }) => {
   const sent = await stubWeb3Forms(page);
   await openContact(page);
   await fillForm(page);
-  await page.getByRole('button', { name: '[ Send ]' }).click();
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
 
   await expect(toast(page)).toContainText('Message sent');
   expect(sent.count).toBe(1);
@@ -41,7 +41,7 @@ test('many submits fired at the same instant send only once', async ({ page }) =
 test('allows 5 messages a minute, then asks the visitor to wait, even after a reload', async ({ page }) => {
   const sent = await stubWeb3Forms(page, { delayMs: 20 });
   await openContact(page);
-  const send = page.getByRole('button', { name: '[ Send ]' });
+  const send = page.getByRole('button', { name: 'Send', exact: true });
 
   for (let i = 1; i <= 5; i++) {
     await fillForm(page, `Message ${i}`);
@@ -72,7 +72,7 @@ test('sends that are over a minute old no longer count', async ({ page }) => {
   });
   await openContact(page);
   await fillForm(page);
-  await page.getByRole('button', { name: '[ Send ]' }).click();
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(toast(page)).toContainText('Message sent');
   expect(sent.count).toBe(1);
 });
@@ -85,7 +85,7 @@ test('the honeypot drops bot submissions without sending', async ({ page }) => {
   await page.locator('input[name="botcheck"]').evaluate((el: HTMLInputElement) => {
     el.checked = true;
   });
-  await page.getByRole('button', { name: '[ Send ]' }).click();
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
 
   await expect(toast(page)).toContainText('Message sent');
   expect(sent.count).toBe(0);
@@ -95,9 +95,9 @@ test('falls back to the mail app when sending fails', async ({ page }) => {
   const sent = await stubWeb3Forms(page, { ok: false });
   await openContact(page);
   await fillForm(page);
-  await page.getByRole('button', { name: '[ Send ]' }).click();
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
 
-  await expect(toast(page)).toContainText('Message.exe has encountered a problem');
+  await expect(toast(page)).toContainText("Message couldn't be sent");
   expect(sent.count).toBe(1);
   // A failed send doesn't use up one of the visitor's 5 messages.
   const saved = await page.evaluate(() => localStorage.getItem('shubhamOsContactSends'));

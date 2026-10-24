@@ -1,11 +1,12 @@
 'use client';
 
+import { AppMenu } from '@/components/desktop/AppMenu';
 import { ContextMenu } from '@/components/desktop/ContextMenu';
 import { DesktopIcons } from '@/components/desktop/DesktopIcons';
 import { DisplayEffects } from '@/components/desktop/DisplayEffects';
+import { Dock } from '@/components/desktop/Dock';
 import { DvdLogo } from '@/components/desktop/DvdLogo';
-import { StartMenu } from '@/components/desktop/StartMenu';
-import { Taskbar } from '@/components/desktop/Taskbar';
+import { MenuBar } from '@/components/desktop/MenuBar';
 import { Toast } from '@/components/desktop/Toast';
 import { DebugRunnerDialog } from '@/components/dialogs/DebugRunnerDialog';
 import { DisplayPropertiesDialog } from '@/components/dialogs/DisplayPropertiesDialog';
@@ -40,10 +41,11 @@ function Desktop(props: MainWindowProps) {
       <BootScreen onFinish={bootComplete} />
       <DesktopIcons />
       <DvdLogo />
-      <Taskbar />
-      <StartMenu />
+      <MenuBar />
+      <AppMenu />
       <MainWindow {...props} />
       <DosWindow />
+      <Dock />
       <MessageDialog />
       <CloseConfirmDialog />
       <RecycleBinDialog />
