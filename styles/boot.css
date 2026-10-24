@@ -1,54 +1,123 @@
-/* Startup screen: logo, thin progress bar, current boot step. */
+/* Startup screen: soft Aurora glow, app icon, name and role, progress bar, current step. */
 #boot-screen {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #08080d;
   color: #fff;
+  cursor: default;
+  user-select: none;
+  transition: opacity 0.5s ease;
+}
+
+#boot-screen.leaving {
+  opacity: 0;
+}
+
+/* The Aurora wallpaper colors, glowing softly behind everything. */
+.boot-glow {
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(circle at 32% 32%, rgba(255, 154, 139, 0.42), transparent 34%),
+    radial-gradient(circle at 68% 28%, rgba(161, 140, 209, 0.45), transparent 34%),
+    radial-gradient(circle at 64% 72%, rgba(91, 141, 239, 0.45), transparent 36%),
+    radial-gradient(circle at 34% 74%, rgba(246, 211, 101, 0.28), transparent 32%);
+  animation: bootGlowIn 1.4s ease both, bootGlowDrift 9s ease-in-out infinite alternate;
+}
+
+@keyframes bootGlowIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes bootGlowDrift {
+  to {
+    transform: rotate(14deg) scale(1.08);
+  }
+}
+
+.boot-center {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  transition: opacity 0.5s ease;
-  cursor: default;
-  user-select: none;
+  padding: 0 24px;
+  text-align: center;
+  transition: transform 0.5s var(--ease-apple);
 }
 
-.boot-logo {
-  color: #fff;
-  margin-bottom: 44px;
-  animation: bootLogoIn 0.9s var(--ease-apple) both;
+/* Leaving: the content zooms gently toward the viewer as the screen fades into the desktop. */
+#boot-screen.leaving .boot-center {
+  transform: scale(1.08);
 }
 
-@keyframes bootLogoIn {
+.boot-icon {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 22.5%;
+  box-shadow: 0 18px 50px rgba(10, 60, 160, 0.5);
+  animation: bootIconIn 0.9s var(--ease-spring) both;
+}
+
+@keyframes bootIconIn {
   from {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.6);
+  }
+}
+
+.boot-name {
+  margin-top: 24px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  animation: bootFadeUp 0.7s 0.25s var(--ease-apple) both;
+}
+
+.boot-role {
+  margin-top: 4px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.72);
+  animation: bootFadeUp 0.7s 0.4s var(--ease-apple) both;
+}
+
+@keyframes bootFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }
 
 .boot-progress-bar {
-  width: 180px;
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.22);
+  width: 200px;
+  height: 4px;
+  margin-top: 36px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
   overflow: hidden;
+  animation: bootFadeUp 0.6s 0.55s var(--ease-apple) both;
 }
 
 #boot-progress-fill {
   height: 100%;
   width: 0%;
-  border-radius: 3px;
+  border-radius: 2px;
   background: #fff;
 }
 
 #boot-text {
-  margin: 18px 0 0;
   min-height: 1.5em;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
-  text-align: center;
-  padding: 0 16px;
+  margin: 14px 0 0;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.72);
+  animation: bootFadeUp 0.6s 0.6s var(--ease-apple) both;
 }
 
 .boot-skip-hint {
@@ -57,4 +126,35 @@
   margin: 0;
   font-size: 11px;
   color: rgba(255, 255, 255, 0.6);
+}
+
+.boot-hint-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .boot-hint-pointer {
+    display: none;
+  }
+
+  .boot-hint-touch {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-glow,
+  .boot-icon,
+  .boot-name,
+  .boot-role,
+  .boot-progress-bar,
+  #boot-text {
+    animation: none;
+  }
+
+  .boot-center,
+  #boot-screen.leaving .boot-center {
+    transition: none;
+    transform: none;
+  }
 }

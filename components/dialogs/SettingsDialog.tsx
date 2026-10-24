@@ -2,19 +2,24 @@
 
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
-import { crtPreference, cursorTrailPreference, themePreference, wallpaperPreference } from '@/lib/preferences';
+import {
+  largerTextPreference,
+  reduceTransparencyPreference,
+  themePreference,
+  wallpaperPreference,
+} from '@/lib/preferences';
 import { THEME_IDS, THEMES } from '@/lib/themes';
 import { WALLPAPERS, wallpaperStyle } from '@/lib/wallpapers';
 import { Dialog } from './Dialog';
 
-/** System Settings: appearance (Light/Dark/Auto), wallpaper and the two display effects. */
+/** System Settings: appearance (Light/Dark/Auto), wallpaper, and display & text options. */
 export function SettingsDialog() {
   const { dialogs } = useOsState();
   const { closeDialog } = useOsActions();
   const theme = themePreference.use();
   const wallpaper = wallpaperPreference.use();
-  const crt = crtPreference.use();
-  const trail = cursorTrailPreference.use();
+  const reduceTransparency = reduceTransparencyPreference.use();
+  const largerText = largerTextPreference.use();
   const close = () => closeDialog('settings');
 
   const pickRandomWallpaper = () => {
@@ -64,26 +69,32 @@ export function SettingsDialog() {
           ))}
         </div>
 
-        <h3 className="settings-heading">Effects</h3>
+        <h3 className="settings-heading">Display &amp; Text Size</h3>
         <div className="settings-group settings-list">
           <label className="settings-row">
-            <span>CRT Scanlines</span>
+            <span className="settings-row-text">
+              <span>Reduce Transparency</span>
+              <span className="settings-row-hint">Solid backgrounds instead of frosted glass.</span>
+            </span>
             <input
               type="checkbox"
               role="switch"
               className="switch"
-              checked={crt}
-              onChange={(e) => crtPreference.set(e.target.checked)}
+              checked={reduceTransparency}
+              onChange={(e) => reduceTransparencyPreference.set(e.target.checked)}
             />
           </label>
           <label className="settings-row">
-            <span>Mouse Trails</span>
+            <span className="settings-row-text">
+              <span>Larger Text</span>
+              <span className="settings-row-hint">Makes the portfolio easier to read.</span>
+            </span>
             <input
               type="checkbox"
               role="switch"
               className="switch"
-              checked={trail}
-              onChange={(e) => cursorTrailPreference.set(e.target.checked)}
+              checked={largerText}
+              onChange={(e) => largerTextPreference.set(e.target.checked)}
             />
           </label>
         </div>

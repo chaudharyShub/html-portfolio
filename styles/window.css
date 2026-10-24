@@ -308,17 +308,13 @@
 
 .info-avatar {
   grid-row: 1 / span 2;
+  display: block;
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, #5ac8fa, #0a64d6);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  object-fit: cover;
+  background: var(--fill);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .info-name {

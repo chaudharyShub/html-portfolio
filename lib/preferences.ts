@@ -20,9 +20,16 @@ export const wallpaperPreference = createStoredValue<string>(
   DEFAULT_WALLPAPER_ID,
 );
 
-export const crtPreference = createStoredValue(STORAGE_KEYS.crt, parseFlag, serializeFlag, false);
+/** Solid colors instead of frosted glass (like iOS Accessibility > Reduce Transparency). */
+export const reduceTransparencyPreference = createStoredValue(
+  STORAGE_KEYS.reduceTransparency,
+  parseFlag,
+  serializeFlag,
+  false,
+);
 
-export const cursorTrailPreference = createStoredValue(STORAGE_KEYS.cursorTrail, parseFlag, serializeFlag, false);
+/** Portfolio text one step bigger (like iOS Larger Text). */
+export const largerTextPreference = createStoredValue(STORAGE_KEYS.largerText, parseFlag, serializeFlag, false);
 
 /** Playful, locally seeded "visitor number" (not a real global count). 0 means not yet assigned. */
 export const visitorNumber = createStoredValue(

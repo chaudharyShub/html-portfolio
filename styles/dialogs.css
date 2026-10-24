@@ -400,6 +400,18 @@
   color: var(--text);
 }
 
+.settings-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 12px;
+}
+
+.settings-row-hint {
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+
 .settings-row:last-child {
   border-bottom: none;
 }

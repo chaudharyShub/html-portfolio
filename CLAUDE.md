@@ -86,6 +86,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   server `InfoBar` with avatar initials; its "Name:/Role:/Status:" labels are visually hidden but kept
   for screen readers) and the section list (the tablist, colored `tab-tile`s, a selection highlight
   that glides between rows). Content and status bar on the right.
+- Profile photo: `public/profile.jpg` (192px square crop of the user's photo; the original is kept
+  in `assets/profile-photo.jpeg`, not served). Shown in the sidebar profile card (`InfoBar`, path in
+  `PROFILE.photo`) and used as the JSON-LD `Person` image. Hidden in the phone info row.
 - Desktop icons (Shubham HD, Debug Runner, Terminal, Trash) in a top-right column; double-click with
   a mouse, single tap on touch. The default Aurora wallpaper drifts slowly (`LiveWallpaper`).
 - Animations (`lib/motion.ts`, all return a cancel function):
@@ -112,8 +115,11 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - 16px inputs stop iOS zooming into fields.
 
 ## Features
-- **Startup screen**: logo, progress bar and the current boot step, deterministic ~5.3s. Click or any
-  key skips it. Timing is intentionally fixed; total must stay within 4-6 seconds if changed.
+- **Startup screen** (revamped Oct 2026): dark screen with a soft Aurora glow, the app icon springs
+  in, then the user's name and role, a thin progress bar with plain steps ("Loading projects"...;
+  "Welcome back" for returning visitors), then it zooms gently out into the desktop. Deterministic
+  ~4.4s. Click or any key skips it ("Tap to skip" on touch screens). Timing is intentionally fixed;
+  total must stay within 4-6 seconds if changed.
 - **Terminal** (`components/windows/TerminalWindow.tsx`, commands in `lib/terminal.ts`): prompt
   `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `sudo hire-me`, history
   with Up/Down, zsh-style "command not found". Output persists across minimize/close; only `clear`
@@ -121,7 +127,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Debug Runner**: tiny jump-over-bugs game, best score in localStorage.
 - **System Settings** (`components/dialogs/SettingsDialog.tsx`): Light / Dark / Auto, 4 original
   gradient wallpapers (Aurora default, Lagoon, Dusk, Graphite; unknown saved ids fall back to Aurora),
-  CRT scanlines and mouse trails switches, Random Wallpaper.
+  Random Wallpaper, and a "Display & Text Size" section (iOS-style switches, replaced CRT scanlines +
+  mouse trails in Oct 2026): **Reduce Transparency** (`data-reduce-transparency` on `<html>`; CSS
+  swaps the glass variables for `*-solid` tokens and turns off backdrop blur) and **Larger Text**
+  (`data-larger-text`; portfolio sections get `zoom: 1.15`, the sidebar is left alone so it doesn't
+  wrap). Both are saved like the theme and applied by the pre-paint script
+  (`buildAppearanceInitScript`, `DISPLAY_FLAGS` in `lib/themes.ts`) so there is no flash.
 - **Right-click menu**: New Folder (joke), Get Info, Change Wallpaper..., Clean Up, Reload.
 - **Trash** dialog (joke file list), quit alert on the main window's close button (Quit/Cancel just
   minimizes).

@@ -47,7 +47,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies smoothly with the pointer and bounces apps as they launch. |
 | **Terminal** | A real command parser with history (↑ / ↓). |
 | **Desktop** | Draggable icons and a custom right-click menu. |
-| **System Settings** | Light (default) / Dark / Auto appearance, 4 gradient wallpapers (the default one drifts slowly), CRT scanlines and mouse trails. |
+| **System Settings** | Light (default) / Dark / Auto appearance, 4 gradient wallpapers (the default one drifts slowly), Reduce Transparency and Larger Text switches. |
 | **On phones** | Full-screen apps with a tab bar and a home indicator (tap or swipe up to go home), a Home Screen and dock, action sheet, bottom sheets and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |

@@ -1,33 +1,32 @@
-/* Optional visual effects toggled in System Settings. */
-/* ===== CRT OVERLAY ===== */
-#crt-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 999;
-  background-image:
-    repeating-linear-gradient(to bottom,
-      transparent 0px,
-      transparent 3px,
-      rgba(0, 0, 0, 0.05) 3px,
-      rgba(0, 0, 0, 0.05) 4px),
-    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.38) 100%);
+/* Display & Text Size switches from System Settings (attributes on <html>, see DisplayEffects). */
+
+/* ===== Reduce Transparency: solid colors instead of frosted glass ===== */
+[data-reduce-transparency] body {
+  --menubar-bg: var(--menubar-bg-solid);
+  --dock-bg: var(--dock-solid);
+  --material: var(--material-solid);
+  --material-strong: var(--material-solid);
+  --sidebar-bg: var(--sidebar-solid);
+  --titlebar: var(--titlebar-solid);
 }
 
-/* ===== CURSOR TRAIL ===== */
-.cursor-trail {
-  position: fixed;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  pointer-events: none;
-  z-index: 997;
-  opacity: 0;
-  transition: opacity 0.45s ease;
+[data-reduce-transparency] *,
+[data-reduce-transparency] *::before,
+[data-reduce-transparency] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
-.cursor-trail.active {
-  opacity: 0.6;
+[data-reduce-transparency] .subwindow {
+  background: #1c1c1e;
+}
+
+[data-reduce-transparency] .dialog-overlay,
+[data-reduce-transparency] .menu-scrim.open {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* ===== Larger Text: the portfolio sections one step bigger ===== */
+[data-larger-text] .content fieldset.section {
+  zoom: 1.15;
 }

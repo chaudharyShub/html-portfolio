@@ -68,6 +68,22 @@ test('appearance choice is saved and applied again after a reload', async ({ pag
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
+test('Reduce Transparency and Larger Text switch on, and stay on after a reload', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#dock-settings').click({ force: true });
+  const html = page.locator('html');
+  await page.getByRole('switch', { name: /Reduce Transparency/ }).check();
+  await page.getByRole('switch', { name: /Larger Text/ }).check();
+  await expect(html).toHaveAttribute('data-reduce-transparency', '');
+  await expect(html).toHaveAttribute('data-larger-text', '');
+  // The glass is gone: the menu bar no longer blurs what is behind it.
+  await expect(page.locator('.menubar')).toHaveCSS('backdrop-filter', 'none');
+
+  await page.reload();
+  await expect(html).toHaveAttribute('data-reduce-transparency', '');
+  await expect(html).toHaveAttribute('data-larger-text', '');
+});
+
 test('minimizing sends the window to the Dock and the Dock icon brings it back', async ({ page }) => {
   await openDesktop(page);
   const win = page.locator('#window');

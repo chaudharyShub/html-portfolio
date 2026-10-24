@@ -15,6 +15,7 @@ export function buildProfilePageJsonLd(): Record<string, unknown> {
       name: PROFILE.name,
       jobTitle: PROFILE.role,
       url,
+      image: `${SITE.url}${PROFILE.photo}`,
       sameAs: [PROFILE.links.github, PROFILE.links.linkedin],
       description: SITE.description,
     },

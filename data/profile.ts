@@ -11,6 +11,8 @@ export const PROFILE = {
   /** Start of the IT career; drives the live "uptime" and years-of-experience counters. */
   careerStart: '2022-09-01T00:00:00',
   careerStartLabel: 'Sept 2022',
+  /** Square profile photo (cropped from the user's own picture). */
+  photo: '/profile.jpg',
   resume: {
     href: '/Shubham_resume.pdf',
     fileName: 'Shubham_resume.pdf',

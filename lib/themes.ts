@@ -24,12 +24,26 @@ export function applyThemeToDocument(id: ThemeId): void {
   document.documentElement.setAttribute('data-theme', id);
 }
 
+/** On/off display settings, each shown as a boolean attribute on <html> that the CSS reacts to. */
+export const DISPLAY_FLAGS = [
+  { key: STORAGE_KEYS.reduceTransparency, attribute: 'data-reduce-transparency' },
+  { key: STORAGE_KEYS.largerText, attribute: 'data-larger-text' },
+] as const;
+
+export function applyDisplayFlag(attribute: string, on: boolean): void {
+  document.documentElement.toggleAttribute(attribute, on);
+}
+
 /**
- * Inline script that runs before first paint so a saved Light/Dark choice doesn't flash.
- * Built only from the constants above (no user input), so embedding it is safe.
+ * Inline script that runs before first paint so saved appearance settings (theme, Reduce
+ * Transparency, Larger Text) don't flash. Built only from the constants above (no user input),
+ * so embedding it is safe.
  */
-export function buildThemeInitScript(): string {
-  return `(function(){try{var id=localStorage.getItem(${JSON.stringify(STORAGE_KEYS.theme)});if(${JSON.stringify(
-    THEME_IDS,
-  )}.indexOf(id)>=0)document.documentElement.setAttribute('data-theme',id);}catch(e){}})();`;
+export function buildAppearanceInitScript(): string {
+  const flags = DISPLAY_FLAGS.map(
+    (f) => `if(localStorage.getItem(${JSON.stringify(f.key)})==='1')d.setAttribute(${JSON.stringify(f.attribute)},'');`,
+  ).join('');
+  return `(function(){try{var d=document.documentElement;var id=localStorage.getItem(${JSON.stringify(
+    STORAGE_KEYS.theme,
+  )});if(${JSON.stringify(THEME_IDS)}.indexOf(id)>=0)d.setAttribute('data-theme',id);${flags}}catch(e){}})();`;
 }
