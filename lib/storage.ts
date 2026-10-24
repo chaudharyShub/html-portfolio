@@ -7,7 +7,7 @@ export const STORAGE_KEYS = {
   visitCount: 'shubhamOsVisitCount',
   visitorNumber: 'shubhamOsVisitorNum',
   debugRunnerBest: 'debugRunnerBest',
-  contactLastSent: 'shubhamOsContactLastSent',
+  contactSends: 'shubhamOsContactSends',
 } as const;
 
 // localStorage can throw (private mode, blocked storage), so every access is guarded.

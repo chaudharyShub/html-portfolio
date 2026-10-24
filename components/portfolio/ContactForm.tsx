@@ -5,6 +5,7 @@ import { useOsActions } from '@/components/os/OsProvider';
 import {
   buildMailtoLink,
   recordMessageSent,
+  SEND_LIMIT,
   secondsUntilNextSend,
   sendViaWeb3Forms,
   type ContactMessage,
@@ -62,7 +63,10 @@ export function ContactForm({ accessKey }: { accessKey: string }) {
 
     const wait = secondsUntilNextSend();
     if (wait > 0) {
-      showToast('Please wait', `You just sent a message. You can send another in ${wait} seconds.`);
+      showToast(
+        'Please wait',
+        `You've sent ${SEND_LIMIT} messages in the last minute. You can send another in ${wait} seconds.`,
+      );
       return;
     }
 
