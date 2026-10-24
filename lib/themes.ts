@@ -26,7 +26,6 @@ export function applyThemeToDocument(id: ThemeId): void {
 
 /** On/off display settings, each shown as a boolean attribute on <html> that the CSS reacts to. */
 export const DISPLAY_FLAGS = [
-  { key: STORAGE_KEYS.reduceTransparency, attribute: 'data-reduce-transparency' },
   { key: STORAGE_KEYS.largerText, attribute: 'data-larger-text' },
 ] as const;
 
@@ -35,8 +34,8 @@ export function applyDisplayFlag(attribute: string, on: boolean): void {
 }
 
 /**
- * Inline script that runs before first paint so saved appearance settings (theme, Reduce
- * Transparency, Larger Text) don't flash. Built only from the constants above (no user input),
+ * Inline script that runs before first paint so saved appearance settings (theme, Larger
+ * Text) don't flash. Built only from the constants above (no user input),
  * so embedding it is safe.
  */
 export function buildAppearanceInitScript(): string {

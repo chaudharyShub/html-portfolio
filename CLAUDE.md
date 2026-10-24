@@ -125,15 +125,15 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   with Up/Down, zsh-style "command not found". Output persists across minimize/close; only `clear`
   empties it.
 - **Debug Runner**: tiny jump-over-bugs game, best score in localStorage.
-- **System Settings** (`components/dialogs/SettingsDialog.tsx`): Light / Dark / Auto, 4 original
-  gradient wallpapers (Aurora default, Lagoon, Dusk, Graphite; unknown saved ids fall back to Aurora),
-  Random Wallpaper, and a "Display & Text Size" section (iOS-style switches, replaced CRT scanlines +
-  mouse trails in Oct 2026): **Reduce Transparency** (`data-reduce-transparency` on `<html>`; CSS
-  swaps the glass variables for `*-solid` tokens and turns off backdrop blur) and **Larger Text**
-  (`data-larger-text`; portfolio sections get `zoom: 1.15`, the sidebar is left alone so it doesn't
-  wrap). Both are saved like the theme and applied by the pre-paint script
-  (`buildAppearanceInitScript`, `DISPLAY_FLAGS` in `lib/themes.ts`) so there is no flash.
-- **Right-click menu**: New Folder (joke), Get Info, Change Wallpaper..., Clean Up, Reload.
+- **System Settings** (`components/dialogs/SettingsDialog.tsx`): Light / Dark / Auto, 8 original
+  gradient wallpapers (Aurora default, Lagoon, Dusk, Graphite, Sunrise, Bloom, Sky, Ember; unknown
+  saved ids fall back to Aurora),
+  Random Wallpaper, and a "Display & Text Size" section with **Larger Text** (`data-larger-text`
+  on `<html>`; portfolio sections get `zoom: 1.15`, the sidebar is left alone so it doesn't wrap).
+  It is saved like the theme and applied by the pre-paint script (`buildAppearanceInitScript`,
+  `DISPLAY_FLAGS` in `lib/themes.ts`) so there is no flash. (CRT scanlines and mouse trails were
+  removed in Oct 2026; a Reduce Transparency switch was tried and removed at the user's request.)
+- **Right-click menu**: New Folder (joke), Get Info, System Settings..., Clean Up, Reload.
 - **Trash** dialog (joke file list), quit alert on the main window's close button (Quit/Cancel just
   minimizes).
 - **Resume installer** (`InstallWizardDialog`): one centered page per step ("Step N of 4"):

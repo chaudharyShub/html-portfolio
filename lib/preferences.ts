@@ -20,14 +20,6 @@ export const wallpaperPreference = createStoredValue<string>(
   DEFAULT_WALLPAPER_ID,
 );
 
-/** Solid colors instead of frosted glass (like iOS Accessibility > Reduce Transparency). */
-export const reduceTransparencyPreference = createStoredValue(
-  STORAGE_KEYS.reduceTransparency,
-  parseFlag,
-  serializeFlag,
-  false,
-);
-
 /** Portfolio text one step bigger (like iOS Larger Text). */
 export const largerTextPreference = createStoredValue(STORAGE_KEYS.largerText, parseFlag, serializeFlag, false);
 

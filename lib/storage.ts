@@ -2,7 +2,6 @@
 export const STORAGE_KEYS = {
   theme: 'shubhamOsTheme',
   wallpaper: 'shubhamOsWallpaper',
-  reduceTransparency: 'shubhamOsReduceTransparency',
   largerText: 'shubhamOsLargerText',
   visitCount: 'shubhamOsVisitCount',
   visitorNumber: 'shubhamOsVisitorNum',

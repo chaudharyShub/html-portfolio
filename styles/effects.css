@@ -1,31 +1,5 @@
 /* Display & Text Size switches from System Settings (attributes on <html>, see DisplayEffects). */
 
-/* ===== Reduce Transparency: solid colors instead of frosted glass ===== */
-[data-reduce-transparency] body {
-  --menubar-bg: var(--menubar-bg-solid);
-  --dock-bg: var(--dock-solid);
-  --material: var(--material-solid);
-  --material-strong: var(--material-solid);
-  --sidebar-bg: var(--sidebar-solid);
-  --titlebar: var(--titlebar-solid);
-}
-
-[data-reduce-transparency] *,
-[data-reduce-transparency] *::before,
-[data-reduce-transparency] *::after {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-[data-reduce-transparency] .subwindow {
-  background: #1c1c1e;
-}
-
-[data-reduce-transparency] .dialog-overlay,
-[data-reduce-transparency] .menu-scrim.open {
-  background: rgba(0, 0, 0, 0.45);
-}
-
 /* ===== Larger Text: the portfolio sections one step bigger ===== */
 [data-larger-text] .content fieldset.section {
   zoom: 1.15;

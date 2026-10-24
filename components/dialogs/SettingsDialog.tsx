@@ -2,12 +2,7 @@
 
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
-import {
-  largerTextPreference,
-  reduceTransparencyPreference,
-  themePreference,
-  wallpaperPreference,
-} from '@/lib/preferences';
+import { largerTextPreference, themePreference, wallpaperPreference } from '@/lib/preferences';
 import { THEME_IDS, THEMES } from '@/lib/themes';
 import { WALLPAPERS, wallpaperStyle } from '@/lib/wallpapers';
 import { Dialog } from './Dialog';
@@ -18,7 +13,6 @@ export function SettingsDialog() {
   const { closeDialog } = useOsActions();
   const theme = themePreference.use();
   const wallpaper = wallpaperPreference.use();
-  const reduceTransparency = reduceTransparencyPreference.use();
   const largerText = largerTextPreference.use();
   const close = () => closeDialog('settings');
 
@@ -71,19 +65,6 @@ export function SettingsDialog() {
 
         <h3 className="settings-heading">Display &amp; Text Size</h3>
         <div className="settings-group settings-list">
-          <label className="settings-row">
-            <span className="settings-row-text">
-              <span>Reduce Transparency</span>
-              <span className="settings-row-hint">Solid backgrounds instead of frosted glass.</span>
-            </span>
-            <input
-              type="checkbox"
-              role="switch"
-              className="switch"
-              checked={reduceTransparency}
-              onChange={(e) => reduceTransparencyPreference.set(e.target.checked)}
-            />
-          </label>
           <label className="settings-row">
             <span className="settings-row-text">
               <span>Larger Text</span>

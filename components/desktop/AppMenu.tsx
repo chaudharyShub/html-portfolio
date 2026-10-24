@@ -34,67 +34,70 @@ export function AppMenu() {
     <>
       <div className={`menu-scrim${menuOpen ? ' open' : ''}`} aria-hidden="true" />
       <div className={`app-menu${menuOpen ? ' open' : ''}`} id="logo-menu" role="menu" aria-label="Shubham menu">
-        <div className="menu-group">
-          {SECTION_ITEMS.map(({ id, label }) => (
-            <div key={id} {...item(label)} onClick={() => actions.goToSection(id)}>
-              {label}
+        {/* On phones the list scrolls inside its own rounded box, with Cancel in a separate box below. */}
+        <div className="menu-list">
+          <div className="menu-group">
+            {SECTION_ITEMS.map(({ id, label }) => (
+              <div key={id} {...item(label)} onClick={() => actions.goToSection(id)}>
+                {label}
+              </div>
+            ))}
+          </div>
+          <div className="menu-sep" role="separator" />
+          <div className="menu-group">
+            <div
+              {...item('Terminal')}
+              onClick={() => {
+                actions.openTerminal();
+                actions.closeMenus();
+              }}
+            >
+              Terminal
             </div>
-          ))}
-        </div>
-        <div className="menu-sep" role="separator" />
-        <div className="menu-group">
-          <div
-            {...item('Terminal')}
-            onClick={() => {
-              actions.openTerminal();
-              actions.closeMenus();
-            }}
-          >
-            Terminal
+            <div
+              {...item('Debug Runner (game)')}
+              onClick={() => {
+                actions.openGame();
+                actions.closeMenus();
+              }}
+            >
+              Debug Runner (game)
+            </div>
           </div>
-          <div
-            {...item('Debug Runner (game)')}
-            onClick={() => {
-              actions.openGame();
-              actions.closeMenus();
-            }}
-          >
-            Debug Runner (game)
+          <div className="menu-sep" role="separator" />
+          <div className="menu-group">
+            <div
+              {...item('System Settings')}
+              onClick={() => {
+                actions.openDialog('settings');
+                actions.closeMenus();
+              }}
+            >
+              System Settings…
+            </div>
           </div>
-        </div>
-        <div className="menu-sep" role="separator" />
-        <div className="menu-group">
-          <div
-            {...item('System Settings')}
-            onClick={() => {
-              actions.openDialog('settings');
-              actions.closeMenus();
-            }}
-          >
-            System Settings…
+          <div className="menu-sep" role="separator" />
+          <div className="menu-group">
+            <div
+              {...item('Download Resume')}
+              onClick={() => {
+                actions.openResumeWizard();
+                actions.closeMenus();
+              }}
+            >
+              Download Resume
+            </div>
+            {EXTERNAL_LINKS.map(({ label, href }) => (
+              <a key={label} className="menu-item" role="menuitem" href={href} target="_blank" rel="noopener noreferrer">
+                {label} <span className="menu-item-hint">↗</span>
+              </a>
+            ))}
           </div>
-        </div>
-        <div className="menu-sep" role="separator" />
-        <div className="menu-group">
-          <div
-            {...item('Download Resume')}
-            onClick={() => {
-              actions.openResumeWizard();
-              actions.closeMenus();
-            }}
-          >
-            Download Resume
-          </div>
-          {EXTERNAL_LINKS.map(({ label, href }) => (
-            <a key={label} className="menu-item" role="menuitem" href={href} target="_blank" rel="noopener noreferrer">
-              {label} <span className="menu-item-hint">↗</span>
-            </a>
-          ))}
-        </div>
-        <div className="menu-sep" role="separator" />
-        <div className="menu-group">
-          <div {...item('Shut Down')} onClick={actions.shutDown}>
-            Shut Down…
+          <div className="menu-sep" role="separator" />
+          <div className="menu-group">
+            <div {...item('Shut Down')} onClick={actions.shutDown}>
+              Shut Down…
+            </div>
           </div>
         </div>
         <div className="menu-group menu-cancel">

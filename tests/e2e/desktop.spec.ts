@@ -68,20 +68,31 @@ test('appearance choice is saved and applied again after a reload', async ({ pag
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
-test('Reduce Transparency and Larger Text switch on, and stay on after a reload', async ({ page }) => {
+test('Larger Text switches on, and stays on after a reload', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#dock-settings').click({ force: true });
   const html = page.locator('html');
-  await page.getByRole('switch', { name: /Reduce Transparency/ }).check();
   await page.getByRole('switch', { name: /Larger Text/ }).check();
-  await expect(html).toHaveAttribute('data-reduce-transparency', '');
   await expect(html).toHaveAttribute('data-larger-text', '');
-  // The glass is gone: the menu bar no longer blurs what is behind it.
-  await expect(page.locator('.menubar')).toHaveCSS('backdrop-filter', 'none');
+  await expect(page.locator('#section-about')).toHaveCSS('zoom', '1.15');
 
   await page.reload();
-  await expect(html).toHaveAttribute('data-reduce-transparency', '');
+  // Applied by the pre-paint script, so there is no flash of small text.
   await expect(html).toHaveAttribute('data-larger-text', '');
+});
+
+test('double-clicking the title bar zooms the window, a single click leaves it alone', async ({ page }) => {
+  await openDesktop(page);
+  const win = page.locator('#window');
+  const title = win.locator('.title-text');
+  await title.dblclick();
+  await expect(win).toHaveClass(/maximized/);
+  // A single click on a zoomed window's title bar must not restore it.
+  await title.click();
+  await page.waitForTimeout(400);
+  await expect(win).toHaveClass(/maximized/);
+  await title.dblclick();
+  await expect(win).not.toHaveClass(/maximized/);
 });
 
 test('minimizing sends the window to the Dock and the Dock icon brings it back', async ({ page }) => {
