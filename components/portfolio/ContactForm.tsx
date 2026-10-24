@@ -1,8 +1,14 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useOsActions } from '@/components/os/OsProvider';
-import { buildMailtoLink, sendViaWeb3Forms, type ContactMessage } from '@/lib/contact';
+import {
+  buildMailtoLink,
+  recordMessageSent,
+  secondsUntilNextSend,
+  sendViaWeb3Forms,
+  type ContactMessage,
+} from '@/lib/contact';
 import { clickLink } from '@/lib/download';
 
 /**
@@ -12,6 +18,9 @@ import { clickLink } from '@/lib/download';
 export function ContactForm({ accessKey }: { accessKey: string }) {
   const { showToast } = useOsActions();
   const [sending, setSending] = useState(false);
+  // State updates are async, so several submits fired in the same tick would all see
+  // `sending === false`. The ref flips synchronously and blocks them.
+  const sendingRef = useRef(false);
 
   // The toast must fire BEFORE navigating: in some sandboxed/preview contexts opening a
   // mailto: link throws synchronously and would otherwise kill the rest of the handler.
@@ -26,7 +35,7 @@ export function ContactForm({ accessKey }: { accessKey: string }) {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (sending) return;
+    if (sendingRef.current) return;
     const form = e.currentTarget;
     const data = new FormData(form);
     const msg: ContactMessage = {
@@ -51,10 +60,19 @@ export function ContactForm({ accessKey }: { accessKey: string }) {
       return;
     }
 
+    const wait = secondsUntilNextSend();
+    if (wait > 0) {
+      showToast('Please wait', `You just sent a message. You can send another in ${wait} seconds.`);
+      return;
+    }
+
+    sendingRef.current = true;
     setSending(true);
     const sent = await sendViaWeb3Forms(accessKey, msg);
+    sendingRef.current = false;
     setSending(false);
     if (sent) {
+      recordMessageSent();
       form.reset();
       showToast('✔ Message sent', "Shubham will reply within 1 business day - or when he's done debugging.");
     } else {

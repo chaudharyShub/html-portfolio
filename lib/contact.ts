@@ -1,4 +1,5 @@
 import { PROFILE } from '@/data/profile';
+import { STORAGE_KEYS, readStorageInt, writeStorage } from '@/lib/storage';
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
 
@@ -47,4 +48,23 @@ export async function sendViaWeb3Forms(accessKey: string, { name, email, message
   } catch {
     return false;
   }
+}
+
+/** A visitor can send one message per minute through Web3Forms. */
+const SEND_COOLDOWN_MS = 60_000;
+
+// Also kept in memory so the limit holds when localStorage is blocked.
+let lastSentInMemory = 0;
+
+/** Seconds left before this visitor may send again (0 = allowed now). */
+export function secondsUntilNextSend(now = Date.now()): number {
+  const lastSent = Math.max(lastSentInMemory, readStorageInt(STORAGE_KEYS.contactLastSent));
+  // Clamp so a timestamp from the future (e.g. a changed clock) can't lock the form for longer.
+  const left = Math.min(lastSent + SEND_COOLDOWN_MS - now, SEND_COOLDOWN_MS);
+  return left > 0 ? Math.ceil(left / 1000) : 0;
+}
+
+export function recordMessageSent(now = Date.now()): void {
+  lastSentInMemory = now;
+  writeStorage(STORAGE_KEYS.contactLastSent, String(now));
 }
