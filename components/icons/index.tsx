@@ -33,9 +33,14 @@ const GLYPHS: Record<AppIconName, ReactNode> = {
   ),
   settings: (
     <>
-      <circle cx="16" cy="16" r="8.5" fill="none" stroke="#fff" strokeWidth="3.2" strokeDasharray="3.1 2.15" />
-      <circle cx="16" cy="16" r="5.4" fill="none" stroke="#fff" strokeWidth="2.2" />
-      <circle cx="16" cy="16" r="1.8" fill="#fff" />
+      <g fill="#fff">
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+          <rect key={deg} x="14.3" y="4.6" width="3.4" height="5" rx="1.1" transform={`rotate(${deg} 16 16)`} />
+        ))}
+      </g>
+      <circle cx="16" cy="16" r="8.2" fill="#fff" />
+      <circle cx="16" cy="16" r="5.6" fill="#8e8e93" />
+      <circle cx="16" cy="16" r="3.1" fill="#fff" />
     </>
   ),
   resume: (

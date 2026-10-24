@@ -2,15 +2,28 @@
 
 /* ===== App tiles (rounded squares with a white glyph) ===== */
 .app-icon {
+  position: relative;
   display: inline-flex;
   flex-shrink: 0;
   border-radius: 22.5%;
   overflow: hidden;
-  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* Soft light from above, like the depth on Apple's app icons. */
+.app-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 55%);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.35);
+  pointer-events: none;
 }
 
 .app-icon svg {
   display: block;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.16));
 }
 
 .app-icon--portfolio {
@@ -115,23 +128,28 @@
 .dock-list {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
   margin: 0;
-  padding: 6px 8px 4px;
+  padding: 5px 6px 2px;
   list-style: none;
   background: var(--dock-bg);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
   border: 0.5px solid var(--dock-border);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), inset 0 0.5px 0 rgba(255, 255, 255, 0.3);
 }
 
+/*
+ * --s is the magnification (set by the Dock component from the pointer position). The item's
+ * width grows, so the dock widens; the icon scales up from its bottom edge, above the dock.
+ */
 .dock-item {
   position: relative;
+  width: calc(54px * var(--s, 1));
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: width 0.25s var(--ease-apple);
 }
 
 .dock-button {
@@ -141,30 +159,30 @@
   border-radius: 12px;
   box-shadow: none;
   cursor: default;
+  transform: scale(var(--s, 1));
   transform-origin: 50% 100%;
-  transition: transform 0.28s var(--ease-spring);
+  transition: transform 0.25s var(--ease-apple);
+}
+
+.dock-list.magnifying .dock-item,
+.dock-list.magnifying .dock-button {
+  transition-duration: 0.09s;
+  transition-timing-function: ease-out;
 }
 
 .dock-button:hover,
 .dock-button:active {
   filter: none;
+  transform: scale(var(--s, 1));
 }
 
-/* Magnification: the hovered icon grows most, its neighbors a little. */
-@media (hover: hover) {
-  .dock-item:hover .dock-button {
-    transform: translateY(-8px) scale(1.42);
-  }
-
-  .dock-item:hover + .dock-item .dock-button,
-  .dock-item:has(+ .dock-item:hover) .dock-button {
-    transform: translateY(-3px) scale(1.16);
-  }
+.dock-button:active .app-icon {
+  filter: brightness(0.75);
 }
 
 .dock-label {
   position: absolute;
-  bottom: calc(100% + 34px);
+  bottom: calc(100% + 48px * (var(--s, 1) - 1) + 12px);
   left: 50%;
   transform: translateX(-50%);
   padding: 3px 10px;
@@ -200,7 +218,7 @@
 .dock-sep {
   width: 1px;
   align-self: stretch;
-  margin: 4px 4px 9px;
+  margin: 6px 6px 10px;
   background: var(--separator);
 }
 
@@ -250,28 +268,80 @@
   text-shadow: none;
 }
 
-/* ===== Bouncing logo ===== */
-#dvd-logo {
+/* ===== Live wallpaper: the Aurora glows drift slowly (see LiveWallpaper) ===== */
+.live-wallpaper {
   position: fixed;
-  left: 0;
-  top: 0;
-  will-change: transform;
-  z-index: 2;
-  font-family: var(--font);
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-  opacity: 0.85;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
-  white-space: nowrap;
-  transition: color 0.4s ease;
 }
 
-/* Drawn from CSS: the logo is pure decoration (aria-hidden), so it isn't page text. */
-#dvd-logo::before {
-  content: "SHUBHAM OS";
+.live-wallpaper span {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  margin: -35vmax 0 0 -35vmax;
+  border-radius: 50%;
+  opacity: 0.7;
+  will-change: transform;
+  animation: wallpaperDrift 34s ease-in-out infinite alternate;
+}
+
+.live-wallpaper span:nth-child(1) {
+  left: 18%;
+  top: 22%;
+  background: radial-gradient(closest-side, #ff9a8b, transparent);
+}
+
+.live-wallpaper span:nth-child(2) {
+  left: 82%;
+  top: 18%;
+  background: radial-gradient(closest-side, #a18cd1, transparent);
+  animation-duration: 41s;
+  animation-direction: alternate-reverse;
+}
+
+.live-wallpaper span:nth-child(3) {
+  left: 70%;
+  top: 85%;
+  background: radial-gradient(closest-side, #5b8def, transparent);
+  animation-duration: 38s;
+  animation-delay: -12s;
+}
+
+.live-wallpaper span:nth-child(4) {
+  left: 15%;
+  top: 90%;
+  background: radial-gradient(closest-side, #f6d365, transparent);
+  animation-duration: 45s;
+  animation-direction: alternate-reverse;
+  animation-delay: -20s;
+}
+
+@keyframes wallpaperDrift {
+  33% {
+    transform: translate(9vw, 7vh) scale(1.12);
+  }
+
+  66% {
+    transform: translate(-6vw, 11vh) scale(0.94);
+  }
+
+  100% {
+    transform: translate(5vw, -8vh) scale(1.06);
+  }
+}
+
+/* Paused while a window animates, so the blurred glass above it isn't redrawn every frame. */
+.os-animating .live-wallpaper span {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-wallpaper span {
+    animation: none;
+  }
 }
 
 /* ===== Menus (logo menu + right-click menu) ===== */

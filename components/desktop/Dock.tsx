@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect, useRef, type MouseEvent } from 'react';
+import { useEffect, useRef, type MouseEvent, type RefObject } from 'react';
 import { AppIcon, type AppIconName } from '@/components/icons';
 import { useOsApi, useOsState } from '@/components/os/OsProvider';
-import { prefersReducedMotion } from '@/lib/motion';
+import { isPhoneLayout, prefersReducedMotion } from '@/lib/motion';
 
-/** The little hop a dock icon does while its app launches. */
-function bounce(el: HTMLElement | null) {
+/** Largest icon scale right under the pointer, and how far (px) the magnification reaches. */
+const MAX_SCALE = 1.6;
+const REACH = 150;
+
+/** The little hop a dock icon does while its app launches (on the tile, so it never fights the magnification). */
+function bounce(button: HTMLElement | null) {
+  const el = button?.querySelector<HTMLElement>('.app-icon');
   if (!el || prefersReducedMotion()) return;
   el.animate(
     [
@@ -54,11 +59,75 @@ function DockItem({ id, label, icon, running, only, onClick, buttonRef, pressed 
   );
 }
 
+/**
+ * macOS Dock magnification: each icon grows with how close the pointer is (a smooth cosine
+ * falloff), and the dock widens with it. Distances are measured against the resting layout,
+ * so growing icons never feed back into the math. Written to a CSS variable (--s) per item.
+ */
+function useMagnification(listRef: RefObject<HTMLUListElement | null>) {
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    let items: HTMLElement[] = [];
+    let centers: number[] | null = null; // resting centers, relative to the screen's middle
+    let pointerX = 0;
+    let frame = 0;
+
+    const measure = () => {
+      items = [...list.querySelectorAll<HTMLElement>('.dock-item')].filter((el) => el.offsetWidth > 0);
+      const middle = window.innerWidth / 2;
+      centers = items.map((el) => {
+        const r = el.getBoundingClientRect();
+        return r.left + r.width / 2 - middle;
+      });
+    };
+    const apply = () => {
+      frame = 0;
+      if (!centers) return;
+      const x = pointerX - window.innerWidth / 2;
+      items.forEach((el, i) => {
+        const d = Math.abs(x - (centers?.[i] ?? 0));
+        const s = d >= REACH ? 1 : 1 + ((MAX_SCALE - 1) * (Math.cos((d / REACH) * Math.PI) + 1)) / 2;
+        el.style.setProperty('--s', s.toFixed(3));
+      });
+    };
+    const onMove = (e: globalThis.MouseEvent) => {
+      if (!canHover.matches || isPhoneLayout() || prefersReducedMotion()) return;
+      if (!centers) measure();
+      pointerX = e.clientX;
+      list.classList.add('magnifying');
+      if (!frame) frame = requestAnimationFrame(apply);
+    };
+    const onLeave = () => {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      list.classList.remove('magnifying');
+      items.forEach((el) => el.style.removeProperty('--s'));
+    };
+    const onResize = () => {
+      onLeave();
+      centers = null;
+    };
+    list.addEventListener('mousemove', onMove);
+    list.addEventListener('mouseleave', onLeave);
+    window.addEventListener('resize', onResize);
+    return () => {
+      onLeave();
+      list.removeEventListener('mousemove', onMove);
+      list.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [listRef]);
+}
+
 /** macOS Dock on desktop (magnifies under the pointer); the iOS dock on phones. */
 export function Dock() {
   const { actions, connect } = useOsApi();
   const { windows, dialogs, menuOpen } = useOsState();
   const prev = useRef({ dos: windows.dos, game: dialogs.game });
+  const listRef = useRef<HTMLUListElement>(null);
+  useMagnification(listRef);
 
   // Bounce an icon when its app launches from closed.
   useEffect(() => {
@@ -69,7 +138,7 @@ export function Dock() {
 
   return (
     <nav className="dock" aria-label="Dock">
-      <ul className="dock-list">
+      <ul ref={listRef} className="dock-list">
         <DockItem
           id="taskbar-window-btn"
           label="Shubham"

@@ -41,14 +41,14 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | | |
 |---|---|
 | **Startup screen** | Logo, progress bar and boot steps. Click or press any key to skip. |
-| **Windows** | Traffic-light buttons, drag, resize from 8 edges, zoom (with a smooth glide), snap to screen edges, and a genie-like minimize into the Dock. |
-| **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies under the pointer and bounces apps as they launch. |
+| **Windows** | A Mac-style app window (sidebar with a profile card and sections), traffic-light buttons, drag, resize from 8 edges, zoom that glides the real frame, snap to screen edges, and a genie minimize into the Dock. |
+| **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies smoothly with the pointer and bounces apps as they launch. |
 | **Terminal** | A real command parser with history (↑ / ↓). |
 | **Desktop** | Draggable icons and a custom right-click menu. |
-| **System Settings** | Light / Dark / Auto appearance, 9 wallpapers, CRT scanlines and mouse trails (iOS-style switches). |
+| **System Settings** | Light (default) / Dark / Auto appearance, 9 wallpapers (the default one drifts slowly), CRT scanlines and mouse trails (iOS-style switches). |
 | **iOS on phones** | Full-screen apps with a tab bar and a home indicator (tap or swipe up to go home), a Home Screen and dock, action sheet, bottom sheets and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
-| **Resume Installer** | A macOS-Installer-style wizard that "installs" the resume PDF. |
+| **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
 | **Analytics** | Vercel Web Analytics (cookieless page views), active only on Vercel deployments. |
@@ -99,7 +99,7 @@ npm run test:e2e   # browser tests (Playwright)
 `npm run test:e2e` builds the site into its own folder (`.next-e2e`, so your normal build is
 untouched), starts it on port 3200 and runs the tests in `tests/e2e/` in Chromium, at desktop
 size and at phone size (375×667, touch). They cover the boot screen, tabs, the Terminal, Dock
-minimize/restore, the quit prompt, saved appearance, the contact form (sending, burst submits,
+minimize/restore, zoom, the default Light appearance, the quit prompt, saved appearance, the contact form (sending, burst submits,
 the 5-per-minute limit, the honeypot, the mail-app fallback) and the iOS phone layout
 (full-screen app, tab bar, Home Screen, action sheet, bottom sheets).
 
@@ -121,7 +121,7 @@ app/
 components/
   os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
   windows/              # generic Window (drag/resize/snap/animate), MainWindow, DosWindow (Terminal)
-  desktop/              # menu bar, Dock, logo menu, icons, context menu, bouncing logo, notifications
+  desktop/              # menu bar, Dock, logo menu, icons, context menu, live wallpaper, notifications
   dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)
   live/                 # small client readouts: clock, career stats, year, visitor counter
@@ -221,7 +221,8 @@ See `.env.example`. After switching domains, re-submit the sitemap in Google Sea
   `#0066cc` (light) / `#4da3ff` text and `#0068d6` buttons (dark), so small text passes
   WCAG AA contrast.
 - Motion uses Apple-like curves (`cubic-bezier(0.32, 0.72, 0, 1)` and a gentle spring);
-  everything is skipped under `prefers-reduced-motion`.
+  everything is skipped under `prefers-reduced-motion`. The genie minimize warps thin copies of the
+  window with transforms only (`lib/motion.ts`), so it stays smooth.
 - Icons and wallpapers are hand-made, inspired by Apple's style rather than copied from it.
 - One scrolling window, kept deliberately simple, rather than a full desktop simulator.
 

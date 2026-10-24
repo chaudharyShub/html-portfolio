@@ -32,7 +32,7 @@ export function MainWindow({ sections, infoBar, statusBar }: MainWindowProps) {
       initiallyOpen
       enableSnap
       recenterOnDoubleClick
-      minWidth={360}
+      minWidth={600}
       minHeight={300}
       onCloseRequest={() => actions.openDialog('closeConfirm')}
       onStatusChange={(status: WindowStatus) => actions.setWindowStatus('main', status)}
@@ -45,7 +45,10 @@ export function MainWindow({ sections, infoBar, statusBar }: MainWindowProps) {
   );
 }
 
-/** Segmented control on desktop (with a sliding highlight); the iOS tab bar on phones. */
+/**
+ * A macOS sidebar on desktop (colored icon tiles, a selection highlight that glides between
+ * rows); the iOS tab bar on phones.
+ */
 function TabBar() {
   const { tab } = useOsState();
   const { switchTab } = useOsApi().actions;
@@ -60,7 +63,8 @@ function TabBar() {
       const active = bar.querySelector<HTMLElement>('.tab.active');
       if (!active) return;
       pill.style.width = `${active.offsetWidth}px`;
-      pill.style.transform = `translateX(${active.offsetLeft}px)`;
+      pill.style.height = `${active.offsetHeight}px`;
+      pill.style.transform = `translate(${active.offsetLeft}px, ${active.offsetTop}px)`;
     };
     place();
     const observer = new ResizeObserver(place);
@@ -70,7 +74,7 @@ function TabBar() {
 
   return (
     <div className="tab-bar-wrap">
-      <div ref={barRef} className="tab-bar" role="tablist" aria-label="Portfolio sections">
+      <div ref={barRef} className="tab-bar" role="tablist" aria-label="Portfolio sections" aria-orientation="vertical">
         <div ref={pillRef} className="tab-pill" aria-hidden="true" />
         {TAB_IDS.map((id) => (
           <div
@@ -83,7 +87,9 @@ function TabBar() {
             aria-selected={id === tab}
             aria-controls={CONTENT_ID}
           >
-            <TabGlyph name={id} />
+            <span className={`tab-tile tab-tile--${id}`}>
+              <TabGlyph name={id} />
+            </span>
             <span className="tab-label">{TAB_LABELS[id]}</span>
           </div>
         ))}

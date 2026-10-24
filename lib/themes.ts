@@ -13,7 +13,8 @@ export const THEMES: Record<ThemeId, { label: string }> = {
   auto: { label: 'Auto' },
 };
 
-export const DEFAULT_THEME: ThemeId = 'auto';
+/** Light unless the visitor picks Dark or Auto in System Settings. */
+export const DEFAULT_THEME: ThemeId = 'light';
 
 export function isThemeId(value: unknown): value is ThemeId {
   return typeof value === 'string' && (THEME_IDS as readonly string[]).includes(value);

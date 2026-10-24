@@ -9,12 +9,7 @@ import { Dialog } from './Dialog';
 
 type Step = 'welcome' | 'license' | 'installing' | 'complete';
 
-const STEP_LABELS: { step: Step; label: string }[] = [
-  { step: 'welcome', label: 'Introduction' },
-  { step: 'license', label: 'License' },
-  { step: 'installing', label: 'Installation' },
-  { step: 'complete', label: 'Summary' },
-];
+const STEPS: Step[] = ['welcome', 'license', 'installing', 'complete'];
 
 const INSTALL_DURATION_MS = 1500;
 const INSTALL_MESSAGES = [
@@ -25,7 +20,10 @@ const INSTALL_MESSAGES = [
   'Done.',
 ];
 
-/** Resume installer (macOS Installer style). Remounted (via key) on every open, so it always starts at step 1. */
+/**
+ * Resume installer: a single centered page per step (like Apple's setup screens), with a
+ * "Step N of 4" caption. Remounted (via key) on every open, so it always starts at step 1.
+ */
 export function InstallWizardDialog() {
   const { dialogs, wizardSession } = useOsState();
   const { closeDialog } = useOsActions();
@@ -92,16 +90,10 @@ function WizardSteps({ onClose }: { onClose: () => void }) {
   return (
     <>
       <div className="wizard-body">
-        <div className="wizard-sidebar">
-          <AppIcon name="resume" size={56} />
-          <ol className="wizard-steps">
-            {STEP_LABELS.map(({ step: s, label }) => (
-              <li key={s} className={s === step ? 'current' : ''} aria-current={s === step ? 'step' : undefined}>
-                {label}
-              </li>
-            ))}
-          </ol>
-        </div>
+        <AppIcon name="resume" size={64} />
+        <p className="wizard-step">
+          Step {STEPS.indexOf(step) + 1} of {STEPS.length}
+        </p>
         <div className="wizard-content" aria-live="polite">
           {step === 'welcome' && (
             <>

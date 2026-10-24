@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { ServiceWorkerRegistrar } from '@/components/shared/ServiceWorkerRegistrar';
 import { PROFILE } from '@/data/profile';
 import { SITE } from '@/lib/site';
-import { buildThemeInitScript } from '@/lib/themes';
+import { buildThemeInitScript, DEFAULT_THEME } from '@/lib/themes';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     // The inline theme script sets CSS variables / data-theme on <html> before first paint,
     // so React must not complain that those attributes differ from the server HTML.
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme={DEFAULT_THEME} suppressHydrationWarning>
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: buildThemeInitScript() }} />
       </head>

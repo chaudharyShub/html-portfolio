@@ -5,7 +5,7 @@ import { ContextMenu } from '@/components/desktop/ContextMenu';
 import { DesktopIcons } from '@/components/desktop/DesktopIcons';
 import { DisplayEffects } from '@/components/desktop/DisplayEffects';
 import { Dock } from '@/components/desktop/Dock';
-import { DvdLogo } from '@/components/desktop/DvdLogo';
+import { LiveWallpaper } from '@/components/desktop/LiveWallpaper';
 import { MenuBar } from '@/components/desktop/MenuBar';
 import { Toast } from '@/components/desktop/Toast';
 import { DebugRunnerDialog } from '@/components/dialogs/DebugRunnerDialog';
@@ -39,8 +39,8 @@ function Desktop(props: MainWindowProps) {
     <>
       <DisplayEffects />
       <BootScreen onFinish={bootComplete} />
+      <LiveWallpaper />
       <DesktopIcons />
-      <DvdLogo />
       <MenuBar />
       <AppMenu />
       <MainWindow {...props} />

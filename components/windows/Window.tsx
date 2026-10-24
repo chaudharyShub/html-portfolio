@@ -14,6 +14,7 @@ import { flushSync } from 'react-dom';
 import type { WindowHandle, WindowStatus } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
 import {
+  animateFrame,
   animateFromDock,
   animatePopIn,
   animatePopOut,
@@ -117,7 +118,8 @@ export function Window({
 
   const status = useRef<WindowStatus>(initiallyOpen ? 'open' : 'closed');
   const animating = useRef(false);
-  const animTimer = useRef<number | undefined>(undefined);
+  /** Cancels the running minimize/restore/zoom/close animation, if any. */
+  const cancelAnim = useRef<(() => void) | undefined>(undefined);
   const detachPointer = useRef<(() => void) | null>(null);
   const swipeStartY = useRef<number | null>(null);
   const callbacks = useRef({ onStatusChange, onShown });
@@ -128,7 +130,7 @@ export function Window({
 
   useEffect(() => () => {
     detachPointer.current?.();
-    window.clearTimeout(animTimer.current);
+    cancelAnim.current?.();
   }, []);
 
   const titleId = `${id}-title`;
@@ -165,8 +167,8 @@ export function Window({
         animating.current = false;
         return;
       }
-      window.clearTimeout(animTimer.current);
-      animTimer.current = animateToDock(el, icon, () => {
+      cancelAnim.current?.();
+      cancelAnim.current = animateToDock(el, icon, () => {
         hideNow();
         resetWindowStyles(el);
         animating.current = false;
@@ -177,7 +179,7 @@ export function Window({
       const el = elRef.current;
       if (!el) return;
       if (status.current !== 'minimized' && !animating.current) return;
-      window.clearTimeout(animTimer.current);
+      cancelAnim.current?.();
       setStatus('open');
       animating.current = true;
       resetWindowStyles(el);
@@ -188,7 +190,7 @@ export function Window({
         shownSoon();
         return;
       }
-      animTimer.current = animateFromDock(el, icon, () => {
+      cancelAnim.current = animateFromDock(el, icon, () => {
         animating.current = false;
         shownSoon();
       });
@@ -213,7 +215,7 @@ export function Window({
     const close = () => {
       const el = elRef.current;
       if (!el) return;
-      window.clearTimeout(animTimer.current);
+      cancelAnim.current?.();
       const finish = () => {
         hideNow();
         resetWindowStyles(el);
@@ -227,7 +229,8 @@ export function Window({
       animating.current = true;
       el.style.pointerEvents = 'none';
       animatePopOut(el, 0.9, 180);
-      animTimer.current = window.setTimeout(finish, 190);
+      const timer = window.setTimeout(finish, 190);
+      cancelAnim.current = () => window.clearTimeout(timer);
     };
 
     return {
@@ -237,6 +240,11 @@ export function Window({
       restore,
       center,
       toggleFromTaskbar: () => {
+        // Clicking the dock icon mid-minimize reverses it straight away.
+        if (animating.current && status.current === 'minimized') {
+          restore();
+          return;
+        }
         if (animating.current) return;
         if (status.current === 'open') minimize();
         else if (status.current === 'minimized') restore();
@@ -262,26 +270,21 @@ export function Window({
       setMode(toggleMaximized);
       return;
     }
-    // Animate between the old and new frame (FLIP) so zooming glides like macOS.
+    // Glide the real frame from the old size to the new one, so the content reflows like macOS.
     animating.current = true;
     const before = el.getBoundingClientRect();
     flushSync(() => setMode(toggleMaximized));
     const after = el.getBoundingClientRect();
-    const sx = before.width / after.width;
-    const sy = before.height / after.height;
-    el.animate(
-      [
-        {
-          transformOrigin: 'top left',
-          transform: `translate(${before.left - after.left}px, ${before.top - after.top}px) scale(${sx}, ${sy})`,
-        },
-        { transformOrigin: 'top left', transform: 'none' },
-      ],
-      { duration: 340, easing: APPLE_EASE },
+    const content = el.querySelector<HTMLElement>('[role="tabpanel"]');
+    cancelAnim.current = animateFrame(
+      el,
+      before,
+      after,
+      () => {
+        animating.current = false;
+      },
+      content,
     );
-    window.setTimeout(() => {
-      animating.current = false;
-    }, 350);
   };
 
   const clearSize = (el: HTMLElement) => {
@@ -425,7 +428,7 @@ export function Window({
       ref={elRef}
       id={id}
       className={className}
-      style={{ display: hidden ? 'none' : 'flex' }}
+      style={hidden ? { display: 'none' } : undefined}
       role={role}
       aria-labelledby={titleId}
     >

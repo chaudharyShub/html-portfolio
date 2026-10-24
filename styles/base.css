@@ -24,6 +24,7 @@
   /* Layout: keep in sync with MENUBAR_HEIGHT / DOCK_RESERVE in the components. */
   --menubar-h: 28px;
   --dock-reserve: 84px;
+  --sidebar-w: 224px;
 
   /* #0066cc keeps small blue text and white-on-blue buttons readable (WCAG AA). */
   --accent: #0066cc;
@@ -50,7 +51,10 @@
   --menubar-hover: rgba(0, 0, 0, 0.1);
   --dock-bg: rgba(255, 255, 255, 0.32);
   --dock-border: rgba(255, 255, 255, 0.45);
-  --segment-pill: #ffffff;
+  --sidebar-bg: rgba(232, 232, 237, 0.8);
+  --sidebar-solid: #e8e8ed;
+  --sidebar-card: rgba(255, 255, 255, 0.72);
+  --sidebar-text-2: #5f5f64;
   --button-bg: #ffffff;
   --input-bg: #ffffff;
   --input-border: rgba(60, 60, 67, 0.22);
@@ -76,16 +80,17 @@
   --red: #ff453a;
 
   --text: #f5f5f7;
-  --text-2: #a1a1a6;
-  --separator: rgba(84, 84, 88, 0.6);
+  --text-2: #aeaeb2;
+  --separator: rgba(255, 255, 255, 0.1);
   --fill: rgba(118, 118, 128, 0.24);
   --fill-strong: rgba(118, 118, 128, 0.36);
 
-  --window-bg: #1e1e1e;
-  --content-bg: #161618;
-  --card: #2a2a2c;
-  --surface: #232325;
-  --titlebar: rgba(44, 44, 46, 0.86);
+  /* Raised surfaces get lighter in dark mode: page < card < rows inside a card. */
+  --window-bg: #1e1e20;
+  --content-bg: #18181a;
+  --card: #242426;
+  --surface: #303033;
+  --titlebar: rgba(40, 40, 42, 0.9);
   --material: rgba(40, 40, 42, 0.66);
   --material-strong: rgba(44, 44, 46, 0.92);
   --menubar-bg: rgba(30, 30, 32, 0.5);
@@ -93,14 +98,17 @@
   --menubar-hover: rgba(255, 255, 255, 0.16);
   --dock-bg: rgba(40, 40, 42, 0.38);
   --dock-border: rgba(255, 255, 255, 0.14);
-  --segment-pill: #636366;
-  --button-bg: #48484a;
+  --sidebar-bg: rgba(36, 36, 40, 0.86);
+  --sidebar-solid: #2a2a2e;
+  --sidebar-card: rgba(255, 255, 255, 0.07);
+  --sidebar-text-2: #c7c7cc;
+  --button-bg: #3a3a3d;
   --input-bg: #1c1c1e;
   --input-border: rgba(255, 255, 255, 0.16);
 
   --shadow-window: 0 24px 70px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
   --shadow-menu: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
-  --shadow-card: 0 0 0 0.5px rgba(255, 255, 255, 0.07);
+  --shadow-card: 0 0 0 0.5px rgba(255, 255, 255, 0.08);
 
   color-scheme: dark;
 }
@@ -114,16 +122,17 @@
     --red: #ff453a;
 
     --text: #f5f5f7;
-    --text-2: #a1a1a6;
-    --separator: rgba(84, 84, 88, 0.6);
+    --text-2: #aeaeb2;
+    --separator: rgba(255, 255, 255, 0.1);
     --fill: rgba(118, 118, 128, 0.24);
     --fill-strong: rgba(118, 118, 128, 0.36);
 
-    --window-bg: #1e1e1e;
-    --content-bg: #161618;
-    --card: #2a2a2c;
-    --surface: #232325;
-    --titlebar: rgba(44, 44, 46, 0.86);
+    /* Raised surfaces get lighter in dark mode: page < card < rows inside a card. */
+    --window-bg: #1e1e20;
+    --content-bg: #18181a;
+    --card: #242426;
+    --surface: #303033;
+    --titlebar: rgba(40, 40, 42, 0.9);
     --material: rgba(40, 40, 42, 0.66);
     --material-strong: rgba(44, 44, 46, 0.92);
     --menubar-bg: rgba(30, 30, 32, 0.5);
@@ -131,14 +140,17 @@
     --menubar-hover: rgba(255, 255, 255, 0.16);
     --dock-bg: rgba(40, 40, 42, 0.38);
     --dock-border: rgba(255, 255, 255, 0.14);
-    --segment-pill: #636366;
-    --button-bg: #48484a;
+    --sidebar-bg: rgba(36, 36, 40, 0.86);
+    --sidebar-solid: #2a2a2e;
+    --sidebar-card: rgba(255, 255, 255, 0.07);
+    --sidebar-text-2: #c7c7cc;
+    --button-bg: #3a3a3d;
     --input-bg: #1c1c1e;
     --input-border: rgba(255, 255, 255, 0.16);
 
     --shadow-window: 0 24px 70px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
     --shadow-menu: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.14);
-    --shadow-card: 0 0 0 0.5px rgba(255, 255, 255, 0.07);
+    --shadow-card: 0 0 0 0.5px rgba(255, 255, 255, 0.08);
 
     color-scheme: dark;
   }
@@ -226,6 +238,14 @@ input:focus-visible,
 textarea:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* Links and secondary actions inside the portfolio are tinted, so they read as clickable at a glance. */
+.content .btn:not(.btn-primary) {
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  color: var(--accent);
+  box-shadow: none;
+  font-weight: 600;
 }
 
 .links-row {

@@ -20,11 +20,29 @@ only UI chrome labels were renamed. Where this section conflicts with older Win9
   (`AppIcon`: CSS gradient rounded square + white SVG glyph), own gradient wallpapers, system font
   stack only (no bundled SF fonts). Keep it "inspired by", like the Win95 version.
 - Desktop: `MenuBar` (logo menu `#start-button` → `AppMenu` `#start-menu`, section links, clock),
-  `Dock` (magnifies on hover, bounces Terminal/game on launch, running dots; Trash + Resume + game
-  are mac-only), desktop icons in a top-right column. Windows: traffic lights (Close/Minimize/Zoom),
-  zoom glides (FLIP), minimize = genie-like WAAPI keyframes into the dock icon
-  (`animateToDock`/`animateFromDock`). Old ids kept: `#taskbar-window-btn`/`#taskbar-dos-btn` are
+  `Dock` (bounces Terminal/game on launch, running dots; Trash + Resume + game are mac-only),
+  desktop icons in a top-right column. Old ids kept: `#taskbar-window-btn`/`#taskbar-dos-btn` are
   the Dock icons; actions renamed `toggleMenu`, `getDockIcon`, connectors `mainDockIcon`/`dosDockIcon`.
+- Portfolio window = a modern Mac app (CSS grid in `styles/window.css`): unified 52px title bar,
+  translucent sidebar (`.window::before`, backdrop blur) holding the profile card (the server
+  `InfoBar`, with avatar initials; its "Name:/Role:/Status:" labels are visually hidden but kept for
+  screen readers) and the section list (the tablist, colored `tab-tile`s, a selection highlight that
+  glides between rows). Content + status bar on the right. Phones restyle the same markup back into
+  the info row + bottom tab bar (`ios.css`). The Window component no longer sets inline
+  `display: flex` (only `display: none` when hidden), so CSS chooses grid/flex.
+- Dock magnification is JS (`useMagnification` in `Dock.tsx`): cosine falloff by pointer distance
+  measured against the resting layout, written to `--s` per item; the item width grows (dock widens)
+  and the icon scales from its bottom edge. Desktop pointer only.
+- Motion (`lib/motion.ts`, all cancellable, return a cancel function):
+  - Minimize on desktop = real genie: the window is copied into 10-16 horizontal strips (each only its
+    slice's size, copies have no blur/shadow, off-screen sections replaced by spacers), and each frame
+    every strip gets a `matrix3d` "square to quad" transform onto its slice of a funnel bending into the
+    dock icon. Transform-only, so no repaint per frame. Was laggy before (24 blurred copies + clip-path
+    repaints) - keep it transform-only.
+  - Minimize on phones = iOS zoom into the Home Screen icon (WAAPI, corners round to the icon's).
+  - Zoom (maximize/restore) = `animateFrame`: glides the real frame (inline !important left/top/width/
+    height) while the tab panel is frozen at its final width, so text lays out once, not per frame.
+  - Clicking the dock icon mid-minimize reverses it. `.os-animating` on <html> pauses the live wallpaper.
 - Phones: no fake status bar (Safari shows the real one). Windows are full-screen apps (the whole
   `.window` scrolls; title bar sticky; tabs become a fixed iOS tab bar with `TabGlyph`s; a
   home indicator — tap or swipe up — minimizes). Desktop layer = Home Screen grid (Terminal icon
@@ -33,7 +51,9 @@ only UI chrome labels were renamed. Where this section conflicts with older Win9
   sheets on phones (grabber, "Done"), alerts get iOS stacked-button styling.
 - Themes are now Light / Dark / Auto (`data-theme` on <html>; colors are CSS variables in
   `styles/base.css`, dark set duplicated under `prefers-color-scheme` for Auto). Same storage key
-  `shubhamOsTheme`; old values fall back to Auto. Accent `#0066cc` light, `#4da3ff` text +
+  `shubhamOsTheme`. **Default is Light** (user's choice; the server HTML ships `data-theme="light"`),
+  default wallpaper Aurora. Dark palette layers lighter as surfaces rise (page < card < rows), and
+  links/secondary buttons inside the content are tinted accent so they read as clickable. Accent `#0066cc` light, `#4da3ff` text +
   `#0068d6` fills dark — chosen for WCAG AA (Apple's `#007aff` fails for small text).
 - Animations: Apple curve `cubic-bezier(0.32, 0.72, 0, 1)` + a spring. `animatePopIn` uses WAAPI
   and never touches inline transform (the main window keeps inline `transform: none` once centered;
@@ -45,7 +65,10 @@ only UI chrome labels were renamed. Where this section conflicts with older Win9
   Experience, Message.exe → Message, Stats.dat → Stats) and Send lost its brackets.
 - Not yet updated (needs the user's decision): `public/og-image.png` (a Win95 window mockup) and the
   SEO/social copy in `lib/site.ts` ("Boots Like Windows 95"); README already describes the new look.
-- Lighthouse (local, both modes): accessibility 97 (traffic lights are the real 12px size, kept on purpose).
+- The bouncing "SHUBHAM OS" DVD logo was removed (didn't suit the Apple look); the default Aurora
+  wallpaper now drifts slowly instead (`LiveWallpaper`, CSS transforms, off under reduced motion).
+- The resume installer is a single centered page per step ("Step N of 4"), no step sidebar.
+- Lighthouse (local, light): accessibility 100 on desktop and phone.
 
 ## Architecture (Next.js) — session 6
 - `app/page.tsx` renders the portfolio sections (`components/portfolio/*`) as **Server Components**
@@ -114,7 +137,8 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
   `localStorage`.
 - **Desktop icons**: Recycle Bin, My Computer, Debug Runner, MS-DOS Prompt — all draggable
   around the desktop layer independently of the window.
-- **DVD bounce easter egg**: "SHUBHAM OS" text bounces around the desktop layer **all the time**,
+- **DVD bounce easter egg** (REMOVED in session 7, replaced by the drifting Aurora wallpaper):
+  "SHUBHAM OS" text bounced around the desktop layer **all the time**,
   behind every window (changed Oct 2026 at the user's request; it originally bounced only while the
   main window was minimized and froze in place otherwise). Still under `prefers-reduced-motion`. It used to trigger a joke error dialog every 14th bounce (reduced from
   every 4th because it felt spammy); those dialogs were later **removed entirely** in commit
