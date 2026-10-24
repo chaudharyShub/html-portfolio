@@ -10,7 +10,7 @@ export function clickOnActivationKey(event: KeyboardEvent<HTMLElement>): void {
 
 /**
  * Spread onto a styled non-button element (menu item, title-bar control, tab) together with an
- * `onClick` to make it keyboard operable without changing its Win95 styling.
+ * `onClick` to make it keyboard operable without changing its styling.
  * Override `role` when a more specific one applies (menuitem, tab, radio).
  */
 export const pressableProps = {

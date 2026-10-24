@@ -239,7 +239,7 @@ export function Window({
       minimize,
       restore,
       center,
-      toggleFromTaskbar: () => {
+      toggleFromDock: () => {
         // Clicking the dock icon mid-minimize reverses it straight away.
         if (animating.current && status.current === 'minimized') {
           restore();

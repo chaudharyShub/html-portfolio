@@ -8,8 +8,7 @@ export interface Wallpaper {
 }
 
 /**
- * The desktop wallpapers. Saved ids that no longer exist (the old Win95 colors and the retro
- * scenic SVGs removed in Oct 2026) fall back to the default.
+ * The desktop wallpapers. A saved id that no longer exists falls back to the default.
  */
 export const WALLPAPERS: Wallpaper[] = [
   {

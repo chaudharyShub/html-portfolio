@@ -2,12 +2,12 @@
 
 # 🖥️ Shubham OS
 
-**A portfolio that looks and moves like a Mac - and like an iPhone on your phone.**
+**The portfolio of Shubham Chaudhary, Full Stack Engineer - built as an interactive desktop.**
 
-A single-page portfolio dressed up as an interactive macOS-style desktop -
-a menu bar, a magnifying Dock, windows with traffic-light buttons, a working
-Terminal and a few easter eggs. On phones it becomes an iOS-style Home Screen
-with full-screen apps, sheets and a tab bar.
+Projects, experience and skills from 4+ years of building web and desktop apps with
+React, Next.js and Node.js, presented as a small desktop you can click around: a menu
+bar, a Dock, windows, a working Terminal and a few easter eggs. On phones it becomes
+an app-style Home Screen.
 
 [**▶ Visit the live site**](https://shubhamworks.vercel.app)
 
@@ -18,7 +18,7 @@ with full-screen apps, sheets and a tab bar.
 
 <br>
 
-<img src="public/og-image.jpg" alt="The Shubham OS portfolio: a Mac-style window with a sidebar profile card, on a colorful desktop with a Dock" width="720">
+<img src="public/og-image.jpg" alt="Shubham Chaudhary's portfolio: profile, projects and experience in an interactive desktop-style window" width="720">
 
 </div>
 
@@ -26,11 +26,13 @@ with full-screen apps, sheets and a tab bar.
 
 ## About
 
-This is the personal portfolio of **Shubham Chaudhary**, Full Stack Engineer.
-Instead of a typical landing page, it is a small Apple-inspired "operating system":
-the site plays a short startup screen, then opens a single window containing
-About, Skills, Projects, Experience and Contact. Desktops get the macOS look;
-phones (portrait, or landscape on a touch screen) get the iOS look.
+This is the personal portfolio of **Shubham Chaudhary**, Full Stack Engineer with 4+ years
+of experience in React, Next.js and Node.js. Instead of a typical landing page, it opens as a
+small interactive desktop: a short startup screen, then a single window with About, Skills,
+Projects, Experience and Contact. On phones (portrait, or landscape on a touch screen) it
+becomes an app-style Home Screen.
+
+The earlier Windows 95-style version is kept on the `windows-95-classic` branch.
 
 It is a Next.js (App Router) app written in TypeScript with hand-written CSS -
 no UI libraries, no CSS framework. All portfolio content is rendered on the
@@ -41,12 +43,12 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | | |
 |---|---|
 | **Startup screen** | Logo, progress bar and boot steps. Click or press any key to skip. |
-| **Windows** | A Mac-style app window (sidebar with a profile card and sections), traffic-light buttons, drag, resize from 8 edges, zoom that glides the real frame, snap to screen edges, and a genie minimize into the Dock. |
+| **Windows** | An app-style window (sidebar with a profile card and sections), traffic-light buttons, drag, resize from 8 edges, zoom that glides the real frame, snap to screen edges, and a genie minimize into the Dock. |
 | **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies smoothly with the pointer and bounces apps as they launch. |
 | **Terminal** | A real command parser with history (↑ / ↓). |
 | **Desktop** | Draggable icons and a custom right-click menu. |
-| **System Settings** | Light (default) / Dark / Auto appearance, 4 gradient wallpapers (the default one drifts slowly), CRT scanlines and mouse trails (iOS-style switches). |
-| **iOS on phones** | Full-screen apps with a tab bar and a home indicator (tap or swipe up to go home), a Home Screen and dock, action sheet, bottom sheets and alerts. |
+| **System Settings** | Light (default) / Dark / Auto appearance, 4 gradient wallpapers (the default one drifts slowly), CRT scanlines and mouse trails. |
+| **On phones** | Full-screen apps with a tab bar and a home indicator (tap or swipe up to go home), a Home Screen and dock, action sheet, bottom sheets and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |

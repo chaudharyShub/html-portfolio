@@ -30,10 +30,10 @@ test('tabs switch the visible sections', async ({ page }) => {
 
 test('Terminal runs commands and clears', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#start-button').click();
+  await page.locator('#logo-menu-button').click();
   await page.getByRole('menuitem', { name: 'Terminal' }).click();
-  const input = page.locator('#dos-input');
-  const output = page.locator('#dos-window [role="log"]');
+  const input = page.locator('#terminal-input');
+  const output = page.locator('#terminal-window [role="log"]');
   await expect(input).toBeVisible();
 
   await input.fill('whoami');
@@ -42,7 +42,7 @@ test('Terminal runs commands and clears', async ({ page }) => {
 
   await input.fill('nonsense');
   await input.press('Enter');
-  await expect(output).toContainText('nonsense');
+  await expect(output).toContainText('zsh: command not found: nonsense');
 
   await input.fill('clear');
   await input.press('Enter');
@@ -58,7 +58,7 @@ test('the default appearance is Light, even on a device set to dark mode', async
 
 test('appearance choice is saved and applied again after a reload', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#start-button').click();
+  await page.locator('#logo-menu-button').click();
   await page.getByRole('menuitem', { name: 'System Settings' }).click();
   await page.getByRole('radio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
@@ -74,7 +74,7 @@ test('minimizing sends the window to the Dock and the Dock icon brings it back',
   await win.getByRole('button', { name: 'Minimize', exact: true }).click();
   await expect(win).toBeHidden();
   // The Dock magnifies under the pointer, so don't wait for the icon to hold still.
-  await page.locator('#taskbar-window-btn').click({ force: true });
+  await page.locator('#dock-portfolio').click({ force: true });
   await expect(win).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About Me' })).toBeVisible();
   // The genie animation plays on temporary copies; none may be left behind.

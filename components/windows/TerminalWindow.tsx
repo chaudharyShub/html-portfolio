@@ -2,33 +2,33 @@
 
 import { useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useOsApi, type WindowStatus } from '@/components/os/OsProvider';
-import { appendDosLines, DOS_BANNER, DOS_PROMPT, runDosCommand, type DosEffects } from '@/lib/dos';
+import { appendTerminalLines, TERMINAL_BANNER, TERMINAL_PROMPT, runTerminalCommand, type TerminalEffects } from '@/lib/terminal';
 import { Window } from './Window';
 
 /** Terminal window (an app on phones). Output persists across minimize/close; only `clear` empties it. */
-export function DosWindow() {
-  const { connect: { dosWindow }, actions } = useOsApi();
+export function TerminalWindow() {
+  const { connect: { terminalWindow }, actions } = useOsApi();
   return (
     <Window
-      ref={dosWindow}
-      id="dos-window"
+      ref={terminalWindow}
+      id="terminal-window"
       variant="subwindow"
       title="Terminal - zsh"
-      getDockIcon={() => actions.getDockIcon('dos')}
+      getDockIcon={() => actions.getDockIcon('terminal')}
       initiallyOpen={false}
       minWidth={340}
       minHeight={220}
       role="dialog"
-      onCloseRequest={actions.closeDos}
-      onStatusChange={(status: WindowStatus) => actions.setWindowStatus('dos', status)}
-      onShown={actions.focusDos}
+      onCloseRequest={actions.closeTerminal}
+      onStatusChange={(status: WindowStatus) => actions.setWindowStatus('terminal', status)}
+      onShown={actions.focusTerminal}
     >
-      <DosConsole />
+      <TerminalConsole />
     </Window>
   );
 }
 
-function DosConsole() {
+function TerminalConsole() {
   const { connect, actions } = useOsApi();
   const [output, setOutput] = useState('');
   const outputRef = useRef<HTMLDivElement>(null);
@@ -36,8 +36,8 @@ function DosConsole() {
   const history = useRef<string[]>([]);
   const historyIndex = useRef(0);
 
-  useImperativeHandle(connect.dosConsole, () => ({
-    prepare: () => setOutput((current) => current || DOS_BANNER),
+  useImperativeHandle(connect.terminalConsole, () => ({
+    prepare: () => setOutput((current) => current || TERMINAL_BANNER),
     focus: () => inputRef.current?.focus(),
   }));
 
@@ -46,10 +46,10 @@ function DosConsole() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [output]);
 
-  const effects: DosEffects = {
+  const effects: TerminalEffects = {
     goToSection: actions.goToSection,
     openResumeWizard: actions.openResumeWizard,
-    closeDos: actions.closeDos,
+    closeTerminal: actions.closeTerminal,
     openUrl: (url) => window.open(url, '_blank', 'noopener'),
   };
 
@@ -58,8 +58,8 @@ function DosConsole() {
     if (e.key === 'Enter') {
       const value = input.value;
       input.value = '';
-      const result = runDosCommand(value, effects);
-      setOutput((current) => (result.kind === 'clear' ? '' : appendDosLines(current, result.lines)));
+      const result = runTerminalCommand(value, effects);
+      setOutput((current) => (result.kind === 'clear' ? '' : appendTerminalLines(current, result.lines)));
       history.current.push(value);
       historyIndex.current = history.current.length;
     } else if (e.key === 'ArrowUp') {
@@ -88,16 +88,16 @@ function DosConsole() {
   };
 
   return (
-    <div className="dos-body" id="dos-body" onClick={onBodyClick}>
-      <div ref={outputRef} className="dos-output" role="log" aria-live="polite">
+    <div className="terminal-body" id="terminal-body" onClick={onBodyClick}>
+      <div ref={outputRef} className="terminal-output" role="log" aria-live="polite">
         {output}
       </div>
-      <div className="dos-input-row">
-        <span aria-hidden="true">{DOS_PROMPT}</span>
+      <div className="terminal-input-row">
+        <span aria-hidden="true">{TERMINAL_PROMPT}</span>
         <input
           ref={inputRef}
           type="text"
-          id="dos-input"
+          id="terminal-input"
           aria-label="Terminal command"
           autoComplete="off"
           spellCheck={false}

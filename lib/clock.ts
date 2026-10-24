@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * One shared 1-second ticker for every live readout (taskbar clock, footer clock, uptime).
+ * One shared 1-second ticker for every live readout (menu bar clock, footer clock, uptime).
  * The server snapshot is null so server HTML and the first client render match; components
  * show their placeholder until the client takes over.
  */

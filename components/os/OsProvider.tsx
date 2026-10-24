@@ -4,9 +4,9 @@ import { createContext, use, useMemo, useReducer, type ReactNode } from 'react';
 import type { DialogIconType } from '@/components/icons';
 import { SECTION_TO_TAB, type SectionId, type TabId } from '@/lib/sections';
 
-export type DialogId = 'message' | 'closeConfirm' | 'recycleBin' | 'game' | 'display' | 'wizard';
+export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard';
 export type WindowStatus = 'open' | 'minimized' | 'closed';
-export type WindowKey = 'main' | 'dos';
+export type WindowKey = 'main' | 'terminal';
 
 /** Imperative API of a desktop window (drag/resize/animation live inside the component). */
 export interface WindowHandle {
@@ -14,12 +14,12 @@ export interface WindowHandle {
   close: () => void;
   minimize: () => void;
   restore: () => void;
-  toggleFromTaskbar: () => void;
+  toggleFromDock: () => void;
   center: () => void;
   playOpenAnimation: () => void;
 }
 
-export interface DosConsoleHandle {
+export interface TerminalConsoleHandle {
   /** Prints the startup banner if the console is empty. */
   prepare: () => void;
   focus: () => void;
@@ -76,7 +76,7 @@ type Action =
   | { type: 'windowStatus'; key: WindowKey; status: WindowStatus };
 
 const initialState: OsState = {
-  dialogs: { message: false, closeConfirm: false, recycleBin: false, game: false, display: false, wizard: false },
+  dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false },
   message: { icon: 'info', title: 'Shubham OS', text: '' },
   wizardSession: 0,
   tab: 'home',
@@ -84,7 +84,7 @@ const initialState: OsState = {
   menuOpen: false,
   contextMenu: null,
   toast: null,
-  windows: { main: 'open', dos: 'closed' },
+  windows: { main: 'open', terminal: 'closed' },
 };
 
 function reducer(state: OsState, action: Action): OsState {
@@ -118,14 +118,14 @@ function reducer(state: OsState, action: Action): OsState {
 
 /**
  * Stable callback refs that components use to plug their DOM nodes / imperative handles into
- * the desktop (e.g. `ref={connect.mainTaskbarButton}`), so actions can reach them later.
+ * the desktop (e.g. `ref={connect.mainDockIcon}`), so actions can reach them later.
  */
 export interface OsConnectors {
   mainWindow: (handle: WindowHandle | null) => void;
-  dosWindow: (handle: WindowHandle | null) => void;
+  terminalWindow: (handle: WindowHandle | null) => void;
   mainDockIcon: (el: HTMLButtonElement | null) => void;
-  dosDockIcon: (el: HTMLButtonElement | null) => void;
-  dosConsole: (handle: DosConsoleHandle | null) => void;
+  terminalDockIcon: (el: HTMLButtonElement | null) => void;
+  terminalConsole: (handle: TerminalConsoleHandle | null) => void;
   desktopIcons: (handle: DesktopIconsHandle | null) => void;
   game: (handle: GameHandle | null) => void;
 }
@@ -151,10 +151,10 @@ export interface OsActions {
   setWindowStatus: (key: WindowKey, status: WindowStatus) => void;
   toggleMain: () => void;
   confirmCloseMain: () => void;
-  openDos: () => void;
-  closeDos: () => void;
-  toggleDos: () => void;
-  focusDos: () => void;
+  openTerminal: () => void;
+  closeTerminal: () => void;
+  toggleTerminal: () => void;
+  focusTerminal: () => void;
   bootComplete: () => void;
   /** The dock icon a window minimizes into / restores from. */
   getDockIcon: (key: WindowKey) => HTMLElement | null;
@@ -162,10 +162,10 @@ export interface OsActions {
 
 interface Registry {
   mainWindow: WindowHandle | null;
-  dosWindow: WindowHandle | null;
+  terminalWindow: WindowHandle | null;
   mainDockIcon: HTMLButtonElement | null;
-  dosDockIcon: HTMLButtonElement | null;
-  dosConsole: DosConsoleHandle | null;
+  terminalDockIcon: HTMLButtonElement | null;
+  terminalConsole: TerminalConsoleHandle | null;
   desktopIcons: DesktopIconsHandle | null;
   game: GameHandle | null;
 }
@@ -186,19 +186,19 @@ export function OsProvider({ children }: { children: ReactNode }) {
     // Handles that components plug in through `connect`; read only from event handlers/effects.
     const r: Registry = {
       mainWindow: null,
-      dosWindow: null,
+      terminalWindow: null,
       mainDockIcon: null,
-      dosDockIcon: null,
-      dosConsole: null,
+      terminalDockIcon: null,
+      terminalConsole: null,
       desktopIcons: null,
       game: null,
     };
     const connect: OsConnectors = {
       mainWindow: (h) => void (r.mainWindow = h),
-      dosWindow: (h) => void (r.dosWindow = h),
+      terminalWindow: (h) => void (r.terminalWindow = h),
       mainDockIcon: (el) => void (r.mainDockIcon = el),
-      dosDockIcon: (el) => void (r.dosDockIcon = el),
-      dosConsole: (h) => void (r.dosConsole = h),
+      terminalDockIcon: (el) => void (r.terminalDockIcon = el),
+      terminalConsole: (h) => void (r.terminalConsole = h),
       desktopIcons: (h) => void (r.desktopIcons = h),
       game: (h) => void (r.game = h),
     };
@@ -245,19 +245,19 @@ export function OsProvider({ children }: { children: ReactNode }) {
       openContextMenu: (x, y) => dispatch({ type: 'openContextMenu', x, y }),
       arrangeIcons: () => r.desktopIcons?.arrange(),
       setWindowStatus: (key, status) => dispatch({ type: 'windowStatus', key, status }),
-      toggleMain: () => r.mainWindow?.toggleFromTaskbar(),
+      toggleMain: () => r.mainWindow?.toggleFromDock(),
       confirmCloseMain: () => {
         dispatch({ type: 'closeDialog', id: 'closeConfirm' });
         r.mainWindow?.minimize();
       },
-      openDos: () => {
-        r.dosConsole?.prepare();
-        r.dosWindow?.open();
+      openTerminal: () => {
+        r.terminalConsole?.prepare();
+        r.terminalWindow?.open();
       },
-      closeDos: () => r.dosWindow?.close(),
-      toggleDos: () => r.dosWindow?.toggleFromTaskbar(),
-      focusDos: () => r.dosConsole?.focus(),
-      getDockIcon: (key) => (key === 'main' ? r.mainDockIcon : r.dosDockIcon),
+      closeTerminal: () => r.terminalWindow?.close(),
+      toggleTerminal: () => r.terminalWindow?.toggleFromDock(),
+      focusTerminal: () => r.terminalConsole?.focus(),
+      getDockIcon: (key) => (key === 'main' ? r.mainDockIcon : r.terminalDockIcon),
       bootComplete: () => {
         switchTab('home');
         r.desktopIcons?.resetLayout();

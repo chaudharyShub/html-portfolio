@@ -6,7 +6,7 @@ import { applyThemeToDocument } from '@/lib/themes';
 import { findWallpaper, wallpaperStyle } from '@/lib/wallpapers';
 
 /**
- * Applies the saved Display Properties: theme colors, desktop wallpaper (on <body>),
+ * Applies the saved System Settings: theme colors, desktop wallpaper (on <body>),
  * the CRT scanline overlay and the optional mouse trail.
  */
 export function DisplayEffects() {

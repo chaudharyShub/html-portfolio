@@ -35,7 +35,7 @@ export function ContextMenu() {
       <div {...item} onClick={actions.showSystemProperties}>
         Get Info
       </div>
-      <div {...item} onClick={() => actions.openDialog('display')}>
+      <div {...item} onClick={() => actions.openDialog('settings')}>
         Change Wallpaper…
       </div>
       <div className="context-sep" role="separator" />

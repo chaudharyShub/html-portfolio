@@ -8,14 +8,14 @@ import { WALLPAPERS, wallpaperStyle } from '@/lib/wallpapers';
 import { Dialog } from './Dialog';
 
 /** System Settings: appearance (Light/Dark/Auto), wallpaper and the two display effects. */
-export function DisplayPropertiesDialog() {
+export function SettingsDialog() {
   const { dialogs } = useOsState();
   const { closeDialog } = useOsActions();
   const theme = themePreference.use();
   const wallpaper = wallpaperPreference.use();
   const crt = crtPreference.use();
   const trail = cursorTrailPreference.use();
-  const close = () => closeDialog('display');
+  const close = () => closeDialog('settings');
 
   const pickRandomWallpaper = () => {
     const random = WALLPAPERS[Math.floor(Math.random() * WALLPAPERS.length)];
@@ -23,7 +23,7 @@ export function DisplayPropertiesDialog() {
   };
 
   return (
-    <Dialog open={dialogs.display} title="System Settings" onClose={close} boxClassName="wide">
+    <Dialog open={dialogs.settings} title="System Settings" onClose={close} boxClassName="wide">
       <div className="dialog-body settings-body">
         <h3 className="settings-heading">Appearance</h3>
         <div className="settings-group theme-swatches" role="radiogroup" aria-label="Appearance">

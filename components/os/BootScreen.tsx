@@ -96,7 +96,7 @@ export function BootScreen({ onFinish }: { onFinish: () => void }) {
       <div className="boot-progress-bar">
         <div id="boot-progress-fill" style={{ width: `${progress}%` }} />
       </div>
-      {/* The current boot step (the old BIOS lines, shown one at a time). */}
+      {/* The current boot step, shown one at a time. */}
       <p id="boot-text">{lines[lines.length - 1] ?? ''}</p>
       <p className="boot-skip-hint">Press any key or click to skip</p>
     </div>

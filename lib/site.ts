@@ -18,24 +18,25 @@ function resolveSiteUrl(): string {
   return FALLBACK_SITE_URL;
 }
 
+/** Who first, then what the site is: a portfolio you can explore like a desktop. */
 const description =
-  'An interactive macOS-style desktop (an iPhone-style app on phones): a real Terminal, a Dock, windows and a tiny game. 4+ years building with React, Next.js and Node.js.';
+  "An interactive macOS-style portfolio built by a Full Stack Engineer with 4+ years building web and desktop apps in React, Next.js and Node.js.";
 
 export const SITE = {
   url: resolveSiteUrl(),
   name: 'Shubham OS',
-  title: `${PROFILE.name} - ${PROFILE.role} (A Portfolio That Works Like a Mac)`,
+  title: `${PROFILE.name} - ${PROFILE.role} Portfolio`,
   description,
   social: {
-    title: `${PROFILE.name} - This Portfolio Works Like a Mac`,
+    title: `${PROFILE.name} - ${PROFILE.role} Portfolio`,
     description,
     twitterDescription:
-      "A Dock, windows that minimize into it, a real Terminal and a tiny game. Yes, it's a real portfolio - 4+ years building with React, Next.js and Node.js.",
+      'Full Stack Engineer with 4+ years in React, Next.js and Node.js. Explore my projects, experience and skills in an interactive, desktop-style portfolio.',
     image: {
       url: '/og-image.jpg',
       width: 1200,
       height: 630,
-      alt: 'The Shubham OS portfolio: a Mac-style window with a sidebar profile card, on a colorful desktop with a Dock',
+      alt: "Shubham Chaudhary's portfolio: profile, projects and experience in an interactive desktop-style window",
     },
   },
   themeColor: '#1d1d1f',

@@ -33,7 +33,7 @@ export function AppMenu() {
   return (
     <>
       <div className={`menu-scrim${menuOpen ? ' open' : ''}`} aria-hidden="true" />
-      <div className={`app-menu${menuOpen ? ' open' : ''}`} id="start-menu" role="menu" aria-label="Shubham menu">
+      <div className={`app-menu${menuOpen ? ' open' : ''}`} id="logo-menu" role="menu" aria-label="Shubham menu">
         <div className="menu-group">
           {SECTION_ITEMS.map(({ id, label }) => (
             <div key={id} {...item(label)} onClick={() => actions.goToSection(id)}>
@@ -46,7 +46,7 @@ export function AppMenu() {
           <div
             {...item('Terminal')}
             onClick={() => {
-              actions.openDos();
+              actions.openTerminal();
               actions.closeMenus();
             }}
           >
@@ -67,7 +67,7 @@ export function AppMenu() {
           <div
             {...item('System Settings')}
             onClick={() => {
-              actions.openDialog('display');
+              actions.openDialog('settings');
               actions.closeMenus();
             }}
           >

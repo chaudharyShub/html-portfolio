@@ -49,7 +49,7 @@ test('the home indicator goes to the Home Screen and the dock reopens the app', 
   await goHome(page);
   await expect(page.locator('#icon-mycomputer')).toBeVisible();
   await expect(page.locator('#dock-more')).toBeVisible();
-  await page.locator('#taskbar-window-btn').tap();
+  await page.locator('#dock-portfolio').tap();
   await expect(page.locator('#window')).toBeVisible();
 });
 
@@ -70,7 +70,7 @@ test('the More button opens an action sheet with Cancel on screen', async ({ pag
   const c = (await cancel.boundingBox())!;
   expect(c.y + c.height).toBeLessThanOrEqual(page.viewportSize()!.height);
   await cancel.tap();
-  await expect(page.locator('#start-menu')).toBeHidden();
+  await expect(page.locator('#logo-menu')).toBeHidden();
 });
 
 test('Settings opens as a bottom sheet', async ({ page }) => {

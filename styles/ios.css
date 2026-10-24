@@ -1,7 +1,7 @@
 /*
  * iOS layout for phones (portrait, or landscape on a touch screen). Kept last so these
  * overrides win. Keep the query in sync with PHONE_QUERY in lib/motion.ts.
- * Windows become full-screen apps, the desktop becomes the Home Screen, the logo menu
+ * App windows become full-screen apps, the desktop becomes the Home Screen, the logo menu
  * becomes an action sheet and panels become bottom sheets.
  */
 @media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
@@ -21,7 +21,7 @@
   input[type="text"],
   input[type="email"],
   textarea,
-  #dos-input {
+  #terminal-input {
     font-size: 16px;
   }
 
@@ -61,7 +61,7 @@
   }
 
   /* Terminal lives in the dock on phones. */
-  #icon-dos {
+  #icon-terminal {
     display: none;
   }
 
@@ -338,7 +338,7 @@
     background: #2c2c2e;
   }
 
-  .dos-body {
+  .terminal-body {
     padding: 12px 14px calc(env(safe-area-inset-bottom) + 30px);
     font-size: 13px;
   }
