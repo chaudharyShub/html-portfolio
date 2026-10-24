@@ -123,7 +123,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Terminal** (`components/windows/TerminalWindow.tsx`, commands in `lib/terminal.ts`): prompt
   `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `sudo hire-me`, history
   with Up/Down, zsh-style "command not found". Output persists across minimize/close; only `clear`
-  empties it.
+  empties it. The prompt line follows the output (one scrolling `.terminal-body`) and draws a block
+  cursor (blinks when focused, hollow when not, follows arrow keys); the real `#terminal-input` is
+  invisible and laid over the typed text, so typing, history and phone keyboards still work.
 - **Debug Runner**: tiny jump-over-bugs game, best score in localStorage.
 - **System Settings** (`components/dialogs/SettingsDialog.tsx`): Light / Dark / Auto, 8 original
   gradient wallpapers (Aurora default, Lagoon, Dusk, Graphite, Sunrise, Bloom, Sky, Ember; unknown
