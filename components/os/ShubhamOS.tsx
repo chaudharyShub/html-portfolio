@@ -9,10 +9,10 @@ import { LiveWallpaper } from '@/components/desktop/LiveWallpaper';
 import { MenuBar } from '@/components/desktop/MenuBar';
 import { Toast } from '@/components/desktop/Toast';
 import { DebugRunnerDialog } from '@/components/dialogs/DebugRunnerDialog';
-import { DisplayPropertiesDialog } from '@/components/dialogs/DisplayPropertiesDialog';
+import { SettingsDialog } from '@/components/dialogs/SettingsDialog';
 import { InstallWizardDialog } from '@/components/dialogs/InstallWizardDialog';
-import { CloseConfirmDialog, MessageDialog, RecycleBinDialog } from '@/components/dialogs/SystemDialogs';
-import { DosWindow } from '@/components/windows/DosWindow';
+import { CloseConfirmDialog, MessageDialog, TrashDialog } from '@/components/dialogs/SystemDialogs';
+import { TerminalWindow } from '@/components/windows/TerminalWindow';
 import { MainWindow, type MainWindowProps } from '@/components/windows/MainWindow';
 import { BootScreen } from './BootScreen';
 import { OsProvider, useOsActions } from './OsProvider';
@@ -44,13 +44,13 @@ function Desktop(props: MainWindowProps) {
       <MenuBar />
       <AppMenu />
       <MainWindow {...props} />
-      <DosWindow />
+      <TerminalWindow />
       <Dock />
       <MessageDialog />
       <CloseConfirmDialog />
-      <RecycleBinDialog />
+      <TrashDialog />
       <DebugRunnerDialog />
-      <DisplayPropertiesDialog />
+      <SettingsDialog />
       <ContextMenu />
       <InstallWizardDialog />
       <Toast />

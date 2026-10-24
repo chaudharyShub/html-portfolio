@@ -14,8 +14,8 @@ interface DesktopIconDef {
 const DESKTOP_ICONS: DesktopIconDef[] = [
   { id: 'icon-mycomputer', label: 'Shubham HD', icon: <AppIcon name="drive" size={56} />, open: (a) => a.showSystemProperties() },
   { id: 'icon-game', label: 'Debug Runner', icon: <AppIcon name="game" size={56} />, open: (a) => a.openGame() },
-  { id: 'icon-dos', label: 'Terminal', icon: <AppIcon name="terminal" size={56} />, open: (a) => a.openDos() },
-  { id: 'icon-recyclebin', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('recycleBin') },
+  { id: 'icon-terminal', label: 'Terminal', icon: <AppIcon name="terminal" size={56} />, open: (a) => a.openTerminal() },
+  { id: 'icon-trash', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('trash') },
 ];
 
 /** Keep in sync with --menubar-h / --dock-reserve in styles/base.css. */

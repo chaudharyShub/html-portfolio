@@ -33,6 +33,8 @@ const RESIZE_DIRS: ResizeDir[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 const MENUBAR_HEIGHT = 28;
 const DOCK_RESERVE = 84;
 const SNAP_ZONE = 8;
+/** The pointer must move this far (px) before a press on the title bar counts as a drag. */
+const DRAG_THRESHOLD = 4;
 /** A swipe up of at least this many px on the home indicator goes to the Home Screen. */
 const HOME_SWIPE_PX = 24;
 
@@ -239,7 +241,7 @@ export function Window({
       minimize,
       restore,
       center,
-      toggleFromTaskbar: () => {
+      toggleFromDock: () => {
         // Clicking the dock icon mid-minimize reverses it straight away.
         if (animating.current && status.current === 'minimized') {
           restore();
@@ -316,22 +318,36 @@ export function Window({
     if ((e.target as HTMLElement).closest('.traffic-lights')) return;
     if (isPhoneLayout()) return;
 
-    if (mode !== 'normal') {
-      // Dragging a maximized/snapped window pops it back to normal size under the cursor.
-      flushSync(() => setMode('normal'));
-      clearSize(el);
-      el.style.left = `${e.clientX - 150}px`;
-      el.style.top = `${Math.max(MENUBAR_HEIGHT, e.clientY - 14)}px`;
-    }
-    const rect = el.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-    el.style.transform = 'none';
-    setDragging(true);
-    setPageTextSelection(false);
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let dragStarted = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    // Starts the drag only once the pointer really moves, so a plain click (or the first click
+    // of a double-click) never changes the window.
+    const beginDrag = (ev: MouseEvent) => {
+      dragStarted = true;
+      if (mode !== 'normal') {
+        // Dragging a maximized/snapped window pops it back to normal size under the cursor.
+        flushSync(() => setMode('normal'));
+        clearSize(el);
+        el.style.left = `${ev.clientX - 150}px`;
+        el.style.top = `${Math.max(MENUBAR_HEIGHT, ev.clientY - 14)}px`;
+      }
+      const rect = el.getBoundingClientRect();
+      offsetX = ev.clientX - rect.left;
+      offsetY = ev.clientY - rect.top;
+      el.style.transform = 'none';
+      setDragging(true);
+      setPageTextSelection(false);
+    };
 
     trackPointer(
       (ev) => {
+        if (!dragStarted) {
+          if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < DRAG_THRESHOLD) return;
+          beginDrag(ev);
+        }
         const maxLeft = window.innerWidth - 100;
         const maxTop = window.innerHeight - DOCK_RESERVE;
         const left = Math.max(-el.offsetWidth + 120, Math.min(ev.clientX - offsetX, maxLeft));
@@ -340,6 +356,7 @@ export function Window({
         el.style.top = `${top}px`;
       },
       (ev) => {
+        if (!dragStarted) return;
         setDragging(false);
         setPageTextSelection(true);
         if (!enableSnap) return;
@@ -356,15 +373,16 @@ export function Window({
     );
   };
 
-  // macOS: double-clicking the title bar zooms the window.
+  // macOS: double-clicking the title bar zooms the window, and double-clicking again restores it.
   const onTitleDoubleClick = (e: ReactMouseEvent<HTMLDivElement>) => {
     const el = elRef.current;
     if (!el || (e.target as HTMLElement).closest('.traffic-lights')) return;
     if (isPhoneLayout()) return;
-    if (mode === 'normal' && recenterOnDoubleClick) {
+    if (mode === 'normal' || mode === 'maximized') {
       toggleMaximize();
       return;
     }
+    // Snapped to a half: back to its normal size.
     flushSync(() => setMode('normal'));
     clearSize(el);
     if (recenterOnDoubleClick) handle.current?.center();

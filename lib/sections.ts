@@ -19,7 +19,7 @@ export const TAB_SECTIONS: Record<TabId, readonly SectionId[]> = {
   contact: ['contact'],
 };
 
-/** Tab that contains a given section (used by Start menu and DOS shortcuts). */
+/** Tab that contains a given section (used by the logo menu and Terminal shortcuts). */
 export const SECTION_TO_TAB: Record<SectionId, TabId> = {
   about: 'about',
   experience: 'about',

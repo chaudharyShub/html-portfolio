@@ -126,7 +126,7 @@
 }
 
 /* ===== Trash ===== */
-.recycle-list {
+.trash-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -137,12 +137,12 @@
   font-size: 12px;
 }
 
-.recycle-list li {
+.trash-list li {
   padding: 9px 12px;
   border-bottom: 0.5px solid var(--separator);
 }
 
-.recycle-list li:last-child {
+.trash-list li:last-child {
   border-bottom: none;
 }
 
@@ -237,47 +237,127 @@
 }
 
 /* ===== Terminal ===== */
-.dos-body {
+/* Output and prompt scroll together, with the prompt right after the last output (like a real terminal). */
+.terminal-body {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 10px 12px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px 20px;
   font-family: var(--mono);
   font-size: 12.5px;
-  line-height: 1.45;
+  line-height: 1.55;
   text-align: left;
-  color: #e5e5ea;
+  color: #b8b8c0; /* output: softer than what you type */
+  cursor: text;
 }
 
-.dos-output {
-  flex: 1;
-  overflow-y: auto;
+.terminal-output {
   white-space: pre-wrap;
-  margin-bottom: 4px;
 }
 
-.dos-input-row {
+/* A little air above each command, so every command + its output reads as a block. */
+.terminal-echo.spaced,
+.terminal-input-row.spaced {
+  margin-top: 8px;
+}
+
+.terminal-error {
+  color: #ff6961;
+}
+
+/* Prompt colors (like a themed zsh prompt) and the typed command. */
+.tp-user {
+  color: #32d74b;
+  font-weight: 600;
+}
+
+.tp-dir {
+  color: #64d2ff;
+  font-weight: 600;
+}
+
+.tp-symbol {
+  color: #8e8e93;
+}
+
+.terminal-command,
+.terminal-line {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.terminal-output:empty {
+  display: none;
+}
+
+.terminal-input-row {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #30d158;
+  align-items: flex-start;
+  gap: 1ch;
 }
 
-#dos-input {
+.terminal-input-row > span:first-child {
+  flex-shrink: 0;
+}
+
+.terminal-field {
+  position: relative;
   flex: 1;
   min-width: 0;
+}
+
+.terminal-line {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Block cursor: blinks while focused, hollow when the Terminal isn't focused (macOS Terminal style). */
+.terminal-cursor {
+  display: inline-block;
+  min-width: 1ch;
+  box-shadow: inset 0 0 0 1px rgba(245, 245, 247, 0.6);
+  white-space: pre;
+}
+
+.terminal-cursor.focused {
+  background: #f5f5f7;
+  box-shadow: none;
+  color: #1c1c1e;
+  animation: terminalBlink 1.1s steps(1) 0.5s infinite;
+}
+
+@keyframes terminalBlink {
+  50% {
+    background: transparent;
+    color: #f5f5f7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-cursor.focused {
+    animation: none;
+  }
+}
+
+/* The real input: invisible, laid over the typed text so clicks, typing and phone keyboards work. */
+#terminal-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
   padding: 0;
   border: 0;
   outline: none;
   background: transparent;
-  color: #f5f5f7;
-  caret-color: #30d158;
-  font-family: inherit;
-  font-size: inherit;
+  color: transparent;
+  caret-color: transparent;
+  font: inherit;
+  opacity: 0;
 }
 
-#dos-input:focus-visible {
+#terminal-input:focus-visible {
   box-shadow: none;
 }
 
@@ -300,7 +380,7 @@
 .theme-swatch-wrap {
   flex: 1;
   text-align: center;
-  cursor: default;
+  cursor: pointer;
   border-radius: 10px;
 }
 
@@ -363,7 +443,7 @@
   height: 58px;
   border-radius: 9px;
   box-shadow: 0 0 0 0.5px var(--separator);
-  cursor: default;
+  cursor: pointer;
   transition: box-shadow 0.2s ease, transform 0.2s var(--ease-spring);
 }
 
@@ -398,6 +478,18 @@
   font-size: 13px;
   font-weight: 400;
   color: var(--text);
+}
+
+.settings-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 12px;
+}
+
+.settings-row-hint {
+  font-size: 11.5px;
+  color: var(--text-2);
 }
 
 .settings-row:last-child {

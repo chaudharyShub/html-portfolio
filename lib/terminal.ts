@@ -1,23 +1,25 @@
 import { PROFILE } from '@/data/profile';
 import type { SectionId } from './sections';
 
-export const DOS_PROMPT = 'shubham@portfolio ~ %';
+/** The prompt's parts (drawn in different colors) and the plain-text prompt. */
+export const PROMPT_PARTS = { user: 'shubham@portfolio', dir: '~', symbol: '%' } as const;
+export const TERMINAL_PROMPT = `${PROMPT_PARTS.user} ${PROMPT_PARTS.dir} ${PROMPT_PARTS.symbol}`;
 
-export const DOS_BANNER =
-  "Shubham OS [Version 3.0]\n(C) Shubham Chaudhary. All rights reserved.\nType 'help' to see available commands.\n";
+export const TERMINAL_BANNER =
+  "Welcome to Shubham's portfolio terminal.\nType 'help' to see available commands.";
 
 /** Side effects a command may trigger in the rest of the desktop. */
-export interface DosEffects {
+export interface TerminalEffects {
   goToSection: (id: SectionId) => void;
   openResumeWizard: () => void;
-  closeDos: () => void;
+  closeTerminal: () => void;
   openUrl: (url: string) => void;
 }
 
-export type DosResult = { kind: 'append'; lines: string[] } | { kind: 'clear' };
+export type TerminalResult = { kind: 'append'; lines: string[] } | { kind: 'clear' };
 
 type CommandOutput = string | null | { clear: true };
-type Command = (fx: DosEffects) => CommandOutput;
+type Command = (fx: TerminalEffects) => CommandOutput;
 
 const COMMANDS: Record<string, Command> = {
   help: () =>
@@ -36,7 +38,7 @@ const COMMANDS: Record<string, Command> = {
   },
   resume: (fx) => {
     fx.openResumeWizard();
-    return 'Launching Resume Setup Wizard...';
+    return 'Opening the resume installer...';
   },
   github: (fx) => {
     fx.openUrl(PROFILE.links.github);
@@ -47,18 +49,18 @@ const COMMANDS: Record<string, Command> = {
     return 'Opening LinkedIn...';
   },
   date: () => new Date().toString(),
-  ver: () => 'Shubham OS [Version 3.0]',
+  ver: () => 'Shubham OS 3.0',
   clear: () => ({ clear: true }),
   exit: (fx) => {
-    fx.closeDos();
+    fx.closeTerminal();
     return null;
   },
 };
 
 /** Parses one line of input. The echoed prompt line is always the first appended line. */
-export function runDosCommand(raw: string, fx: DosEffects): DosResult {
+export function runTerminalCommand(raw: string, fx: TerminalEffects): TerminalResult {
   const cmd = raw.trim();
-  const echo = `${DOS_PROMPT} ${cmd}`;
+  const echo = `${TERMINAL_PROMPT} ${cmd}`;
   if (cmd === '') return { kind: 'append', lines: [echo] };
 
   const lower = cmd.toLowerCase();
@@ -78,7 +80,7 @@ export function runDosCommand(raw: string, fx: DosEffects): DosResult {
   if (!command) {
     return {
       kind: 'append',
-      lines: [echo, `'${cmd}' is not recognized as an internal or external command.\nType 'help' for a list of available commands.`],
+      lines: [echo, `zsh: command not found: ${cmd.split(' ')[0]}\nType 'help' for a list of available commands.`],
     };
   }
   const output = command(fx);
@@ -86,7 +88,7 @@ export function runDosCommand(raw: string, fx: DosEffects): DosResult {
   return { kind: 'append', lines: output ? [echo, output] : [echo] };
 }
 
-/** Appends lines the way the original console did: newline-separated, no leading blank line. */
-export function appendDosLines(current: string, lines: string[]): string {
+/** Appends lines newline-separated, with no leading blank line. */
+export function appendTerminalLines(current: string, lines: string[]): string {
   return lines.reduce((out, line) => out + (out ? '\n' : '') + line, current);
 }

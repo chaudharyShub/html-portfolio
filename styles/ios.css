@@ -1,7 +1,7 @@
 /*
  * iOS layout for phones (portrait, or landscape on a touch screen). Kept last so these
  * overrides win. Keep the query in sync with PHONE_QUERY in lib/motion.ts.
- * Windows become full-screen apps, the desktop becomes the Home Screen, the logo menu
+ * App windows become full-screen apps, the desktop becomes the Home Screen, the logo menu
  * becomes an action sheet and panels become bottom sheets.
  */
 @media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
@@ -21,7 +21,7 @@
   input[type="text"],
   input[type="email"],
   textarea,
-  #dos-input {
+  #terminal-input {
     font-size: 16px;
   }
 
@@ -61,7 +61,7 @@
   }
 
   /* Terminal lives in the dock on phones. */
-  #icon-dos {
+  #icon-terminal {
     display: none;
   }
 
@@ -338,8 +338,8 @@
     background: #2c2c2e;
   }
 
-  .dos-body {
-    padding: 12px 14px calc(env(safe-area-inset-bottom) + 30px);
+  .terminal-body {
+    padding: 16px 16px calc(env(safe-area-inset-bottom) + 34px);
     font-size: 13px;
   }
 
@@ -365,6 +365,7 @@
     min-width: 0;
     max-height: 82dvh;
     padding: 0;
+    overflow: visible;
     border-radius: 0;
     background: none;
     -webkit-backdrop-filter: none;
@@ -373,6 +374,9 @@
   }
 
   .app-menu.open {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     animation: sheetUp 0.45s var(--ease-apple);
   }
 
@@ -382,18 +386,16 @@
     }
   }
 
-  .menu-group {
+  /* The items: one rounded box that scrolls inside its own corners. */
+  .menu-list {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 14px;
     background: var(--material-strong);
     -webkit-backdrop-filter: blur(30px) saturate(1.8);
     backdrop-filter: blur(30px) saturate(1.8);
-  }
-
-  .app-menu > .menu-group:first-child {
-    border-radius: 14px 14px 0 0;
-  }
-
-  .app-menu > .menu-group:nth-last-child(2) {
-    border-radius: 0 0 14px 14px;
   }
 
   /* One rounded block with hairlines between all items (the group gaps are drawn as hairlines). */
@@ -410,7 +412,7 @@
     color: var(--accent);
   }
 
-  .app-menu > .menu-group:first-child .menu-item:first-child,
+  .menu-list > .menu-group:first-child .menu-item:first-child,
   .menu-cancel .menu-item {
     border-top: 0;
   }
@@ -425,16 +427,13 @@
     background: var(--fill);
   }
 
-  /* Cancel stays visible at the bottom even when the list scrolls. */
+  /* Cancel: its own rounded box below the list, always visible. */
   .menu-cancel {
     display: block;
-    position: sticky;
-    bottom: 0;
-    margin-top: 8px;
+    flex-shrink: 0;
     border-radius: 14px;
+    overflow: hidden;
     background: var(--window-bg);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
 
   .menu-cancel .menu-item {

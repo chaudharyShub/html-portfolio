@@ -125,22 +125,22 @@ function useMagnification(listRef: RefObject<HTMLUListElement | null>) {
 export function Dock() {
   const { actions, connect } = useOsApi();
   const { windows, dialogs, menuOpen } = useOsState();
-  const prev = useRef({ dos: windows.dos, game: dialogs.game });
+  const prev = useRef({ terminal: windows.terminal, game: dialogs.game });
   const listRef = useRef<HTMLUListElement>(null);
   useMagnification(listRef);
 
   // Bounce an icon when its app launches from closed.
   useEffect(() => {
-    if (prev.current.dos === 'closed' && windows.dos === 'open') bounce(actions.getDockIcon('dos'));
+    if (prev.current.terminal === 'closed' && windows.terminal === 'open') bounce(actions.getDockIcon('terminal'));
     if (!prev.current.game && dialogs.game) bounce(document.getElementById('dock-game'));
-    prev.current = { dos: windows.dos, game: dialogs.game };
-  }, [windows.dos, dialogs.game, actions]);
+    prev.current = { terminal: windows.terminal, game: dialogs.game };
+  }, [windows.terminal, dialogs.game, actions]);
 
   return (
     <nav className="dock" aria-label="Dock">
       <ul ref={listRef} className="dock-list">
         <DockItem
-          id="taskbar-window-btn"
+          id="dock-portfolio"
           label="Shubham"
           icon="portfolio"
           running={windows.main !== 'closed'}
@@ -149,13 +149,13 @@ export function Dock() {
           onClick={actions.toggleMain}
         />
         <DockItem
-          id="taskbar-dos-btn"
+          id="dock-terminal"
           label="Terminal"
           icon="terminal"
-          running={windows.dos !== 'closed'}
-          pressed={windows.dos === 'open'}
-          buttonRef={connect.dosDockIcon}
-          onClick={() => (windows.dos === 'closed' ? actions.openDos() : actions.toggleDos())}
+          running={windows.terminal !== 'closed'}
+          pressed={windows.terminal === 'open'}
+          buttonRef={connect.terminalDockIcon}
+          onClick={() => (windows.terminal === 'closed' ? actions.openTerminal() : actions.toggleTerminal())}
         />
         <DockItem
           id="dock-game"
@@ -165,7 +165,7 @@ export function Dock() {
           running={dialogs.game}
           onClick={actions.openGame}
         />
-        <DockItem id="dock-settings" label="Settings" icon="settings" onClick={() => actions.openDialog('display')} />
+        <DockItem id="dock-settings" label="Settings" icon="settings" onClick={() => actions.openDialog('settings')} />
         <DockItem id="dock-resume" label="Resume" icon="resume" only="mac" onClick={actions.openResumeWizard} />
         <DockItem
           id="dock-more"
@@ -179,7 +179,7 @@ export function Dock() {
           }}
         />
         <li className="dock-sep dock-mac-only" aria-hidden="true" />
-        <DockItem id="dock-trash" label="Trash" icon="trash" only="mac" onClick={() => actions.openDialog('recycleBin')} />
+        <DockItem id="dock-trash" label="Trash" icon="trash" only="mac" onClick={() => actions.openDialog('trash')} />
       </ul>
     </nav>
   );

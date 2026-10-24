@@ -18,7 +18,7 @@ export function useDesktopEvents() {
       if (e.key === 'Escape') closeMenus();
     };
     // Click-away lives on `window`: React's own listeners sit on `document` (the App Router root),
-    // so handlers like the Start button can still stop a click from reaching this one.
+    // so handlers like the logo menu button can still stop a click from reaching this one.
     document.addEventListener('contextmenu', onContextMenu);
     window.addEventListener('click', closeMenus);
     document.addEventListener('keydown', onKeyDown);

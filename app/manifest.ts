@@ -3,9 +3,9 @@ import { SITE } from '@/lib/site';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Shubham OS - Portfolio',
+    name: 'Shubham Chaudhary - Portfolio',
     short_name: SITE.name,
-    description: "Shubham Chaudhary's portfolio, styled as an interactive macOS-style desktop.",
+    description: "Portfolio of Shubham Chaudhary, Full Stack Engineer (React, Next.js, Node.js), as an interactive desktop.",
     start_url: '/',
     scope: '/',
     display: 'standalone',

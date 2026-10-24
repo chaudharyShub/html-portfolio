@@ -179,7 +179,7 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
   const band = w.height / count;
   const unmark = markAnimating();
 
-  const scrollers = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .dos-output')];
+  const scrollers = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .terminal-body')];
   const scrollTops = scrollers(win).map((el) => el.scrollTop);
 
   const template = lightCopy(win);

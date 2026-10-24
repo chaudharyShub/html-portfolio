@@ -2,7 +2,7 @@
   "name": "shubham-os-portfolio",
   "version": "1.0.0",
   "private": true,
-  "description": "Shubham Chaudhary's portfolio, styled as an interactive Windows 95-style desktop.",
+  "description": "Portfolio of Shubham Chaudhary, Full Stack Engineer, as an interactive desktop-style site.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

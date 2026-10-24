@@ -53,7 +53,6 @@
   --dock-bg: rgba(255, 255, 255, 0.32);
   --dock-border: rgba(255, 255, 255, 0.45);
   --sidebar-bg: rgba(232, 232, 237, 0.8);
-  --sidebar-solid: #e8e8ed;
   --sidebar-card: rgba(255, 255, 255, 0.72);
   --sidebar-text-2: #5f5f64;
   --button-bg: #ffffff;
@@ -101,7 +100,6 @@
   --dock-bg: rgba(40, 40, 42, 0.38);
   --dock-border: rgba(255, 255, 255, 0.14);
   --sidebar-bg: rgba(36, 36, 40, 0.86);
-  --sidebar-solid: #2a2a2e;
   --sidebar-card: rgba(255, 255, 255, 0.07);
   --sidebar-text-2: #c7c7cc;
   --button-bg: #3a3a3d;
@@ -144,7 +142,6 @@
     --dock-bg: rgba(40, 40, 42, 0.38);
     --dock-border: rgba(255, 255, 255, 0.14);
     --sidebar-bg: rgba(36, 36, 40, 0.86);
-    --sidebar-solid: #2a2a2e;
     --sidebar-card: rgba(255, 255, 255, 0.07);
     --sidebar-text-2: #c7c7cc;
     --button-bg: #3a3a3d;

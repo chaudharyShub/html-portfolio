@@ -10,7 +10,7 @@ const TRASH_ITEMS = [
   'unused_css.css',
   'todo_list_i_will_never_finish.txt',
   'a_bug_i_fixed_by_accident.js',
-  'impostor_syndrome.exe (access denied)',
+  'impostor_syndrome.app (permission denied)',
 ];
 
 export function MessageDialog() {
@@ -54,14 +54,14 @@ export function CloseConfirmDialog() {
   );
 }
 
-export function RecycleBinDialog() {
+export function TrashDialog() {
   const { dialogs } = useOsState();
   const { closeDialog } = useOsActions();
-  const close = () => closeDialog('recycleBin');
+  const close = () => closeDialog('trash');
   return (
-    <Dialog open={dialogs.recycleBin} title="Trash" onClose={close} boxClassName="wide">
+    <Dialog open={dialogs.trash} title="Trash" onClose={close} boxClassName="wide">
       <div className="dialog-body">
-        <ul className="recycle-list">
+        <ul className="trash-list">
           {TRASH_ITEMS.map((item) => (
             <li key={item}>{item}</li>
           ))}

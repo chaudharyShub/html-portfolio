@@ -10,18 +10,18 @@ export function MenuBar() {
   const actions = useOsActions();
   const now = useNow();
   const date = now === null ? null : new Date(now);
-  const activeApp = windows.dos === 'open' && windows.main !== 'open' ? 'Terminal' : 'Shubham';
+  const activeApp = windows.terminal === 'open' && windows.main !== 'open' ? 'Terminal' : 'Shubham';
 
   return (
     <div className="menubar">
       <button
         type="button"
         className={`menubar-item menubar-brand${menuOpen ? ' active' : ''}`}
-        id="start-button"
+        id="logo-menu-button"
         aria-label="Shubham menu"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        aria-controls="start-menu"
+        aria-controls="logo-menu"
         onClick={(e) => {
           e.stopPropagation(); // the window click handler would immediately close it again
           actions.toggleMenu();

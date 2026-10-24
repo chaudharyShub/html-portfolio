@@ -30,10 +30,10 @@ test('tabs switch the visible sections', async ({ page }) => {
 
 test('Terminal runs commands and clears', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#start-button').click();
+  await page.locator('#logo-menu-button').click();
   await page.getByRole('menuitem', { name: 'Terminal' }).click();
-  const input = page.locator('#dos-input');
-  const output = page.locator('#dos-window [role="log"]');
+  const input = page.locator('#terminal-input');
+  const output = page.locator('#terminal-window [role="log"]');
   await expect(input).toBeVisible();
 
   await input.fill('whoami');
@@ -42,7 +42,7 @@ test('Terminal runs commands and clears', async ({ page }) => {
 
   await input.fill('nonsense');
   await input.press('Enter');
-  await expect(output).toContainText('nonsense');
+  await expect(output).toContainText('zsh: command not found: nonsense');
 
   await input.fill('clear');
   await input.press('Enter');
@@ -58,7 +58,7 @@ test('the default appearance is Light, even on a device set to dark mode', async
 
 test('appearance choice is saved and applied again after a reload', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#start-button').click();
+  await page.locator('#logo-menu-button').click();
   await page.getByRole('menuitem', { name: 'System Settings' }).click();
   await page.getByRole('radio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
@@ -68,13 +68,40 @@ test('appearance choice is saved and applied again after a reload', async ({ pag
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
+test('Larger Text switches on, and stays on after a reload', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#dock-settings').click({ force: true });
+  const html = page.locator('html');
+  await page.getByRole('switch', { name: /Larger Text/ }).check();
+  await expect(html).toHaveAttribute('data-larger-text', '');
+  await expect(page.locator('#section-about')).toHaveCSS('zoom', '1.15');
+
+  await page.reload();
+  // Applied by the pre-paint script, so there is no flash of small text.
+  await expect(html).toHaveAttribute('data-larger-text', '');
+});
+
+test('double-clicking the title bar zooms the window, a single click leaves it alone', async ({ page }) => {
+  await openDesktop(page);
+  const win = page.locator('#window');
+  const title = win.locator('.title-text');
+  await title.dblclick();
+  await expect(win).toHaveClass(/maximized/);
+  // A single click on a zoomed window's title bar must not restore it.
+  await title.click();
+  await page.waitForTimeout(400);
+  await expect(win).toHaveClass(/maximized/);
+  await title.dblclick();
+  await expect(win).not.toHaveClass(/maximized/);
+});
+
 test('minimizing sends the window to the Dock and the Dock icon brings it back', async ({ page }) => {
   await openDesktop(page);
   const win = page.locator('#window');
   await win.getByRole('button', { name: 'Minimize', exact: true }).click();
   await expect(win).toBeHidden();
   // The Dock magnifies under the pointer, so don't wait for the icon to hold still.
-  await page.locator('#taskbar-window-btn').click({ force: true });
+  await page.locator('#dock-portfolio').click({ force: true });
   await expect(win).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About Me' })).toBeVisible();
   // The genie animation plays on temporary copies; none may be left behind.
