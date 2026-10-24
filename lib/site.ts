@@ -19,20 +19,25 @@ function resolveSiteUrl(): string {
 }
 
 const description =
-  'A fully interactive Windows-95-style desktop: draggable windows, a real DOS prompt, joke error dialogs, and a bouncing DVD logo. 4+ years frontend experience, React, Next.js, Node.js.';
+  'An interactive macOS-style desktop (an iPhone-style app on phones): a real Terminal, a Dock, windows and a tiny game. 4+ years building with React, Next.js and Node.js.';
 
 export const SITE = {
   url: resolveSiteUrl(),
   name: 'Shubham OS',
-  title: `${PROFILE.name} - ${PROFILE.role} (Portfolio That Boots Like Windows 95)`,
+  title: `${PROFILE.name} - ${PROFILE.role} (A Portfolio That Works Like a Mac)`,
   description,
   social: {
-    title: `${PROFILE.name} - This Portfolio Boots Like It's 1995`,
+    title: `${PROFILE.name} - This Portfolio Works Like a Mac`,
     description,
     twitterDescription:
-      "Draggable windows. A real DOS prompt. Joke error dialogs. A bouncing DVD logo. Yes, it's a real portfolio - 4+ years frontend experience.",
-    image: { url: '/og-image.png', width: 1200, height: 630, alt: 'Preview of the Shubham OS portfolio window' },
+      "A Dock, windows that minimize into it, a real Terminal and a tiny game. Yes, it's a real portfolio - 4+ years building with React, Next.js and Node.js.",
+    image: {
+      url: '/og-image.jpg',
+      width: 1200,
+      height: 630,
+      alt: 'The Shubham OS portfolio: a Mac-style window with a sidebar profile card, on a colorful desktop with a Dock',
+    },
   },
-  themeColor: '#000080',
-  backgroundColor: '#008080',
+  themeColor: '#1d1d1f',
+  backgroundColor: '#6a5acd',
 } as const;

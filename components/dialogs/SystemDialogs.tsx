@@ -1,10 +1,10 @@
 'use client';
 
-import { DialogIcon } from '@/components/icons';
+import { AppIcon, DialogIcon } from '@/components/icons';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { Dialog } from './Dialog';
 
-const RECYCLE_BIN_ITEMS = [
+const TRASH_ITEMS = [
   'console.log("why isn\'t this working")',
   'old_resume_final_v2_FINAL.docx',
   'unused_css.css',
@@ -18,17 +18,12 @@ export function MessageDialog() {
   const { closeDialog } = useOsActions();
   const close = () => closeDialog('message');
   return (
-    <Dialog open={dialogs.message} title={message.title} onClose={close}>
-      <div className="dialog-body">
-        <div className="dialog-icon">
-          <DialogIcon type={message.icon} />
-        </div>
-        <p>{message.text}</p>
-        <div className="dialog-buttons">
-          <button type="button" onClick={close}>
-            OK
-          </button>
-        </div>
+    <Dialog open={dialogs.message} kind="alert" title={message.title} icon={<DialogIcon type={message.icon} />} onClose={close}>
+      <p className="alert-text">{message.text}</p>
+      <div className="dialog-buttons">
+        <button type="button" className="btn-primary" onClick={close}>
+          OK
+        </button>
       </div>
     </Dialog>
   );
@@ -39,24 +34,21 @@ export function CloseConfirmDialog() {
   const { closeDialog, confirmCloseMain } = useOsActions();
   const close = () => closeDialog('closeConfirm');
   return (
-    <Dialog open={dialogs.closeConfirm} title="Shubham OS" onClose={close}>
-      <div className="dialog-body">
-        <div className="dialog-icon">
-          <DialogIcon type="question" />
-        </div>
-        <p>
-          Are you sure you want to close Shubham.exe?
-          <br />
-          <span className="dialog-note">(Spoiler: you can&apos;t. But I&apos;ll minimize it for you.)</span>
-        </p>
-        <div className="dialog-buttons">
-          <button type="button" onClick={confirmCloseMain}>
-            Yes
-          </button>
-          <button type="button" onClick={close}>
-            No
-          </button>
-        </div>
+    <Dialog
+      open={dialogs.closeConfirm}
+      kind="alert"
+      title="Are you sure you want to quit Shubham?"
+      icon={<AppIcon name="portfolio" size={56} />}
+      onClose={close}
+    >
+      <p className="alert-text">(Spoiler: you can&apos;t. But I&apos;ll minimize it to the Dock for you.)</p>
+      <div className="dialog-buttons">
+        <button type="button" onClick={close}>
+          Cancel
+        </button>
+        <button type="button" className="btn-primary" onClick={confirmCloseMain}>
+          Quit
+        </button>
       </div>
     </Dialog>
   );
@@ -67,15 +59,15 @@ export function RecycleBinDialog() {
   const { closeDialog } = useOsActions();
   const close = () => closeDialog('recycleBin');
   return (
-    <Dialog open={dialogs.recycleBin} title="Recycle Bin" onClose={close} boxClassName="wide">
-      <div className="dialog-body align-left">
-        <div className="recycle-list">
-          {RECYCLE_BIN_ITEMS.map((item) => (
-            <div key={item}>{item}</div>
+    <Dialog open={dialogs.recycleBin} title="Trash" onClose={close} boxClassName="wide">
+      <div className="dialog-body">
+        <ul className="recycle-list">
+          {TRASH_ITEMS.map((item) => (
+            <li key={item}>{item}</li>
           ))}
-        </div>
+        </ul>
         <div className="dialog-buttons">
-          <button type="button" onClick={close}>
+          <button type="button" className="btn-primary" onClick={close}>
             Close
           </button>
         </div>

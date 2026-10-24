@@ -1,4 +1,4 @@
-import { FloppyIcon } from '@/components/icons';
+import { DownloadIcon } from '@/components/icons';
 import { PROFILE } from '@/data/profile';
 import { getWeb3FormsAccessKey } from '@/lib/contact';
 import { ContactForm } from './ContactForm';
@@ -8,7 +8,7 @@ export function Contact() {
   return (
     <fieldset className="section" id="section-contact">
       <legend>
-        <h2>Message.exe</h2>
+        <h2>Message</h2>
       </legend>
       <p>Recipient: {PROFILE.name}</p>
       <ContactForm accessKey={getWeb3FormsAccessKey()} />
@@ -23,7 +23,7 @@ export function Contact() {
           LinkedIn
         </a>
         <ResumeButton>
-          <FloppyIcon />
+          <DownloadIcon />
           Download Resume (PDF)
         </ResumeButton>
       </div>

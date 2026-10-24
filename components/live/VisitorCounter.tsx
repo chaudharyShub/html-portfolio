@@ -12,7 +12,7 @@ export function VisitorCounter() {
   }, []);
 
   return (
-    <span className="visitor-counter" title="Locally seeded — playful, not a real global count">
+    <span className="visitor-counter" title="Locally seeded - playful, not a real global count">
       No. {String(value).padStart(6, '0')}
     </span>
   );

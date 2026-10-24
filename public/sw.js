@@ -3,16 +3,17 @@
  * - Page navigations: network first, falling back to the cached page when offline
  *   (so a new deploy is picked up immediately instead of serving stale HTML forever).
  * - Hashed Next.js build assets (/_next/static): cache first (their URLs change per build).
- * - Other same-origin files (resume, icons, wallpapers): stale-while-revalidate.
+ * - Other same-origin files (resume, icons): stale-while-revalidate.
  */
-const CACHE_NAME = 'shubham-os-v2';
+const CACHE_NAME = 'shubham-os-v3';
 const PRECACHE = [
   '/',
   '/Shubham_resume.pdf',
   '/favicon.ico',
   '/favicon.png',
+  '/icon.svg',
   '/apple-touch-icon.png',
-  '/og-image.png',
+  '/og-image.jpg',
   '/icon-192.png',
   '/icon-512.png',
   '/manifest.webmanifest',

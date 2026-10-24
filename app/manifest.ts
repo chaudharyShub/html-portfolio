@@ -3,9 +3,9 @@ import { SITE } from '@/lib/site';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Shubham OS — Portfolio',
+    name: 'Shubham OS - Portfolio',
     short_name: SITE.name,
-    description: "Shubham Chaudhary's portfolio, styled as an interactive Windows 95-style desktop.",
+    description: "Shubham Chaudhary's portfolio, styled as an interactive macOS-style desktop.",
     start_url: '/',
     scope: '/',
     display: 'standalone',
@@ -15,8 +15,9 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-      { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      // Full-bleed versions: Android crops these to its own icon shape.
+      { src: '/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+      { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   };
 }

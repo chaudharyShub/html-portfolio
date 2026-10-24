@@ -28,7 +28,7 @@ export function About() {
           ))}
         </tbody>
       </table>
-      <h3 className="sub">Stats.dat</h3>
+      <h3 className="sub">Stats</h3>
       <div className="stats-grid">
         <div className="stat-box">
           <div className="num">

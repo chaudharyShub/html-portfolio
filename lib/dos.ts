@@ -1,7 +1,7 @@
 import { PROFILE } from '@/data/profile';
 import type { SectionId } from './sections';
 
-export const DOS_PROMPT = 'C:\\Users\\Shubham>';
+export const DOS_PROMPT = 'shubham@portfolio ~ %';
 
 export const DOS_BANNER =
   "Shubham OS [Version 3.0]\n(C) Shubham Chaudhary. All rights reserved.\nType 'help' to see available commands.\n";

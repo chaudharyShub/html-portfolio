@@ -55,7 +55,8 @@ export interface OsState {
   tab: TabId;
   /** Bumped on every tab switch request so the content scrolls to top even when the tab is unchanged. */
   tabRequest: number;
-  startMenuOpen: boolean;
+  /** The logo menu (menu bar on desktop, action sheet on phones). */
+  menuOpen: boolean;
   contextMenu: { x: number; y: number } | null;
   toast: ToastState | null;
   windows: Record<WindowKey, WindowStatus>;
@@ -67,7 +68,7 @@ type Action =
   | { type: 'showMessage'; message: MessageState }
   | { type: 'openWizard' }
   | { type: 'setTab'; tab: TabId }
-  | { type: 'toggleStartMenu' }
+  | { type: 'toggleMenu' }
   | { type: 'closeMenus' }
   | { type: 'openContextMenu'; x: number; y: number }
   | { type: 'showToast'; title: string; message: string }
@@ -80,7 +81,7 @@ const initialState: OsState = {
   wizardSession: 0,
   tab: 'home',
   tabRequest: 0,
-  startMenuOpen: false,
+  menuOpen: false,
   contextMenu: null,
   toast: null,
   windows: { main: 'open', dos: 'closed' },
@@ -98,10 +99,10 @@ function reducer(state: OsState, action: Action): OsState {
       return { ...state, wizardSession: state.wizardSession + 1, dialogs: { ...state.dialogs, wizard: true } };
     case 'setTab':
       return { ...state, tab: action.tab, tabRequest: state.tabRequest + 1 };
-    case 'toggleStartMenu':
-      return { ...state, startMenuOpen: !state.startMenuOpen };
+    case 'toggleMenu':
+      return { ...state, menuOpen: !state.menuOpen };
     case 'closeMenus':
-      return state.startMenuOpen || state.contextMenu ? { ...state, startMenuOpen: false, contextMenu: null } : state;
+      return state.menuOpen || state.contextMenu ? { ...state, menuOpen: false, contextMenu: null } : state;
     case 'openContextMenu':
       return { ...state, contextMenu: { x: action.x, y: action.y } };
     case 'showToast':
@@ -122,8 +123,8 @@ function reducer(state: OsState, action: Action): OsState {
 export interface OsConnectors {
   mainWindow: (handle: WindowHandle | null) => void;
   dosWindow: (handle: WindowHandle | null) => void;
-  mainTaskbarButton: (el: HTMLButtonElement | null) => void;
-  dosTaskbarButton: (el: HTMLButtonElement | null) => void;
+  mainDockIcon: (el: HTMLButtonElement | null) => void;
+  dosDockIcon: (el: HTMLButtonElement | null) => void;
   dosConsole: (handle: DosConsoleHandle | null) => void;
   desktopIcons: (handle: DesktopIconsHandle | null) => void;
   game: (handle: GameHandle | null) => void;
@@ -143,7 +144,7 @@ export interface OsActions {
   openResumeWizard: () => void;
   switchTab: (tab: TabId) => void;
   goToSection: (id: SectionId) => void;
-  toggleStartMenu: () => void;
+  toggleMenu: () => void;
   closeMenus: () => void;
   openContextMenu: (x: number, y: number) => void;
   arrangeIcons: () => void;
@@ -155,14 +156,15 @@ export interface OsActions {
   toggleDos: () => void;
   focusDos: () => void;
   bootComplete: () => void;
-  getTaskbarButton: (key: WindowKey) => HTMLElement | null;
+  /** The dock icon a window minimizes into / restores from. */
+  getDockIcon: (key: WindowKey) => HTMLElement | null;
 }
 
 interface Registry {
   mainWindow: WindowHandle | null;
   dosWindow: WindowHandle | null;
-  mainTaskbarButton: HTMLButtonElement | null;
-  dosTaskbarButton: HTMLButtonElement | null;
+  mainDockIcon: HTMLButtonElement | null;
+  dosDockIcon: HTMLButtonElement | null;
   dosConsole: DosConsoleHandle | null;
   desktopIcons: DesktopIconsHandle | null;
   game: GameHandle | null;
@@ -185,8 +187,8 @@ export function OsProvider({ children }: { children: ReactNode }) {
     const r: Registry = {
       mainWindow: null,
       dosWindow: null,
-      mainTaskbarButton: null,
-      dosTaskbarButton: null,
+      mainDockIcon: null,
+      dosDockIcon: null,
       dosConsole: null,
       desktopIcons: null,
       game: null,
@@ -194,8 +196,8 @@ export function OsProvider({ children }: { children: ReactNode }) {
     const connect: OsConnectors = {
       mainWindow: (h) => void (r.mainWindow = h),
       dosWindow: (h) => void (r.dosWindow = h),
-      mainTaskbarButton: (el) => void (r.mainTaskbarButton = el),
-      dosTaskbarButton: (el) => void (r.dosTaskbarButton = el),
+      mainDockIcon: (el) => void (r.mainDockIcon = el),
+      dosDockIcon: (el) => void (r.dosDockIcon = el),
       dosConsole: (h) => void (r.dosConsole = h),
       desktopIcons: (h) => void (r.desktopIcons = h),
       game: (h) => void (r.game = h),
@@ -214,7 +216,7 @@ export function OsProvider({ children }: { children: ReactNode }) {
       showSystemProperties: () =>
         showMessage(
           'info',
-          'System Properties',
+          'About Shubham HD',
           'Shubham OS v3.0 - Full Stack Engineer - 4+ Years Experience - RAM: 640K - Status: Online',
         ),
       denyNewTextDocument: () =>
@@ -238,7 +240,7 @@ export function OsProvider({ children }: { children: ReactNode }) {
         closeMenus();
         switchTab(SECTION_TO_TAB[id]);
       },
-      toggleStartMenu: () => dispatch({ type: 'toggleStartMenu' }),
+      toggleMenu: () => dispatch({ type: 'toggleMenu' }),
       closeMenus,
       openContextMenu: (x, y) => dispatch({ type: 'openContextMenu', x, y }),
       arrangeIcons: () => r.desktopIcons?.arrange(),
@@ -255,7 +257,7 @@ export function OsProvider({ children }: { children: ReactNode }) {
       closeDos: () => r.dosWindow?.close(),
       toggleDos: () => r.dosWindow?.toggleFromTaskbar(),
       focusDos: () => r.dosConsole?.focus(),
-      getTaskbarButton: (key) => (key === 'main' ? r.mainTaskbarButton : r.dosTaskbarButton),
+      getDockIcon: (key) => (key === 'main' ? r.mainDockIcon : r.dosDockIcon),
       bootComplete: () => {
         switchTab('home');
         r.desktopIcons?.resetLayout();

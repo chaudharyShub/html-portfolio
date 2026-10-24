@@ -4,7 +4,7 @@ export function Experience() {
   return (
     <fieldset className="section" id="section-experience">
       <legend>
-        <h2>Experience\logs\</h2>
+        <h2>Experience</h2>
       </legend>
       {VISIBLE_EXPERIENCE.map((job) => (
         <article className="exp-entry" key={`${job.company}-${job.period}`}>

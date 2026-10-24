@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
-import { BugIcon, DosDesktopIcon, MyComputerIcon, RecycleBinIcon } from '@/components/icons';
+import { AppIcon } from '@/components/icons';
 import { useOsApi, type OsActions } from '@/components/os/OsProvider';
 
 interface DesktopIconDef {
@@ -12,26 +12,27 @@ interface DesktopIconDef {
 }
 
 const DESKTOP_ICONS: DesktopIconDef[] = [
-  { id: 'icon-recyclebin', label: 'Recycle Bin', icon: <RecycleBinIcon />, open: (a) => a.openDialog('recycleBin') },
-  { id: 'icon-mycomputer', label: 'My Computer', icon: <MyComputerIcon />, open: (a) => a.showSystemProperties() },
-  { id: 'icon-game', label: 'Debug Runner', icon: <BugIcon />, open: (a) => a.openGame() },
-  { id: 'icon-dos', label: 'MS-DOS Prompt', icon: <DosDesktopIcon />, open: (a) => a.openDos() },
+  { id: 'icon-mycomputer', label: 'Shubham HD', icon: <AppIcon name="drive" size={56} />, open: (a) => a.showSystemProperties() },
+  { id: 'icon-game', label: 'Debug Runner', icon: <AppIcon name="game" size={56} />, open: (a) => a.openGame() },
+  { id: 'icon-dos', label: 'Terminal', icon: <AppIcon name="terminal" size={56} />, open: (a) => a.openDos() },
+  { id: 'icon-recyclebin', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('recycleBin') },
 ];
 
-const TASKBAR_HEIGHT = 32;
+/** Keep in sync with --menubar-h / --dock-reserve in styles/base.css. */
+const MENUBAR_HEIGHT = 28;
+const DOCK_RESERVE = 84;
 
 interface Position {
   left: number;
   top: number;
 }
 
-/** Column layout down the left edge; slightly wider spacing on small screens. */
+/** A column down the right edge, like the macOS desktop. (Phones ignore this: they use a grid.) */
 function columnLayout(viewportWidth: number): Position[] {
-  const gap = viewportWidth > 700 ? 90 : 95;
-  return DESKTOP_ICONS.map((_, i) => ({ left: 20, top: 20 + i * gap }));
+  return DESKTOP_ICONS.map((_, i) => ({ left: viewportWidth - 112, top: MENUBAR_HEIGHT + 16 + i * 104 }));
 }
 
-/** Draggable desktop shortcuts; double-click (or Enter) opens them. */
+/** Draggable desktop icons (an app grid on phones); double-click, tap or Enter opens them. */
 export function DesktopIcons() {
   const { actions, connect } = useOsApi();
   // Server and first client render use the desktop layout; the real viewport layout is applied after boot.
@@ -55,7 +56,7 @@ export function DesktopIcons() {
 
     const onMove = (ev: globalThis.MouseEvent) => {
       const left = Math.max(0, Math.min(ev.clientX - offsetX, window.innerWidth - iconEl.offsetWidth));
-      const top = Math.max(0, Math.min(ev.clientY - offsetY, window.innerHeight - TASKBAR_HEIGHT - iconEl.offsetHeight));
+      const top = Math.max(MENUBAR_HEIGHT, Math.min(ev.clientY - offsetY, window.innerHeight - DOCK_RESERVE - iconEl.offsetHeight));
       setPositions((prev) => prev.map((p, i) => (i === index ? { left, top } : p)));
     };
     const stop = () => {
@@ -101,7 +102,7 @@ export function DesktopIcons() {
           onKeyDown={(e) => onKeyDown(def, e)}
         >
           {def.icon}
-          {def.label}
+          <span className="desktop-icon-label">{def.label}</span>
         </div>
       ))}
     </div>

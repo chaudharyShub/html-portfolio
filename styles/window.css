@@ -1,36 +1,63 @@
-/* Window chrome shared by the main window and the DOS prompt, plus main-window bars. */
+/*
+ * Windows: macOS chrome shared by the portfolio window and Terminal.
+ * The portfolio window is laid out like a modern Mac app: a unified title bar, a translucent
+ * sidebar (profile card + sections) on the left and the content on the right.
+ */
 .window {
   position: fixed;
   left: 50%;
-  top: 16px;
+  top: calc(var(--menubar-h) + 16px);
   transform: translateX(-50%);
-  width: min(900px, 95vw);
-  max-height: calc(94vh - 32px);
-  background: var(--gray);
-  border: 2px solid;
-  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+  width: min(1000px, 94vw);
+  height: min(780px, calc(100vh - var(--menubar-h) - var(--dock-reserve) - 28px));
+  max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve) - 28px);
   z-index: 10;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: 52px auto minmax(0, 1fr) auto;
+  border-radius: 12px;
+  box-shadow: var(--shadow-window);
+  overflow: hidden;
+}
+
+/* Sidebar material: the wallpaper shows through, blurred (macOS "vibrancy"). */
+.window::before {
+  content: "";
+  grid-column: 1;
+  grid-row: 1 / -1;
+  background: var(--sidebar-bg);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  backdrop-filter: blur(40px) saturate(1.8);
+  border-right: 0.5px solid var(--separator);
+}
+
+.window > * {
+  position: relative;
+  z-index: 1;
+}
+
+.window > .resize-handle {
+  position: absolute;
+  z-index: 20;
 }
 
 .window.maximized {
   left: 0 !important;
-  top: 0 !important;
+  top: var(--menubar-h) !important;
   transform: none !important;
   width: 100vw !important;
-  max-height: calc(100vh - 32px) !important;
-  height: calc(100vh - 32px) !important;
+  max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  border-radius: 0 0 12px 12px;
 }
 
 .window.snapped-left,
 .window.snapped-right {
-  top: 0 !important;
+  top: var(--menubar-h) !important;
   transform: none !important;
   width: 50vw !important;
-  max-height: calc(100vh - 32px) !important;
-  height: calc(100vh - 32px) !important;
+  max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
 }
 
 .window.snapped-left {
@@ -41,26 +68,30 @@
   left: 50vw !important;
 }
 
+/* Terminal: always dark, slightly translucent. */
 .subwindow {
   position: fixed;
   z-index: 15;
-  background: var(--gray);
-  border: 2px solid;
-  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
-  width: 460px;
-  height: 340px;
-  left: 12%;
-  top: 10%;
-  display: none;
+  width: 580px;
+  height: 370px;
+  left: 14%;
+  top: 14%;
+  display: flex;
   flex-direction: column;
+  background: rgba(28, 28, 30, 0.9);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), 0 0 0 0.5px rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  color: #e5e5ea;
 }
 
 .subwindow.maximized {
   left: 0 !important;
-  top: 0 !important;
+  top: var(--menubar-h) !important;
   width: 100vw !important;
-  height: calc(100vh - 32px) !important;
+  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
 }
 
 .window.maximized .resize-handle,
@@ -77,31 +108,31 @@
 
 .resize-n {
   top: -3px;
-  left: 10px;
-  right: 10px;
+  left: 12px;
+  right: 12px;
   height: 6px;
   cursor: ns-resize;
 }
 
 .resize-s {
   bottom: -3px;
-  left: 10px;
-  right: 10px;
+  left: 12px;
+  right: 12px;
   height: 6px;
   cursor: ns-resize;
 }
 
 .resize-e {
-  top: 10px;
-  bottom: 10px;
+  top: 12px;
+  bottom: 12px;
   right: -3px;
   width: 6px;
   cursor: ew-resize;
 }
 
 .resize-w {
-  top: 10px;
-  bottom: 10px;
+  top: 12px;
+  bottom: 12px;
   left: -3px;
   width: 6px;
   cursor: ew-resize;
@@ -110,165 +141,397 @@
 .resize-ne {
   top: -3px;
   right: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nesw-resize;
 }
 
 .resize-nw {
   top: -3px;
   left: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nwse-resize;
 }
 
 .resize-se {
   bottom: -3px;
   right: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nwse-resize;
 }
 
 .resize-sw {
   bottom: -3px;
   left: -3px;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   cursor: nesw-resize;
 }
 
+/* ===== Title bar + traffic lights ===== */
 .title-bar {
-  background: linear-gradient(90deg, var(--navy), var(--navy-light));
-  color: var(--white);
-  font-weight: bold;
-  padding: 4px 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: grab;
+  position: relative;
   flex-shrink: 0;
-}
-
-.title-bar.dragging {
-  cursor: grabbing;
-}
-
-.title-bar-left {
+  height: 40px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  padding: 0 80px;
+  background: var(--titlebar);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  user-select: none;
+  cursor: default;
 }
 
-.title-bar-buttons {
+.subwindow .title-bar {
+  height: 32px;
+  background: rgba(54, 54, 58, 0.9);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.5);
+  color: #d1d1d6;
+}
+
+.title-text {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.traffic-lights {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  gap: 3px;
+  gap: 8px;
 }
 
-.title-bar-buttons span {
-  width: 16px;
-  height: 14px;
-  background: var(--gray);
-  border: 1px solid;
-  border-color: var(--white) var(--gray-dark) var(--gray-dark) var(--white);
-  font-size: 10px;
-  line-height: 14px;
-  text-align: center;
-  color: var(--black);
-  font-weight: bold;
-  cursor: pointer;
+.tl {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
+  cursor: default;
 }
 
-.title-bar-buttons span:active {
-  border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+.tl-close {
+  background: #ff5f57;
+}
+
+.tl-min {
+  background: #febc2e;
+}
+
+.tl-zoom {
+  background: #28c840;
+}
+
+.tl svg {
+  width: 8px;
+  height: 8px;
+  opacity: 0;
+  stroke: rgba(0, 0, 0, 0.6);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  fill: none;
+  transition: opacity 0.1s ease;
+}
+
+.tl svg .fill {
+  fill: rgba(0, 0, 0, 0.6);
+  stroke: none;
+}
+
+.traffic-lights:hover .tl svg,
+.dialog-title-bar:hover .tl svg,
+.tl:focus-visible svg {
+  opacity: 1;
+}
+
+.tl:active {
+  filter: brightness(0.8);
+}
+
+/* Unified title bar of the portfolio window: transparent over the sidebar, title on the right. */
+.window > .title-bar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  height: auto;
+  justify-content: flex-start;
+  padding: 0 20px 0 calc(var(--sidebar-w) + 20px);
+  background: linear-gradient(90deg, transparent var(--sidebar-w), var(--content-bg) var(--sidebar-w));
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.window > .title-bar::after {
+  content: "";
+  position: absolute;
+  left: var(--sidebar-w);
+  right: 0;
+  bottom: 0;
+  height: 0.5px;
+  background: var(--separator);
+}
+
+.window > .title-bar .title-text {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.window .traffic-lights {
+  left: 20px;
+}
+
+/* ===== Sidebar: profile card ===== */
+.info-bar {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
+  margin: 0 10px 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--sidebar-card);
+  font-size: 12px;
+  color: var(--sidebar-text-2);
+}
+
+.info-avatar {
+  grid-row: 1 / span 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #5ac8fa, #0a64d6);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.info-name {
+  align-self: end;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.info-role {
+  align-self: start;
+  line-height: 1.35;
+}
+
+/* The "Name:" / "Role:" / "Status:" labels stay for screen readers; the card layout says it visually. */
+.info-name b,
+.info-role b,
+.info-status b {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.info-status,
+.info-exp {
+  grid-column: 1 / -1;
+}
+
+.info-status {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--separator);
+  font-weight: 600;
+  color: var(--green-text);
+}
+
+.info-status .status-dot {
+  color: var(--green);
+}
+
+.info-exp {
+  margin-top: 2px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.info-exp b {
+  font-weight: 400;
+  color: var(--sidebar-text-2);
+}
+
+/* ===== Sidebar: sections ===== */
+.tab-bar-wrap {
+  grid-column: 1;
+  grid-row: 3 / 5;
+  padding: 0 10px 12px;
+  overflow-y: auto;
 }
 
 .tab-bar {
-  background: var(--gray);
-  padding: 4px 6px 0;
-  border-bottom: 2px solid var(--gray-dark);
+  position: relative;
   display: flex;
-  gap: 3px;
-  font-size: 12px;
-  flex-shrink: 0;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tab-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-radius: 7px;
+  background: var(--accent-fill);
+  transition: transform 0.32s var(--ease-apple), width 0.32s var(--ease-apple), height 0.32s var(--ease-apple);
 }
 
 .tab {
-  padding: 4px 18px 5px;
-  cursor: pointer;
-  background: #b0b0b0;
-  color: #222;
-  border-top: 1px solid var(--white);
-  border-left: 1px solid var(--white);
-  border-right: 1px solid var(--gray-dark);
-  border-bottom: 1px solid var(--gray-dark);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: default;
   user-select: none;
   white-space: nowrap;
-  position: relative;
+  transition: color 0.2s ease, background-color 0.15s ease;
 }
 
-.tab:hover:not(.active) {
-  background: #cacaca;
+.tab:not(.active):hover {
+  background: var(--fill);
 }
 
 .tab.active {
-  background: var(--gray);
-  color: var(--black);
-  font-weight: bold;
-  border-top: 2px solid var(--white);
-  border-left: 2px solid var(--white);
-  border-right: 1px solid var(--gray-dark);
-  border-bottom: 2px solid var(--gray);
-  padding-bottom: 7px;
-  margin-bottom: -2px;
-  z-index: 1;
+  color: #fff;
 }
 
-.info-bar {
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--gray-dark);
-  font-size: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  background: var(--gray);
+/* Colored icon tiles, like the rows in System Settings. */
+.tab-tile {
   flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1);
 }
 
-.info-bar .status-dot {
-  color: green;
-  font-weight: bold;
+.tab-tile--home {
+  background: linear-gradient(160deg, #5ac8fa, #007aff);
 }
 
+.tab-tile--about {
+  background: linear-gradient(160deg, #d68cff, #8e44d6);
+}
+
+.tab-tile--projects {
+  background: linear-gradient(160deg, #ffc15e, #ff8a00);
+}
+
+.tab-tile--contact {
+  background: linear-gradient(160deg, #5be37a, #23a046);
+}
+
+.tab.active .tab-tile {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.tab-tile .tab-glyph {
+  width: 15px;
+  height: 15px;
+}
+
+.tab-tile .tab-glyph * {
+  stroke-width: 2.2;
+}
+
+/* ===== Content and footer ===== */
 .content {
-  padding: 12px;
+  grid-column: 2;
+  grid-row: 2 / 4;
+  min-height: 0;
   overflow-y: auto;
-  flex: 1;
+  padding: 20px 24px 8px;
+  background: var(--content-bg);
 }
 
 .status-bar {
-  background: var(--gray);
-  border-top: 1px solid var(--white);
-  padding: 5px 10px;
-  font-size: 11px;
+  grid-column: 2;
+  grid-row: 4;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 6px;
-  flex-shrink: 0;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 7px 16px;
+  background: var(--content-bg);
+  border-top: 0.5px solid var(--separator);
+  font-size: 11px;
+  color: var(--text-2);
 }
 
-/* ===== VISITOR COUNTER ===== */
 .visitor-counter {
-  font-family: "Courier New", monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  background: #000;
-  color: #33ff33;
-  padding: 1px 6px;
-  border: 1px solid var(--gray-dark);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--text);
+}
+
+/* Copies used by the genie animation: no live blur (too costly across many strips). */
+.genie-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.genie-strip {
+  position: absolute;
+  overflow: hidden;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.genie-copy,
+.genie-copy *,
+.genie-copy::before,
+.genie-copy *::before,
+.genie-copy *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.genie-copy {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.genie-copy::before {
+  background: var(--sidebar-solid);
 }
 
 /* Each section sits in a layout-neutral slot so tabs can hide/reorder server-rendered sections. */
@@ -277,5 +540,10 @@
 }
 
 .section-slot[hidden] {
+  display: none;
+}
+
+/* The iOS home indicator only exists on phones. */
+.home-indicator {
   display: none;
 }

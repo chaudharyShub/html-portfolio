@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { DialogIcon, WizardDiskIcon } from '@/components/icons';
+import { AppIcon, DialogIcon } from '@/components/icons';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { PROFILE } from '@/data/profile';
 import { clickLink } from '@/lib/download';
 import { Dialog } from './Dialog';
 
 type Step = 'welcome' | 'license' | 'installing' | 'complete';
+
+const STEPS: Step[] = ['welcome', 'license', 'installing', 'complete'];
 
 const INSTALL_DURATION_MS = 1500;
 const INSTALL_MESSAGES = [
@@ -18,13 +20,16 @@ const INSTALL_MESSAGES = [
   'Done.',
 ];
 
-/** Resume "InstallShield" wizard. Remounted (via key) on every open, so it always starts at step 1. */
+/**
+ * Resume installer: a single centered page per step (like Apple's setup screens), with a
+ * "Step N of 4" caption. Remounted (via key) on every open, so it always starts at step 1.
+ */
 export function InstallWizardDialog() {
   const { dialogs, wizardSession } = useOsState();
   const { closeDialog } = useOsActions();
   const close = () => closeDialog('wizard');
   return (
-    <Dialog open={dialogs.wizard} title="Shubham_Resume.exe Setup" onClose={close} boxClassName="wizard-box">
+    <Dialog open={dialogs.wizard} title="Install Shubham Resume" onClose={close} boxClassName="wizard-box">
       <WizardSteps key={wizardSession} onClose={close} />
     </Dialog>
   );
@@ -63,7 +68,7 @@ function WizardSteps({ onClose }: { onClose: () => void }) {
     if (step === 'welcome') setStep('license');
     else if (step === 'license') {
       if (!agreed) {
-        showToast('Setup Wizard', 'You must accept the license agreement to continue.');
+        showToast('Installer', 'You must accept the license agreement to continue.');
         return;
       }
       startInstall();
@@ -85,35 +90,29 @@ function WizardSteps({ onClose }: { onClose: () => void }) {
   return (
     <>
       <div className="wizard-body">
-        <div className="wizard-sidebar">
-          <WizardDiskIcon />
-          <div className="wizard-sidebar-title">
-            Shubham
-            <br />
-            Resume
-            <br />
-            Setup
-          </div>
-        </div>
+        <AppIcon name="resume" size={64} />
+        <p className="wizard-step">
+          Step {STEPS.indexOf(step) + 1} of {STEPS.length}
+        </p>
         <div className="wizard-content" aria-live="polite">
           {step === 'welcome' && (
             <>
-              <h3>Welcome to Resume Setup Wizard</h3>
+              <h3>Welcome to the Shubham Resume Installer</h3>
               <p>
-                The Setup Wizard will install <b>{PROFILE.resume.fileName}</b> on your computer.
+                This installer will install <b>{PROFILE.resume.fileName}</b> on your computer.
               </p>
               <p className="wizard-spaced">
                 It is recommended that you close all other browser tabs before continuing. (Just kidding.)
               </p>
               <p className="wizard-spaced">
-                Click <b>Next</b> to continue.
+                Click <b>Continue</b> to continue.
               </p>
             </>
           )}
           {step === 'license' && (
             <>
               <h3>Ready to Install</h3>
-              <p>The Wizard is ready to begin installation.</p>
+              <p>The installer is ready to begin installation.</p>
               <fieldset className="wizard-license">
                 <p className="wizard-license-text">
                   &ldquo;By clicking Next, you agree that this resume may cause spontaneous interview requests,
@@ -146,14 +145,14 @@ function WizardSteps({ onClose }: { onClose: () => void }) {
           )}
           {step === 'complete' && (
             <>
-              <h3>Setup Complete</h3>
+              <h3>Installation Complete</h3>
               <div className="wizard-complete">
                 <DialogIcon type="info" />
                 <p>
                   {PROFILE.resume.fileName} has been successfully installed.
                   <br />
                   <br />
-                  Click <b>Finish</b> to exit Setup and open your resume.
+                  Click <b>Finish</b> to close the installer and open your resume.
                 </p>
               </div>
             </>
@@ -161,14 +160,15 @@ function WizardSteps({ onClose }: { onClose: () => void }) {
         </div>
       </div>
       <div className="wizard-footer">
-        <button type="button" onClick={back} disabled={step !== 'license'}>
-          &lt; Back
-        </button>
-        <button type="button" onClick={next} disabled={step === 'installing'}>
-          {step === 'complete' ? 'Finish' : 'Next >'}
-        </button>
         <button type="button" onClick={onClose}>
           Cancel
+        </button>
+        <span className="wizard-footer-gap" />
+        <button type="button" onClick={back} disabled={step !== 'license'}>
+          Go Back
+        </button>
+        <button type="button" className="btn-primary" onClick={next} disabled={step === 'installing'}>
+          {step === 'complete' ? 'Finish' : step === 'license' ? 'Install' : 'Continue'}
         </button>
       </div>
     </>

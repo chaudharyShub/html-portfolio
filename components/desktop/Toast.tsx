@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
+import { AppIcon } from '@/components/icons';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 
 const TOAST_DURATION_MS = 4500;
 
-/** Bottom-right notification. Show one with `actions.showToast(title, message)`. */
+/** Notification banner (top-right on desktop, top on phones). Show one with `actions.showToast(title, message)`. */
 export function Toast() {
   const { toast } = useOsState();
   const { hideToast } = useOsActions();
@@ -20,10 +21,18 @@ export function Toast() {
   return (
     <div id="toast" className={`toast${toast ? ' show' : ''}`} role="status" aria-live="polite">
       {toast && (
-        <>
-          <div className="toast-title">{toast.title}</div>
-          <div>{toast.message}</div>
-        </>
+        <div className="toast-inner" key={toast.id}>
+          <AppIcon name="portfolio" size={36} />
+          <div className="toast-text">
+            <div className="toast-head">
+              <span className="toast-title">{toast.title}</span>
+              <span className="toast-time" aria-hidden="true">
+                now
+              </span>
+            </div>
+            <div className="toast-message">{toast.message}</div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-/* Optional visual effects toggled in Display Properties. */
+/* Optional visual effects toggled in System Settings. */
 /* ===== CRT OVERLAY ===== */
 #crt-overlay {
   display: none;
@@ -20,7 +20,8 @@
   position: fixed;
   width: 6px;
   height: 6px;
-  background: var(--navy);
+  border-radius: 50%;
+  background: var(--accent);
   pointer-events: none;
   z-index: 997;
   opacity: 0;

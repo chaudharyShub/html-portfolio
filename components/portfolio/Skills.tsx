@@ -4,7 +4,7 @@ export function Skills() {
   return (
     <fieldset className="section" id="section-skills">
       <legend>
-        <h2>Skills.cfg</h2>
+        <h2>Skills</h2>
       </legend>
       {SKILL_GROUPS.map((group) => (
         <div className="skill-group" key={group.title}>
