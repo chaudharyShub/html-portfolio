@@ -12,7 +12,7 @@ draggable windows, a working DOS prompt, a Start menu, and a few easter eggs.
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-000080?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-008080?style=flat-square)
 ![CSS](https://img.shields.io/badge/CSS-hand--written-c0c0c0?style=flat-square)
-![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react-800000?style=flat-square)
+![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20analytics-800000?style=flat-square)
 
 <br>
 
@@ -43,7 +43,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Start menu & taskbar** | Quick links, a live clock, and animated minimize-to-taskbar. |
 | **Desktop** | Draggable icons and a custom right-click menu. |
 | **Display Properties** | 3 themes (Win95, Win98, Terminal), 9 wallpapers, CRT scanlines, cursor trail. |
-| **Contact form** | Sends via Web3Forms (with a honeypot spam trap); falls back to your mail app via `mailto:`. |
+| **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
 | **Resume Setup Wizard** | An InstallShield-style installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
@@ -104,7 +104,8 @@ components/
   desktop/              # icons, taskbar, Start menu, context menu, DVD logo, toast, effects
   dialogs/              # generic Dialog + message, recycle bin, game, display props, wizard
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)
-  live/                 # small client readouts: clock, uptime, year, visitor counter
+  live/                 # small client readouts: clock, career stats, year, visitor counter
+  shared/               # JSON-LD script, service worker registration
   icons/                # hand-drawn Win95-style SVG icons
 data/                   # portfolio content: profile, about, skills, projects, experience
 lib/                    # site config, themes, wallpapers, DOS parser, storage, animations
@@ -152,10 +153,15 @@ How it behaves:
   message prefilled instead.
 - Without a key: the form only uses the `mailto:` fallback (the original behavior).
 - A hidden `botcheck` checkbox catches simple bots; their submissions are silently dropped.
+- Each visitor can send up to 5 messages per minute. Over the limit, a "Please wait" toast
+  shows how many seconds are left and the typed text stays in the form. Send times are kept in
+  `localStorage`, so refreshing the page doesn't reset the limit. Submits fired at the same
+  instant (e.g. by a script) only send once.
 - The key is visible in the page source by design: Web3Forms only accepts browser submissions on the
   free plan (server-side calls need a paid plan with a safelisted IP), and their docs state the key
   is public. It can only deliver messages to your inbox.
-  If spam becomes a problem, add Cloudflare Turnstile or hCaptcha.
+  If spam still gets through, add hCaptcha (free on Web3Forms; Cloudflare Turnstile and reCAPTCHA
+  need a paid plan).
 
 ## Web Analytics
 

@@ -98,7 +98,10 @@ with icons, a DVD-bounce easter egg, a taskbar, and a Start menu.
   client form as a prop — Web3Forms rejects server-side/proxied submissions on the free plan, so the
   browser must submit and the key is public by design); otherwise, or if sending fails, falls back to
   a prefilled `mailto:` link. Hidden `botcheck` checkbox honeypot (submissions with it ticked are
-  silently "accepted" and dropped). Email + message are `required`. The Email button in the links
+  silently "accepted" and dropped). Email + message are `required`. Spam limits (Oct 2026): a ref
+  (`sendingRef`) blocks burst submits fired in the same tick, and each visitor may send up to 5 messages
+  per minute via Web3Forms (send times as a JSON array in `shubhamOsContactSends` in localStorage, plus an in-memory copy; a "Please wait"
+  toast keeps the typed text). hCaptcha (free on Web3Forms) is the next step only if spam shows up. The Email button in the links
   row stays as a mailto fallback. IMPORTANT bug we already fixed once: the toast confirmation must
   fire **before** attempting the mailto navigation (wrapped in try/catch), because in some
   sandboxed/preview contexts that throws synchronously and kills the rest of the handler. Don't
