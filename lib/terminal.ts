@@ -1,10 +1,12 @@
 import { PROFILE } from '@/data/profile';
 import type { SectionId } from './sections';
 
-export const TERMINAL_PROMPT = 'shubham@portfolio ~ %';
+/** The prompt's parts (drawn in different colors) and the plain-text prompt. */
+export const PROMPT_PARTS = { user: 'shubham@portfolio', dir: '~', symbol: '%' } as const;
+export const TERMINAL_PROMPT = `${PROMPT_PARTS.user} ${PROMPT_PARTS.dir} ${PROMPT_PARTS.symbol}`;
 
 export const TERMINAL_BANNER =
-  "Welcome to Shubham's portfolio terminal.\nType 'help' to see available commands.\n";
+  "Welcome to Shubham's portfolio terminal.\nType 'help' to see available commands.";
 
 /** Side effects a command may trigger in the rest of the desktop. */
 export interface TerminalEffects {

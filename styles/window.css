@@ -48,7 +48,6 @@
   width: 100vw !important;
   max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
   height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
-  border-radius: 0 0 12px 12px;
 }
 
 .window.snapped-left,
@@ -498,7 +497,10 @@
   color: var(--text);
 }
 
-/* Copies used by the genie animation: no live blur (too costly across many strips). */
+/*
+ * Copies used by the genie animation keep the window's rounded corners and its see-through
+ * sidebar; only the live blur is dropped (too costly across many strips).
+ */
 .genie-layer {
   position: fixed;
   inset: 0;
@@ -523,11 +525,6 @@
 
 .genie-copy {
   box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-.genie-copy::before {
-  background: var(--sidebar-solid);
 }
 
 /* Each section sits in a layout-neutral slot so tabs can hide/reorder server-rendered sections. */

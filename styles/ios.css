@@ -339,7 +339,7 @@
   }
 
   .terminal-body {
-    padding: 12px 14px calc(env(safe-area-inset-bottom) + 30px);
+    padding: 16px 16px calc(env(safe-area-inset-bottom) + 34px);
     font-size: 13px;
   }
 

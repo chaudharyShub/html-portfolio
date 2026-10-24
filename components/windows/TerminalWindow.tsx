@@ -2,7 +2,14 @@
 
 import { useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useOsApi, type WindowStatus } from '@/components/os/OsProvider';
-import { appendTerminalLines, TERMINAL_BANNER, TERMINAL_PROMPT, runTerminalCommand, type TerminalEffects } from '@/lib/terminal';
+import {
+  appendTerminalLines,
+  PROMPT_PARTS,
+  TERMINAL_BANNER,
+  TERMINAL_PROMPT,
+  runTerminalCommand,
+  type TerminalEffects,
+} from '@/lib/terminal';
 import { Window } from './Window';
 
 /** Terminal window (an app on phones). Output persists across minimize/close; only `clear` empties it. */
@@ -25,6 +32,43 @@ export function TerminalWindow() {
     >
       <TerminalConsole />
     </Window>
+  );
+}
+
+/** The colored prompt: user@host in green, the folder in blue, the % dimmed. */
+function Prompt() {
+  return (
+    <span className="terminal-prompt">
+      <span className="tp-user">{PROMPT_PARTS.user}</span> <span className="tp-dir">{PROMPT_PARTS.dir}</span>{' '}
+      <span className="tp-symbol">{PROMPT_PARTS.symbol}</span>
+    </span>
+  );
+}
+
+/**
+ * Draws the output line by line so it is easy to scan: echoed commands get the colored prompt
+ * and a bright command, errors are red, everything else is the softer output color.
+ */
+function OutputLines({ text }: { text: string }) {
+  const lines = text.split('\n');
+  return (
+    <>
+      {lines.map((line, i) => {
+        if (line === TERMINAL_PROMPT || line.startsWith(`${TERMINAL_PROMPT} `)) {
+          return (
+            <div key={i} className={`terminal-echo${i > 0 ? ' spaced' : ''}`}>
+              <Prompt /> <span className="terminal-command">{line.slice(TERMINAL_PROMPT.length + 1)}</span>
+            </div>
+          );
+        }
+        const error = line.startsWith('zsh:');
+        return (
+          <div key={i} className={error ? 'terminal-error' : undefined}>
+            {line || ' '}
+          </div>
+        );
+      })}
+    </>
   );
 }
 
@@ -114,11 +158,11 @@ function TerminalConsole() {
   return (
     <div ref={bodyRef} className="terminal-body" id="terminal-body" onClick={onBodyClick}>
       <div className="terminal-output" role="log" aria-live="polite">
-        {output}
+        {output && <OutputLines text={output} />}
       </div>
-      <div className="terminal-input-row">
-        <span className="terminal-prompt" aria-hidden="true">
-          {TERMINAL_PROMPT}
+      <div className={`terminal-input-row${output ? ' spaced' : ''}`}>
+        <span aria-hidden="true">
+          <Prompt />
         </span>
         <span className="terminal-field">
           <span className="terminal-line" aria-hidden="true">
