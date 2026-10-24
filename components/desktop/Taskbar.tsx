@@ -35,7 +35,7 @@ export function Taskbar() {
         onClick={actions.toggleMain}
       >
         <DocumentIcon />
-        Shubham.exe
+        <span className="taskbar-app-label">Shubham.exe</span>
       </button>
       <button
         ref={dosTaskbarButton}
@@ -47,7 +47,7 @@ export function Taskbar() {
         onClick={actions.toggleDos}
       >
         <DosSmallIcon />
-        MS-DOS Prompt
+        <span className="taskbar-app-label">MS-DOS Prompt</span>
       </button>
       <div className="taskbar-right">
         <div id="clock-behind">

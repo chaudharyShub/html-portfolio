@@ -31,6 +31,9 @@
 
 #dvd-logo {
   position: fixed;
+  left: 0;
+  top: 0;
+  will-change: transform;
   z-index: 2;
   font-weight: bold;
   font-size: 18px;
@@ -40,6 +43,11 @@
   white-space: nowrap;
   font-family: "Courier New", monospace;
   letter-spacing: 1px;
+}
+
+/* Drawn from CSS: the logo is pure decoration (aria-hidden), so it isn't page text. */
+#dvd-logo::before {
+  content: "SHUBHAM OS";
 }
 
 .taskbar {
@@ -71,6 +79,22 @@
   font-size: 12px;
   cursor: pointer;
   font-family: inherit;
+  white-space: nowrap;
+}
+
+/* On narrow screens the app buttons shrink (label gets an ellipsis); Start never does. */
+.start-button,
+.taskbar-sep {
+  flex-shrink: 0;
+}
+
+.taskbar-app-btn {
+  min-width: 0;
+}
+
+.taskbar-app-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .start-button.active,
@@ -88,6 +112,7 @@
 
 .taskbar-right {
   margin-left: auto;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 6px;

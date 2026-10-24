@@ -37,6 +37,7 @@ export function DesktopIcons() {
   // Server and first client render use the desktop layout; the real viewport layout is applied after boot.
   const [positions, setPositions] = useState<Position[]>(() => columnLayout(1024));
   const detach = useRef<(() => void) | null>(null);
+  const lastPointerType = useRef('mouse');
 
   useImperativeHandle(connect.desktopIcons, () => ({
     resetLayout: () => setPositions(columnLayout(window.innerWidth)),
@@ -85,9 +86,18 @@ export function DesktopIcons() {
           style={positions[i]}
           role="button"
           tabIndex={0}
-          aria-label={`${def.label} (double-click or press Enter to open)`}
+          onPointerDown={(e) => {
+            lastPointerType.current = e.pointerType;
+          }}
           onMouseDown={(e) => startDrag(i, e)}
-          onDoubleClick={() => def.open(actions)}
+          // Mouse: double-click opens (as before). Double-tap isn't reliable on phones (iOS),
+          // so a single tap opens on touch screens.
+          onClick={() => {
+            if (lastPointerType.current !== 'mouse') def.open(actions);
+          }}
+          onDoubleClick={() => {
+            if (lastPointerType.current === 'mouse') def.open(actions);
+          }}
           onKeyDown={(e) => onKeyDown(def, e)}
         >
           {def.icon}

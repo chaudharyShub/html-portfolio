@@ -7,7 +7,9 @@ import { ResumeButton } from './ResumeButton';
 export function Contact() {
   return (
     <fieldset className="section" id="section-contact">
-      <legend>Message.exe</legend>
+      <legend>
+        <h2>Message.exe</h2>
+      </legend>
       <p>Recipient: {PROFILE.name}</p>
       <ContactForm accessKey={getWeb3FormsAccessKey()} />
       <div className="links-row">

@@ -3,7 +3,9 @@ import { VISIBLE_EXPERIENCE } from '@/data/experience';
 export function Experience() {
   return (
     <fieldset className="section" id="section-experience">
-      <legend>Experience\logs\</legend>
+      <legend>
+        <h2>Experience\logs\</h2>
+      </legend>
       {VISIBLE_EXPERIENCE.map((job) => (
         <article className="exp-entry" key={`${job.company}-${job.period}`}>
           <h3 className="exp-header">
