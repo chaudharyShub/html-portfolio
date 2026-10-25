@@ -102,6 +102,31 @@ export function BrandMark() {
 
 const line = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
 
+/**
+ * Symbols for the window buttons (close / minimize / full screen). Each is drawn on the
+ * button's own 12x12 grid around its center, so it sits dead center at any zoom.
+ */
+export type WindowGlyphName = 'close' | 'minimize' | 'zoom';
+
+const WINDOW_GLYPHS: Record<WindowGlyphName, ReactNode> = {
+  close: <path d="M3.75 3.75l4.5 4.5M8.25 3.75l-4.5 4.5" />,
+  minimize: <rect className="fill" x="2.75" y="5.45" width="6.5" height="1.1" rx="0.55" />,
+  zoom: (
+    <>
+      <path className="fill" d="M3.6 3.6h3.2L3.6 6.8z" />
+      <path className="fill" d="M8.4 8.4H5.2l3.2-3.2z" />
+    </>
+  ),
+};
+
+export function WindowGlyph({ name }: { name: WindowGlyphName }) {
+  return (
+    <svg className="tl-glyph" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+      {WINDOW_GLYPHS[name]}
+    </svg>
+  );
+}
+
 export type TabGlyphName = 'home' | 'about' | 'projects' | 'contact';
 
 /** Icons for the iOS tab bar (hidden on desktop). */

@@ -39,6 +39,9 @@
   --separator: rgba(60, 60, 67, 0.16);
   --fill: rgba(120, 120, 128, 0.12);
   --fill-strong: rgba(120, 120, 128, 0.2);
+  /* Window buttons when the window is inactive or the button is disabled. */
+  --tl-off: #dcdcdc;
+  --tl-off-ring: rgba(0, 0, 0, 0.12);
 
   --window-bg: #ffffff;
   --content-bg: #f2f2f7;
@@ -85,6 +88,8 @@
   --separator: rgba(255, 255, 255, 0.1);
   --fill: rgba(118, 118, 128, 0.24);
   --fill-strong: rgba(118, 118, 128, 0.36);
+  --tl-off: #4c4c50;
+  --tl-off-ring: rgba(0, 0, 0, 0.35);
 
   /* Raised surfaces get lighter in dark mode: page < card < rows inside a card. */
   --window-bg: #1e1e20;
@@ -127,6 +132,8 @@
     --separator: rgba(255, 255, 255, 0.1);
     --fill: rgba(118, 118, 128, 0.24);
     --fill-strong: rgba(118, 118, 128, 0.36);
+  --tl-off: #4c4c50;
+  --tl-off-ring: rgba(0, 0, 0, 0.35);
 
     /* Raised surfaces get lighter in dark mode: page < card < rows inside a card. */
     --window-bg: #1e1e20;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { WindowGlyph } from '@/components/icons';
 import { pressableProps } from '@/lib/a11y';
 import {
   animatePopIn,
@@ -111,12 +112,14 @@ export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassNam
         ) : (
           <div className="dialog-title-bar">
             <span className="tl tl-close dialog-close" {...pressableProps} onClick={onClose} aria-label="Close" title="Close">
-              <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
-                <path d="M2.6 2.6l4.8 4.8M7.4 2.6L2.6 7.4" />
-              </svg>
+              <WindowGlyph name="close" />
               <span className="sheet-done" aria-hidden="true">
                 Done
               </span>
+            </span>
+            <span className="dialog-lights-off" aria-hidden="true">
+              <span className="tl tl-min tl-disabled" />
+              <span className="tl tl-zoom tl-disabled" />
             </span>
             <span className="dialog-title" id={titleId}>
               {title}

@@ -50,7 +50,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   passing ref objects around in render. Dialog ids: `message`, `closeConfirm`, `trash`, `game`,
   `settings`, `wizard`. Window keys: `main`, `terminal`.
 - `components/windows/Window.tsx` is the single generic window (drag, 8-edge resize, snap, zoom,
-  minimize, phone home indicator); reuse it for any new window. Discrete state is React state; live
+  minimize, phone Home button); reuse it for any new window. Discrete state is React state; live
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
   CSS picks grid (desktop) or flex (phones).
 - `components/dialogs/Dialog.tsx` is the generic dialog: `kind: 'alert' | 'panel'`, focus in, Escape
@@ -89,6 +89,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - Profile photo: `public/profile.jpg` (192px square crop of the user's photo; the original is kept
   in `assets/profile-photo.jpeg`, not served). Shown in the sidebar profile card (`InfoBar`, path in
   `PROFILE.photo`) and used as the JSON-LD `Person` image. Hidden in the phone info row.
+- Window buttons (`.tl` in `styles/window.css`) follow macOS: 12px, 8px apart, each with a darker
+  edge and a tinted symbol in its own color (shown while pointing at the group). The symbols are
+  our own SVGs (`WindowGlyph` in `components/icons`), drawn on the button's 12x12 grid so they
+  are centered and sharp; not Apple's artwork. They turn gray
+  (`--tl-off`) while the browser window isn't focused (`data-inactive` on `<html>`, set in
+  `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom.
 - Desktop icons (Shubham HD, Debug Runner, Terminal, Trash) in a top-right column; double-click with
   a mouse, single tap on touch. The default Aurora wallpaper drifts slowly (`LiveWallpaper`).
 - Animations (`lib/motion.ts`, all return a cancel function):
@@ -97,6 +103,23 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     gets a `matrix3d` "square to quad" transform onto its slice of a funnel into the dock icon.
     Transform-only, so nothing repaints per frame. It lagged badly when copies kept the sidebar blur
     and used clip-path - keep it transform-only.
+    Exception: a window that is frosted glass itself (the Terminal) gets one funnel-shaped
+    `.genie-glass` backing (its own blur + background, clip-path updated per frame) and its copies
+    are drawn without a background. See-through strips showed dark lines where the 1px overlaps
+    doubled up, light seams without the overlap, and lost the blur. The Terminal's invisible input
+    is dropped from the copies (it's styled by id, which copies lose, and showed as a white box).
+    The drop shadow stays on during the genie: the funnel is drawn with a canvas shadow (same blur
+    radius as the window's computed `box-shadow`) into a quarter-size `<canvas class="genie-shadow">`
+    that CSS stretches to full size. A CSS `filter: blur()` on a full-size element cost ~2x the
+    slow frames on the user's integrated GPU (AMD Vega 3); scaling a filtered element with CSS
+    doesn't reliably blur at the small size, the canvas does.
+    Setup cost is mostly laying out the 10-16 copies. Each strip's copy swaps the blocks of the
+    on-screen section that lie outside its slice for same-size empty boxes (`trimToSlice`; only
+    blocks whose children's margins can't leak out: text-only blocks, tables, grids, flex). This
+    was checked pixel-for-pixel against untrimmed copies on every tab. CSS `contain` on the strips
+    made no measurable difference.
+    Before copying, the genie fires `BEFORE_GENIE_COPY` on the window so JS-measured layout can
+    re-measure (the sidebar's selection highlight is 0px wide while the window sits in the Dock).
   - Zoom = `animateFrame`: glides the real frame (inline !important left/top/width/height) while the
     tab panel is frozen at its final width, so text lays out once, not per frame.
   - `animatePopIn` uses WAAPI and never touches inline transform (the main window keeps inline
@@ -107,8 +130,16 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 ## Phones
 - No fake status bar (Safari shows the real one). Windows are full-screen apps: the whole `.window`
   scrolls, title bar sticky, the tablist becomes a fixed bottom tab bar with `TabGlyph`s, the profile
-  card becomes an info row, and a home indicator (tap or swipe up) goes to the Home Screen. Closing
-  an app zooms it into its Home Screen icon (WAAPI).
+  card becomes an info row, and a "< Home" button on the left of the title bar goes to the Home
+  Screen. Closing an app zooms it into its Home Screen icon (WAAPI). (A fake iOS home indicator was
+  tried and removed in Oct 2026: it sat on top of the iPhone's real one and nobody knew to tap it.)
+- Tapping the title bar scrolls the app to the top, and so does tapping the current tab again. The
+  iPhone's own tap-the-status-bar gesture can't work here: iOS only scrolls the page itself, and
+  the app scrolls inside `.window`.
+- `viewportFit: 'cover'` (in `app/layout.tsx`) makes `env(safe-area-inset-*)` real; `styles/ios.css`
+  pads for the notch and the home bar (including sideways phones). `appleWebApp.title` names the
+  Home Screen icon. The status bar is left at the default style: `black-translucent` would draw
+  white clock text over the light title bar.
 - The desktop layer is a Home Screen grid (the Terminal icon is hidden there, it's in the dock); the
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
   sticky Cancel). Alerts use stacked-button styling. Phones held sideways hide the info row.

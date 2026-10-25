@@ -13,7 +13,8 @@
   /* Safari already shows the real status bar, so there is no menu bar here. */
   .menubar,
   .resize-handle,
-  .traffic-lights {
+  .traffic-lights,
+  .dialog-lights-off {
     display: none;
   }
 
@@ -33,7 +34,8 @@
     align-content: start;
     justify-items: center;
     row-gap: 24px;
-    padding: calc(env(safe-area-inset-top) + 40px) 16px 140px;
+    padding: calc(env(safe-area-inset-top) + 40px) max(16px, env(safe-area-inset-right)) 140px
+      max(16px, env(safe-area-inset-left));
   }
 
   .desktop-icon {
@@ -140,7 +142,7 @@
   .window .content {
     flex: none;
     overflow: visible;
-    padding: 16px 16px 8px;
+    padding: 16px max(16px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left));
   }
 
   .title-bar {
@@ -148,9 +150,56 @@
     top: 0;
     z-index: 4;
     height: calc(44px + env(safe-area-inset-top));
-    padding: env(safe-area-inset-top) 16px 0;
+    /* Room on both sides so the centered title never runs under the Home button. */
+    padding: env(safe-area-inset-top) 88px 0;
     border-bottom: 0.5px solid var(--separator);
     cursor: default;
+  }
+
+  /* "< Home": back to the Home Screen, where the iOS back button sits. */
+  .title-home {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: absolute;
+    left: max(6px, env(safe-area-inset-left));
+    bottom: 0;
+    height: 44px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--accent);
+    font: inherit;
+    font-size: 17px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+
+  .title-home:hover {
+    filter: none;
+  }
+
+  .title-home svg {
+    width: 11px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .title-home:active {
+    transform: none;
+    filter: none;
+    opacity: 0.4;
+  }
+
+  /* The Terminal stays dark in both themes. */
+  .subwindow .title-home {
+    color: #4da3ff;
   }
 
   .title-text,
@@ -161,7 +210,8 @@
 
   .window > .title-bar {
     justify-content: center;
-    padding: env(safe-area-inset-top) 16px 0;
+    height: calc(44px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 88px 0;
     background: var(--titlebar);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
@@ -220,7 +270,7 @@
   .status-bar {
     justify-content: center;
     text-align: center;
-    margin-bottom: calc(env(safe-area-inset-bottom) + 78px);
+    margin-bottom: calc(env(safe-area-inset-bottom) + 68px);
     background: transparent;
     border-top: 0;
   }
@@ -232,7 +282,7 @@
     right: 0;
     bottom: 0;
     z-index: 4;
-    padding: 6px 0 calc(env(safe-area-inset-bottom) + 18px);
+    padding: 6px env(safe-area-inset-right) calc(env(safe-area-inset-bottom) + 8px) env(safe-area-inset-left);
     background: var(--material-strong);
     -webkit-backdrop-filter: blur(30px) saturate(1.8);
     backdrop-filter: blur(30px) saturate(1.8);
@@ -299,33 +349,6 @@
     stroke-width: 1.8;
   }
 
-  /* Home indicator: tap or swipe up to go to the Home Screen. */
-  .home-indicator {
-    display: block;
-    position: fixed;
-    left: 50%;
-    bottom: 0;
-    z-index: 6;
-    width: 180px;
-    height: calc(env(safe-area-inset-bottom) + 24px);
-    margin-left: -90px;
-    touch-action: none;
-    cursor: pointer;
-  }
-
-  .home-indicator::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: calc(env(safe-area-inset-bottom) * 0.4 + 6px);
-    width: 134px;
-    height: 5px;
-    margin-left: -67px;
-    border-radius: 3px;
-    background: var(--text);
-    opacity: 0.85;
-  }
-
   /* Terminal app */
   .subwindow {
     background: #1c1c1e;
@@ -339,12 +362,9 @@
   }
 
   .terminal-body {
-    padding: 16px 16px calc(env(safe-area-inset-bottom) + 34px);
+    padding: 16px max(16px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 16px)
+      max(16px, env(safe-area-inset-left));
     font-size: 13px;
-  }
-
-  .subwindow .home-indicator::before {
-    background: #fff;
   }
 
   /* ===== Logo menu as an action sheet ===== */
@@ -359,8 +379,8 @@
 
   .app-menu {
     top: auto;
-    left: 8px;
-    right: 8px;
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
     bottom: calc(8px + env(safe-area-inset-bottom));
     min-width: 0;
     max-height: 82dvh;
@@ -452,7 +472,7 @@
     width: 100%;
     max-height: 92dvh;
     border-radius: 14px 14px 0 0;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.2);
   }
 

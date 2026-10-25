@@ -18,7 +18,7 @@ async function box(page: Page, selector: string) {
 }
 
 async function goHome(page: Page) {
-  await page.locator('#window .home-indicator').tap();
+  await page.locator('#window .title-home').tap();
   await expect(page.locator('#window')).toBeHidden();
 }
 
@@ -44,13 +44,32 @@ test('the tab bar sits at the bottom and switches sections', async ({ page }) =>
   await expect(page.locator('#contact-form')).toBeVisible();
 });
 
-test('the home indicator goes to the Home Screen and the dock reopens the app', async ({ page }) => {
+test('the Home button goes to the Home Screen and the dock reopens the app', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);
   await expect(page.locator('#icon-mycomputer')).toBeVisible();
   await expect(page.locator('#dock-more')).toBeVisible();
   await page.locator('#dock-portfolio').tap();
   await expect(page.locator('#window')).toBeVisible();
+});
+
+test('tapping the title bar scrolls the app back to the top', async ({ page }) => {
+  await openDesktop(page);
+  const app = page.locator('#window');
+  await app.evaluate((el) => el.scrollTo({ top: 600 }));
+  await expect.poll(() => app.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+  await page.locator('#window .title-text').tap();
+  await expect.poll(() => app.evaluate((el) => el.scrollTop)).toBe(0);
+  // The app is still open: only the Home button leaves it.
+  await expect(app).toBeVisible();
+});
+
+test('the tab bar does not cover the end of the page', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#window').evaluate((el) => el.scrollTo({ top: el.scrollHeight }));
+  const footer = await box(page, '#window .status-bar');
+  const bar = await box(page, '#window .tab-bar-wrap');
+  expect(footer.y + footer.height).toBeLessThanOrEqual(bar.y + 1);
 });
 
 test('a single tap opens a Home Screen icon', async ({ page }) => {

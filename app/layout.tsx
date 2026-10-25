@@ -25,6 +25,8 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
+  // The name under the icon when the site is added to an iPhone Home Screen.
+  appleWebApp: { title: SITE.name },
   openGraph: {
     type: 'website',
     siteName: SITE.name,
@@ -44,6 +46,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  // Lets the layout reach the screen edges; styles/ios.css pads for the notch and home bar.
+  viewportFit: 'cover',
   themeColor: SITE.themeColor,
 };
 

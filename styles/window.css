@@ -216,46 +216,82 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18);
+  background: var(--tl-bg);
+  /* A slightly darker edge in the button's own color, as on macOS. */
+  box-shadow: inset 0 0 0 0.5px var(--tl-ring);
+  color: var(--tl-glyph);
   cursor: pointer;
 }
 
 .tl-close {
-  background: #ff5f57;
+  --tl-bg: #ff5f57;
+  --tl-ring: #e2463f;
+  --tl-glyph: #4d0000;
 }
 
 .tl-min {
-  background: #febc2e;
+  --tl-bg: #febc2e;
+  --tl-ring: #e1a116;
+  --tl-glyph: #995700;
 }
 
 .tl-zoom {
-  background: #28c840;
+  --tl-bg: #28c840;
+  --tl-ring: #12ac28;
+  --tl-glyph: #006500;
 }
 
-.tl svg {
-  width: 8px;
-  height: 8px;
+/* The symbol covers the whole button (same 12x12 grid), so it is centered by construction. */
+.tl .tl-glyph {
+  flex: none;
+  width: 12px;
+  height: 12px;
   opacity: 0;
-  stroke: rgba(0, 0, 0, 0.6);
-  stroke-width: 1.4;
+  stroke: currentColor;
+  stroke-width: 1.05;
   stroke-linecap: round;
   fill: none;
+  shape-rendering: geometricPrecision;
   transition: opacity 0.1s ease;
 }
 
 .tl svg .fill {
-  fill: rgba(0, 0, 0, 0.6);
+  fill: currentColor;
   stroke: none;
 }
 
+/* The symbols show while the pointer is over the buttons. */
 .traffic-lights:hover .tl svg,
-.dialog-title-bar:hover .tl svg,
+.dialog-close:hover svg,
 .tl:focus-visible svg {
   opacity: 1;
 }
 
 .tl:active {
-  filter: brightness(0.8);
+  filter: brightness(0.85);
+}
+
+/* macOS grays the buttons while the app is in the background (here: the browser window isn't
+   focused); pointing at them brings the colors back. */
+:root[data-inactive] .traffic-lights:not(:hover) .tl,
+:root[data-inactive] .dialog-close:not(:hover),
+.tl-disabled {
+  --tl-bg: var(--tl-off);
+  --tl-ring: var(--tl-off-ring);
+}
+
+/* Panels (Settings, Trash...) can't be minimized or zoomed: gray, like macOS panel windows. */
+.dialog-lights-off {
+  position: absolute;
+  left: 34px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.tl-disabled {
+  cursor: default;
 }
 
 /* Unified title bar of the portfolio window: transparent over the sidebar, title on the right. */
@@ -507,6 +543,16 @@
   pointer-events: none;
 }
 
+/* The frosted backing of a glass window (Terminal), clipped to the funnel each frame. */
+.genie-glass {
+  position: absolute;
+}
+
+/* The window's shadow during the genie: a small canvas stretched over the funnel. */
+.genie-shadow {
+  position: absolute;
+}
+
 .genie-strip {
   position: absolute;
   overflow: hidden;
@@ -536,7 +582,7 @@
   display: none;
 }
 
-/* The iOS home indicator only exists on phones. */
-.home-indicator {
+/* The "Home" button only exists on phones. */
+.title-home {
   display: none;
 }
