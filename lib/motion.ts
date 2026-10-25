@@ -255,32 +255,43 @@ function arc(cx: number, cy: number, r: number, fromDeg: number, toDeg: number):
  */
 const SHADOW_SCALE = 0.25;
 
+/** The window's copies, built and drawn (invisibly) before the genie plays. */
+interface GeniePrep {
+  win: HTMLElement;
+  /** The window's rect when the copies were made. */
+  w: DOMRect;
+  count: number;
+  band: number;
+  layer: HTMLElement;
+  strips: HTMLElement[];
+  backing: HTMLElement | null;
+  shadowCtx: CanvasRenderingContext2D | null;
+  shadow: { color: string; y: number; blur: number } | null;
+  radius: number;
+  scrollTops: number[];
+  madeAt: number;
+  /** Set when the window's content changes, so the copies would be out of date. */
+  stale: boolean;
+  dispose: () => void;
+}
+
+/** Prepared copies are thrown away if not used within this time. */
+const PREP_TTL_MS = 5000;
+/** Copies prepared ahead of a click (hover), per window. */
+const prepared = new WeakMap<HTMLElement, GeniePrep>();
+
+const scrollersOf = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .terminal-body')];
+
 /**
- * The window is copied into thin horizontal strips. Each strip is only as big as its slice
- * (so the browser composites one window's worth of pixels in total) and the copies have no
- * live blur or shadow. Each frame, every strip is warped (a transform only, so nothing is
- * repainted) onto its slice of a funnel that bends toward the dock icon, and the strips slide
- * down through it into the icon.
- * A window that is frosted glass itself (the Terminal) gets its glass from one funnel-shaped
- * backing under the strips, and its copies are drawn without a background: see-through strips
- * show dark lines where they overlap, and light seams if they only touch.
- * The window's drop shadow is one blurred funnel-shaped shape under everything, so the shadow
- * stays on while the window bends (one blur per frame, like the glass).
- * `minimizing` plays it forwards; otherwise it plays backwards (restore). The real window
- * stays hidden (visibility) while the copies play.
+ * Builds the genie's copies of the window (see `genie`) and adds them to the page fully
+ * transparent, flat over the window, so the browser lays them out and draws them now instead of
+ * on the first frame. The window must be displayed (it may be invisible).
  */
-function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone: () => void): () => void {
+function buildGenie(win: HTMLElement): GeniePrep {
   const w = win.getBoundingClientRect();
-  const ic = icon.getBoundingClientRect();
-  // Strips vanish into the middle of the icon (the dock is drawn above them).
-  const limit = ic.top + ic.height / 2;
-  const travel = Math.max(1, limit - w.top);
   const count = Math.max(10, Math.min(16, Math.round(w.height / 44)));
   const band = w.height / count;
-  const unmark = markAnimating();
-
-  const scrollers = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .terminal-body')];
-  const scrollTops = scrollers(win).map((el) => el.scrollTop);
+  const scrollTops = scrollersOf(win).map((el) => el.scrollTop);
 
   win.dispatchEvent(new Event(BEFORE_GENIE_COPY));
   const winStyle = getComputedStyle(win);
@@ -290,58 +301,34 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
   const radius = parseFloat(winStyle.borderTopLeftRadius) || 0;
 
   const { copy: template, blocks } = lightCopy(win);
+  // A window prepared while minimized is shown invisibly for the copy; the copies must not be.
+  for (const prop of ['display', 'visibility', 'opacity']) template.style.removeProperty(prop);
   if (glass) template.style.setProperty('background', 'transparent', 'important');
 
   const layer = document.createElement('div');
-  layer.className = 'genie-layer';
+  layer.className = 'genie-layer genie-layer--prepared';
   layer.setAttribute('aria-hidden', 'true');
   layer.inert = true;
   layer.style.zIndex = winStyle.zIndex;
 
-  // The shadow and the glass backing span the whole funnel: the window and the icon it shrinks into.
-  const box = { left: Math.min(w.left, ic.left), top: w.top, right: Math.max(w.right, ic.right) };
-  const boxHeight = Math.max(w.height, limit - w.top);
-
   // Shadow: the funnel drawn with a canvas shadow (same blur radius as box-shadow) into a small
-  // canvas that CSS stretches over the funnel, with a margin so the blur isn't cut off.
+  // canvas that CSS stretches over the funnel. Sized when it plays (it depends on the icon).
   let shadowCtx: CanvasRenderingContext2D | null = null;
-  const margin = shadow ? shadow.blur : 0;
   if (shadow) {
     const canvas = document.createElement('canvas');
     canvas.className = 'genie-shadow';
-    const width = box.right - box.left + 2 * margin;
-    const height = boxHeight + 2 * margin;
-    canvas.width = Math.ceil(width * SHADOW_SCALE);
-    canvas.height = Math.ceil(height * SHADOW_SCALE);
-    Object.assign(canvas.style, {
-      left: `${box.left - margin}px`,
-      top: `${box.top - margin + shadow.y}px`,
-      width: `${width}px`,
-      height: `${height}px`,
-    });
     shadowCtx = canvas.getContext('2d');
-    if (shadowCtx) {
-      // Only the shadow is wanted: the shape is drawn off the canvas and its shadow is moved back.
-      shadowCtx.shadowColor = shadow.color;
-      shadowCtx.shadowBlur = shadow.blur * SHADOW_SCALE;
-      shadowCtx.shadowOffsetX = canvas.width + 100;
-      layer.appendChild(canvas);
-    }
+    if (shadowCtx) layer.appendChild(canvas);
   }
 
   let backing: HTMLElement | null = null;
   if (glass) {
     backing = document.createElement('div');
     backing.className = 'genie-glass';
-    Object.assign(backing.style, {
-      left: `${box.left}px`,
-      top: `${box.top}px`,
-      width: `${box.right - box.left}px`,
-      height: `${boxHeight}px`,
-      background: winStyle.backgroundColor,
-      backdropFilter: glass,
-    });
+    backing.style.background = winStyle.backgroundColor;
+    backing.style.backdropFilter = glass;
     backing.style.setProperty('-webkit-backdrop-filter', glass);
+    backing.style.visibility = 'hidden';
     layer.appendChild(backing);
   }
 
@@ -372,11 +359,147 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
   }
   document.body.appendChild(layer);
   for (const strip of strips) {
-    scrollers(strip.firstElementChild as HTMLElement).forEach((el, k) => {
+    scrollersOf(strip.firstElementChild as HTMLElement).forEach((el, k) => {
       el.scrollTop = scrollTops[k] ?? 0;
     });
   }
-  win.style.visibility = 'hidden';
+
+  const prep: GeniePrep = {
+    win,
+    w,
+    count,
+    band,
+    layer,
+    strips,
+    backing,
+    shadowCtx,
+    shadow,
+    radius,
+    scrollTops,
+    madeAt: performance.now(),
+    stale: false,
+    dispose: () => {
+      observer.disconnect();
+      layer.remove();
+      if (prepared.get(win) === prep) prepared.delete(win);
+    },
+  };
+  // Content changes make the copies out of date. Text changes (the status-bar clock ticking) and
+  // the window's own style (shown/hidden, position: checked by rect when it plays) don't count.
+  const observer = new MutationObserver((records) => {
+    if (records.some((r) => r.target !== win && r.type !== 'characterData')) prep.stale = true;
+  });
+  observer.observe(win, { subtree: true, childList: true, attributes: true });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-larger-text'] });
+  return prep;
+}
+
+/** True when prepared copies still match the window exactly as it is now. */
+function prepStillValid(prep: GeniePrep): boolean {
+  if (prep.stale || performance.now() - prep.madeAt > PREP_TTL_MS || !prep.layer.isConnected) return false;
+  const r = prep.win.getBoundingClientRect();
+  const same = (a: number, b: number) => Math.abs(a - b) < 0.5;
+  if (!same(r.left, prep.w.left) || !same(r.top, prep.w.top)) return false;
+  if (!same(r.width, prep.w.width) || !same(r.height, prep.w.height)) return false;
+  const tops = scrollersOf(prep.win).map((el) => el.scrollTop);
+  return tops.length === prep.scrollTops.length && tops.every((t, k) => same(t, prep.scrollTops[k] ?? 0));
+}
+
+/**
+ * Builds the genie's copies ahead of time (when the pointer heads for the minimize button or
+ * the dock icon), so the animation starts without a pause when it's clicked. Unused copies are
+ * dropped after a few seconds; if anything changed by the click, the genie simply builds anew.
+ * A minimized (display: none) window is shown invisibly for a moment to be copied.
+ */
+export function prepareGenie(win: HTMLElement): void {
+  if (isPhoneLayout() || prefersReducedMotion()) return;
+  const existing = prepared.get(win);
+  if (existing && prepStillValid(existing)) return;
+  existing?.dispose();
+
+  const hiddenForDock = getComputedStyle(win).display === 'none';
+  const saved = ['display', 'visibility', 'opacity'].map((p) => [p, win.style.getPropertyValue(p)] as const);
+  if (hiddenForDock) {
+    win.style.removeProperty('display');
+    win.style.visibility = 'hidden';
+    win.style.removeProperty('opacity');
+  }
+  const prep = buildGenie(win);
+  if (hiddenForDock) {
+    for (const [p, v] of saved) {
+      if (v) win.style.setProperty(p, v);
+      else win.style.removeProperty(p);
+    }
+  }
+  prepared.set(win, prep);
+  window.setTimeout(() => {
+    if (prepared.get(win) === prep) prep.dispose();
+  }, PREP_TTL_MS);
+}
+
+/**
+ * The window is copied into thin horizontal strips. Each strip is only as big as its slice
+ * (so the browser composites one window's worth of pixels in total) and the copies have no
+ * live blur or shadow. Each frame, every strip is warped (a transform only, so nothing is
+ * repainted) onto its slice of a funnel that bends toward the dock icon, and the strips slide
+ * down through it into the icon.
+ * A window that is frosted glass itself (the Terminal) gets its glass from one funnel-shaped
+ * backing under the strips, and its copies are drawn without a background: see-through strips
+ * show dark lines where they overlap, and light seams if they only touch.
+ * The window's drop shadow is one blurred funnel-shaped shape under everything, so the shadow
+ * stays on while the window bends (one blur per frame, like the glass).
+ * The copies may have been prepared on hover (`prepareGenie`); otherwise they're built now.
+ * `minimizing` plays it forwards; otherwise it plays backwards (restore). The real window
+ * stays hidden (visibility) while the copies play.
+ */
+function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone: () => void): () => void {
+  const ready = prepared.get(win);
+  prepared.delete(win);
+  let prep: GeniePrep;
+  if (ready && prepStillValid(ready)) {
+    prep = ready;
+  } else {
+    ready?.dispose();
+    prep = buildGenie(win);
+  }
+  const { w, band, layer, strips, backing, shadowCtx, shadow, radius } = prep;
+
+  const ic = icon.getBoundingClientRect();
+  // Strips vanish into the middle of the icon (the dock is drawn above them).
+  const limit = ic.top + ic.height / 2;
+  const travel = Math.max(1, limit - w.top);
+  const unmark = markAnimating();
+
+  // The shadow and the glass backing span the whole funnel: the window and the icon it shrinks into.
+  const box = { left: Math.min(w.left, ic.left), top: w.top, right: Math.max(w.right, ic.right) };
+  const boxHeight = Math.max(w.height, limit - w.top);
+  const margin = shadow ? shadow.blur : 0;
+  if (shadowCtx && shadow) {
+    const canvas = shadowCtx.canvas;
+    const width = box.right - box.left + 2 * margin;
+    const height = boxHeight + 2 * margin;
+    canvas.width = Math.ceil(width * SHADOW_SCALE);
+    canvas.height = Math.ceil(height * SHADOW_SCALE);
+    Object.assign(canvas.style, {
+      left: `${box.left - margin}px`,
+      top: `${box.top - margin + shadow.y}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+    });
+    // Only the shadow is wanted: the shape is drawn off the canvas and its shadow is moved back.
+    // (Resizing a canvas resets these, so they're set after.)
+    shadowCtx.shadowColor = shadow.color;
+    shadowCtx.shadowBlur = shadow.blur * SHADOW_SCALE;
+    shadowCtx.shadowOffsetX = canvas.width + 100;
+  }
+  if (backing) {
+    Object.assign(backing.style, {
+      left: `${box.left}px`,
+      top: `${box.top}px`,
+      width: `${box.right - box.left}px`,
+      height: `${boxHeight}px`,
+    });
+  }
 
   // Left/right edge of the funnel at screen height y, for a given amount of bend (0..1).
   const edges = (y: number, bend: number): [number, number] => {
@@ -469,8 +592,12 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
     });
   };
 
+  // Show the copies and hide the real window in the same frame.
+  win.style.visibility = 'hidden';
+  layer.classList.remove('genie-layer--prepared');
+
   const cleanup = () => {
-    layer.remove();
+    prep.dispose();
     win.style.visibility = '';
     unmark();
   };

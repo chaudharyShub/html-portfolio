@@ -118,6 +118,14 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     blocks whose children's margins can't leak out: text-only blocks, tables, grids, flex). This
     was checked pixel-for-pixel against untrimmed copies on every tab. CSS `contain` on the strips
     made no measurable difference.
+    Copies are prepared ahead of the click: when a mouse rests ~80ms on the window buttons or on
+    the window's dock icon, `prepareGenie` (called from `Window.tsx`) builds the copies into an
+    invisible layer (`.genie-layer--prepared`, opacity 0) so they are laid out and drawn before
+    the click; a minimized window is displayed invisibly for a moment to be copied. On click,
+    `genie` uses them only if still valid (same rect and scroll, no content mutations other than
+    text, under 5s old), otherwise it builds anew as before. On the user's machine this cut the
+    click-to-motion pause from ~58ms to ~9ms. The portfolio window's pause comes from its size
+    and content (~10x the Terminal's elements), not from the shadow.
     Before copying, the genie fires `BEFORE_GENIE_COPY` on the window so JS-measured layout can
     re-measure (the sidebar's selection highlight is 0px wide while the window sits in the Dock).
   - Zoom = `animateFrame`: glides the real frame (inline !important left/top/width/height) while the

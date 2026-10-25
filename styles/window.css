@@ -543,6 +543,12 @@
   pointer-events: none;
 }
 
+/* Copies prepared ahead of a click: laid out and drawn, but not visible yet. */
+.genie-layer--prepared {
+  opacity: 0;
+  will-change: opacity;
+}
+
 /* The frosted backing of a glass window (Terminal), clipped to the funnel each frame. */
 .genie-glass {
   position: absolute;

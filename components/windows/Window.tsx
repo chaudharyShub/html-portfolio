@@ -22,6 +22,7 @@ import {
   APPLE_EASE,
   isPhoneLayout,
   prefersReducedMotion,
+  prepareGenie,
   resetAnimationStyles,
 } from '@/lib/motion';
 
@@ -111,11 +112,35 @@ export function Window({
   /** Cancels the running minimize/restore/zoom/close animation, if any. */
   const cancelAnim = useRef<(() => void) | undefined>(undefined);
   const detachPointer = useRef<(() => void) | null>(null);
-  const callbacks = useRef({ onStatusChange, onShown });
+  const callbacks = useRef({ onStatusChange, onShown, getDockIcon });
 
   useEffect(() => {
-    callbacks.current = { onStatusChange, onShown };
+    callbacks.current = { onStatusChange, onShown, getDockIcon };
   });
+
+  // When a mouse rests on the window buttons (to minimize) or on the dock icon (to restore),
+  // prepare the genie's copies so the animation starts without a pause on click.
+  useEffect(() => {
+    let timer = 0;
+    const onPointerOver = (e: PointerEvent) => {
+      const el = elRef.current;
+      const target = e.target as Element | null;
+      if (!el || !target || e.pointerType !== 'mouse' || animating.current) return;
+      const aimsAtMinimize = status.current === 'open' && !!target.closest('.traffic-lights') && el.contains(target);
+      const aimsAtRestore = status.current === 'minimized' && !!callbacks.current.getDockIcon()?.contains(target);
+      window.clearTimeout(timer);
+      if (!aimsAtMinimize && !aimsAtRestore) return;
+      // A short rest first, so sweeping the pointer across the dock doesn't prepare anything.
+      timer = window.setTimeout(() => {
+        if (!animating.current) prepareGenie(el);
+      }, 80);
+    };
+    document.addEventListener('pointerover', onPointerOver);
+    return () => {
+      document.removeEventListener('pointerover', onPointerOver);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => () => {
     detachPointer.current?.();
