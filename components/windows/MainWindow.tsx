@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { TabGlyph } from '@/components/icons';
 import { useOsApi, useOsState, type WindowStatus } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
-import { APPLE_EASE, prefersReducedMotion } from '@/lib/motion';
+import { APPLE_EASE, BEFORE_GENIE_COPY, prefersReducedMotion } from '@/lib/motion';
 import { sectionOrder, TAB_IDS, TAB_LABELS, TAB_SECTIONS, type SectionId } from '@/lib/sections';
 import { Window } from './Window';
 
@@ -69,7 +69,14 @@ function TabBar() {
     place();
     const observer = new ResizeObserver(place);
     observer.observe(bar);
-    return () => observer.disconnect();
+    // While the window sits in the Dock it is hidden and the highlight measures 0px; re-measure
+    // before the restore animation copies the window, or the copies show no highlight.
+    const win = bar.closest<HTMLElement>('.window');
+    win?.addEventListener(BEFORE_GENIE_COPY, place);
+    return () => {
+      observer.disconnect();
+      win?.removeEventListener(BEFORE_GENIE_COPY, place);
+    };
   }, [tab]);
 
   return (

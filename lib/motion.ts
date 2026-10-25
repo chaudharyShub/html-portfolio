@@ -128,12 +128,61 @@ function quadTransform(width: number, height: number, p0: Point, p1: Point, p2: 
 const GENIE_MS = 560;
 
 /**
+ * Fired on a window right before the genie copies it. A restoring window was hidden until a
+ * moment ago, so anything it sizes with JS (the sidebar's selection highlight) re-measures here.
+ */
+export const BEFORE_GENIE_COPY = 'beforegeniecopy';
+
+/** The first layer of a computed box-shadow ("rgba(...) 0px 24px 70px 0px, ..."), if any. */
+function parseShadow(value: string): { color: string; y: number; blur: number } | null {
+  const m = /^(rgba?\([^)]*\)|#[0-9a-f]+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px/i.exec(value);
+  if (!m) return null;
+  const blur = parseFloat(m[4]!);
+  return blur > 0 ? { color: m[1]!, y: parseFloat(m[3]!), blur } : null;
+}
+
+/** A block inside an on-screen section that a strip may swap for an empty box (see `trimToSlice`). */
+interface TrimBlock {
+  top: number;
+  bottom: number;
+  height: number;
+  marginTop: string;
+  marginBottom: string;
+}
+
+const TRIM_ATTR = 'data-genie-block';
+
+/**
+ * True when an empty box with the same height and margins takes exactly the same space as `el`:
+ * it is a plain block whose children's margins can't leak out of it (text only, or a box that
+ * contains them: table, grid, flex, flow-root). The legend is skipped (fieldsets draw it specially).
+ */
+function isTrimmable(el: Element): boolean {
+  if (el.tagName === 'LEGEND') return false;
+  const display = getComputedStyle(el).display;
+  if (['table', 'grid', 'flex', 'flow-root'].includes(display)) return true;
+  return display === 'block' && el.childElementCount === 0;
+}
+
+/** An empty box that takes the same space as a trimmed block. */
+function spacerFor(block: TrimBlock): HTMLElement {
+  const spacer = document.createElement('div');
+  spacer.style.height = `${block.height}px`;
+  spacer.style.marginTop = block.marginTop;
+  spacer.style.marginBottom = block.marginBottom;
+  return spacer;
+}
+
+/**
  * A copy of the window for the genie strips, as cheap to lay out as possible: no ids, no
  * resize handles, hidden tab sections dropped and sections scrolled out of view replaced by
  * empty boxes of the same size (the copies only ever show what is on screen).
+ * The blocks of the on-screen sections are tagged and returned, so each strip can also drop
+ * the ones outside its own slice.
  */
-function lightCopy(win: HTMLElement): HTMLElement {
+function lightCopy(win: HTMLElement): { copy: HTMLElement; blocks: TrimBlock[] } {
   const copy = win.cloneNode(true) as HTMLElement;
+  const blocks: TrimBlock[] = [];
   const view = (win.querySelector('.content') ?? win).getBoundingClientRect();
   const slots = win.querySelectorAll<HTMLElement>('.section-slot');
   const copySlots = copy.querySelectorAll<HTMLElement>('.section-slot');
@@ -146,7 +195,23 @@ function lightCopy(win: HTMLElement): HTMLElement {
     }
     [...slot.children].forEach((child, k) => {
       const r = child.getBoundingClientRect();
-      if (r.bottom >= view.top && r.top <= view.bottom) return;
+      if (r.bottom >= view.top && r.top <= view.bottom) {
+        const copySection = copySlot.children[k];
+        [...child.children].forEach((block, j) => {
+          if (!isTrimmable(block)) return;
+          const b = block.getBoundingClientRect();
+          const style = getComputedStyle(block);
+          copySection?.children[j]?.setAttribute(TRIM_ATTR, String(blocks.length));
+          blocks.push({
+            top: b.top,
+            bottom: b.bottom,
+            height: b.height,
+            marginTop: style.marginTop,
+            marginBottom: style.marginBottom,
+          });
+        });
+        return;
+      }
       const spacer = document.createElement('div');
       spacer.style.height = `${r.height}px`;
       spacer.style.marginBottom = getComputedStyle(child).marginBottom;
@@ -154,41 +219,119 @@ function lightCopy(win: HTMLElement): HTMLElement {
     });
   });
   copy.querySelectorAll('.resize-handle').forEach((n) => n.remove());
+  // The Terminal's invisible input is styled by its id, which copies lose (it would show as a box).
+  copy.querySelector('#terminal-input')?.remove();
   copy.removeAttribute('id');
   copy.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
   copy.classList.add('genie-copy');
-  return copy;
+  return { copy, blocks };
 }
 
 /**
- * The window is copied into thin horizontal strips. Each strip is only as big as its slice
- * (so the browser composites one window's worth of pixels in total) and the copies have no
- * live blur or shadow. Each frame, every strip is warped (a transform only, so nothing is
- * repainted) onto its slice of a funnel that bends toward the dock icon, and the strips slide
- * down through it into the icon.
- * `minimizing` plays it forwards; otherwise it plays backwards (restore). The real window
- * stays hidden (visibility) while the copies play.
+ * Swaps the tagged blocks that lie outside a strip's slice (screen y from `top` to `bottom`)
+ * for empty boxes of the same size, so each strip only lays out what it shows. Positions don't
+ * move, so the strips still line up exactly.
  */
-function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone: () => void): () => void {
+function trimToSlice(copy: HTMLElement, blocks: TrimBlock[], top: number, bottom: number): void {
+  copy.querySelectorAll(`[${TRIM_ATTR}]`).forEach((el) => {
+    const block = blocks[Number(el.getAttribute(TRIM_ATTR))];
+    if (block && (block.bottom <= top || block.top >= bottom)) el.replaceWith(spacerFor(block));
+  });
+}
+
+/** Points along a rounded corner (a quarter circle around cx, cy), as polygon coordinates. */
+function arc(cx: number, cy: number, r: number, fromDeg: number, toDeg: number): Point[] {
+  const pts: Point[] = [];
+  for (let k = 0; k <= 4; k++) {
+    const a = ((fromDeg + ((toDeg - fromDeg) * k) / 4) * Math.PI) / 180;
+    pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+  }
+  return pts;
+}
+
+/**
+ * The genie's shadow is drawn this much smaller and stretched back to full size. It is so soft
+ * that nobody can tell, and blurring a quarter-size picture is ~16x less work per frame.
+ */
+const SHADOW_SCALE = 0.25;
+
+/** The window's copies, built and drawn (invisibly) before the genie plays. */
+interface GeniePrep {
+  win: HTMLElement;
+  /** The window's rect when the copies were made. */
+  w: DOMRect;
+  count: number;
+  band: number;
+  layer: HTMLElement;
+  strips: HTMLElement[];
+  backing: HTMLElement | null;
+  shadowCtx: CanvasRenderingContext2D | null;
+  shadow: { color: string; y: number; blur: number } | null;
+  radius: number;
+  scrollTops: number[];
+  madeAt: number;
+  /** Set when the window's content changes, so the copies would be out of date. */
+  stale: boolean;
+  dispose: () => void;
+}
+
+/** Prepared copies are thrown away if not used within this time. */
+const PREP_TTL_MS = 5000;
+/** Copies prepared ahead of a click (hover), per window. */
+const prepared = new WeakMap<HTMLElement, GeniePrep>();
+
+const scrollersOf = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .terminal-body')];
+
+/**
+ * Builds the genie's copies of the window (see `genie`) and adds them to the page fully
+ * transparent, flat over the window, so the browser lays them out and draws them now instead of
+ * on the first frame. The window must be displayed (it may be invisible).
+ */
+function buildGenie(win: HTMLElement): GeniePrep {
   const w = win.getBoundingClientRect();
-  const ic = icon.getBoundingClientRect();
-  // Strips vanish into the middle of the icon (the dock is drawn above them).
-  const limit = ic.top + ic.height / 2;
-  const travel = Math.max(1, limit - w.top);
   const count = Math.max(10, Math.min(16, Math.round(w.height / 44)));
   const band = w.height / count;
-  const unmark = markAnimating();
+  const scrollTops = scrollersOf(win).map((el) => el.scrollTop);
 
-  const scrollers = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .terminal-body')];
-  const scrollTops = scrollers(win).map((el) => el.scrollTop);
+  win.dispatchEvent(new Event(BEFORE_GENIE_COPY));
+  const winStyle = getComputedStyle(win);
+  const shadow = parseShadow(winStyle.boxShadow);
+  const blur = winStyle.backdropFilter || winStyle.getPropertyValue('-webkit-backdrop-filter');
+  const glass = blur && blur !== 'none' ? blur : '';
+  const radius = parseFloat(winStyle.borderTopLeftRadius) || 0;
 
-  const template = lightCopy(win);
+  const { copy: template, blocks } = lightCopy(win);
+  // A window prepared while minimized is shown invisibly for the copy; the copies must not be.
+  for (const prop of ['display', 'visibility', 'opacity']) template.style.removeProperty(prop);
+  if (glass) template.style.setProperty('background', 'transparent', 'important');
 
   const layer = document.createElement('div');
-  layer.className = 'genie-layer';
+  layer.className = 'genie-layer genie-layer--prepared';
   layer.setAttribute('aria-hidden', 'true');
   layer.inert = true;
-  layer.style.zIndex = getComputedStyle(win).zIndex;
+  layer.style.zIndex = winStyle.zIndex;
+
+  // Shadow: the funnel drawn with a canvas shadow (same blur radius as box-shadow) into a small
+  // canvas that CSS stretches over the funnel. Sized when it plays (it depends on the icon).
+  let shadowCtx: CanvasRenderingContext2D | null = null;
+  if (shadow) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'genie-shadow';
+    shadowCtx = canvas.getContext('2d');
+    if (shadowCtx) layer.appendChild(canvas);
+  }
+
+  let backing: HTMLElement | null = null;
+  if (glass) {
+    backing = document.createElement('div');
+    backing.className = 'genie-glass';
+    backing.style.background = winStyle.backgroundColor;
+    backing.style.backdropFilter = glass;
+    backing.style.setProperty('-webkit-backdrop-filter', glass);
+    backing.style.visibility = 'hidden';
+    layer.appendChild(backing);
+  }
+
   const strips: HTMLElement[] = [];
   // Pin each copy to its strip's corner (the strip is its containing block), at full size.
   const pin = (copy: HTMLElement, y: number) => {
@@ -207,7 +350,8 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
     strip.style.top = `${w.top + i * band}px`;
     strip.style.width = `${w.width}px`;
     strip.style.height = `${band + 1}px`;
-    const copy = (i === 0 ? template : template.cloneNode(true)) as HTMLElement;
+    const copy = (i === count - 1 ? template : template.cloneNode(true)) as HTMLElement;
+    trimToSlice(copy, blocks, w.top + i * band, w.top + (i + 1) * band + 1);
     pin(copy, i * band);
     strip.appendChild(copy);
     layer.appendChild(strip);
@@ -215,11 +359,147 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
   }
   document.body.appendChild(layer);
   for (const strip of strips) {
-    scrollers(strip.firstElementChild as HTMLElement).forEach((el, k) => {
+    scrollersOf(strip.firstElementChild as HTMLElement).forEach((el, k) => {
       el.scrollTop = scrollTops[k] ?? 0;
     });
   }
-  win.style.visibility = 'hidden';
+
+  const prep: GeniePrep = {
+    win,
+    w,
+    count,
+    band,
+    layer,
+    strips,
+    backing,
+    shadowCtx,
+    shadow,
+    radius,
+    scrollTops,
+    madeAt: performance.now(),
+    stale: false,
+    dispose: () => {
+      observer.disconnect();
+      layer.remove();
+      if (prepared.get(win) === prep) prepared.delete(win);
+    },
+  };
+  // Content changes make the copies out of date. Text changes (the status-bar clock ticking) and
+  // the window's own style (shown/hidden, position: checked by rect when it plays) don't count.
+  const observer = new MutationObserver((records) => {
+    if (records.some((r) => r.target !== win && r.type !== 'characterData')) prep.stale = true;
+  });
+  observer.observe(win, { subtree: true, childList: true, attributes: true });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-larger-text'] });
+  return prep;
+}
+
+/** True when prepared copies still match the window exactly as it is now. */
+function prepStillValid(prep: GeniePrep): boolean {
+  if (prep.stale || performance.now() - prep.madeAt > PREP_TTL_MS || !prep.layer.isConnected) return false;
+  const r = prep.win.getBoundingClientRect();
+  const same = (a: number, b: number) => Math.abs(a - b) < 0.5;
+  if (!same(r.left, prep.w.left) || !same(r.top, prep.w.top)) return false;
+  if (!same(r.width, prep.w.width) || !same(r.height, prep.w.height)) return false;
+  const tops = scrollersOf(prep.win).map((el) => el.scrollTop);
+  return tops.length === prep.scrollTops.length && tops.every((t, k) => same(t, prep.scrollTops[k] ?? 0));
+}
+
+/**
+ * Builds the genie's copies ahead of time (when the pointer heads for the minimize button or
+ * the dock icon), so the animation starts without a pause when it's clicked. Unused copies are
+ * dropped after a few seconds; if anything changed by the click, the genie simply builds anew.
+ * A minimized (display: none) window is shown invisibly for a moment to be copied.
+ */
+export function prepareGenie(win: HTMLElement): void {
+  if (isPhoneLayout() || prefersReducedMotion()) return;
+  const existing = prepared.get(win);
+  if (existing && prepStillValid(existing)) return;
+  existing?.dispose();
+
+  const hiddenForDock = getComputedStyle(win).display === 'none';
+  const saved = ['display', 'visibility', 'opacity'].map((p) => [p, win.style.getPropertyValue(p)] as const);
+  if (hiddenForDock) {
+    win.style.removeProperty('display');
+    win.style.visibility = 'hidden';
+    win.style.removeProperty('opacity');
+  }
+  const prep = buildGenie(win);
+  if (hiddenForDock) {
+    for (const [p, v] of saved) {
+      if (v) win.style.setProperty(p, v);
+      else win.style.removeProperty(p);
+    }
+  }
+  prepared.set(win, prep);
+  window.setTimeout(() => {
+    if (prepared.get(win) === prep) prep.dispose();
+  }, PREP_TTL_MS);
+}
+
+/**
+ * The window is copied into thin horizontal strips. Each strip is only as big as its slice
+ * (so the browser composites one window's worth of pixels in total) and the copies have no
+ * live blur or shadow. Each frame, every strip is warped (a transform only, so nothing is
+ * repainted) onto its slice of a funnel that bends toward the dock icon, and the strips slide
+ * down through it into the icon.
+ * A window that is frosted glass itself (the Terminal) gets its glass from one funnel-shaped
+ * backing under the strips, and its copies are drawn without a background: see-through strips
+ * show dark lines where they overlap, and light seams if they only touch.
+ * The window's drop shadow is one blurred funnel-shaped shape under everything, so the shadow
+ * stays on while the window bends (one blur per frame, like the glass).
+ * The copies may have been prepared on hover (`prepareGenie`); otherwise they're built now.
+ * `minimizing` plays it forwards; otherwise it plays backwards (restore). The real window
+ * stays hidden (visibility) while the copies play.
+ */
+function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone: () => void): () => void {
+  const ready = prepared.get(win);
+  prepared.delete(win);
+  let prep: GeniePrep;
+  if (ready && prepStillValid(ready)) {
+    prep = ready;
+  } else {
+    ready?.dispose();
+    prep = buildGenie(win);
+  }
+  const { w, band, layer, strips, backing, shadowCtx, shadow, radius } = prep;
+
+  const ic = icon.getBoundingClientRect();
+  // Strips vanish into the middle of the icon (the dock is drawn above them).
+  const limit = ic.top + ic.height / 2;
+  const travel = Math.max(1, limit - w.top);
+  const unmark = markAnimating();
+
+  // The shadow and the glass backing span the whole funnel: the window and the icon it shrinks into.
+  const box = { left: Math.min(w.left, ic.left), top: w.top, right: Math.max(w.right, ic.right) };
+  const boxHeight = Math.max(w.height, limit - w.top);
+  const margin = shadow ? shadow.blur : 0;
+  if (shadowCtx && shadow) {
+    const canvas = shadowCtx.canvas;
+    const width = box.right - box.left + 2 * margin;
+    const height = boxHeight + 2 * margin;
+    canvas.width = Math.ceil(width * SHADOW_SCALE);
+    canvas.height = Math.ceil(height * SHADOW_SCALE);
+    Object.assign(canvas.style, {
+      left: `${box.left - margin}px`,
+      top: `${box.top - margin + shadow.y}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+    });
+    // Only the shadow is wanted: the shape is drawn off the canvas and its shadow is moved back.
+    // (Resizing a canvas resets these, so they're set after.)
+    shadowCtx.shadowColor = shadow.color;
+    shadowCtx.shadowBlur = shadow.blur * SHADOW_SCALE;
+    shadowCtx.shadowOffsetX = canvas.width + 100;
+  }
+  if (backing) {
+    Object.assign(backing.style, {
+      left: `${box.left}px`,
+      top: `${box.top}px`,
+      width: `${box.right - box.left}px`,
+      height: `${boxHeight}px`,
+    });
+  }
 
   // Left/right edge of the funnel at screen height y, for a given amount of bend (0..1).
   const edges = (y: number, bend: number): [number, number] => {
@@ -228,11 +508,65 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
     return [w.left + (ic.left - w.left) * f, w.right + (ic.right - w.right) * f];
   };
 
+  /** The outline of the funnel between two heights (screen coordinates), rounded like the window. */
+  const funnel = (top: number, bottom: number, bend: number): Point[] => {
+    const r = Math.min(radius, (bottom - top) / 2);
+    // The bottom corners are only rounded while the window's real bottom is above the dock.
+    const rb = bottom < limit ? r : 0;
+    const [topL, topR] = edges(top, bend);
+    const [botL, botR] = edges(bottom, bend);
+    const left: Point[] = [];
+    const right: Point[] = [];
+    const steps = 24;
+    for (let k = 0; k <= steps; k++) {
+      const at = top + r + ((bottom - rb - top - r) * k) / steps;
+      const [l, rr] = edges(at, bend);
+      left.unshift([l, at]);
+      right.push([rr, at]);
+    }
+    return [
+      ...arc(topL + r, top + r, r, 180, 270),
+      ...arc(topR - r, top + r, r, 270, 360),
+      ...right,
+      ...arc(botR - rb, bottom - rb, rb, 0, 90),
+      ...arc(botL + rb, bottom - rb, rb, 90, 180),
+      ...left,
+    ];
+  };
+
+  /** Shapes the shadow and the glass backing to the part of the funnel still above the dock. */
+  const shapeUnderlays = (top: number, bottom: number, bend: number) => {
+    const visible = bottom - top >= 0.5;
+    const outline = visible ? funnel(top, bottom, bend) : [];
+    if (backing) {
+      backing.style.visibility = visible ? '' : 'hidden';
+      const pts = outline.map(([x, y]) => `${(x - box.left).toFixed(1)}px ${(y - box.top).toFixed(1)}px`);
+      if (visible) backing.style.clipPath = `polygon(${pts.join(', ')})`;
+    }
+    if (shadowCtx) {
+      const ctx = shadowCtx;
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      if (!visible) return;
+      const ox = box.left - margin;
+      const oy = box.top - margin;
+      ctx.beginPath();
+      outline.forEach(([x, y], k) => {
+        const cx = (x - ox) * SHADOW_SCALE - ctx.shadowOffsetX;
+        const cy = (y - oy) * SHADOW_SCALE;
+        if (k === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+      ctx.closePath();
+      ctx.fill();
+    }
+  };
+
   const frame = (time: number) => {
     const t = minimizing ? time : 1 - time;
     const bend = easeInOut(clamp01(t / 0.5));
     const slide = clamp01((t - 0.28) / 0.72);
     const dy = slide * slide * travel;
+    shapeUnderlays(Math.min(limit, w.top + dy), Math.min(limit, w.bottom + dy), bend);
     strips.forEach((strip, i) => {
       const top = w.top + i * band + dy;
       // The strip is band + 1 px tall, so neighbors overlap and no hairline gaps show.
@@ -258,8 +592,12 @@ function genie(win: HTMLElement, icon: HTMLElement, minimizing: boolean, onDone:
     });
   };
 
+  // Show the copies and hide the real window in the same frame.
+  win.style.visibility = 'hidden';
+  layer.classList.remove('genie-layer--prepared');
+
   const cleanup = () => {
-    layer.remove();
+    prep.dispose();
     win.style.visibility = '';
     unmark();
   };

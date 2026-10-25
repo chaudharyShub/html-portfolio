@@ -6,12 +6,12 @@ import {
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
   type ReactNode,
   type Ref,
 } from 'react';
 import { flushSync } from 'react-dom';
 import type { WindowHandle, WindowStatus } from '@/components/os/OsProvider';
+import { WindowGlyph } from '@/components/icons';
 import { pressableProps } from '@/lib/a11y';
 import {
   animateFrame,
@@ -22,6 +22,7 @@ import {
   APPLE_EASE,
   isPhoneLayout,
   prefersReducedMotion,
+  prepareGenie,
   resetAnimationStyles,
 } from '@/lib/motion';
 
@@ -35,8 +36,6 @@ const DOCK_RESERVE = 84;
 const SNAP_ZONE = 8;
 /** The pointer must move this far (px) before a press on the title bar counts as a drag. */
 const DRAG_THRESHOLD = 4;
-/** A swipe up of at least this many px on the home indicator goes to the Home Screen. */
-const HOME_SWIPE_PX = 24;
 
 /**
  * Clears animation leftovers. A window that has been positioned (centered/dragged) keeps
@@ -74,25 +73,15 @@ interface WindowProps {
   children: ReactNode;
 }
 
-const CloseGlyph = () => (
-  <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
-    <path d="M2.6 2.6l4.8 4.8M7.4 2.6L2.6 7.4" />
-  </svg>
-);
-const MinimizeGlyph = () => (
-  <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
-    <path d="M2.2 5h5.6" />
-  </svg>
-);
-const ZoomGlyph = () => (
-  <svg viewBox="0 0 10 10" aria-hidden="true" focusable="false">
-    <path className="fill" d="M2.4 6.6V2.4h4.2zM7.6 3.4v4.2H3.4z" />
+const BackChevron = () => (
+  <svg viewBox="0 0 12 20" aria-hidden="true" focusable="false">
+    <path d="M10 2 2 10l8 8" />
   </svg>
 );
 
 /**
  * A draggable, resizable, minimizable, zoomable macOS-style window; on phones it is a
- * full-screen iOS app with a home indicator. Discrete state (visible, maximized/snapped,
+ * full-screen iOS app with a "Home" button in its title bar. Discrete state (visible, maximized/snapped,
  * dragging) is React state; live drag/resize geometry and animations are written to the
  * element directly so they stay smooth and can measure layout.
  */
@@ -123,12 +112,35 @@ export function Window({
   /** Cancels the running minimize/restore/zoom/close animation, if any. */
   const cancelAnim = useRef<(() => void) | undefined>(undefined);
   const detachPointer = useRef<(() => void) | null>(null);
-  const swipeStartY = useRef<number | null>(null);
-  const callbacks = useRef({ onStatusChange, onShown });
+  const callbacks = useRef({ onStatusChange, onShown, getDockIcon });
 
   useEffect(() => {
-    callbacks.current = { onStatusChange, onShown };
+    callbacks.current = { onStatusChange, onShown, getDockIcon };
   });
+
+  // When a mouse rests on the window buttons (to minimize) or on the dock icon (to restore),
+  // prepare the genie's copies so the animation starts without a pause on click.
+  useEffect(() => {
+    let timer = 0;
+    const onPointerOver = (e: PointerEvent) => {
+      const el = elRef.current;
+      const target = e.target as Element | null;
+      if (!el || !target || e.pointerType !== 'mouse' || animating.current) return;
+      const aimsAtMinimize = status.current === 'open' && !!target.closest('.traffic-lights') && el.contains(target);
+      const aimsAtRestore = status.current === 'minimized' && !!callbacks.current.getDockIcon()?.contains(target);
+      window.clearTimeout(timer);
+      if (!aimsAtMinimize && !aimsAtRestore) return;
+      // A short rest first, so sweeping the pointer across the dock doesn't prepare anything.
+      timer = window.setTimeout(() => {
+        if (!animating.current) prepareGenie(el);
+      }, 80);
+    };
+    document.addEventListener('pointerover', onPointerOver);
+    return () => {
+      document.removeEventListener('pointerover', onPointerOver);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => () => {
     detachPointer.current?.();
@@ -428,15 +440,11 @@ export function Window({
     );
   };
 
-  // iOS home indicator: a tap or a swipe up goes back to the Home Screen.
-  const onHomePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    swipeStartY.current = e.clientY;
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const onHomePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
-    const start = swipeStartY.current;
-    swipeStartY.current = null;
-    if (start !== null && start - e.clientY >= HOME_SWIPE_PX) handle.current?.minimize();
+  // iOS: tapping the top bar scrolls the app back to the top (like tapping the status bar).
+  const onTitleClick = (e: ReactMouseEvent<HTMLDivElement>) => {
+    const el = elRef.current;
+    if (!el || !isPhoneLayout() || (e.target as HTMLElement).closest('.title-home')) return;
+    el.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   };
 
   const className = [variant, mode !== 'normal' ? mode : ''].filter(Boolean).join(' ');
@@ -463,10 +471,11 @@ export function Window({
         className={`title-bar${dragging ? ' dragging' : ''}`}
         onMouseDown={onTitleMouseDown}
         onDoubleClick={onTitleDoubleClick}
+        onClick={onTitleClick}
       >
         <div className="traffic-lights">
           <span className="tl tl-close" {...pressableProps} onClick={onCloseRequest} title="Close" aria-label="Close">
-            <CloseGlyph />
+            <WindowGlyph name="close" />
           </span>
           <span
             className="tl tl-min"
@@ -475,7 +484,7 @@ export function Window({
             title="Minimize"
             aria-label="Minimize"
           >
-            <MinimizeGlyph />
+            <WindowGlyph name="minimize" />
           </span>
           <span
             className="tl tl-zoom"
@@ -484,22 +493,19 @@ export function Window({
             title="Zoom"
             aria-label={mode === 'maximized' ? 'Restore' : 'Maximize'}
           >
-            <ZoomGlyph />
+            <WindowGlyph name="zoom" />
           </span>
         </div>
+        {/* Phones only: back to the Home Screen (the app zooms into its icon). */}
+        <button type="button" className="title-home" onClick={() => handle.current?.minimize()}>
+          <BackChevron />
+          Home
+        </button>
         <span className="title-text" id={titleId}>
           {title}
         </span>
       </div>
       {children}
-      <div
-        className="home-indicator"
-        {...pressableProps}
-        aria-label="Go to Home Screen"
-        onClick={() => handle.current?.minimize()}
-        onPointerDown={onHomePointerDown}
-        onPointerUp={onHomePointerUp}
-      />
     </div>
   );
 }

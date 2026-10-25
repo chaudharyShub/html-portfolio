@@ -4,7 +4,10 @@ import { useEffect } from 'react';
 import { contextMenuPosition } from '@/components/desktop/ContextMenu';
 import { useOsActions } from './OsProvider';
 
-/** Document-wide listeners: custom right-click menu, click-away and Escape to close menus. */
+/**
+ * Document-wide listeners: custom right-click menu, click-away and Escape to close menus, and
+ * `data-inactive` on <html> while the browser window isn't focused (window buttons turn gray).
+ */
 export function useDesktopEvents() {
   const { openContextMenu, closeMenus } = useOsActions();
 
@@ -17,15 +20,20 @@ export function useDesktopEvents() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeMenus();
     };
+    const onFocusChange = () => document.documentElement.toggleAttribute('data-inactive', !document.hasFocus());
     // Click-away lives on `window`: React's own listeners sit on `document` (the App Router root),
     // so handlers like the logo menu button can still stop a click from reaching this one.
     document.addEventListener('contextmenu', onContextMenu);
     window.addEventListener('click', closeMenus);
     document.addEventListener('keydown', onKeyDown);
+    window.addEventListener('focus', onFocusChange);
+    window.addEventListener('blur', onFocusChange);
     return () => {
       document.removeEventListener('contextmenu', onContextMenu);
       window.removeEventListener('click', closeMenus);
       document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('focus', onFocusChange);
+      window.removeEventListener('blur', onFocusChange);
     };
   }, [openContextMenu, closeMenus]);
 }
