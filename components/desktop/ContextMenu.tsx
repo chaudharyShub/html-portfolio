@@ -32,7 +32,7 @@ export function ContextMenu() {
         New Folder
       </div>
       <div className="context-sep" role="separator" />
-      <div {...item} onClick={actions.showSystemProperties}>
+      <div {...item} onClick={() => actions.openDialog('about')}>
         Get Info
       </div>
       <div {...item} onClick={() => actions.openDialog('settings')}>

@@ -173,6 +173,14 @@ export function Dock() {
           running={dialogs.timeMachine}
           onClick={() => actions.openDialog('timeMachine')}
         />
+        <DockItem
+          id="dock-activity"
+          label="Activity Monitor"
+          icon="activity"
+          only="mac"
+          running={dialogs.activity}
+          onClick={() => actions.openDialog('activity')}
+        />
         <DockItem id="dock-settings" label="Settings" icon="settings" onClick={() => actions.openDialog('settings')} />
         <DockItem id="dock-resume" label="Resume" icon="resume" only="mac" onClick={actions.openResumeWizard} />
         <DockItem

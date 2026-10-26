@@ -13,9 +13,10 @@ interface DesktopIconDef {
 }
 
 const DESKTOP_ICONS: DesktopIconDef[] = [
-  { id: 'icon-mycomputer', label: 'Shubham HD', icon: <AppIcon name="drive" size={56} />, open: (a) => a.showSystemProperties() },
+  { id: 'icon-mycomputer', label: 'Shubham HD', icon: <AppIcon name="drive" size={56} />, open: (a) => a.openDialog('about') },
   { id: 'icon-game', label: 'Debug Runner', icon: <AppIcon name="game" size={56} />, open: (a) => a.openGame() },
   { id: 'icon-timemachine', label: 'Time Machine', icon: <AppIcon name="timemachine" size={56} />, open: (a) => a.openDialog('timeMachine') },
+  { id: 'icon-activity', label: 'Activity Monitor', icon: <AppIcon name="activity" size={56} />, open: (a) => a.openDialog('activity') },
   { id: 'icon-terminal', label: 'Terminal', icon: <AppIcon name="terminal" size={56} />, open: (a) => a.openTerminal() },
   { id: 'icon-trash', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('trash') },
 ];

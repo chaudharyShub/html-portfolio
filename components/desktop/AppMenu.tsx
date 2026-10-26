@@ -37,6 +37,18 @@ export function AppMenu() {
         {/* On phones the list scrolls inside its own rounded box, with Cancel in a separate box below. */}
         <div className="menu-list">
           <div className="menu-group">
+            <div
+              {...item('About This Developer')}
+              onClick={() => {
+                actions.openDialog('about');
+                actions.closeMenus();
+              }}
+            >
+              About This Developer
+            </div>
+          </div>
+          <div className="menu-sep" role="separator" />
+          <div className="menu-group">
             {SECTION_ITEMS.map(({ id, label }) => (
               <div key={id} {...item(label)} onClick={() => actions.goToSection(id)}>
                 {label}
@@ -71,6 +83,15 @@ export function AppMenu() {
               }}
             >
               Time Machine
+            </div>
+            <div
+              {...item('Activity Monitor')}
+              onClick={() => {
+                actions.openDialog('activity');
+                actions.closeMenus();
+              }}
+            >
+              Activity Monitor
             </div>
           </div>
           <div className="menu-sep" role="separator" />

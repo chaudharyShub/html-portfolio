@@ -4,7 +4,7 @@ import { createContext, use, useMemo, useReducer, type ReactNode } from 'react';
 import type { DialogIconType } from '@/components/icons';
 import { SECTION_TO_TAB, type SectionId, type TabId } from '@/lib/sections';
 
-export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard' | 'timeMachine';
+export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard' | 'timeMachine' | 'about' | 'activity';
 export type WindowStatus = 'open' | 'minimized' | 'closed';
 export type WindowKey = 'main' | 'terminal';
 
@@ -76,7 +76,7 @@ type Action =
   | { type: 'windowStatus'; key: WindowKey; status: WindowStatus };
 
 const initialState: OsState = {
-  dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false, timeMachine: false },
+  dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false, timeMachine: false, about: false, activity: false },
   message: { icon: 'info', title: 'Shubham OS', text: '' },
   wizardSession: 0,
   tab: 'home',
@@ -136,7 +136,6 @@ export interface OsActions {
   showMessage: (icon: DialogIconType, title: string, text: string) => void;
   showToast: (title: string, message: string) => void;
   hideToast: (id: number) => void;
-  showSystemProperties: () => void;
   denyNewTextDocument: () => void;
   shutDown: () => void;
   openGame: () => void;
@@ -213,12 +212,6 @@ export function OsProvider({ children }: { children: ReactNode }) {
       showMessage,
       showToast: (title, message) => dispatch({ type: 'showToast', title, message }),
       hideToast: (id) => dispatch({ type: 'hideToast', id }),
-      showSystemProperties: () =>
-        showMessage(
-          'info',
-          'About Shubham HD',
-          'Shubham OS v3.0 - Full Stack Engineer - 4+ Years Experience - RAM: 640K - Status: Online',
-        ),
       denyNewTextDocument: () =>
         showMessage('forbidden', 'Shubham OS', "Access denied: you don't have permission to create files in this dimension."),
       shutDown: () => {

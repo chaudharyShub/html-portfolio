@@ -58,6 +58,10 @@
   background: linear-gradient(160deg, #3fd2b8, #0e7c8a);
 }
 
+.app-icon--activity {
+  background: linear-gradient(160deg, #4a4f5c, #15171c);
+}
+
 .app-icon--more {
   background: linear-gradient(160deg, #98989d, #48484a);
 }
