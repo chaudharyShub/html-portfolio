@@ -54,6 +54,10 @@
   background: linear-gradient(160deg, #a3b0c2, #5b6575);
 }
 
+.app-icon--timemachine {
+  background: linear-gradient(160deg, #3fd2b8, #0e7c8a);
+}
+
 .app-icon--more {
   background: linear-gradient(160deg, #98989d, #48484a);
 }
@@ -340,6 +344,71 @@
 
 @media (prefers-reduced-motion: reduce) {
   .live-wallpaper span {
+    animation: none;
+  }
+}
+
+/* ===== Sticky note (a widget on the phone Home Screen) ===== */
+.sticky-note {
+  position: absolute;
+  width: 176px;
+  padding: 18px 16px 12px;
+  border-radius: 3px 3px 14px 3px;
+  background: linear-gradient(170deg, #fff6b0, #ffe680);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), 0 10px 24px rgba(0, 0, 0, 0.18);
+  color: #3a3220;
+  transform: rotate(-2deg);
+  cursor: grab;
+  user-select: none;
+  animation: noteIn 0.5s var(--ease-apple);
+}
+
+.sticky-note:active {
+  cursor: grabbing;
+}
+
+@keyframes noteIn {
+  from {
+    opacity: 0;
+    transform: rotate(-2deg) translateY(-8px);
+  }
+}
+
+/* A strip of tape holding the note up. */
+.sticky-note-tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 56px;
+  height: 16px;
+  margin-left: -28px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transform: rotate(3deg);
+}
+
+.sticky-note p {
+  margin: 0;
+}
+
+.sticky-note-head {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a7a3c;
+}
+
+.sticky-note-text {
+  margin-top: 6px !important;
+  font-family: Noteworthy, "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticky-note {
     animation: none;
   }
 }

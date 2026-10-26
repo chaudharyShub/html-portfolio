@@ -108,3 +108,12 @@ test('Settings opens as a bottom sheet', async ({ page }) => {
   await sheet.getByRole('button', { name: 'Close' }).first().tap();
   await expect(sheet).toBeHidden();
 });
+
+test('the Home Screen has a sticky note widget and the Time Machine app', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  await expect(page.locator('.sticky-note')).toBeVisible();
+  await page.locator('#icon-timemachine').tap();
+  await expect(page.getByRole('dialog', { name: 'Time Machine' })).toBeVisible();
+  await noHorizontalScroll(page);
+});

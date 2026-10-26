@@ -4,7 +4,7 @@ import { createContext, use, useMemo, useReducer, type ReactNode } from 'react';
 import type { DialogIconType } from '@/components/icons';
 import { SECTION_TO_TAB, type SectionId, type TabId } from '@/lib/sections';
 
-export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard';
+export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard' | 'timeMachine';
 export type WindowStatus = 'open' | 'minimized' | 'closed';
 export type WindowKey = 'main' | 'terminal';
 
@@ -76,7 +76,7 @@ type Action =
   | { type: 'windowStatus'; key: WindowKey; status: WindowStatus };
 
 const initialState: OsState = {
-  dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false },
+  dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false, timeMachine: false },
   message: { icon: 'info', title: 'Shubham OS', text: '' },
   wizardSession: 0,
   tab: 'home',

@@ -48,7 +48,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   imperative handles/DOM nodes in via `connect.*` callback refs (`mainWindow`, `terminalWindow`,
   `mainDockIcon`, `terminalDockIcon`, `terminalConsole`, ...) because the React Compiler lint forbids
   passing ref objects around in render. Dialog ids: `message`, `closeConfirm`, `trash`, `game`,
-  `settings`, `wizard`. Window keys: `main`, `terminal`.
+  `settings`, `wizard`, `timeMachine`. Window keys: `main`, `terminal`.
 - `components/windows/Window.tsx` is the single generic window (drag, 8-edge resize, snap, zoom,
   minimize, phone Home button); reuse it for any new window. Discrete state is React state; live
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
@@ -76,7 +76,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 
 ## Desktop (computers)
 - `MenuBar`: logo button `#logo-menu-button` opens `AppMenu` (`#logo-menu`), section links, clock.
-- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-game`, `#dock-settings`, `#dock-resume`,
+- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-game`, `#dock-timemachine`, `#dock-settings`, `#dock-resume`,
   `#dock-trash` (`#dock-more` is phone-only). Magnification is JS (`useMagnification`): cosine
   falloff by pointer distance against the resting layout, written to `--s` per item; items widen (so
   the dock grows) and icons scale from their bottom edge. Launch bounce animates the tile, not the
@@ -95,7 +95,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   are centered and sharp; not Apple's artwork. They turn gray
   (`--tl-off`) while the browser window isn't focused (`data-inactive` on `<html>`, set in
   `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom.
-- Desktop icons (Shubham HD, Debug Runner, Terminal, Trash) in a top-right column; double-click with
+- Desktop icons (Shubham HD, Debug Runner, Time Machine, Terminal, Trash) in a top-right column; double-click with
   a mouse, single tap on touch. The default Aurora wallpaper drifts slowly (`LiveWallpaper`).
 - Animations (`lib/motion.ts`, all return a cancel function):
   - Minimize = real genie: the window is copied into 10-16 horizontal strips (each only its slice's
@@ -166,11 +166,27 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   cursor (blinks when focused, hollow when not, follows arrow keys); the real `#terminal-input` is
   invisible and laid over the typed text, so typing, history and phone keyboards still work.
 - **Debug Runner**: tiny jump-over-bugs game, best score in localStorage.
+- **Time Machine** (`components/dialogs/TimeMachineDialog.tsx`, a wide panel dialog, always dark):
+  the visible experience entries, oldest first, as "desktop snapshots" (own era gradient each)
+  stacked in 3D perspective inside a deep-space backdrop. A canvas starfield (`lib/starfield.ts`,
+  runs only while open) drifts and warps into streaks while traveling; a big year counter rolls
+  through every year in between; newer snapshots fly past the camera. Travel by mouse wheel /
+  trackpad (up = back in time, like macOS), sideways swipe on phones, arrow keys, the ‹ › buttons
+  or the year rail (`role="tablist"`, roving focus). Reduced motion: no warp, no rolling.
+  Opens on the latest job. From the Dock, the desktop/Home Screen icon and the logo menu. Built
+  only from `data/experience.ts` - no extra career content.
+- **Sticky note** (`components/desktop/StickyNote.tsx`): yellow note in the top-left of the desktop
+  (mouse-draggable), a 2x2 widget on the phone Home Screen. Shows one of a few short mottos
+  (written by Claude at the user's request), switching on the visitor's local hour (no
+  "new note every hour" caption - the user removed it). Not in the
+  server HTML (depends on the clock), via `useSyncExternalStore`.
 - **System Settings** (`components/dialogs/SettingsDialog.tsx`): Light / Dark / Auto, 8 original
   gradient wallpapers (Aurora default, Lagoon, Dusk, Graphite, Sunrise, Bloom, Sky, Ember; unknown
   saved ids fall back to Aurora),
   Random Wallpaper, and a "Display & Text Size" section with **Larger Text** (`data-larger-text`
-  on `<html>`; portfolio sections get `zoom: 1.15`, the sidebar is left alone so it doesn't wrap).
+  on `<html>`; in `styles/effects.css` every UI text gets ~2px bigger font sizes only - no box,
+  dialog, swatch or sidebar changes size (the user asked for no layout shift); phones have their
+  own step up from `ios.css` sizes. The portfolio sections are the one exception: `zoom: 1.15`).
   It is saved like the theme and applied by the pre-paint script (`buildAppearanceInitScript`,
   `DISPLAY_FLAGS` in `lib/themes.ts`) so there is no flash. (CRT scanlines and mouse trails were
   removed in Oct 2026; a Reduce Transparency switch was tried and removed at the user's request.)
@@ -225,6 +241,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   is used instead).
 
 ## Ideas discussed but NOT built
+- **Mobile number in the profile card**: declined by the user (Oct 2026, spam/scraping risk). Don't add.
+- **Wallpaper that follows the time of day**: skipped by the user (Oct 2026).
 - **Global Debug Runner leaderboard**: needs a real backend; not pursued unless the user wants it
   as a backend showcase.
 - **Desktop mascot**: built then reverted at the user's request - keep for later if asked.

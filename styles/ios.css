@@ -67,6 +67,28 @@
     display: none;
   }
 
+  /* The sticky note is a Home Screen widget, two icons wide. */
+  .sticky-note {
+    position: static;
+    grid-column: span 2;
+    grid-row: span 2;
+    align-self: stretch;
+    width: 100%;
+    border-radius: 20px;
+    padding: 16px;
+    transform: none;
+    cursor: default;
+    animation: none;
+  }
+
+  .sticky-note-tape {
+    display: none;
+  }
+
+  .sticky-note-text {
+    font-size: 16px;
+  }
+
   /* ===== Dock ===== */
   .dock {
     bottom: calc(10px + env(safe-area-inset-bottom));

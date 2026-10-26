@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 
 const decorative = { 'aria-hidden': true, focusable: false } as const;
 
-export type AppIconName = 'portfolio' | 'terminal' | 'game' | 'settings' | 'resume' | 'trash' | 'drive' | 'more';
+export type AppIconName = 'portfolio' | 'terminal' | 'game' | 'settings' | 'resume' | 'trash' | 'drive' | 'more' | 'timemachine';
 
 const GLYPHS: Record<AppIconName, ReactNode> = {
   portfolio: (
@@ -63,6 +63,13 @@ const GLYPHS: Record<AppIconName, ReactNode> = {
       <rect x="6" y="11" width="20" height="11" rx="2.5" fill="#fff" />
       <circle cx="22" cy="18.5" r="1.3" fill="#34c759" />
       <path d="M9 18.5h8" stroke="#aab4c3" strokeWidth="1.4" strokeLinecap="round" />
+    </>
+  ),
+  timemachine: (
+    <>
+      <path d="M8.6 11.8A8.5 8.5 0 1 1 8 18.9" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M5.4 10.6h6.4l-3.2 4z" fill="#fff" strokeLinejoin="round" />
+      <path d="M16.5 11.3V16l3.3 2.3" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </>
   ),
   more: (

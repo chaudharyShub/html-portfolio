@@ -9,6 +9,7 @@ import { LiveWallpaper } from '@/components/desktop/LiveWallpaper';
 import { MenuBar } from '@/components/desktop/MenuBar';
 import { Toast } from '@/components/desktop/Toast';
 import { DebugRunnerDialog } from '@/components/dialogs/DebugRunnerDialog';
+import { TimeMachineDialog } from '@/components/dialogs/TimeMachineDialog';
 import { SettingsDialog } from '@/components/dialogs/SettingsDialog';
 import { InstallWizardDialog } from '@/components/dialogs/InstallWizardDialog';
 import { CloseConfirmDialog, MessageDialog, TrashDialog } from '@/components/dialogs/SystemDialogs';
@@ -50,6 +51,7 @@ function Desktop(props: MainWindowProps) {
       <CloseConfirmDialog />
       <TrashDialog />
       <DebugRunnerDialog />
+      <TimeMachineDialog />
       <SettingsDialog />
       <ContextMenu />
       <InstallWizardDialog />
