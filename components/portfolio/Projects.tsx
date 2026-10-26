@@ -10,7 +10,7 @@ export function Projects() {
         <article className="project-card" key={project.name}>
           <div className="project-title">
             <h3 className="project-name">{project.name}</h3>
-            <span className="status-badge">{project.status}</span>
+            <span className="status-badge" data-status={project.status}>{project.status}</span>
           </div>
           <div className="project-body">
             <div className="tech">Tech: {project.tech.join(', ')}</div>

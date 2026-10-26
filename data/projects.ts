@@ -17,6 +17,14 @@ export const PROJECTS: Project[] = [
       'An AI-native workflow and agent orchestration platform - the kind of internal tooling Fortune 500 teams are building right now to coordinate LLM-driven automation at scale.',
   },
   {
+    name: 'CloudPrep',
+    status: 'In Progress',
+    tech: ['React.js', 'TypeScript', 'Vite', 'Tailwind CSS', 'Supabase', 'PostgreSQL', 'MediaPipe'],
+    description:
+      'AWS Certification Exam Simulator - a full-length timed mock exam engine with a 2,000 question bank and a learning mode with instant explanations, on a Supabase backend with Postgres, plus an opt-in AI-proctored exam mode with in-browser computer vision (MediaPipe).',
+    liveUrl: 'https://cloud-prep-aws.vercel.app',
+  },
+  {
     name: 'BrowseAnywhere Agent',
     status: 'Completed',
     tech: ['Electron.js', 'React.js', 'TypeScript', 'Cursor AI'],

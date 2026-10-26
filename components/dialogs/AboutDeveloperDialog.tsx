@@ -32,7 +32,9 @@ export function AboutDeveloperDialog() {
             <YearsExperience withUnit /> in IT
           </dd>
           <dt>Storage</dt>
-          <dd>{VISIBLE_PROJECTS.length} projects shipped</dd>
+          <dd>
+            {VISIBLE_PROJECTS.filter((p) => p.status === 'Completed').length} projects shipped
+          </dd>
           <dt>Uptime</dt>
           <dd className="about-mono">
             <CareerUptime />
