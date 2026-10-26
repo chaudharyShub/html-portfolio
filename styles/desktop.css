@@ -133,7 +133,7 @@
   display: flex;
   align-items: flex-end;
   margin: 0;
-  padding: 5px 6px 2px;
+  padding: 5px 10px 2px;
   list-style: none;
   background: var(--dock-bg);
   -webkit-backdrop-filter: blur(24px) saturate(1.6);
@@ -149,7 +149,7 @@
  */
 .dock-item {
   position: relative;
-  width: calc(54px * var(--s, 1));
+  width: calc(60px * var(--s, 1));
   display: flex;
   flex-direction: column;
   align-items: center;
