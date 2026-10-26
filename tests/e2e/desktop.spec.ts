@@ -163,6 +163,27 @@ test('Time Machine opens from the Dock and travels through the career', async ({
   await expect(ticks.nth(1)).toHaveAttribute('aria-selected', 'true');
 });
 
+test('the green button takes the Time Machine full screen, Escape leaves it first', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#dock-timemachine').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Time Machine' });
+  await expect(dialog).toBeVisible();
+  const viewport = page.viewportSize()!;
+
+  await dialog.getByRole('button', { name: 'Enter Full Screen' }).click();
+  // The box glides to the full screen; wait until it gets there.
+  await expect.poll(async () => (await dialog.boundingBox())!.width).toBe(viewport.width);
+  await expect.poll(async () => (await dialog.boundingBox())!.height).toBe(viewport.height);
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Enter Full Screen' })).toBeVisible();
+  await expect.poll(async () => (await dialog.boundingBox())!.width).toBeLessThan(viewport.width);
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+});
+
 test('a sticky note shows a motto on the desktop and can be dragged', async ({ page }) => {
   await openDesktop(page);
   const note = page.locator('.sticky-note');

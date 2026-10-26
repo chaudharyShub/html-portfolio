@@ -24,7 +24,15 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 ## Design
 - Apple-inspired, not Apple assets: no Apple logo (the menu-bar logo is our winking-monitor
   `BrandMark`), own app tiles (`AppIcon`: CSS gradient rounded square + white SVG glyph), own
-  gradient wallpapers, system font stack only (no bundled SF fonts). "Inspired by", never copied.
+  gradient wallpapers, no Apple fonts (no bundled SF). "Inspired by", never copied.
+- Fonts (Oct 2026, user's pick): text uses the **device's own font** (`--font` system stack:
+  Apple's font on Mac/iPhone, Segoe UI on Windows). Inter, Geist, Plus Jakarta Sans, Manrope and
+  DM Sans were compared on the real page; the user preferred the system font. **JetBrains Mono**
+  (SIL OFL, `next/font/google` in `app/layout.tsx`, downloaded at build and served from this site,
+  `--font-mono`, used through `--mono`) is for the Terminal, dates, tech lines, skill tags and the
+  visitor counter. Portfolio type scale: section titles 24px,
+  body 15px / 1.6, tables and skills 14px, project/job titles 17px, stat numbers 28px. No italics
+  (the user decided against them).
 - Desktop vs phone is one media query: `(max-width: 700px), (max-height: 500px) and (pointer: coarse)`
   (`PHONE_QUERY` in `lib/motion.ts`, same query in `styles/ios.css`, which is imported last).
 - Colors are CSS variables in `styles/base.css` with a light and a dark set (the dark set is
@@ -94,7 +102,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   our own SVGs (`WindowGlyph` in `components/icons`), drawn on the button's 12x12 grid so they
   are centered and sharp; not Apple's artwork. They turn gray
   (`--tl-off`) while the browser window isn't focused (`data-inactive` on `<html>`, set in
-  `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom.
+  `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom
+  (exception: the Time Machine's green button works, see below; its minimize stays gray on purpose -
+  the genie can't copy the starfield canvas).
 - Desktop icons (Shubham HD, Debug Runner, Time Machine, Terminal, Trash) in a top-right column; double-click with
   a mouse, single tap on touch. The default Aurora wallpaper drifts slowly (`LiveWallpaper`).
 - Animations (`lib/motion.ts`, all return a cancel function):
@@ -173,6 +183,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   through every year in between; newer snapshots fly past the camera. Travel by mouse wheel /
   trackpad (up = back in time, like macOS), sideways swipe on phones, arrow keys, the ‹ › buttons
   or the year rail (`role="tablist"`, roving focus). Reduced motion: no warp, no rolling.
+  Green button (or double-clicking the title bar) glides it to full screen (`zoomed` /
+  `onToggleZoom` on `Dialog`, desktop only); Escape leaves full screen first, then closes.
   Opens on the latest job. From the Dock, the desktop/Home Screen icon and the logo menu. Built
   only from `data/experience.ts` - no extra career content.
 - **Sticky note** (`components/desktop/StickyNote.tsx`): yellow note in the top-left of the desktop

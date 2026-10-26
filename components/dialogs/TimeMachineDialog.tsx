@@ -54,6 +54,7 @@ export function TimeMachineDialog() {
   const open = dialogs.timeMachine;
   const actions = useOsActions();
   const [current, setCurrent] = useState(LAST);
+  const [zoomed, setZoomed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
   const yearRef = useRef<HTMLSpanElement>(null);
@@ -160,7 +161,14 @@ export function TimeMachineDialog() {
   const milestone = MILESTONES[current];
 
   return (
-    <Dialog open={open} title="Time Machine" onClose={close} boxClassName="wide time-machine-box">
+    <Dialog
+      open={open}
+      title="Time Machine"
+      onClose={close}
+      boxClassName="wide time-machine-box"
+      zoomed={zoomed}
+      onToggleZoom={() => setZoomed((z) => !z)}
+    >
       <div className="dialog-body time-machine" onKeyDown={onKeyDown}>
         <canvas ref={canvasRef} className="tm-space" aria-hidden="true" />
 

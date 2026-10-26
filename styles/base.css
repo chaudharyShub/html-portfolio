@@ -17,7 +17,7 @@
 /* ===== Tokens: light (default) ===== */
 :root {
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --ease-apple: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 
