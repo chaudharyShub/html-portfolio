@@ -184,6 +184,49 @@ test('the green button takes the Time Machine full screen, Escape leaves it firs
   await expect(dialog).toBeHidden();
 });
 
+test('About This Developer opens from Shubham HD and the logo menu', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#icon-mycomputer').dblclick();
+  const dialog = page.getByRole('dialog', { name: 'About This Developer' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: 'Shubham Chaudhary' })).toBeVisible();
+  await expect(dialog.locator('.about-specs')).toContainText('projects shipped');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+
+  await page.locator('#logo-menu-button').click();
+  await page.getByRole('menuitem', { name: 'About This Developer' }).click();
+  await expect(dialog).toBeVisible();
+  // More Info closes it and shows the About section.
+  await dialog.getByRole('button', { name: 'More Info…' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.locator('#section-about')).toBeVisible();
+});
+
+test('Activity Monitor lists the skills, filters, sorts and shows where one is used', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#dock-activity').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Activity Monitor' });
+  await expect(dialog).toBeVisible();
+  const rows = dialog.locator('.am-table tbody tr');
+  await expect(rows).toHaveCount(22);
+
+  await dialog.getByRole('button', { name: 'Backend' }).click();
+  await expect(rows).toHaveCount(3);
+
+  await dialog.getByRole('button', { name: 'Process Name' }).click();
+  await expect(rows.first()).toContainText('Express.js');
+
+  await dialog.locator('.am-name', { hasText: 'PostgreSQL' }).click();
+  await expect(dialog.locator('.am-used')).toContainText('Koru UX');
+  await expect(dialog.locator('.am-used')).toContainText('Quokka Labs');
+
+  // Arrow keys move the selection.
+  await page.keyboard.press('ArrowUp');
+  await expect(dialog.locator('.am-name', { hasText: 'Node.js' })).toBeFocused();
+  await expect(dialog.locator('.am-used')).toContainText('RunTheDay');
+});
+
 test('a sticky note shows a motto on the desktop and can be dragged', async ({ page }) => {
   await openDesktop(page);
   const note = page.locator('.sticky-note');

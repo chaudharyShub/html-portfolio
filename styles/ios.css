@@ -67,11 +67,12 @@
     display: none;
   }
 
-  /* The sticky note is a Home Screen widget, two icons wide. */
+  /* The sticky note is a Home Screen widget, two icons wide, in the top-right corner; the
+     icons fill the left half next to it, then continue below. */
   .sticky-note {
     position: static;
-    grid-column: span 2;
-    grid-row: span 2;
+    grid-column: 3 / span 2;
+    grid-row: 1 / span 2;
     align-self: stretch;
     width: 100%;
     border-radius: 20px;
@@ -626,33 +627,34 @@
     display: none;
   }
 
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
+  /* Portfolio tables become stacked cards (not the Activity Monitor's table). */
+  .window table,
+  .window thead,
+  .window tbody,
+  .window th,
+  .window td,
+  .window tr {
     display: block;
   }
 
-  th {
+  .window th {
     display: none;
   }
 
-  tr + tr {
+  .window tr + tr {
     border-top: 0.5px solid var(--separator);
   }
 
-  td {
+  .window td {
     border-top: 0;
     padding: 4px 12px;
   }
 
-  td:first-child {
+  .window td:first-child {
     padding-top: 10px;
   }
 
-  td:last-child {
+  .window td:last-child {
     padding-bottom: 10px;
     color: var(--text-2);
   }
@@ -662,5 +664,50 @@
 @media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
   .info-bar {
     display: none;
+  }
+}
+
+/* Activity Monitor and About This Developer as bottom sheets. */
+@media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
+  .am-wide-only {
+    display: none;
+  }
+
+  .activity {
+    font-size: 14px;
+  }
+
+  .am-filter {
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+
+  .am-table-wrap {
+    height: 38dvh;
+  }
+
+  .am-table td {
+    padding: 6px 14px;
+  }
+
+  .am-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .am-panel + .am-panel {
+    border-left: 0;
+    border-top: 0.5px solid var(--separator);
+  }
+
+  .am-hint {
+    padding-bottom: 16px;
+  }
+
+  .dialog-box--panel.about-box {
+    width: 100%;
+  }
+
+  .about-specs {
+    font-size: 14px;
   }
 }

@@ -56,7 +56,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   imperative handles/DOM nodes in via `connect.*` callback refs (`mainWindow`, `terminalWindow`,
   `mainDockIcon`, `terminalDockIcon`, `terminalConsole`, ...) because the React Compiler lint forbids
   passing ref objects around in render. Dialog ids: `message`, `closeConfirm`, `trash`, `game`,
-  `settings`, `wizard`, `timeMachine`. Window keys: `main`, `terminal`.
+  `settings`, `wizard`, `timeMachine`, `about`, `activity`. Window keys: `main`, `terminal`.
 - `components/windows/Window.tsx` is the single generic window (drag, 8-edge resize, snap, zoom,
   minimize, phone Home button); reuse it for any new window. Discrete state is React state; live
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
@@ -84,7 +84,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 
 ## Desktop (computers)
 - `MenuBar`: logo button `#logo-menu-button` opens `AppMenu` (`#logo-menu`), section links, clock.
-- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-game`, `#dock-timemachine`, `#dock-settings`, `#dock-resume`,
+- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-game`, `#dock-timemachine`, `#dock-activity`, `#dock-settings`, `#dock-resume`,
   `#dock-trash` (`#dock-more` is phone-only). Magnification is JS (`useMagnification`): cosine
   falloff by pointer distance against the resting layout, written to `--s` per item; items widen (so
   the dock grows) and icons scale from their bottom edge. Launch bounce animates the tile, not the
@@ -103,9 +103,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   are centered and sharp; not Apple's artwork. They turn gray
   (`--tl-off`) while the browser window isn't focused (`data-inactive` on `<html>`, set in
   `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom
-  (exception: the Time Machine's green button works, see below; its minimize stays gray on purpose -
+  (exception: the green button works in the Time Machine and Activity Monitor, see below; its minimize stays gray on purpose -
   the genie can't copy the starfield canvas).
-- Desktop icons (Shubham HD, Debug Runner, Time Machine, Terminal, Trash) in a top-right column; double-click with
+- Desktop icons (Shubham HD, Debug Runner, Time Machine, Activity Monitor, Terminal, Trash) in a top-right column; double-click with
   a mouse, single tap on touch. The default Aurora wallpaper drifts slowly (`LiveWallpaper`).
 - Animations (`lib/motion.ts`, all return a cancel function):
   - Minimize = real genie: the window is copied into 10-16 horizontal strips (each only its slice's
@@ -162,6 +162,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
   sticky Cancel). Alerts use stacked-button styling. Phones held sideways hide the info row.
 - 16px inputs stop iOS zooming into fields.
+- The portfolio's tables turn into stacked cards on phones; that rule is scoped to `.window` so
+  other tables (Activity Monitor) stay tables.
 
 ## Features
 - **Startup screen** (revamped Oct 2026): dark screen with a soft Aurora glow, the app icon springs
@@ -187,8 +189,22 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `onToggleZoom` on `Dialog`, desktop only); Escape leaves full screen first, then closes.
   Opens on the latest job. From the Dock, the desktop/Home Screen icon and the logo menu. Built
   only from `data/experience.ts` - no extra career content.
+- **About This Developer** (`components/dialogs/AboutDeveloperDialog.tsx`): a Mac-style About
+  window - photo, name, role and a playful spec list (Chip, Memory = years in IT, Storage = shipped
+  projects, live Uptime since the career start, Serial number = GitHub), "More Info…" (About
+  section) and "Resume…". Opened from the top of the logo menu, Shubham HD and the desktop's
+  Get Info (it replaced the old one-line "About Shubham HD" joke message).
+- **Activity Monitor** (`components/dialogs/ActivityMonitorDialog.tsx`, matching in
+  `lib/skill-usage.ts`): the skills from `data/skills.ts` as processes (% CPU = the skill's level
+  with a small live wobble, Kind = group, Level, made-up PID), filter by group, sortable columns,
+  Up/Down to move, a scrolling load graph, and "Used in" listing the visible jobs and projects whose
+  tags mention the skill (aliases like MUI/Material UI are matched). A "Threads = usage count"
+  column was dropped: JavaScript/HTML/CSS aren't tagged anywhere and showed 0. Samples only tick
+  while open; none under reduced motion. Green button = full screen. From the Dock, the
+  desktop/Home Screen icon and the logo menu.
 - **Sticky note** (`components/desktop/StickyNote.tsx`): yellow note in the top-left of the desktop
-  (mouse-draggable), a 2x2 widget on the phone Home Screen. Shows one of a few short mottos
+  (mouse-draggable), a 2x2 widget in the top-right of the phone Home Screen (icons fill the left half beside it,
+  Trash continues below; the user's layout choice). Shows one of a few short mottos
   (written by Claude at the user's request), switching on the visitor's local hour (no
   "new note every hour" caption - the user removed it). Not in the
   server HTML (depends on the clock), via `useSyncExternalStore`.

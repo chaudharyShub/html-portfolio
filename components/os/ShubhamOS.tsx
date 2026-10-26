@@ -10,6 +10,8 @@ import { MenuBar } from '@/components/desktop/MenuBar';
 import { Toast } from '@/components/desktop/Toast';
 import { DebugRunnerDialog } from '@/components/dialogs/DebugRunnerDialog';
 import { TimeMachineDialog } from '@/components/dialogs/TimeMachineDialog';
+import { AboutDeveloperDialog } from '@/components/dialogs/AboutDeveloperDialog';
+import { ActivityMonitorDialog } from '@/components/dialogs/ActivityMonitorDialog';
 import { SettingsDialog } from '@/components/dialogs/SettingsDialog';
 import { InstallWizardDialog } from '@/components/dialogs/InstallWizardDialog';
 import { CloseConfirmDialog, MessageDialog, TrashDialog } from '@/components/dialogs/SystemDialogs';
@@ -52,6 +54,8 @@ function Desktop(props: MainWindowProps) {
       <TrashDialog />
       <DebugRunnerDialog />
       <TimeMachineDialog />
+      <ActivityMonitorDialog />
+      <AboutDeveloperDialog />
       <SettingsDialog />
       <ContextMenu />
       <InstallWizardDialog />

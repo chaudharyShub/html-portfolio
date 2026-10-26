@@ -76,7 +76,20 @@ test('a single tap opens a Home Screen icon', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);
   await page.locator('#icon-mycomputer').tap();
-  await expect(page.getByText('Shubham OS v3.0')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'About This Developer' })).toBeVisible();
+});
+
+test('Activity Monitor opens from the Home Screen and fits the phone', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  await page.locator('#icon-activity').tap();
+  const dialog = page.getByRole('dialog', { name: 'Activity Monitor' });
+  await expect(dialog).toBeVisible();
+  // Rows stay rows on phones (the portfolio's stacked-table style must not apply here).
+  await expect(dialog.locator('.am-table td').first()).toHaveCSS('display', 'table-cell');
+  await dialog.locator('.am-name', { hasText: 'Node.js' }).tap();
+  await expect(dialog.locator('.am-used')).toContainText('Quokka Labs');
+  await noHorizontalScroll(page);
 });
 
 test('the More button opens an action sheet with Cancel on screen', async ({ page }) => {

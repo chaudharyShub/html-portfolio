@@ -131,12 +131,12 @@
   background: #04050c;
 }
 
-/* Green button: the Time Machine takes over the whole screen, like the real one. */
+/* Green button (Time Machine, Activity Monitor): the panel takes over the whole screen. */
 .dialog-overlay--zoomed {
   padding: 0;
 }
 
-.dialog-box.time-machine-box.zoomed {
+.dialog-overlay--zoomed .dialog-box.zoomed {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -423,6 +423,340 @@
   .tm-dot {
     transition: none;
   }
+}
+
+/* ===== About This Developer ===== */
+.dialog-box.about-box {
+  width: 300px;
+}
+
+.about-body {
+  padding: 24px 24px 16px;
+  text-align: center;
+}
+
+.about-photo {
+  display: block;
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.about-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.about-role {
+  margin: 2px 0 18px;
+  color: var(--text-2);
+}
+
+.about-specs {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 10px;
+  margin: 0 0 20px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.about-specs dt {
+  font-weight: 600;
+  text-align: right;
+}
+
+.about-specs dd {
+  margin: 0;
+  color: var(--text-2);
+}
+
+.about-specs a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.about-specs a:hover {
+  text-decoration: underline;
+}
+
+.about-mono {
+  font-family: var(--mono);
+  font-size: 11.5px;
+}
+
+.about-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.about-legal {
+  margin: 16px 0 0;
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+/* ===== Activity Monitor: the skills as running processes ===== */
+.dialog-box.activity-box {
+  display: flex;
+  flex-direction: column;
+  width: 760px;
+}
+
+.activity {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  font-size: 12px;
+}
+
+/* Only the process list may shrink or grow (when full screen); the rest keeps its size. */
+.activity > * {
+  flex-shrink: 0;
+}
+
+/* Segmented control, like the one in a Mac toolbar. */
+.am-toolbar {
+  display: flex;
+  align-self: center;
+  gap: 2px;
+  max-width: calc(100% - 24px);
+  margin: 10px 0;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--fill);
+  overflow-x: auto;
+}
+
+.am-filter {
+  flex: none;
+  padding: 3px 12px;
+  border-radius: 6px;
+  background: none;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+.am-filter.active {
+  background: var(--card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.am-table-wrap {
+  height: 290px;
+  overflow: auto;
+  border-top: 0.5px solid var(--separator);
+}
+
+.dialog-box.zoomed .am-table-wrap {
+  flex: 1;
+  height: auto;
+  min-height: 120px;
+}
+
+.am-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.am-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0;
+  background: var(--window-bg);
+  border-bottom: 0.5px solid var(--separator);
+  text-align: left;
+}
+
+.am-sort {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--text-2);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.am-sort:active {
+  transform: none;
+}
+
+.am-table th.am-num .am-sort {
+  justify-content: flex-end;
+}
+
+.am-caret {
+  width: 8px;
+}
+
+.am-table td {
+  padding: 3px 12px;
+  white-space: nowrap;
+}
+
+.am-num {
+  text-align: right;
+}
+
+.am-table tbody tr:nth-child(even) {
+  background: var(--fill);
+}
+
+.am-table tbody tr.selected {
+  background: var(--accent-fill);
+  color: #fff;
+}
+
+.am-name {
+  display: inline-flex;
+  justify-content: flex-start;
+  gap: 7px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: 500;
+  cursor: default;
+}
+
+.am-name:active {
+  transform: none;
+}
+
+.am-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: linear-gradient(160deg, #5ac8fa, #0a84ff);
+}
+
+.am-dot--1 {
+  background: linear-gradient(160deg, #6be38b, #28a745);
+}
+
+.am-dot--2 {
+  background: linear-gradient(160deg, #ffc15e, #ff7a1a);
+}
+
+.am-dot--3 {
+  background: linear-gradient(160deg, #d29bff, #8e44ec);
+}
+
+.am-footer {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  border-top: 0.5px solid var(--separator);
+}
+
+.am-panel {
+  min-width: 0;
+  padding: 12px 16px;
+}
+
+.am-panel + .am-panel {
+  border-left: 0.5px solid var(--separator);
+}
+
+.am-panel-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.am-muted {
+  color: var(--text-2);
+  font-weight: 400;
+}
+
+.am-used ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-used li + li {
+  margin-top: 4px;
+}
+
+.am-used p {
+  margin: 0;
+  font-size: inherit;
+  line-height: 1.45;
+}
+
+.am-graph {
+  display: block;
+  width: 100%;
+  height: 84px;
+  border-radius: 6px;
+  background: #0d1117;
+}
+
+.am-grid {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.am-area {
+  fill: rgba(75, 227, 122, 0.22);
+}
+
+.am-line {
+  fill: none;
+  stroke: #4be37a;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.am-stats dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 10px;
+  margin: 0;
+}
+
+.am-stats dt {
+  color: var(--text-2);
+}
+
+.am-stats dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.am-mono {
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.am-hint {
+  margin: 0;
+  padding: 8px 16px 12px;
+  border-top: 0.5px solid var(--separator);
+  color: var(--text-2);
+  font-size: 11px;
+  text-align: center;
 }
 
 /* ===== Trash ===== */

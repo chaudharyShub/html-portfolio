@@ -98,6 +98,25 @@
   font-size: 12.5px;
 }
 
+[data-larger-text] .activity,
+[data-larger-text] .am-filter,
+[data-larger-text] .about-specs {
+  font-size: 14px;
+}
+
+[data-larger-text] .am-sort,
+[data-larger-text] .am-hint,
+[data-larger-text] .am-panel-title,
+[data-larger-text] .am-mono,
+[data-larger-text] .about-mono,
+[data-larger-text] .about-legal {
+  font-size: 13px;
+}
+
+[data-larger-text] .about-name {
+  font-size: 24px;
+}
+
 [data-larger-text] .tm-title,
 [data-larger-text] .sticky-note-text {
   font-size: 19px;
