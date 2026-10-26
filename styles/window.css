@@ -263,6 +263,7 @@
 /* The symbols show while the pointer is over the buttons. */
 .traffic-lights:hover .tl svg,
 .dialog-close:hover svg,
+.dialog-zoom:hover svg,
 .tl:focus-visible svg {
   opacity: 1;
 }
@@ -275,6 +276,7 @@
    focused); pointing at them brings the colors back. */
 :root[data-inactive] .traffic-lights:not(:hover) .tl,
 :root[data-inactive] .dialog-close:not(:hover),
+:root[data-inactive] .dialog-zoom:not(:hover),
 .tl-disabled {
   --tl-bg: var(--tl-off);
   --tl-ring: var(--tl-off-ring);

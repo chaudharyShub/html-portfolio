@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { JetBrains_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import type { ReactNode } from 'react';
 import { ServiceWorkerRegistrar } from '@/components/shared/ServiceWorkerRegistrar';
@@ -6,6 +7,10 @@ import { PROFILE } from '@/data/profile';
 import { SITE } from '@/lib/site';
 import { buildAppearanceInitScript, DEFAULT_THEME } from '@/lib/themes';
 import './globals.css';
+
+// Text uses each device's own font; only the mono accent is a web font (SIL Open Font License),
+// downloaded at build time and served from this site, so no request goes to Google.
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -55,7 +60,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     // The inline theme script sets CSS variables / data-theme on <html> before first paint,
     // so React must not complain that those attributes differ from the server HTML.
-    <html lang="en" data-theme={DEFAULT_THEME} suppressHydrationWarning>
+    <html
+      lang="en"
+      data-theme={DEFAULT_THEME}
+      className={jetbrainsMono.variable}
+      suppressHydrationWarning
+    >
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: buildAppearanceInitScript() }} />
       </head>
