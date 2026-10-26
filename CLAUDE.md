@@ -290,6 +290,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 ## Ideas discussed but NOT built
 - **Mobile number in the profile card**: declined by the user (Oct 2026, spam/scraping risk). Don't add.
 - **Wallpaper that follows the time of day**: skipped by the user (Oct 2026).
+- **Edique live link** (`https://www.edique.in`) on the MDM Desktop Application card: declined by
+  the user (Oct 2026), even though the resume links it. Don't add.
 - **Global Debug Runner leaderboard**: needs a real backend; not pursued unless the user wants it
   as a backend showcase.
 - **Desktop mascot**: built then reverted at the user's request - keep for later if asked.
