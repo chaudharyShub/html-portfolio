@@ -46,9 +46,12 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Windows** | An app-style window (sidebar with a profile card and sections), traffic-light buttons, drag, resize from 8 edges, zoom that glides the real frame, snap to screen edges, and a genie minimize into the Dock. |
 | **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies smoothly with the pointer and bounces apps as they launch. |
 | **Terminal** | A real command parser with history (↑ / ↓). |
-| **Desktop** | Draggable icons and a custom right-click menu. |
+| **Desktop** | Draggable icons, a custom right-click menu and a sticky note with a new motto every hour (a widget on the phone Home Screen). |
+| **Time Machine** | The career as "desktop snapshots" flying through a starfield: scroll, swipe, use the arrow keys or pick a year; a big year counter rolls through every year in between. The green button takes it full screen. |
+| **Activity Monitor** | The skills as running processes: live load graph, filter by group, sortable columns, and a "Used in" panel listing the jobs and projects that use each one. |
+| **About This Developer** | A Mac-style About window: photo, role and a playful spec sheet (years in IT, projects shipped, live career uptime). |
 | **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
-| **On phones** | Full-screen apps with a tab bar and a home indicator (tap or swipe up to go home), a Home Screen and dock, action sheet, bottom sheets and alerts. |
+| **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
@@ -60,7 +63,8 @@ All preferences are stored in `localStorage`, and every animation respects
 operable (Enter/Space to activate, Escape to close).
 
 The look is inspired by Apple's, not copied: no Apple logo, icons, wallpapers or
-fonts are used. Text uses the device's system font (so Apple devices show their own).
+fonts are used. Text uses the device's system font (so Apple devices show their own);
+dates, tech tags and the Terminal use JetBrains Mono (free, served from the site).
 
 ## Try the Terminal
 
@@ -101,9 +105,10 @@ npm run test:e2e   # browser tests (Playwright)
 `npm run test:e2e` builds the site into its own folder (`.next-e2e`, so your normal build is
 untouched), starts it on port 3200 and runs the tests in `tests/e2e/` in Chromium, at desktop
 size and at phone size (375×667, touch). They cover the boot screen, tabs, the Terminal, Dock
-minimize/restore, zoom, the default Light appearance, the quit prompt, saved appearance, the contact form (sending, burst submits,
-the 5-per-minute limit, the honeypot, the mail-app fallback) and the iOS phone layout
-(full-screen app, tab bar, Home Screen, action sheet, bottom sheets).
+minimize/restore, zoom, the default Light appearance, the quit prompt, saved appearance, Larger Text,
+the Time Machine, Activity Monitor, About This Developer, the sticky note, the contact form
+(sending, burst submits, the 5-per-minute limit, the honeypot, the mail-app fallback) and the
+phone layout (full-screen app, tab bar, Home Screen, action sheet, bottom sheets).
 
 The tests never send real mail: they use a fake Web3Forms key and stub `api.web3forms.com`.
 First time on a new machine, install the browser with `npx playwright install chromium`.
@@ -117,20 +122,21 @@ so development never serves stale cached bundles.
 app/
   layout.tsx            # <html>, metadata, pre-paint theme script, SW registration
   page.tsx              # the single page: server-rendered sections -> desktop
-  not-found.tsx         # macOS-style 404 alert
+  not-found.tsx         # 404 page as a desktop-style alert
   sitemap.ts robots.ts manifest.ts
   globals.css           # imports the stylesheets in styles/
 components/
   os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
-  windows/              # generic Window (drag/resize/snap/animate), MainWindow, DosWindow (Terminal)
-  desktop/              # menu bar, Dock, logo menu, icons, context menu, live wallpaper, notifications
-  dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer
+  windows/              # generic Window (drag/resize/snap/animate), MainWindow, TerminalWindow
+  desktop/              # menu bar, Dock, logo menu, icons, context menu, sticky note, live wallpaper, notifications
+  dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer,
+                        # Time Machine, Activity Monitor, About This Developer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)
   live/                 # small client readouts: clock, career stats, year, visitor counter
   shared/               # JSON-LD script, service worker registration
   icons/                # hand-drawn app tiles and line icons (Apple-inspired, not Apple assets)
 data/                   # portfolio content: profile, about, skills, projects, experience
-lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion
+lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, skill usage
 tests/e2e/              # Playwright browser tests (desktop + phone)
 styles/                 # CSS by area; ios.css holds the phone layout
 public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js
@@ -145,7 +151,7 @@ public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-im
   which sections a tab shows and in what order.
 - **State.** `OsProvider` holds dialogs, menus, tabs, toasts and window status in a
   reducer and exposes stable actions (`useOsActions()`), e.g. `showToast`, `showMessage`,
-  `openDialog`, `goToSection`, `openDos`, `toggleMenu`.
+  `openDialog`, `goToSection`, `openTerminal`, `toggleMenu`.
 - **Windows.** `components/windows/Window.tsx` is the one draggable/resizable window
   implementation. Reuse it for any new window instead of duplicating drag/resize logic.
 - **Preferences** use small `localStorage`-backed stores (`lib/preferences.ts`) read
@@ -216,7 +222,7 @@ See `.env.example`. After switching domains, re-submit the sitemap in Google Sea
 
 ## Design notes
 
-- macOS on desktop, iOS on phones, chosen by one media query
+- Apple-inspired desktop on computers, app-style Home Screen on phones, chosen by one media query
   (`(max-width: 700px), (max-height: 500px) and (pointer: coarse)`, also `PHONE_QUERY`
   in `lib/motion.ts`). Same components; `styles/ios.css` restyles them.
 - Colors are CSS variables in `styles/base.css`, with a light and a dark set. The blue is
