@@ -1,4 +1,5 @@
 import { PROFILE } from '@/data/profile';
+import { VISIBLE_PROJECTS } from '@/data/projects';
 import type { SectionId } from './sections';
 
 /** The prompt's parts (drawn in different colors) and the plain-text prompt. */
@@ -30,7 +31,7 @@ const COMMANDS: Record<string, Command> = {
   skills: () =>
     'React.js, Next.js, TypeScript, JavaScript, Tailwind, Node.js, Express.js, PostgreSQL, Electron.js, Git, Docker, Cursor AI, Prompt Engineering',
   projects: () =>
-    '1. Agent Fabric\n2. RunTheDay (RTD)\n4. SportZentric\n5. Desktop Application\nSee the Projects section for full details.',
+    `${VISIBLE_PROJECTS.map((p, i) => `${i + 1}. ${p.name}`).join('\n')}\nSee the Projects section for full details.`,
   experience: () => 'Koru UX (2026-2026)\nQuokka Labs (2022-2026)\nRiviera Home Furnishings (2020-2022)',
   contact: (fx) => {
     fx.goToSection('contact');

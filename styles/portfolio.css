@@ -188,6 +188,11 @@ td:first-child {
   font-weight: 600;
 }
 
+.status-badge[data-status="In Progress"] {
+  background: color-mix(in srgb, var(--orange) 18%, transparent);
+  color: var(--orange-text);
+}
+
 .project-body {
   padding: 4px 16px 16px;
 }

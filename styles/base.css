@@ -31,6 +31,8 @@
   --accent-fill: #0066cc;
   --green: #34c759;
   --green-text: #1f7a35;
+  --orange: #ff9500;
+  --orange-text: #a35200;
   --red: #ff3b30;
   --red-text: #d70015;
 
@@ -80,6 +82,8 @@
   --accent-fill: #0068d6;
   --green: #30d158;
   --green-text: #30d158;
+  --orange: #ff9f0a;
+  --orange-text: #ffb340;
   --red: #ff453a;
   --red-text: #ff6961;
 
@@ -124,6 +128,8 @@
     --accent-fill: #0068d6;
     --green: #30d158;
     --green-text: #30d158;
+    --orange: #ff9f0a;
+    --orange-text: #ffb340;
     --red: #ff453a;
     --red-text: #ff6961;
 

@@ -24,6 +24,12 @@ test('tabs switch the visible sections', async ({ page }) => {
   await page.getByRole('tab', { name: 'Projects' }).click();
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About Me' })).toBeHidden();
+  const cloudPrep = page.locator('.project-card', { hasText: 'CloudPrep' });
+  await expect(cloudPrep.locator('.status-badge')).toHaveText('In Progress');
+  await expect(cloudPrep.getByRole('link', { name: /CloudPrep live site/ })).toHaveAttribute(
+    'href',
+    'https://cloud-prep-aws.vercel.app',
+  );
   await page.getByRole('tab', { name: 'Contact' }).click();
   await expect(page.locator('#contact-form')).toBeVisible();
 });
@@ -39,6 +45,10 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await input.fill('whoami');
   await input.press('Enter');
   await expect(output).toContainText('Shubham Chaudhary - Full Stack Engineer');
+
+  await input.fill('projects');
+  await input.press('Enter');
+  await expect(output).toContainText('2. CloudPrep');
 
   await input.fill('nonsense');
   await input.press('Enter');

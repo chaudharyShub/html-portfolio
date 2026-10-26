@@ -5,7 +5,7 @@
  * - Hashed Next.js build assets (/_next/static): cache first (their URLs change per build).
  * - Other same-origin files (resume, icons): stale-while-revalidate.
  */
-const CACHE_NAME = 'shubham-os-v3';
+const CACHE_NAME = 'shubham-os-v4';
 const PRECACHE = [
   '/',
   '/Shubham_resume.pdf',

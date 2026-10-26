@@ -90,7 +90,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `suppressHydrationWarning`.
 - Site URL for canonical/OG/sitemap: `lib/site.ts` -> `NEXT_PUBLIC_SITE_URL` ->
   `VERCEL_PROJECT_PRODUCTION_URL` -> `https://shubhamworks.vercel.app`.
-- `public/sw.js` (cache `shubham-os-v3`; bump it when cached files change): network-first for pages,
+- `public/sw.js` (cache `shubham-os-v4`; bump it when cached files change): network-first for pages,
   cache-first for `/_next/static`, stale-while-revalidate for other files. Production only.
 - Vercel Web Analytics: `<Analytics />` in `app/layout.tsx`, rendered only when `process.env.VERCEL`
   is set (its script 404s off Vercel). Enabled once in the Vercel dashboard.
@@ -257,6 +257,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   - IMPORTANT (a bug fixed once): the toast must fire **before** the mailto navigation (wrapped in
     try/catch), because in some sandboxed/preview contexts that throws synchronously and kills the
     rest of the handler. Don't reorder this.
+- **Project status badges**: green for Completed, orange for In Progress (`--orange` /
+  `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
+  only Completed ones. The Terminal `projects` list is built from `VISIBLE_PROJECTS`.
 - **Notifications**: generic `showToast(title, msg)`; reuse it for confirmations.
 - **Visitor counter** chip in the status bar (`No. 004821`): locally seeded, not a real global
   count (its `title` says so).
@@ -287,6 +290,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 ## Ideas discussed but NOT built
 - **Mobile number in the profile card**: declined by the user (Oct 2026, spam/scraping risk). Don't add.
 - **Wallpaper that follows the time of day**: skipped by the user (Oct 2026).
+- **Edique live link** (`https://www.edique.in`) on the MDM Desktop Application card: declined by
+  the user (Oct 2026), even though the resume links it. Don't add.
 - **Global Debug Runner leaderboard**: needs a real backend; not pursued unless the user wants it
   as a backend showcase.
 - **Desktop mascot**: built then reverted at the user's request - keep for later if asked.
