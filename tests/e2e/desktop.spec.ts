@@ -134,3 +134,60 @@ test('the close button asks before "quitting" and then minimizes', async ({ page
   await alert.getByRole('button', { name: 'Quit' }).click();
   await expect(win).toBeHidden();
 });
+
+test('Time Machine opens from the Dock and travels through the career', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#dock-timemachine').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Time Machine' });
+  await expect(dialog).toBeVisible();
+  // Starts at the latest job.
+  const ticks = dialog.getByRole('tab');
+  const last = (await ticks.count()) - 1;
+  await expect(ticks.nth(last)).toHaveAttribute('aria-selected', 'true');
+  await expect(dialog.getByRole('heading', { name: 'Frontend Developer' })).toBeVisible();
+
+  await dialog.getByRole('button', { name: 'Back in time' }).click();
+  await expect(ticks.nth(last - 1)).toHaveAttribute('aria-selected', 'true');
+  await expect(dialog.getByRole('tabpanel')).toContainText('Quokka Labs');
+
+  // Arrow keys move along the timeline and keep focus on the selected year.
+  await ticks.nth(last - 1).focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(ticks.first()).toHaveAttribute('aria-selected', 'true');
+  await expect(ticks.first()).toBeFocused();
+  await expect(dialog.getByRole('tabpanel')).toContainText('Riviera Home Furnishings');
+
+  // Scrolling down over the snapshots travels forward in time again.
+  await dialog.locator('.tm-stack').hover();
+  await page.mouse.wheel(0, 120);
+  await expect(ticks.nth(1)).toHaveAttribute('aria-selected', 'true');
+});
+
+test('a sticky note shows a motto on the desktop and can be dragged', async ({ page }) => {
+  await openDesktop(page);
+  const note = page.locator('.sticky-note');
+  await expect(note).toBeVisible();
+  await expect(note.locator('.sticky-note-text')).not.toBeEmpty();
+  const before = (await note.boundingBox())!;
+  await page.mouse.move(before.x + 40, before.y + 40);
+  await page.mouse.down();
+  await page.mouse.move(before.x + 140, before.y + 90, { steps: 5 });
+  await page.mouse.up();
+  const after = (await note.boundingBox())!;
+  expect(Math.round(after.x - before.x)).toBe(100);
+  expect(Math.round(after.y - before.y)).toBe(50);
+});
+
+test('the sticky note switches to another motto on the hour', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-26T10:59:00') });
+  await openDesktop(page);
+  const text = page.locator('.sticky-note-text');
+  const first = await text.textContent();
+  const toNextHour = await page.evaluate(() => {
+    const next = new Date();
+    next.setMinutes(60, 0, 0);
+    return next.getTime() - Date.now();
+  });
+  await page.clock.runFor(toNextHour + 1_000);
+  await expect(text).not.toHaveText(first ?? '');
+});

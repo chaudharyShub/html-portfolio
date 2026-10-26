@@ -68,7 +68,7 @@ export function SettingsDialog() {
           <label className="settings-row">
             <span className="settings-row-text">
               <span>Larger Text</span>
-              <span className="settings-row-hint">Makes the portfolio easier to read.</span>
+              <span className="settings-row-hint">Makes all text easier to read.</span>
             </span>
             <input
               type="checkbox"

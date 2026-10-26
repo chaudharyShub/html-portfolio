@@ -63,6 +63,15 @@ export function AppMenu() {
             >
               Debug Runner (game)
             </div>
+            <div
+              {...item('Time Machine')}
+              onClick={() => {
+                actions.openDialog('timeMachine');
+                actions.closeMenus();
+              }}
+            >
+              Time Machine
+            </div>
           </div>
           <div className="menu-sep" role="separator" />
           <div className="menu-group">

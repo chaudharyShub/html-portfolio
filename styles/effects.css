@@ -1,6 +1,139 @@
 /* Display & Text Size switches from System Settings (attributes on <html>, see DisplayEffects). */
 
-/* ===== Larger Text: the portfolio sections one step bigger ===== */
+/*
+ * ===== Larger Text: every piece of UI text one step (~2px) bigger =====
+ * Only font sizes change, so windows, dialogs, swatches and the sidebar keep their size.
+ * The portfolio sections are the exception: they zoom as a whole.
+ */
 [data-larger-text] .content fieldset.section {
   zoom: 1.15;
+}
+
+/* Desktop chrome */
+[data-larger-text] .menubar,
+[data-larger-text] .menubar-item,
+[data-larger-text] .dialog-box button,
+[data-larger-text] .dialog-box .btn,
+[data-larger-text] .context-menu,
+[data-larger-text] .toast-text,
+[data-larger-text] .title-text,
+[data-larger-text] .tab {
+  font-size: 15px;
+}
+
+[data-larger-text] .dock-label,
+[data-larger-text] .desktop-icon,
+[data-larger-text] .menu-item-hint,
+[data-larger-text] .info-bar {
+  font-size: 14px;
+}
+
+[data-larger-text] .toast-time,
+[data-larger-text] .status-bar {
+  font-size: 13px;
+}
+
+[data-larger-text] .visitor-counter {
+  font-size: 12px;
+}
+
+[data-larger-text] .info-name {
+  font-size: 16px;
+}
+
+[data-larger-text] .window > .title-bar .title-text {
+  font-size: 17px;
+}
+
+/* Dialogs and the apps inside them */
+[data-larger-text] .alert-title,
+[data-larger-text] .dialog-title,
+[data-larger-text] .dialog-body,
+[data-larger-text] .game-score-line,
+[data-larger-text] .settings-heading,
+[data-larger-text] .settings-row,
+[data-larger-text] .wizard-content,
+[data-larger-text] .wizard-content p,
+[data-larger-text] .wizard-agree {
+  font-size: 15px;
+}
+
+[data-larger-text] .alert-text,
+[data-larger-text] .trash-list,
+[data-larger-text] .game-over-sub,
+[data-larger-text] .game-hint,
+[data-larger-text] .theme-swatch-label,
+[data-larger-text] .wizard-license-text,
+[data-larger-text] .wizard-status {
+  font-size: 14px;
+}
+
+[data-larger-text] .terminal-body {
+  font-size: 14.5px;
+}
+
+[data-larger-text] .wallpaper-label,
+[data-larger-text] .settings-row-hint,
+[data-larger-text] .wizard-step {
+  font-size: 13px;
+}
+
+[data-larger-text] .not-found .alert-title {
+  font-size: 17px;
+}
+
+[data-larger-text] .game-over-title {
+  font-size: 19px;
+}
+
+[data-larger-text] .tm-meta,
+[data-larger-text] .tm-now,
+[data-larger-text] .tm-hint,
+[data-larger-text] .tm-menubar,
+[data-larger-text] .sticky-note-head {
+  font-size: 13px;
+}
+
+[data-larger-text] .tm-tags li {
+  font-size: 12.5px;
+}
+
+[data-larger-text] .tm-title,
+[data-larger-text] .sticky-note-text {
+  font-size: 19px;
+}
+
+[data-larger-text] .wizard-content h3 {
+  font-size: 21px;
+}
+
+/* Phones: the same step up from the bigger sizes in styles/ios.css. */
+@media (max-width: 700px), (max-height: 500px) and (pointer: coarse) {
+  [data-larger-text] .tab {
+    font-size: 12px;
+  }
+
+  [data-larger-text] .desktop-icon {
+    font-size: 13px;
+  }
+
+  [data-larger-text] .info-exp,
+  [data-larger-text] .terminal-body {
+    font-size: 15px;
+  }
+
+  [data-larger-text] .alert-text {
+    font-size: 15px;
+  }
+
+  [data-larger-text] .title-home,
+  [data-larger-text] .window > .title-bar .title-text,
+  [data-larger-text] .menu-item,
+  [data-larger-text] .dialog-title,
+  [data-larger-text] .sheet-done,
+  [data-larger-text] .alert-title,
+  [data-larger-text] .dialog-box--alert .dialog-buttons > button,
+  [data-larger-text] .dialog-box--alert .dialog-buttons > .btn {
+    font-size: 19px;
+  }
 }

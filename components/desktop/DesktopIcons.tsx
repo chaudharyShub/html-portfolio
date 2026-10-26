@@ -3,6 +3,7 @@
 import { useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { AppIcon } from '@/components/icons';
 import { useOsApi, type OsActions } from '@/components/os/OsProvider';
+import { StickyNote } from './StickyNote';
 
 interface DesktopIconDef {
   id: string;
@@ -14,6 +15,7 @@ interface DesktopIconDef {
 const DESKTOP_ICONS: DesktopIconDef[] = [
   { id: 'icon-mycomputer', label: 'Shubham HD', icon: <AppIcon name="drive" size={56} />, open: (a) => a.showSystemProperties() },
   { id: 'icon-game', label: 'Debug Runner', icon: <AppIcon name="game" size={56} />, open: (a) => a.openGame() },
+  { id: 'icon-timemachine', label: 'Time Machine', icon: <AppIcon name="timemachine" size={56} />, open: (a) => a.openDialog('timeMachine') },
   { id: 'icon-terminal', label: 'Terminal', icon: <AppIcon name="terminal" size={56} />, open: (a) => a.openTerminal() },
   { id: 'icon-trash', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('trash') },
 ];
@@ -79,6 +81,7 @@ export function DesktopIcons() {
 
   return (
     <div className="desktop-layer" aria-label="Desktop" role="group">
+      <StickyNote />
       {DESKTOP_ICONS.map((def, i) => (
         <div
           key={def.id}
