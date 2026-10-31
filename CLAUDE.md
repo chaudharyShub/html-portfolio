@@ -110,6 +110,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   server `InfoBar` with avatar initials; its "Name:/Role:/Status:" labels are visually hidden but kept
   for screen readers) and the section list (the tablist, colored `tab-tile`s, a selection highlight
   that glides between rows). Content and status bar on the right.
+- Tabs (`lib/sections.ts`, Oct 2026): Home (every section), About (About + Experience), Projects,
+  Skills, Contact. Skills got its own tab at the user's request (it used to sit under Projects).
+  The phone tab bar holds all five.
 - Profile photo: `public/profile.jpg` (192px square crop of the user's photo; the original is kept
   in `assets/profile-photo.jpeg`, not served). Shown in the sidebar profile card (`InfoBar`, path in
   `PROFILE.photo`) and used as the JSON-LD `Person` image. Hidden in the phone info row.
@@ -257,6 +260,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   - IMPORTANT (a bug fixed once): the toast must fire **before** the mailto navigation (wrapped in
     try/catch), because in some sandboxed/preview contexts that throws synchronously and kills the
     rest of the handler. Don't reorder this.
+- **Projects grouped by company** (Oct 2026, user's choice): `Project.company` (matches
+  `company` in `data/experience.ts`) puts work projects under a header per company with the role
+  and dates from Experience (newest job first); projects without `company` go under "Personal
+  Projects" at the end. Group headers are `<h3>`, project names `<h4>`. Mapping confirmed by the
+  user: Koru UX - Agent Fabric; Quokka Labs - RunTheDay, MDM, SportZentric; personal - CloudPrep,
+  Frontend Interview Prep (plain HTML/CSS/JS, source in the sibling folder `frontend-interview-prod`).
+  Per-project dates were not given, so the company's dates are the "when".
 - **Project status badges**: green for Completed, orange for In Progress (`--orange` /
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
   only Completed ones. The Terminal `projects` list is built from `VISIBLE_PROJECTS`.

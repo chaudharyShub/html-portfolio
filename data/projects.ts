@@ -4,6 +4,8 @@ export interface Project {
   tech: string[];
   description: string;
   liveUrl?: string;
+  /** Company it was built at (matches `company` in data/experience.ts). Leave out for personal projects. */
+  company?: string;
   /** Hidden entries are kept for reference but not rendered (previously commented out in the HTML). */
   hidden?: boolean;
 }
@@ -11,6 +13,7 @@ export interface Project {
 export const PROJECTS: Project[] = [
   {
     name: 'Agent Fabric',
+    company: 'Koru UX',
     status: 'Completed',
     tech: ['React.js', 'TypeScript', 'Cursor AI'],
     description:
@@ -25,7 +28,16 @@ export const PROJECTS: Project[] = [
     liveUrl: 'https://cloud-prep-aws.vercel.app',
   },
   {
+    name: 'Frontend Interview Prep',
+    status: 'Completed',
+    tech: ['JavaScript', 'HTML5', 'CSS3', 'localStorage'],
+    description:
+      'A dependency-free interview prep app with 176 frontend questions and model answers. It includes progress tracking, starred review, search, filters and light/dark themes, all saved in the browser with no sign-up.',
+    liveUrl: 'https://frontend-interview-prod.vercel.app',
+  },
+  {
     name: 'BrowseAnywhere Agent',
+    company: 'ShepHertz Technologies',
     status: 'Completed',
     tech: ['Electron.js', 'React.js', 'TypeScript', 'Cursor AI'],
     description:
@@ -34,6 +46,7 @@ export const PROJECTS: Project[] = [
   },
   {
     name: 'RunTheDay (RTD)',
+    company: 'Quokka Labs',
     status: 'Completed',
     tech: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js', 'Express.js', 'Redux', 'Material UI'],
     description:
@@ -42,6 +55,7 @@ export const PROJECTS: Project[] = [
   },
   {
     name: 'MDM Desktop Application',
+    company: 'Quokka Labs',
     status: 'Completed',
     tech: ['Electron.js', 'React.js', 'TypeScript', 'Node.js', 'MQTT', 'Redux'],
     description:
@@ -49,6 +63,7 @@ export const PROJECTS: Project[] = [
   },
   {
     name: 'SportZentric',
+    company: 'Quokka Labs',
     status: 'Completed',
     tech: ['React.js', 'Tailwind CSS', 'React Hook Form', 'Styled Components', 'RTK Query'],
     description:

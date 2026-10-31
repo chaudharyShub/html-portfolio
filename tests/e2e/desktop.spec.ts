@@ -30,8 +30,33 @@ test('tabs switch the visible sections', async ({ page }) => {
     'href',
     'https://cloud-prep-aws.vercel.app',
   );
+  await expect(page.getByRole('heading', { name: 'Skills', exact: true })).toBeHidden();
+
+  await page.getByRole('tab', { name: 'Skills' }).click();
+  await expect(page.getByRole('heading', { name: 'Skills', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeHidden();
+
   await page.getByRole('tab', { name: 'Contact' }).click();
   await expect(page.locator('#contact-form')).toBeVisible();
+});
+
+test('projects are grouped by company, then personal projects', async ({ page }) => {
+  await openDesktop(page);
+  await page.getByRole('tab', { name: 'Projects' }).click();
+  const groups = page.locator('#section-projects .project-group');
+  await expect(groups.locator('.project-group-title')).toHaveText(['Koru UX', 'Quokka Labs', 'Personal Projects']);
+
+  const quokka = page.getByRole('region', { name: 'Quokka Labs' });
+  await expect(quokka.locator('.project-group-meta')).toHaveText('Software Engineer · Sept 2022 - March 2026');
+  await expect(quokka.locator('.project-name')).toHaveText(['RunTheDay (RTD)', 'MDM Desktop Application', 'SportZentric']);
+
+  const personal = page.getByRole('region', { name: 'Personal Projects' });
+  await expect(personal.locator('.project-group-meta')).toHaveCount(0);
+  await expect(personal.locator('.project-name')).toHaveText(['CloudPrep', 'Frontend Interview Prep']);
+  await expect(personal.getByRole('link', { name: /Frontend Interview Prep live site/ })).toHaveAttribute(
+    'href',
+    'https://frontend-interview-prod.vercel.app',
+  );
 });
 
 test('Terminal runs commands and clears', async ({ page }) => {

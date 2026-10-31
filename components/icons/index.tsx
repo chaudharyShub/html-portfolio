@@ -140,7 +140,7 @@ export function WindowGlyph({ name }: { name: WindowGlyphName }) {
   );
 }
 
-export type TabGlyphName = 'home' | 'about' | 'projects' | 'contact';
+export type TabGlyphName = 'home' | 'about' | 'projects' | 'skills' | 'contact';
 
 /** Icons for the iOS tab bar (hidden on desktop). */
 export function TabGlyph({ name }: { name: TabGlyphName }) {
@@ -159,6 +159,7 @@ export function TabGlyph({ name }: { name: TabGlyphName }) {
           <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17" {...line} />
         </>
       )}
+      {name === 'skills' && <path d="M12 3.8l2.4 5 5.4.7-4 3.8 1 5.4L12 16.1l-4.8 2.6 1-5.4-4-3.8 5.4-.7z" {...line} />}
       {name === 'contact' && (
         <>
           <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" {...line} />

@@ -28,8 +28,8 @@ an app-style Home Screen.
 
 This is the personal portfolio of **Shubham Chaudhary**, Full Stack Engineer with 4+ years
 of experience in React, Next.js and Node.js. Instead of a typical landing page, it opens as a
-small interactive desktop: a short startup screen, then a single window with About, Skills,
-Projects, Experience and Contact. On phones (portrait, or landscape on a touch screen) it
+small interactive desktop: a short startup screen, then a single window with About, Projects
+(grouped by company, then personal projects), Skills, Experience and Contact. On phones (portrait, or landscape on a touch screen) it
 becomes an app-style Home Screen.
 
 The earlier Windows 95-style version is kept on the `windows-95-classic` branch.
@@ -144,7 +144,8 @@ public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-im
 
 ### How it fits together
 
-- **Content is data.** Edit `data/*.ts` to change projects, experience or skills.
+- **Content is data.** Edit `data/*.ts` to change projects, experience or skills. A project
+  with `company` is listed under that job; without it, under "Personal Projects".
   Entries with `hidden: true` are kept but not rendered.
 - **Server vs client.** Portfolio sections are Server Components. They are passed as
   props into the client-side desktop (`components/os/ShubhamOS.tsx`), which only decides
