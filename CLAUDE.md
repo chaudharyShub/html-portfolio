@@ -265,7 +265,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   and dates from Experience (newest job first); projects without `company` go under "Personal
   Projects" at the end. Group headers are `<h3>`, project names `<h4>`. Mapping confirmed by the
   user: Koru UX - Agent Fabric; Quokka Labs - RunTheDay, MDM, SportZentric; personal - CloudPrep,
-  Frontend Interview Prep (plain HTML/CSS/JS, source in `D:\(A) My Projectsrontend-interview-prod`).
+  Frontend Interview Prep (plain HTML/CSS/JS, source in the sibling folder `frontend-interview-prod`).
   Per-project dates were not given, so the company's dates are the "when".
 - **Project status badges**: green for Completed, orange for In Progress (`--orange` /
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
