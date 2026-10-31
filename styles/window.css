@@ -483,6 +483,10 @@
   background: linear-gradient(160deg, #ffc15e, #ff8a00);
 }
 
+.tab-tile--skills {
+  background: linear-gradient(160deg, #ff7a93, #e8364f);
+}
+
 .tab-tile--contact {
   background: linear-gradient(160deg, #5be37a, #23a046);
 }

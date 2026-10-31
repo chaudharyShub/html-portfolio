@@ -40,6 +40,14 @@ test('the tab bar sits at the bottom and switches sections', async ({ page }) =>
   await openDesktop(page);
   const bar = await box(page, '#window .tab-bar-wrap');
   expect(bar.y + bar.height).toBeCloseTo(page.viewportSize()!.height, 0);
+  // All five tabs fit on one row.
+  const tabs = page.locator('#window [role="tab"]');
+  await expect(tabs).toHaveCount(5);
+  const last = await box(page, '#tab-contact');
+  expect(last.x + last.width).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
+  expect(last.y).toBeGreaterThanOrEqual(bar.y);
+  await page.getByRole('tab', { name: 'Skills' }).tap();
+  await expect(page.getByRole('heading', { name: 'Skills', exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Contact' }).tap();
   await expect(page.locator('#contact-form')).toBeVisible();
 });
