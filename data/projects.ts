@@ -33,7 +33,7 @@ export const PROJECTS: Project[] = [
     tech: ['JavaScript', 'HTML5', 'CSS3', 'localStorage'],
     description:
       'A dependency-free interview prep app with 176 frontend questions and model answers. It includes progress tracking, starred review, search, filters and light/dark themes, all saved in the browser with no sign-up.',
-    liveUrl: 'https://frontend-interview-prod.vercel.app',
+    liveUrl: 'https://frontend-interview-prepare.vercel.app',
   },
   {
     name: 'BrowseAnywhere Agent',
