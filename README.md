@@ -176,9 +176,10 @@ lead with the name, JSON-LD (`WebSite`, `ProfilePage`, `Person`), `robots.txt` a
 `sitemap.xml` (the page and the resume PDF).
 
 1. **Google Search Console** ([search.google.com/search-console](https://search.google.com/search-console)):
-   add a *URL prefix* property for the site URL, choose the **HTML tag** method and copy only the
-   code from `content="..."`. In Vercel set `GOOGLE_SITE_VERIFICATION` to it, redeploy, then press
-   **Verify**. Then submit `sitemap.xml` under **Sitemaps** and use **URL Inspection → Request
+   add a *URL prefix* property for the site URL and prove ownership, either with the **HTML file**
+   (download it into `public/`, deploy, press **Verify**; this site uses
+   `public/googlec9536a809aa9ed01.html`, so keep that file) or with the **HTML tag** (copy only the
+   code from `content="..."`, set it as `GOOGLE_SITE_VERIFICATION` in Vercel, redeploy, **Verify**). Then submit `sitemap.xml` under **Sitemaps** and use **URL Inspection → Request
    indexing** for the home page.
 2. **Bing Webmaster Tools** ([bing.com/webmasters](https://www.bing.com/webmasters)): import the
    site from Search Console (no code needed), or set `BING_SITE_VERIFICATION` the same way.
