@@ -34,11 +34,16 @@ export const metadata: Metadata = {
   appleWebApp: { title: SITE.name },
   openGraph: {
     type: 'website',
-    siteName: SITE.name,
+    siteName: SITE.siteName,
     title: SITE.social.title,
     description: SITE.social.description,
     url: '/',
     images: [SITE.social.image],
+  },
+  // Ownership checks for Google Search Console and Bing Webmaster Tools (only when set).
+  verification: {
+    google: SITE.verification.google,
+    other: SITE.verification.bing ? { 'msvalidate.01': SITE.verification.bing } : undefined,
   },
   twitter: {
     card: 'summary_large_image',

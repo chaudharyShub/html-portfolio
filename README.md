@@ -169,6 +169,21 @@ Next.js app (important because this project previously deployed as a static site
    build command `next build`, and no custom output directory left over from the static setup.
 3. Add the environment variable `WEB3FORMS_ACCESS_KEY` (see below) and deploy.
 
+## Search engines (Google, Bing)
+
+The page is built for indexing: all text is in the server HTML, with a title and description that
+lead with the name, JSON-LD (`WebSite`, `ProfilePage`, `Person`), `robots.txt` and
+`sitemap.xml` (the page and the resume PDF).
+
+1. **Google Search Console** ([search.google.com/search-console](https://search.google.com/search-console)):
+   add a *URL prefix* property for the site URL, choose the **HTML tag** method and copy only the
+   code from `content="..."`. In Vercel set `GOOGLE_SITE_VERIFICATION` to it, redeploy, then press
+   **Verify**. Then submit `sitemap.xml` under **Sitemaps** and use **URL Inspection → Request
+   indexing** for the home page.
+2. **Bing Webmaster Tools** ([bing.com/webmasters](https://www.bing.com/webmasters)): import the
+   site from Search Console (no code needed), or set `BING_SITE_VERIFICATION` the same way.
+   Bing's index also feeds DuckDuckGo, Yahoo and ChatGPT search.
+
 ## Contact form (Web3Forms)
 
 1. Create a free access key at [web3forms.com](https://web3forms.com) with the email address

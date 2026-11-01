@@ -36,6 +36,9 @@ export default defineConfig({
       NEXT_DIST_DIR: '.next-e2e',
       // Takes precedence over .env.local, so the test build never holds the real key.
       WEB3FORMS_ACCESS_KEY: 'test-key-not-real',
+      // Fake ownership codes, so the SEO test can see the verification tags.
+      GOOGLE_SITE_VERIFICATION: 'test-google-code',
+      BING_SITE_VERIFICATION: 'test-bing-code',
     },
   },
 });

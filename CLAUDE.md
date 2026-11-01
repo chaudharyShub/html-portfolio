@@ -90,7 +90,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `suppressHydrationWarning`.
 - Site URL for canonical/OG/sitemap: `lib/site.ts` -> `NEXT_PUBLIC_SITE_URL` ->
   `VERCEL_PROJECT_PRODUCTION_URL` -> `https://shubhamworks.vercel.app`.
-- `public/sw.js` (cache `shubham-os-v4`; bump it when cached files change): network-first for pages,
+- `public/sw.js` (cache `shubham-os-v5`; bump it when cached files change): network-first for pages,
   cache-first for `/_next/static`, stale-while-revalidate for other files. Production only.
 - Vercel Web Analytics: `<Analytics />` in `app/layout.tsx`, rendered only when `process.env.VERCEL`
   is set (its script 404s off Vercel). Enabled once in the Vercel dashboard.
@@ -303,9 +303,23 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Link previews**: Open Graph + Twitter tags from `lib/site.ts`. `og-image.jpg` (1200x630, JPEG
   ~105 KB to stay under WhatsApp's preview size limit) is a real screenshot of the desktop in a card
   that leads with "Portfolio / Shubham Chaudhary / Full Stack Engineer - 4+ years".
-- **SEO**: meta description, JSON-LD `Person`, a visually hidden `<h1>`; section titles are `<h2>`
+- **SEO**: meta description, JSON-LD, a visually hidden `<h1>`; section titles are `<h2>`
   inside each `<legend>` so headings go h1 -> h2 -> h3. `<main>` is the landmark; `role="tabpanel"`
   is on the div inside it.
+  - Nov 2026 pass (the site wasn't indexed by Google yet; the name is common, so the signals say
+    clearly who this is): title `Shubham Chaudhary - Full Stack Engineer | React, Next.js, Node.js`,
+    description starts with the name (`lib/site.ts`), `og:site_name` / JSON-LD `WebSite.name` =
+    `SITE.siteName` (the person's name; `SITE.name` "Shubham OS" stays the app name for the Home
+    Screen icon and manifest). JSON-LD is one `@graph`: `WebSite` (alternate names incl.
+    "Shubham Works"), `ProfilePage`, `Person` (`knowsAbout` = skills from `data/skills.ts`,
+    `sameAs` GitHub + LinkedIn).
+  - Ownership tags for Google Search Console / Bing Webmaster Tools come from the env vars
+    `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` (set in Vercel; no tag when unset).
+  - The sitemap also lists the resume PDF (the site only offers it through the wizard button, so
+    crawlers can't follow a link to it). The PDF carries Title/Author metadata (set with pypdf, no
+    content change) so search shows it as "Shubham Chaudhary - Full Stack Engineer Resume"; keep
+    that metadata when the PDF is replaced.
+  - `tests/e2e/seo.spec.ts` checks the server HTML, JSON-LD, robots.txt and sitemap.
 - Lighthouse (local, light): accessibility 100 on desktop and phone. Performance on a throttled phone
   is limited mainly by hydrating the whole desktop; left as is.
 
