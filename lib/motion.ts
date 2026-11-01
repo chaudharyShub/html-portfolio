@@ -768,6 +768,114 @@ export function animateSheetOut(el: HTMLElement, durationMs: number): void {
   el.style.transform = 'translateY(105%)';
 }
 
+/** True if `target` sits in something scrolled down inside `box` (then a pull scrolls, not drags). */
+function scrolledBetween(target: Element, box: HTMLElement): boolean {
+  for (let el: Element | null = target; el; el = el.parentElement) {
+    if (el.scrollTop > 0) return true;
+    if (el === box) return false;
+  }
+  return false;
+}
+
+/**
+ * Lets a bottom sheet be pulled down to close, like iOS: the drag starts when the first move goes
+ * down while the content under the finger is scrolled to the top (the title bar always works).
+ * Let go past a third of its height, or with a quick flick, and it closes; otherwise it springs
+ * back. Elements marked `data-sheet-no-drag` (the game stage) keep their own touches.
+ * Returns a cleanup function.
+ */
+export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => void {
+  let startY = 0;
+  let startX = 0;
+  let lastY = 0;
+  let lastT = 0;
+  let velocity = 0;
+  let state: 'idle' | 'maybe' | 'dragging' = 'idle';
+  let fromTitleBar = false;
+
+  const offset = (y: number) => {
+    const dy = y - startY;
+    // A little resistance upward, free downward.
+    return dy < 0 ? dy / 4 : dy;
+  };
+
+  const onStart = (e: TouchEvent) => {
+    const target = e.target as Element;
+    state = 'idle';
+    const touch = e.touches[0];
+    if (!touch || e.touches.length !== 1 || target.closest('[data-sheet-no-drag], input, textarea, select')) return;
+    fromTitleBar = !!target.closest('.dialog-title-bar');
+    if (!fromTitleBar && scrolledBetween(target, box)) return;
+    startY = lastY = touch.clientY;
+    startX = touch.clientX;
+    lastT = e.timeStamp;
+    velocity = 0;
+    state = 'maybe';
+  };
+
+  const onMove = (e: TouchEvent) => {
+    const touch = e.touches[0];
+    if (state === 'idle' || !touch) return;
+    const { clientX, clientY } = touch;
+    if (state === 'maybe') {
+      const dy = clientY - startY;
+      const dx = clientX - startX;
+      if (Math.abs(dy) < 1 && Math.abs(dx) < 1) return;
+      // Decide on the first move: down = drag the sheet; sideways or up = leave it to the content.
+      if (!(fromTitleBar ? Math.abs(dy) >= Math.abs(dx) : dy > 0 && dy >= Math.abs(dx))) {
+        state = 'idle';
+        return;
+      }
+      state = 'dragging';
+      box.style.transition = 'none';
+    }
+    e.preventDefault();
+    const dt = e.timeStamp - lastT;
+    if (dt > 0) velocity = (clientY - lastY) / dt;
+    lastY = clientY;
+    lastT = e.timeStamp;
+    box.style.transform = `translateY(${offset(clientY)}px)`;
+  };
+
+  const onEnd = () => {
+    if (state !== 'dragging') {
+      state = 'idle';
+      return;
+    }
+    state = 'idle';
+    const dy = offset(lastY);
+    if (dy > box.offsetHeight / 3 || (velocity > 0.5 && dy > 20)) {
+      // The close animation carries on from where the finger left the sheet
+      // (with reduced motion there is none, so the sheet just goes).
+      box.style.transition = '';
+      if (prefersReducedMotion()) box.style.transform = '';
+      onDismiss();
+      return;
+    }
+    if (prefersReducedMotion()) {
+      box.style.transform = '';
+      box.style.transition = '';
+      return;
+    }
+    box.style.transition = `transform 380ms ${APPLE_EASE}`;
+    box.style.transform = '';
+    window.setTimeout(() => {
+      if (state === 'idle') box.style.transition = '';
+    }, 400);
+  };
+
+  box.addEventListener('touchstart', onStart, { passive: true });
+  box.addEventListener('touchmove', onMove, { passive: false });
+  box.addEventListener('touchend', onEnd);
+  box.addEventListener('touchcancel', onEnd);
+  return () => {
+    box.removeEventListener('touchstart', onStart);
+    box.removeEventListener('touchmove', onMove);
+    box.removeEventListener('touchend', onEnd);
+    box.removeEventListener('touchcancel', onEnd);
+  };
+}
+
 export function resetAnimationStyles(el: HTMLElement): void {
   cancelAnimations(el);
   el.style.transition = '';

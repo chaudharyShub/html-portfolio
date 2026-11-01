@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { WindowGlyph } from '@/components/icons';
 import { pressableProps } from '@/lib/a11y';
 import {
@@ -9,6 +9,7 @@ import {
   animateSheetIn,
   animateSheetOut,
   APPLE_EASE,
+  enableSheetDrag,
   isPhoneLayout,
   prefersReducedMotion,
   resetAnimationStyles,
@@ -81,6 +82,14 @@ export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassNam
     }, CLOSE_MS + 10);
     return () => window.clearTimeout(timer);
   }, [open, closing, kind]);
+
+  // On phones a sheet can also be pulled down to close, like iOS.
+  const dismiss = useEffectEvent(() => onClose());
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box || !open || kind !== 'panel' || !isPhoneLayout()) return;
+    return enableSheetDrag(box, dismiss);
+  }, [open, kind]);
 
   // The box glides between its window size and the full screen.
   useLayoutEffect(() => {

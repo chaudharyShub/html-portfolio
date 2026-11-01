@@ -130,6 +130,37 @@ test('Settings opens as a bottom sheet', async ({ page }) => {
   await expect(sheet).toBeHidden();
 });
 
+test('a bottom sheet springs back from a short pull and closes when pulled down', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  await page.locator('#dock-settings').tap();
+  const sheet = page.getByRole('dialog', { name: 'System Settings' });
+  await expect(sheet).toBeVisible();
+  await page.waitForTimeout(600);
+  const b = (await sheet.boundingBox())!;
+  const x = b.x + b.width / 2;
+  const y = b.y + 20; // the title bar, by the grabber
+
+  // Real touch events (Chromium), moved in small steps like a finger.
+  const cdp = await page.context().newCDPSession(page);
+  const pull = async (distance: number) => {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    for (let i = 1; i <= 10; i++) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + (distance * i) / 10 }] });
+      await page.waitForTimeout(30);
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  };
+
+  await pull(40);
+  await page.waitForTimeout(500);
+  await expect(sheet).toBeVisible();
+  expect(Math.round((await sheet.boundingBox())!.y)).toBe(Math.round(b.y));
+
+  await pull(b.height / 2);
+  await expect(sheet).toBeHidden();
+});
+
 test('the Home Screen has two pages: the Shubham Works pill, then its widget', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);

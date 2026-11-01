@@ -165,6 +165,7 @@ export function DebugRunnerDialog() {
       <div className="dialog-body">
         <div
           id="game-stage"
+          data-sheet-no-drag
           ref={stageRef}
           onClick={jump}
           role="application"

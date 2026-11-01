@@ -79,7 +79,11 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
   CSS picks grid (desktop) or flex (phones).
 - `components/dialogs/Dialog.tsx` is the generic dialog: `kind: 'alert' | 'panel'`, focus in, Escape
-  closes, focus returns. Panels are bottom sheets on phones (grabber, "Done"). Contents stay mounted
+  closes, focus returns. Panels are bottom sheets on phones (grabber, "Done"); like iOS they can
+  also be pulled down to close (`enableSheetDrag` in `lib/motion.ts`: from the title bar always,
+  from the content when it's scrolled to the top and the first move goes down; past a third of the
+  height or a quick flick closes, otherwise it springs back; `data-sheet-no-drag` opts an element
+  out, used on the Debug Runner stage). Contents stay mounted
   while closed.
 - CSS in `styles/*.css`, imported in order by `app/globals.css`. No Tailwind, no CSS-in-JS.
 - localStorage-backed preferences use `lib/stored-value.ts` (`useSyncExternalStore`, server snapshot =

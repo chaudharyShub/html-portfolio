@@ -51,7 +51,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Activity Monitor** | The skills as running processes: live load graph, filter by group, sortable columns, and a "Used in" panel listing the jobs and projects that use each one. |
 | **About This Developer** | A Mac-style About window: photo, role and a playful spec sheet (years in IT, projects shipped, live career uptime). |
 | **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
-| **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets and alerts. |
+| **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets (tap Done or pull down to close) and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
 | **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones the Home Screen has two swipeable pages: a pill above the Dock on page 1 (tap for the links), a widget on page 2. |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
