@@ -222,3 +222,30 @@ export function DialogIcon({ type }: { type: DialogIconType }) {
     </svg>
   );
 }
+
+/**
+ * The Shubham Works maker mark, the "Dial": a squared SW in a ring, shared by all the
+ * developer's sites (CloudPrep's `MakerMark`, docs/SHUBHAM_WORKS.md in that repo). This is the
+ * small version (thick ring, larger letters) for 16-24px; it takes the text colour.
+ */
+export function MakerMark({ size = 20 }: { size?: number }) {
+  return (
+    <svg
+      {...decorative}
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="24" cy="24" r="21.5" strokeWidth="3" />
+      <path
+        d="M22.5 19.5H13a2 2 0 0 0-2 2V22a2 2 0 0 0 2 2h7.5a2 2 0 0 1 2 2v.5a2 2 0 0 1-2 2H11M25.5 19.5v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7M31.5 22v6.5"
+        strokeWidth="2.5"
+        transform="translate(24 24) scale(1.18) translate(-24.25 -24)"
+      />
+    </svg>
+  );
+}

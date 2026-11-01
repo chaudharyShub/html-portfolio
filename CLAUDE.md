@@ -177,7 +177,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   pads for the notch and the home bar (including sideways phones). `appleWebApp.title` names the
   Home Screen icon. The status bar is left at the default style: `black-translucent` would draw
   white clock text over the light title bar.
-- The desktop layer is a Home Screen grid (the Terminal icon is hidden there, it's in the dock); the
+- The desktop layer is a Home Screen with **two pages** (Nov 2026, the user's idea), swiped like an
+  iPhone (CSS scroll snap on `.desktop-layer`, each `.home-page` a 4-column grid) with tappable
+  page dots above the dock (`.home-dots`, `aria-current` on the shown page). Page 1: the icons
+  (the Terminal icon is hidden there, it's in the dock), the sticky note widget and the Shubham
+  Works pill; page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
+  and page 2 / the dots are hidden, so the desktop is unchanged. The
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
   sticky Cancel). Alerts use stacked-button styling. Phones held sideways hide the info row.
 - 16px inputs stop iOS zooming into fields.
@@ -267,6 +272,23 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   user: Koru UX - Agent Fabric; Quokka Labs - RunTheDay, MDM, SportZentric; personal - CloudPrep,
   Frontend Interview Prep (plain HTML/CSS/JS, source in the sibling folder `frontend-interview-prod`).
   Per-project dates were not given, so the company's dates are the "when".
+- **Shubham Works block** (`components/desktop/MadeBy.tsx`, Nov 2026): "Shubham Works" is the
+  umbrella name for the user's sites (this portfolio, CloudPrep, Frontend Interview Prep); each
+  site shows the same small block, specified in CloudPrep's `docs/SHUBHAM_WORKS.md` (sibling
+  folder `CloudPrep`). Here it is a glass card (Dock material) on the desktop, bottom-left,
+  behind windows (z-index 2); on screens under 1240px wide it moves up above the Dock's height.
+  The user picked this from three mockups (glass card, plain text on the wallpaper, a pill that
+  opens on hover); it first sat under the Contact card, which the user didn't want.
+  On phones (user's choice after mockups; a centered copy of the desktop card looked odd) it
+  comes twice on the two-page Home Screen: page 1 has a slim glass pill above the page dots
+  (`MadeByPill`, a button with `aria-expanded`; a tap shows "Made by" + "Also:" above it, a tap
+  elsewhere or Escape closes; hidden on sideways phones), page 2 a full-width widget with a large
+  Dial tile (`MadeByWidget`). Shared text styles are `.sw-block`, the glass is `.sw-glass`. It shows
+  the orange "Dial" mark (`MakerMark` in `components/icons`, the small version, `--maker` token:
+  `#c2410c` light, `#fb923c` dark, same as CloudPrep) + "A Shubham Works project", "Made by
+  Shubham Chaudhary" (plain text here), "Also:" with every visible personal project that has a
+  live link (from `data/projects.ts`, so a new one is listed automatically). Keep the wording and
+  order identical to the other sites; if the Dial drawing changes in CloudPrep, update it here too.
 - **Project status badges**: green for Completed, orange for In Progress (`--orange` /
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
   only Completed ones. The Terminal `projects` list is built from `VISIBLE_PROJECTS`.

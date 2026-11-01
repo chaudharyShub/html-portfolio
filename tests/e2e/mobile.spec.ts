@@ -130,6 +130,45 @@ test('Settings opens as a bottom sheet', async ({ page }) => {
   await expect(sheet).toBeHidden();
 });
 
+test('the Home Screen has two pages: the Shubham Works pill, then its widget', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  // The desktop card gives way to the phone versions.
+  await expect(page.locator('.made-by')).toBeHidden();
+
+  // Page 1: a pill centered just above the page dots and the Dock; a tap shows the links.
+  const pill = page.getByRole('button', { name: 'A Shubham Works project' });
+  const pillBox = (await pill.boundingBox())!;
+  const dots = await box(page, '.home-dots');
+  expect(pillBox.y + pillBox.height).toBeLessThanOrEqual(dots.y);
+  expect(Math.abs(pillBox.x + pillBox.width / 2 - page.viewportSize()!.width / 2)).toBeLessThan(2);
+  const cloudPrep = page.locator('.home-pill').getByRole('link', { name: /CloudPrep/ });
+  await expect(cloudPrep).toBeHidden();
+  await pill.tap();
+  await expect(pill).toHaveAttribute('aria-expanded', 'true');
+  await expect(cloudPrep).toBeVisible();
+  // Tapping elsewhere closes it.
+  await page.mouse.click(200, 400);
+  await expect(cloudPrep).toBeHidden();
+
+  // Page 2, through its page dot: the widget with every link.
+  const widget = page.locator('.sw-widget');
+  await expect(widget).not.toBeInViewport();
+  await page.getByRole('button', { name: 'Home Screen page 2 of 2' }).tap();
+  await expect(widget).toBeInViewport();
+  await expect(page.getByRole('button', { name: 'Home Screen page 2 of 2' })).toHaveAttribute('aria-current', 'true');
+  await expect(widget.getByRole('link', { name: /Frontend Interview Prep/ })).toHaveAttribute(
+    'href',
+    'https://frontend-interview-prepare.vercel.app',
+  );
+  await expect(page.locator('#icon-trash')).not.toBeInViewport();
+  await noHorizontalScroll(page);
+
+  // And back to page 1.
+  await page.getByRole('button', { name: 'Home Screen page 1 of 2' }).tap();
+  await expect(page.locator('#icon-trash')).toBeInViewport();
+});
+
 test('the Home Screen has a sticky note widget and the Time Machine app', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);

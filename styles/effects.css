@@ -24,7 +24,8 @@
 [data-larger-text] .dock-label,
 [data-larger-text] .desktop-icon,
 [data-larger-text] .menu-item-hint,
-[data-larger-text] .info-bar {
+[data-larger-text] .info-bar,
+[data-larger-text] .made-by {
   font-size: 14px;
 }
 
@@ -134,6 +135,15 @@
 
   [data-larger-text] .desktop-icon {
     font-size: 13px;
+  }
+
+  [data-larger-text] .home-pill,
+  [data-larger-text] .sw-widget {
+    font-size: 15px;
+  }
+
+  [data-larger-text] .sw-widget .sw-widget-title {
+    font-size: 17px;
   }
 
   [data-larger-text] .info-exp,

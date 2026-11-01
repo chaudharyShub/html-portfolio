@@ -55,8 +55,31 @@ test('projects are grouped by company, then personal projects', async ({ page })
   await expect(personal.locator('.project-name')).toHaveText(['CloudPrep', 'Frontend Interview Prep']);
   await expect(personal.getByRole('link', { name: /Frontend Interview Prep live site/ })).toHaveAttribute(
     'href',
-    'https://frontend-interview-prod.vercel.app',
+    'https://frontend-interview-prepare.vercel.app',
   );
+});
+
+test('the Shubham Works card sits in the bottom-left corner and links the other sites', async ({ page }) => {
+  await openDesktop(page);
+  const footer = page.locator('.made-by');
+  await expect(footer).toBeVisible();
+  const b = (await footer.boundingBox())!;
+  expect(b.x).toBeLessThan(40);
+  expect(b.y + b.height).toBeGreaterThan(page.viewportSize()!.height - 120);
+  // It sits behind windows, like the desktop icons.
+  const z = (sel: string) => page.locator(sel).evaluate((el) => Number(getComputedStyle(el).zIndex));
+  expect(await z('.made-by')).toBeLessThan(await z('#window'));
+  // The phone Home Screen versions (pill, widget, page dots) stay hidden on computers.
+  await expect(page.locator('.home-pill')).toBeHidden();
+  await expect(page.locator('.sw-widget')).toBeHidden();
+  await expect(page.locator('.home-dots')).toBeHidden();
+  await expect(footer).toContainText('A Shubham Works project');
+  await expect(footer).toContainText('Made by Shubham Chaudhary');
+  const links = footer.getByRole('link');
+  await expect(links).toHaveText(['CloudPrep ↗', 'Frontend Interview Prep ↗']);
+  await expect(links.nth(0)).toHaveAttribute('href', 'https://cloud-prep-aws.vercel.app');
+  await expect(links.nth(1)).toHaveAttribute('href', 'https://frontend-interview-prepare.vercel.app');
+  await expect(links.nth(1)).toHaveAttribute('rel', 'noopener noreferrer');
 });
 
 test('Terminal runs commands and clears', async ({ page }) => {

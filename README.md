@@ -53,6 +53,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
 | **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
+| **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones the Home Screen has two swipeable pages: a pill above the Dock on page 1 (tap for the links), a widget on page 2. |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
@@ -128,7 +129,7 @@ app/
 components/
   os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
   windows/              # generic Window (drag/resize/snap/animate), MainWindow, TerminalWindow
-  desktop/              # menu bar, Dock, logo menu, icons, context menu, sticky note, live wallpaper, notifications
+  desktop/              # menu bar, Dock, logo menu, icons, context menu, sticky note, Shubham Works card, live wallpaper, notifications
   dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer,
                         # Time Machine, Activity Monitor, About This Developer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)

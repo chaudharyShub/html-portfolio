@@ -559,3 +559,78 @@
   color: var(--text);
   line-height: 1.35;
 }
+
+/* ===== Shubham Works block (shared with the developer's other sites) ===== */
+.sw-block {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.sw-block p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.sw-block a {
+  color: var(--accent);
+  text-decoration: none;
+  /* Keep the arrow with its name. */
+  white-space: nowrap;
+}
+
+.sw-block a:hover {
+  text-decoration: underline;
+}
+
+.made-by-mark {
+  display: flex;
+  color: var(--maker);
+}
+
+/* Same glass as the Dock and menus. */
+.sw-glass {
+  background: var(--material);
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  backdrop-filter: blur(30px) saturate(1.8);
+  border: 0.5px solid var(--dock-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), inset 0 0.5px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Computers: a card in the bottom-left corner, above the wallpaper, behind windows. */
+.made-by {
+  position: fixed;
+  left: 16px;
+  bottom: 14px;
+  z-index: 2;
+  padding: 10px 14px;
+  border-radius: 14px;
+}
+
+.made-by .made-by-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Narrower screens: the Dock would reach the corner, so the card sits just above it. */
+@media (max-width: 1240px) {
+  .made-by {
+    bottom: calc(var(--dock-reserve) + 6px);
+  }
+}
+
+/* Phone Home Screen pieces (see styles/ios.css). On computers the page wrappers add no box. */
+.home-page {
+  display: contents;
+}
+
+.home-page-widgets,
+.home-pill,
+.home-dots {
+  display: none;
+}
