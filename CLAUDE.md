@@ -316,6 +316,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     `sameAs` GitHub + LinkedIn).
   - Ownership tags for Google Search Console / Bing Webmaster Tools come from the env vars
     `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` (set in Vercel; no tag when unset).
+    Google was verified with the HTML file method instead (`public/googlec9536a809aa9ed01.html`,
+    Nov 2026); the env vars stay available as an alternative.
   - The sitemap also lists the resume PDF (the site only offers it through the wizard button, so
     crawlers can't follow a link to it). The PDF carries Title/Author metadata (set with pypdf, no
     content change) so search shows it as "Shubham Chaudhary - Full Stack Engineer Resume"; keep
