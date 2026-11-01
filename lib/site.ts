@@ -18,15 +18,29 @@ function resolveSiteUrl(): string {
   return FALLBACK_SITE_URL;
 }
 
-/** Who first, then what the site is: a portfolio you can explore like a desktop. */
+/**
+ * Search snippet: the person first (name, role, years, main stack), then what the site is.
+ * Google shows about the first 155 characters, so the important words come first.
+ */
 const description =
-  "An interactive macOS-style portfolio built by a Full Stack Engineer with 4+ years building web and desktop apps in React, Next.js and Node.js.";
+  'Shubham Chaudhary, Full Stack Engineer with 4+ years building web and desktop apps in React, Next.js, TypeScript and Node.js. Projects, experience and resume in an interactive portfolio.';
+
+/** Read at build time; set them in Vercel once Search Console / Bing Webmaster Tools give a code. */
+const verification = {
+  google: process.env.GOOGLE_SITE_VERIFICATION?.trim() || undefined,
+  bing: process.env.BING_SITE_VERIFICATION?.trim() || undefined,
+};
 
 export const SITE = {
   url: resolveSiteUrl(),
+  /** App name: Home Screen icon label, manifest short name. */
   name: 'Shubham OS',
-  title: `${PROFILE.name} - ${PROFILE.role} Portfolio`,
+  /** The site's name in search results and link previews (Google reads it from WebSite data). */
+  siteName: PROFILE.name,
+  /** Name + role first, so a cut-off title still says who this is. */
+  title: `${PROFILE.name} - ${PROFILE.role} | React, Next.js, Node.js`,
   description,
+  verification,
   social: {
     title: `${PROFILE.name} - ${PROFILE.role} Portfolio`,
     description,
