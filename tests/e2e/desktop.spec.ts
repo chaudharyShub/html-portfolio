@@ -28,7 +28,7 @@ test('tabs switch the visible sections', async ({ page }) => {
   await expect(cloudPrep.locator('.status-badge')).toHaveText('In Progress');
   await expect(cloudPrep.getByRole('link', { name: /CloudPrep live site/ })).toHaveAttribute(
     'href',
-    'https://cloud-prep-aws.vercel.app',
+    'https://aws-cloud-prepare.vercel.app',
   );
   await expect(page.getByRole('heading', { name: 'Skills', exact: true })).toBeHidden();
 
@@ -77,7 +77,7 @@ test('the Shubham Works card sits in the bottom-left corner and links the other 
   await expect(footer).toContainText('Made by Shubham Chaudhary');
   const links = footer.getByRole('link');
   await expect(links).toHaveText(['CloudPrep ↗', 'Frontend Interview Prep ↗']);
-  await expect(links.nth(0)).toHaveAttribute('href', 'https://cloud-prep-aws.vercel.app');
+  await expect(links.nth(0)).toHaveAttribute('href', 'https://aws-cloud-prepare.vercel.app');
   await expect(links.nth(1)).toHaveAttribute('href', 'https://frontend-interview-prepare.vercel.app');
   await expect(links.nth(1)).toHaveAttribute('rel', 'noopener noreferrer');
 });

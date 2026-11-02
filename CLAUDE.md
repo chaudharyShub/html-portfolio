@@ -95,7 +95,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `suppressHydrationWarning`.
 - Site URL for canonical/OG/sitemap: `lib/site.ts` -> `NEXT_PUBLIC_SITE_URL` ->
   `VERCEL_PROJECT_PRODUCTION_URL` -> `https://shubhamworks.vercel.app`.
-- `public/sw.js` (cache `shubham-os-v5`; bump it when cached files change): network-first for pages,
+- `public/sw.js` (cache `shubham-os-v6`; bump it when cached files change): network-first for pages,
   cache-first for `/_next/static`, stale-while-revalidate for other files. Production only.
 - Vercel Web Analytics: `<Analytics />` in `app/layout.tsx`, rendered only when `process.env.VERCEL`
   is set (its script 404s off Vercel). Enabled once in the Vercel dashboard.
