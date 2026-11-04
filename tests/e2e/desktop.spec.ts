@@ -25,7 +25,7 @@ test('tabs switch the visible sections', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About Me' })).toBeHidden();
   const cloudPrep = page.locator('.project-card', { hasText: 'CloudPrep' });
-  await expect(cloudPrep.locator('.status-badge')).toHaveText('In Progress');
+  await expect(cloudPrep.locator('.status-badge')).toHaveText('Completed');
   await expect(cloudPrep.getByRole('link', { name: /CloudPrep live site/ })).toHaveAttribute(
     'href',
     'https://aws-cloud-prepare.vercel.app',

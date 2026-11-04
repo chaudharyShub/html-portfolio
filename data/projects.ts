@@ -21,7 +21,7 @@ export const PROJECTS: Project[] = [
   },
   {
     name: 'CloudPrep',
-    status: 'In Progress',
+    status: 'Completed',
     tech: ['React.js', 'TypeScript', 'Vite', 'Tailwind CSS', 'Supabase', 'PostgreSQL', 'MediaPipe'],
     description:
       'AWS Certification Exam Simulator - a full-length timed mock exam engine with a 2,000 question bank and a learning mode with instant explanations, on a Supabase backend with Postgres, plus an opt-in AI-proctored exam mode with in-browser computer vision (MediaPipe).',
