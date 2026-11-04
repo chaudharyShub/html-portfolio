@@ -112,11 +112,49 @@ test('Contact shows the profile links beside the form, and below it in a narrow 
   expect(Math.abs(cardBox.x - formBox.x)).toBeLessThan(2);
 });
 
+test('the logo menu keeps the profile links in a Links submenu', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#logo-menu-button').click();
+  const linksItem = page.getByRole('menuitem', { name: /^Links/ });
+  const submenu = page.getByRole('menu', { name: 'Links' });
+  // Not listed up front.
+  await expect(page.locator('#logo-menu').getByRole('menuitem', { name: /GitHub/ })).toHaveCount(0);
+  // Section shortcuts are left to the menu bar and the sidebar on computers.
+  await expect(page.getByRole('menuitem', { name: 'Experience' })).toBeHidden();
+  await expect(submenu).toBeHidden();
+
+  // Pointing at "Links" opens the submenu beside the menu.
+  await linksItem.hover();
+  await expect(submenu).toBeVisible();
+  await expect(linksItem).toHaveAttribute('aria-expanded', 'true');
+  await expect(submenu.getByRole('menuitem')).toHaveText(['GitHub ↗', 'LinkedIn ↗', 'dev.to ↗', 'Hashnode ↗', 'Instagram ↗']);
+  const menuBox = (await page.locator('#logo-menu').boundingBox())!;
+  const subBox = (await submenu.boundingBox())!;
+  expect(subBox.x).toBeGreaterThan(menuBox.x + menuBox.width - 10);
+  await expect(submenu.getByRole('menuitem', { name: /dev\.to/ })).toHaveAttribute('href', 'https://dev.to/shubham_works');
+
+  // Pointing at another item closes it.
+  await page.getByRole('menuitem', { name: 'Download Resume' }).hover();
+  await expect(submenu).toBeHidden();
+
+  // Keyboard: Right arrow opens and focuses the first link, Down moves, Left goes back.
+  await linksItem.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(submenu.getByRole('menuitem', { name: /GitHub/ })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(submenu.getByRole('menuitem', { name: /LinkedIn/ })).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(submenu).toBeHidden();
+  await expect(linksItem).toBeFocused();
+
+  // Escape closes the whole menu.
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#logo-menu')).toBeHidden();
+});
+
 test('Terminal runs commands and clears', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#logo-menu-button').click();
-  // The logo menu lists the profile links on computers (phones use the Links sheet).
-  await expect(page.getByRole('menuitem', { name: /Hashnode/ })).toBeVisible();
   await page.getByRole('menuitem', { name: 'Terminal' }).click();
   const input = page.locator('#terminal-input');
   const output = page.locator('#terminal-window [role="log"]');

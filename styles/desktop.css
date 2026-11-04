@@ -434,7 +434,7 @@
   min-width: 230px;
   padding: 5px;
   border-radius: 10px;
-  background: var(--material-strong);
+  background: var(--menu-material);
   -webkit-backdrop-filter: blur(30px) saturate(1.8);
   backdrop-filter: blur(30px) saturate(1.8);
   box-shadow: var(--shadow-menu);
@@ -496,6 +496,22 @@
   font-size: 12px;
 }
 
+/* "Links ›": stays highlighted while its submenu is open. */
+.menu-item-chevron {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.menu-item--open {
+  background: var(--accent-fill);
+  color: #fff;
+}
+
+.app-submenu {
+  min-width: 170px;
+  z-index: 96;
+}
+
 .menu-sep,
 .context-sep {
   height: 1px;
@@ -504,7 +520,8 @@
 }
 
 .menu-cancel,
-.menu-scrim {
+.menu-scrim,
+.menu-phone-only {
   display: none;
 }
 

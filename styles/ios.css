@@ -551,6 +551,11 @@
   }
 
   /* ===== Logo menu as an action sheet ===== */
+  /* Section shortcuts: computers have them in the menu bar and sidebar, phones only here. */
+  .menu-group.menu-phone-only {
+    display: block;
+  }
+
   /* Profile links live in the Home Screen's Links sheet on phones. */
   .menu-item--profile-link {
     display: none;

@@ -107,8 +107,9 @@ test('the More button opens an action sheet with Cancel on screen', async ({ pag
   const cancel = page.getByRole('menuitem', { name: 'Cancel' });
   await expect(cancel).toBeVisible();
   // Profile links are in the Home Screen's Links sheet instead; Download Resume stays.
-  await expect(page.getByRole('menuitem', { name: /GitHub/ })).toBeHidden();
+  await expect(page.getByRole('menuitem', { name: /^Links/ })).toBeHidden();
   await expect(page.getByRole('menuitem', { name: 'Download Resume' })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Experience' })).toBeVisible();
   await page.waitForTimeout(600); // let the sheet finish sliding up
   const c = (await cancel.boundingBox())!;
   expect(c.y + c.height).toBeLessThanOrEqual(page.viewportSize()!.height);
