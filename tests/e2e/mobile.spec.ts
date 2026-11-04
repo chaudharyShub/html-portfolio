@@ -160,6 +160,22 @@ test('a bottom sheet springs back from a short pull and closes when pulled down'
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   };
 
+  // Pulled up, the sheet stretches taller; its bottom stays on the screen's edge (no gap), then it settles back.
+  const viewportHeight = page.viewportSize()!.height;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (let i = 1; i <= 10; i++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - 12 * i }] });
+    await page.waitForTimeout(30);
+  }
+  const stretched = (await sheet.boundingBox())!;
+  expect(stretched.y).toBeLessThan(b.y - 10);
+  expect(Math.round(stretched.y + stretched.height)).toBe(viewportHeight);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(500);
+  const settled = (await sheet.boundingBox())!;
+  expect(Math.round(settled.y)).toBe(Math.round(b.y));
+  expect(Math.round(settled.height)).toBe(Math.round(b.height));
+
   await pull(40);
   await page.waitForTimeout(500);
   await expect(sheet).toBeVisible();

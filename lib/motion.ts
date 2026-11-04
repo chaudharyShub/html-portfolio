@@ -792,11 +792,19 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
   let velocity = 0;
   let state: 'idle' | 'maybe' | 'dragging' = 'idle';
   let fromTitleBar = false;
+  let baseHeight = 0;
 
   const offset = (y: number) => {
     const dy = y - startY;
     // A little resistance upward, free downward.
     return dy < 0 ? dy / 4 : dy;
+  };
+
+  // Down slides the sheet; up stretches it taller like iOS, so its bottom stays on the screen's edge
+  // (sliding it up left a gap that showed the page behind).
+  const place = (dy: number) => {
+    box.style.transform = dy > 0 ? `translateY(${dy}px)` : '';
+    box.style.height = dy < 0 ? `${baseHeight - dy}px` : '';
   };
 
   const onStart = (e: TouchEvent) => {
@@ -828,13 +836,15 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
       }
       state = 'dragging';
       box.style.transition = 'none';
+      baseHeight = box.getBoundingClientRect().height;
+      box.style.maxHeight = 'none';
     }
     e.preventDefault();
     const dt = e.timeStamp - lastT;
     if (dt > 0) velocity = (clientY - lastY) / dt;
     lastY = clientY;
     lastT = e.timeStamp;
-    box.style.transform = `translateY(${offset(clientY)}px)`;
+    place(offset(clientY));
   };
 
   const onEnd = () => {
@@ -848,19 +858,26 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
       // The close animation carries on from where the finger left the sheet
       // (with reduced motion there is none, so the sheet just goes).
       box.style.transition = '';
+      box.style.maxHeight = '';
       if (prefersReducedMotion()) box.style.transform = '';
       onDismiss();
       return;
     }
+    const settle = () => {
+      box.style.transition = '';
+      box.style.height = '';
+      box.style.maxHeight = '';
+    };
     if (prefersReducedMotion()) {
       box.style.transform = '';
-      box.style.transition = '';
+      settle();
       return;
     }
-    box.style.transition = `transform 380ms ${APPLE_EASE}`;
+    box.style.transition = `transform 380ms ${APPLE_EASE}, height 380ms ${APPLE_EASE}`;
     box.style.transform = '';
+    if (dy < 0) box.style.height = `${baseHeight}px`;
     window.setTimeout(() => {
-      if (state === 'idle') box.style.transition = '';
+      if (state === 'idle') settle();
     }, 400);
   };
 
