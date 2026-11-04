@@ -2,6 +2,7 @@
 
 import { AppIcon, DialogIcon } from '@/components/icons';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
+import { ProfileLinkList } from '@/components/portfolio/ProfileLinkList';
 import { Dialog } from './Dialog';
 
 const TRASH_ITEMS = [
@@ -71,6 +72,20 @@ export function TrashDialog() {
             Close
           </button>
         </div>
+      </div>
+    </Dialog>
+  );
+}
+
+/** Every profile link. Opened by the phone Home Screen's Links icon (a bottom sheet there). */
+export function LinksDialog() {
+  const { dialogs } = useOsState();
+  const { closeDialog } = useOsActions();
+  const close = () => closeDialog('links');
+  return (
+    <Dialog open={dialogs.links} title="Find me online" kind="panel" onClose={close}>
+      <div className="dialog-body links-sheet">
+        <ProfileLinkList ariaLabel="Profile links" />
       </div>
     </Dialog>
   );

@@ -5,10 +5,11 @@
  */
 
 import type { ReactNode } from 'react';
+import type { ProfileLinkId } from '@/data/profile';
 
 const decorative = { 'aria-hidden': true, focusable: false } as const;
 
-export type AppIconName = 'portfolio' | 'terminal' | 'game' | 'settings' | 'resume' | 'trash' | 'drive' | 'more' | 'timemachine' | 'activity';
+export type AppIconName = 'portfolio' | 'terminal' | 'game' | 'settings' | 'resume' | 'trash' | 'drive' | 'more' | 'timemachine' | 'activity' | 'links';
 
 const GLYPHS: Record<AppIconName, ReactNode> = {
   portfolio: (
@@ -78,6 +79,12 @@ const GLYPHS: Record<AppIconName, ReactNode> = {
       <path d="M8 17.5h3.6l2-5.5 3.4 9 2.4-6.2 1.2 2.7H24" fill="none" stroke="#4be37a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </>
   ),
+  links: (
+    <>
+      <path d="M14.6 17.4a4.2 4.2 0 0 0 6 0l3.4-3.4a4.2 4.2 0 0 0-6-6l-1.6 1.6" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M17.4 14.6a4.2 4.2 0 0 0-6 0L8 18a4.2 4.2 0 0 0 6 6l1.6-1.6" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
+    </>
+  ),
   more: (
     <>
       <circle cx="9.5" cy="16" r="2.4" fill="#fff" />
@@ -93,6 +100,62 @@ export function AppIcon({ name, size = 48 }: { name: AppIconName; size?: number 
     <span className={`app-icon app-icon--${name}`} style={{ width: size, height: size }} aria-hidden="true">
       <svg viewBox="0 0 32 32" width="100%" height="100%" focusable="false">
         {GLYPHS[name]}
+      </svg>
+    </span>
+  );
+}
+
+/**
+ * Small tiles for the profile links in the Contact card: our own simple glyphs on a colored
+ * tile (not the services' logos), drawn like the app tiles.
+ */
+const LINK_GLYPHS: Record<ProfileLinkId, ReactNode> = {
+  github: (
+    <path
+      d="M12 10.5L6.5 16l5.5 5.5M20 10.5l5.5 5.5-5.5 5.5M17.6 8.5l-3.2 15"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  linkedin: (
+    <>
+      <path d="M12.5 11V9.2c0-.9.7-1.6 1.6-1.6h3.8c.9 0 1.6.7 1.6 1.6V11" fill="none" stroke="#fff" strokeWidth="2" />
+      <rect x="6.5" y="11" width="19" height="13.5" rx="2.5" fill="#fff" />
+      <path d="M6.5 17h19" stroke="#0a66c2" strokeWidth="1.4" />
+    </>
+  ),
+  devto: (
+    <>
+      <rect x="8" y="6.5" width="16" height="19" rx="2.5" fill="#fff" />
+      <path d="M11.5 12h9M11.5 16h9M11.5 20h5.5" stroke="#047857" strokeWidth="1.8" strokeLinecap="round" />
+    </>
+  ),
+  hashnode: (
+    <path
+      d="M13.5 7.5l-2 17M20.5 7.5l-2 17M8.5 12.5h16M7.5 19.5h16"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+    />
+  ),
+  instagram: (
+    <>
+      <rect x="7.5" y="7.5" width="17" height="17" rx="5" fill="none" stroke="#fff" strokeWidth="2.2" />
+      <circle cx="16" cy="16" r="4" fill="none" stroke="#fff" strokeWidth="2.2" />
+      <circle cx="21.2" cy="10.8" r="1.3" fill="#fff" />
+    </>
+  ),
+};
+
+export function LinkTile({ id, size = 30 }: { id: ProfileLinkId; size?: number }) {
+  return (
+    <span className={`app-icon link-tile--${id}`} style={{ width: size, height: size }} aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="100%" height="100%" focusable="false">
+        {LINK_GLYPHS[id]}
       </svg>
     </span>
   );

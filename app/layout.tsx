@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { ReactNode } from 'react';
 import { ServiceWorkerRegistrar } from '@/components/shared/ServiceWorkerRegistrar';
 import { PROFILE } from '@/data/profile';
@@ -77,9 +78,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         {children}
         <ServiceWorkerRegistrar />
-        {/* Vercel Web Analytics (cookieless page views). Its script is served only by Vercel, so it is
-            rendered only in builds made on Vercel; local dev/start would just get a 404. */}
+        {/* Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real
+            visits). Their scripts are served only by Vercel, so they are rendered only in builds made
+            on Vercel; local dev/start would just get a 404. */}
         {process.env.VERCEL && <Analytics />}
+        {process.env.VERCEL && <SpeedInsights />}
       </body>
     </html>
   );

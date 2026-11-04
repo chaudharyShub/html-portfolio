@@ -25,7 +25,7 @@ test('tabs switch the visible sections', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About Me' })).toBeHidden();
   const cloudPrep = page.locator('.project-card', { hasText: 'CloudPrep' });
-  await expect(cloudPrep.locator('.status-badge')).toHaveText('In Progress');
+  await expect(cloudPrep.locator('.status-badge')).toHaveText('Completed');
   await expect(cloudPrep.getByRole('link', { name: /CloudPrep live site/ })).toHaveAttribute(
     'href',
     'https://aws-cloud-prepare.vercel.app',
@@ -82,6 +82,97 @@ test('the Shubham Works card sits in the bottom-left corner and links the other 
   await expect(links.nth(1)).toHaveAttribute('rel', 'noopener noreferrer');
 });
 
+test('the Contact tab fits a short laptop screen without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 680 });
+  await openDesktop(page);
+  await page.getByRole('tab', { name: 'Contact' }).click();
+  // Send, Email and Download Resume share one row under the form.
+  const row = page.locator('#contact-form .links-row');
+  await expect(row.getByRole('button', { name: 'Send' })).toBeVisible();
+  await expect(row.getByRole('link', { name: 'Email' })).toBeVisible();
+  await expect(row.getByRole('button', { name: /Download Resume/ })).toBeVisible();
+  // Send on the left, the others pushed to the right edge of the form, a divider between.
+  await expect(row.locator('.form-actions-divider')).toBeVisible();
+  const send = (await row.getByRole('button', { name: 'Send' }).boundingBox())!;
+  const download = (await row.getByRole('button', { name: /Download Resume/ }).boundingBox())!;
+  const form = (await page.locator('#message').boundingBox())!;
+  expect(Math.abs(send.y - download.y)).toBeLessThan(2);
+  expect(Math.abs(send.x - form.x)).toBeLessThan(2);
+  expect(Math.abs(download.x + download.width - (form.x + form.width))).toBeLessThan(2);
+  const overflow = await page.locator('#window .content').evaluate((el) => el.scrollHeight - el.clientHeight);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test('Contact shows the profile links beside the form, and below it in a narrow window', async ({ page }) => {
+  await openDesktop(page);
+  await page.getByRole('tab', { name: 'Contact' }).click();
+  const card = page.getByRole('list', { name: 'Find me online' });
+  const links = card.getByRole('link');
+  await expect(links.locator('.profile-link-label')).toHaveText(['GitHub', 'LinkedIn', 'dev.to', 'Hashnode', 'Instagram']);
+  await expect(links.nth(0)).toHaveAttribute('href', 'https://github.com/chaudharyShub');
+  await expect(links.nth(0)).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(links.nth(2)).toHaveAttribute('href', 'https://dev.to/shubham_works');
+  await expect(links.nth(3)).toHaveAttribute('href', 'https://hashnode.com/@shubhamworks');
+  // Only actions stay in the button row.
+  await expect(page.locator('#section-contact .links-row').getByRole('link', { name: 'GitHub' })).toHaveCount(0);
+  // The Links Home Screen icon is for phones only.
+  await expect(page.locator('#icon-links')).toBeHidden();
+
+  // Wide window: to the right of the form, without scrolling.
+  const form = page.locator('#contact-form');
+  let formBox = (await form.boundingBox())!;
+  let cardBox = (await card.boundingBox())!;
+  expect(cardBox.x).toBeGreaterThan(formBox.x + formBox.width);
+  expect(cardBox.y).toBeLessThan(formBox.y + 60);
+
+  // Narrow window: stacked under the form.
+  await page.locator('#window').evaluate((el) => el.style.setProperty('width', '620px', 'important'));
+  await expect.poll(async () => (await card.boundingBox())!.y).toBeGreaterThan(formBox.y + formBox.height);
+  formBox = (await form.boundingBox())!;
+  cardBox = (await card.boundingBox())!;
+  expect(Math.abs(cardBox.x - formBox.x)).toBeLessThan(2);
+});
+
+test('the logo menu keeps the profile links in a Links submenu', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#logo-menu-button').click();
+  const linksItem = page.getByRole('menuitem', { name: /^Links/ });
+  const submenu = page.getByRole('menu', { name: 'Links' });
+  // Not listed up front.
+  await expect(page.locator('#logo-menu').getByRole('menuitem', { name: /GitHub/ })).toHaveCount(0);
+  // No section shortcuts: the menu bar and the sidebar have them.
+  await expect(page.getByRole('menuitem', { name: 'Experience' })).toHaveCount(0);
+  await expect(submenu).toBeHidden();
+
+  // Pointing at "Links" opens the submenu beside the menu.
+  await linksItem.hover();
+  await expect(submenu).toBeVisible();
+  await expect(linksItem).toHaveAttribute('aria-expanded', 'true');
+  await expect(submenu.getByRole('menuitem')).toHaveText(['GitHub ↗', 'LinkedIn ↗', 'dev.to ↗', 'Hashnode ↗', 'Instagram ↗']);
+  const menuBox = (await page.locator('#logo-menu').boundingBox())!;
+  const subBox = (await submenu.boundingBox())!;
+  expect(subBox.x).toBeGreaterThan(menuBox.x + menuBox.width - 10);
+  await expect(submenu.getByRole('menuitem', { name: /dev\.to/ })).toHaveAttribute('href', 'https://dev.to/shubham_works');
+
+  // Pointing at another item closes it.
+  await page.getByRole('menuitem', { name: 'Download Resume' }).hover();
+  await expect(submenu).toBeHidden();
+
+  // Keyboard: Right arrow opens and focuses the first link, Down moves, Left goes back.
+  await linksItem.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(submenu.getByRole('menuitem', { name: /GitHub/ })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(submenu.getByRole('menuitem', { name: /LinkedIn/ })).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(submenu).toBeHidden();
+  await expect(linksItem).toBeFocused();
+
+  // Escape closes the whole menu.
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#logo-menu')).toBeHidden();
+});
+
 test('Terminal runs commands and clears', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#logo-menu-button').click();
@@ -97,6 +188,11 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await input.fill('projects');
   await input.press('Enter');
   await expect(output).toContainText('2. CloudPrep');
+
+  await input.fill('links');
+  await input.press('Enter');
+  await expect(output).toContainText('https://github.com/chaudharyShub');
+  await expect(output).toContainText('https://hashnode.com/@shubhamworks');
 
   await input.fill('nonsense');
   await input.press('Enter');

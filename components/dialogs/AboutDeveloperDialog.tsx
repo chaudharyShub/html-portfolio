@@ -7,7 +7,7 @@ import { PROFILE } from '@/data/profile';
 import { VISIBLE_PROJECTS } from '@/data/projects';
 import { Dialog } from './Dialog';
 
-const GITHUB_HANDLE = PROFILE.links.github.split('/').pop();
+const GITHUB_HANDLE = PROFILE.links.github.href.split('/').pop();
 
 /** "About This Developer": a spec sheet for Shubham, in the style of a Mac's About window. */
 export function AboutDeveloperDialog() {
@@ -41,7 +41,7 @@ export function AboutDeveloperDialog() {
           </dd>
           <dt>Serial number</dt>
           <dd>
-            <a href={PROFILE.links.github} target="_blank" rel="noopener noreferrer">
+            <a href={PROFILE.links.github.href} target="_blank" rel="noopener noreferrer">
               {GITHUB_HANDLE}
             </a>
           </dd>

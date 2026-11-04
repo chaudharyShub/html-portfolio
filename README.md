@@ -14,7 +14,7 @@ an app-style Home Screen.
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-1d1d1f?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-0066cc?style=flat-square)
 ![CSS](https://img.shields.io/badge/CSS-hand--written-6e6e73?style=flat-square)
-![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20analytics-34c759?style=flat-square)
+![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20vercel%20insights-34c759?style=flat-square)
 
 <br>
 
@@ -52,12 +52,12 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **About This Developer** | A Mac-style About window: photo, role and a playful spec sheet (years in IT, projects shipped, live career uptime). |
 | **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
 | **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets (tap Done or pull down to close) and alerts. |
-| **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
+| **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. Beside it, a "Find me online" card lists Shubham's profiles; on phones a Links icon on the Home Screen opens them in a sheet. |
 | **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones the Home Screen has two swipeable pages: a pill above the Dock on page 1 (tap for the links), a widget on page 2. |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
-| **Analytics** | Vercel Web Analytics (cookieless page views), active only on Vercel deployments. |
+| **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage`, and every animation respects
 `prefers-reduced-motion`. Menus, tabs, window buttons and dialogs are keyboard
@@ -76,6 +76,7 @@ shubham@portfolio ~ % whoami
 shubham@portfolio ~ % skills
 shubham@portfolio ~ % projects
 shubham@portfolio ~ % resume
+shubham@portfolio ~ % links
 shubham@portfolio ~ % sudo hire-me
 ```
 
@@ -210,16 +211,18 @@ How it behaves:
   If spam still gets through, add hCaptcha (free on Web3Forms; Cloudflare Turnstile and reCAPTCHA
   need a paid plan).
 
-## Web Analytics
+## Web Analytics and Speed Insights
 
-The site uses [Vercel Web Analytics](https://vercel.com/docs/analytics) (`<Analytics />` in
-`app/layout.tsx`). To see data:
+The site uses [Vercel Web Analytics](https://vercel.com/docs/analytics) (`<Analytics />`) and
+[Speed Insights](https://vercel.com/docs/speed-insights) (`<SpeedInsights />`, Core Web Vitals
+from real visits), both in `app/layout.tsx`. To see data:
 
-1. In Vercel, open the project → **Analytics** tab → **Enable** (once per project).
-2. Deploy. Page views appear in the Analytics tab within a few minutes of visits.
+1. In Vercel, open the project → **Analytics** tab → **Enable**, and **Speed Insights** tab →
+   **Enable** (once per project).
+2. Deploy. Page views and Web Vitals appear in those tabs a while after real visits.
 
-The component is only rendered in builds made on Vercel (`process.env.VERCEL`), because its script
-is served by Vercel itself; local `npm run dev` / `npm start` don't load it.
+The components are only rendered in builds made on Vercel (`process.env.VERCEL`), because their
+scripts are served by Vercel itself; local `npm run dev` / `npm start` don't load them.
 
 ## Custom domain
 
@@ -258,7 +261,9 @@ See `.env.example`. After switching domains, re-submit the sitemap in Google Sea
 
 [Portfolio](https://shubhamworks.vercel.app) ·
 [GitHub](https://github.com/chaudharyShub) ·
-[LinkedIn](https://www.linkedin.com/in/shubham-chaudhary-4398bba8)
+[LinkedIn](https://www.linkedin.com/in/shubham-chaudhary-4398bba8) ·
+[dev.to](https://dev.to/shubham_works) ·
+[Hashnode](https://hashnode.com/@shubhamworks)
 
 <div align="center">
 <br>

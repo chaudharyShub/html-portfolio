@@ -106,11 +106,19 @@ test('the More button opens an action sheet with Cancel on screen', async ({ pag
   await page.locator('#dock-more').tap();
   const cancel = page.getByRole('menuitem', { name: 'Cancel' });
   await expect(cancel).toBeVisible();
+  // Profile links are in the Home Screen's Links sheet instead; Download Resume stays.
+  await expect(page.getByRole('menuitem', { name: /^Links/ })).toBeHidden();
+  await expect(page.getByRole('menuitem', { name: 'Download Resume' })).toBeVisible();
+  // No section shortcuts: the app's tab bar has them.
+  await expect(page.getByRole('menuitem', { name: 'Experience' })).toHaveCount(0);
   await page.waitForTimeout(600); // let the sheet finish sliding up
   const c = (await cancel.boundingBox())!;
   expect(c.y + c.height).toBeLessThanOrEqual(page.viewportSize()!.height);
   await cancel.tap();
+  // It slides back down (still on screen for a moment), then hides.
+  await expect(page.locator('#logo-menu')).toHaveClass(/closing/);
   await expect(page.locator('#logo-menu')).toBeHidden();
+  await expect(page.locator('#logo-menu')).not.toHaveClass(/closing/);
 });
 
 test('Settings opens as a bottom sheet', async ({ page }) => {
@@ -152,6 +160,22 @@ test('a bottom sheet springs back from a short pull and closes when pulled down'
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   };
 
+  // Pulled up, the sheet stretches taller; its bottom stays on the screen's edge (no gap), then it settles back.
+  const viewportHeight = page.viewportSize()!.height;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (let i = 1; i <= 10; i++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - 12 * i }] });
+    await page.waitForTimeout(30);
+  }
+  const stretched = (await sheet.boundingBox())!;
+  expect(stretched.y).toBeLessThan(b.y - 10);
+  expect(Math.round(stretched.y + stretched.height)).toBe(viewportHeight);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(500);
+  const settled = (await sheet.boundingBox())!;
+  expect(Math.round(settled.y)).toBe(Math.round(b.y));
+  expect(Math.round(settled.height)).toBe(Math.round(b.height));
+
   await pull(40);
   await page.waitForTimeout(500);
   await expect(sheet).toBeVisible();
@@ -159,6 +183,24 @@ test('a bottom sheet springs back from a short pull and closes when pulled down'
 
   await pull(b.height / 2);
   await expect(sheet).toBeHidden();
+});
+
+test('the Links icon sits before Trash and opens every profile link in a sheet', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  const linksIcon = await box(page, '#icon-links');
+  const trash = await box(page, '#icon-trash');
+  expect(linksIcon.x).toBeLessThan(trash.x);
+  expect(Math.abs(linksIcon.y - trash.y)).toBeLessThan(2);
+
+  await page.locator('#icon-links').tap();
+  const list = page.getByRole('list', { name: 'Profile links' });
+  await expect(list).toBeVisible();
+  await expect(list.locator('.profile-link-label')).toHaveText(['GitHub', 'LinkedIn', 'dev.to', 'Hashnode', 'Instagram']);
+  await expect(list.getByRole('link').nth(1)).toHaveAttribute('href', /linkedin\.com/);
+  // The sheet's "Done" button.
+  await page.getByRole('dialog', { name: 'Find me online' }).getByRole('button', { name: 'Close' }).tap();
+  await expect(list).toBeHidden();
 });
 
 test('the Home Screen has two pages: the Shubham Works pill, then its widget', async ({ page }) => {

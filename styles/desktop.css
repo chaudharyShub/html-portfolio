@@ -62,8 +62,17 @@
   background: linear-gradient(160deg, #4a4f5c, #15171c);
 }
 
+.app-icon--links {
+  background: linear-gradient(160deg, #a78bfa, #6d28d9);
+}
+
 .app-icon--more {
   background: linear-gradient(160deg, #98989d, #48484a);
+}
+
+/* The Links icon is a phone Home Screen app; computers show the links in Contact. */
+#icon-links {
+  display: none;
 }
 
 /* ===== Menu bar ===== */
@@ -425,7 +434,7 @@
   min-width: 230px;
   padding: 5px;
   border-radius: 10px;
-  background: var(--material-strong);
+  background: var(--menu-material);
   -webkit-backdrop-filter: blur(30px) saturate(1.8);
   backdrop-filter: blur(30px) saturate(1.8);
   box-shadow: var(--shadow-menu);
@@ -485,6 +494,22 @@
 .menu-item-hint {
   opacity: 0.55;
   font-size: 12px;
+}
+
+/* "Links ›": stays highlighted while its submenu is open. */
+.menu-item-chevron {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.menu-item--open {
+  background: var(--accent-fill);
+  color: #fff;
+}
+
+.app-submenu {
+  min-width: 170px;
+  z-index: 96;
 }
 
 .menu-sep,
