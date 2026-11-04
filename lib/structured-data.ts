@@ -1,4 +1,4 @@
-import { PROFILE } from '@/data/profile';
+import { PROFILE, PROFILE_LINKS } from '@/data/profile';
 import { SKILL_GROUPS } from '@/data/skills';
 import { SITE } from './site';
 
@@ -37,7 +37,7 @@ export function buildProfilePageJsonLd(): Record<string, unknown> {
         jobTitle: PROFILE.role,
         url,
         image: `${SITE.url}${PROFILE.photo}`,
-        sameAs: [PROFILE.links.github, PROFILE.links.linkedin],
+        sameAs: PROFILE_LINKS.map((link) => link.href),
         knowsAbout: SKILL_GROUPS.flatMap((group) => group.skills.map((skill) => skill.name)),
         description: SITE.description,
       },

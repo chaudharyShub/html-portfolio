@@ -1,4 +1,4 @@
-import { PROFILE } from '@/data/profile';
+import { PROFILE_LINKS } from '@/data/profile';
 import { VISIBLE_PROJECTS } from '@/data/projects';
 import type { SectionId } from './sections';
 
@@ -24,7 +24,7 @@ type Command = (fx: TerminalEffects) => CommandOutput;
 
 const COMMANDS: Record<string, Command> = {
   help: () =>
-    'Available commands:\n  whoami, about, skills, projects, experience, contact,\n  github, linkedin, date, ver, echo <text>, clear, exit',
+    `Available commands:\n  whoami, about, skills, projects, experience, contact,\n  links, ${PROFILE_LINKS.map((link) => link.id).join(', ')},\n  date, ver, echo <text>, clear, exit`,
   whoami: () => 'Shubham Chaudhary - Full Stack Engineer - 4+ years experience, building with AI agents',
   about: () =>
     'Full-stack engineer specializing in the full stack (frontend-heavy).\n4+ years as a Software Engineer (plus 2 yrs prior as a Mechanical Engineer).\nBuilding with AI via Cursor AI and Agent Fabric (multi-agent orchestration).',
@@ -41,14 +41,17 @@ const COMMANDS: Record<string, Command> = {
     fx.openResumeWizard();
     return 'Opening the resume installer...';
   },
-  github: (fx) => {
-    fx.openUrl(PROFILE.links.github);
-    return 'Opening GitHub...';
-  },
-  linkedin: (fx) => {
-    fx.openUrl(PROFILE.links.linkedin);
-    return 'Opening LinkedIn...';
-  },
+  links: () => PROFILE_LINKS.map((link) => `${link.label.padEnd(10)} ${link.href}`).join('\n'),
+  // One command per profile link (github, linkedin, ...), named by its id.
+  ...Object.fromEntries(
+    PROFILE_LINKS.map((link): [string, Command] => [
+      link.id,
+      (fx) => {
+        fx.openUrl(link.href);
+        return `Opening ${link.label}...`;
+      },
+    ]),
+  ),
   date: () => new Date().toString(),
   ver: () => 'Shubham OS 3.0',
   clear: () => ({ clear: true }),

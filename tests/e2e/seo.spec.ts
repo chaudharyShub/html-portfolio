@@ -23,6 +23,8 @@ test('the page tells search engines who this is', async ({ request }) => {
   expect(byType('WebSite').name).toBe('Shubham Chaudhary');
   expect(byType('Person').name).toBe('Shubham Chaudhary');
   expect(byType('Person').knowsAbout).toContain('Next.js');
+  expect(byType('Person').sameAs).toContain('https://github.com/chaudharyShub');
+  expect(byType('Person').sameAs).toContain('https://dev.to/shubham_works');
 
   // All the portfolio text is in the HTML, not only after JavaScript runs.
   for (const text of ['About Me', 'Agent Fabric', 'Quokka Labs', 'CloudPrep']) expect(html).toContain(text);

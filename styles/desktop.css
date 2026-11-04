@@ -62,8 +62,17 @@
   background: linear-gradient(160deg, #4a4f5c, #15171c);
 }
 
+.app-icon--links {
+  background: linear-gradient(160deg, #a78bfa, #6d28d9);
+}
+
 .app-icon--more {
   background: linear-gradient(160deg, #98989d, #48484a);
+}
+
+/* The Links icon is a phone Home Screen app; computers show the links in Contact. */
+#icon-links {
+  display: none;
 }
 
 /* ===== Menu bar ===== */

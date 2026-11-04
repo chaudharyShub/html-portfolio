@@ -15,7 +15,7 @@ import { AboutDeveloperDialog } from '@/components/dialogs/AboutDeveloperDialog'
 import { ActivityMonitorDialog } from '@/components/dialogs/ActivityMonitorDialog';
 import { SettingsDialog } from '@/components/dialogs/SettingsDialog';
 import { InstallWizardDialog } from '@/components/dialogs/InstallWizardDialog';
-import { CloseConfirmDialog, MessageDialog, TrashDialog } from '@/components/dialogs/SystemDialogs';
+import { CloseConfirmDialog, LinksDialog, MessageDialog, TrashDialog } from '@/components/dialogs/SystemDialogs';
 import { TerminalWindow } from '@/components/windows/TerminalWindow';
 import { MainWindow, type MainWindowProps } from '@/components/windows/MainWindow';
 import { BootScreen } from './BootScreen';
@@ -54,6 +54,7 @@ function Desktop(props: MainWindowProps) {
       <MessageDialog />
       <CloseConfirmDialog />
       <TrashDialog />
+      <LinksDialog />
       <DebugRunnerDialog />
       <TimeMachineDialog />
       <ActivityMonitorDialog />

@@ -20,6 +20,8 @@ const DESKTOP_ICONS: DesktopIconDef[] = [
   { id: 'icon-activity', label: 'Activity Monitor', icon: <AppIcon name="activity" size={56} />, open: (a) => a.openDialog('activity') },
   { id: 'icon-terminal', label: 'Terminal', icon: <AppIcon name="terminal" size={56} />, open: (a) => a.openTerminal() },
   { id: 'icon-trash', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('trash') },
+  // Phones only (the Contact section shows the links on computers); placed before Trash by CSS.
+  { id: 'icon-links', label: 'Links', icon: <AppIcon name="links" size={56} />, open: (a) => a.openDialog('links') },
 ];
 
 /** Keep in sync with --menubar-h / --dock-reserve in styles/base.css. */

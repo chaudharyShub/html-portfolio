@@ -161,6 +161,24 @@ test('a bottom sheet springs back from a short pull and closes when pulled down'
   await expect(sheet).toBeHidden();
 });
 
+test('the Links icon sits before Trash and opens every profile link in a sheet', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  const linksIcon = await box(page, '#icon-links');
+  const trash = await box(page, '#icon-trash');
+  expect(linksIcon.x).toBeLessThan(trash.x);
+  expect(Math.abs(linksIcon.y - trash.y)).toBeLessThan(2);
+
+  await page.locator('#icon-links').tap();
+  const list = page.getByRole('list', { name: 'Profile links' });
+  await expect(list).toBeVisible();
+  await expect(list.locator('.profile-link-label')).toHaveText(['GitHub', 'LinkedIn', 'dev.to', 'Hashnode', 'Instagram']);
+  await expect(list.getByRole('link').nth(1)).toHaveAttribute('href', /linkedin\.com/);
+  // The sheet's "Done" button.
+  await page.getByRole('dialog', { name: 'Find me online' }).getByRole('button', { name: 'Close' }).tap();
+  await expect(list).toBeHidden();
+});
+
 test('the Home Screen has two pages: the Shubham Works pill, then its widget', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);

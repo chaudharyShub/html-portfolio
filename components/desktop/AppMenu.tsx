@@ -1,7 +1,7 @@
 'use client';
 
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
-import { PROFILE } from '@/data/profile';
+import { PROFILE_LINKS } from '@/data/profile';
 import { pressableProps } from '@/lib/a11y';
 import type { SectionId } from '@/lib/sections';
 
@@ -11,12 +11,6 @@ const SECTION_ITEMS: { id: SectionId; label: string }[] = [
   { id: 'projects', label: 'Projects' },
   { id: 'experience', label: 'Experience' },
   { id: 'contact', label: 'Contact' },
-];
-
-const EXTERNAL_LINKS = [
-  { label: 'GitHub', href: PROFILE.links.github },
-  { label: 'LinkedIn', href: PROFILE.links.linkedin },
-  { label: 'Instagram', href: PROFILE.links.instagram },
 ];
 
 /**
@@ -117,8 +111,8 @@ export function AppMenu() {
             >
               Download Resume
             </div>
-            {EXTERNAL_LINKS.map(({ label, href }) => (
-              <a key={label} className="menu-item" role="menuitem" href={href} target="_blank" rel="noopener noreferrer">
+            {PROFILE_LINKS.map(({ id, label, href }) => (
+              <a key={id} className="menu-item" role="menuitem" href={href} target="_blank" rel="noopener noreferrer">
                 {label} <span className="menu-item-hint">↗</span>
               </a>
             ))}

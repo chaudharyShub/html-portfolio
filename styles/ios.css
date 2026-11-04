@@ -86,6 +86,15 @@
     display: none;
   }
 
+  /* Links is a phone-only icon; it sits before Trash (it comes last in the markup). */
+  #icon-links {
+    display: flex;
+  }
+
+  #icon-trash {
+    order: 1;
+  }
+
   /* The sticky note is a Home Screen widget, two icons wide, in the top-right corner; the
      icons fill the left half next to it, then continue below. */
   .sticky-note {

@@ -52,7 +52,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **About This Developer** | A Mac-style About window: photo, role and a playful spec sheet (years in IT, projects shipped, live career uptime). |
 | **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
 | **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets (tap Done or pull down to close) and alerts. |
-| **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. |
+| **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. Beside it, a "Find me online" card lists Shubham's profiles; on phones a Links icon on the Home Screen opens them in a sheet. |
 | **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones the Home Screen has two swipeable pages: a pill above the Dock on page 1 (tap for the links), a widget on page 2. |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
@@ -76,6 +76,7 @@ shubham@portfolio ~ % whoami
 shubham@portfolio ~ % skills
 shubham@portfolio ~ % projects
 shubham@portfolio ~ % resume
+shubham@portfolio ~ % links
 shubham@portfolio ~ % sudo hire-me
 ```
 
@@ -258,7 +259,9 @@ See `.env.example`. After switching domains, re-submit the sitemap in Google Sea
 
 [Portfolio](https://shubhamworks.vercel.app) ·
 [GitHub](https://github.com/chaudharyShub) ·
-[LinkedIn](https://www.linkedin.com/in/shubham-chaudhary-4398bba8)
+[LinkedIn](https://www.linkedin.com/in/shubham-chaudhary-4398bba8) ·
+[dev.to](https://dev.to/shubham_works) ·
+[Hashnode](https://hashnode.com/@shubham-works)
 
 <div align="center">
 <br>

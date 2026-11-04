@@ -73,7 +73,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   imperative handles/DOM nodes in via `connect.*` callback refs (`mainWindow`, `terminalWindow`,
   `mainDockIcon`, `terminalDockIcon`, `terminalConsole`, ...) because the React Compiler lint forbids
   passing ref objects around in render. Dialog ids: `message`, `closeConfirm`, `trash`, `game`,
-  `settings`, `wizard`, `timeMachine`, `about`, `activity`. Window keys: `main`, `terminal`.
+  `settings`, `wizard`, `timeMachine`, `about`, `activity`, `links`. Window keys: `main`, `terminal`.
 - `components/windows/Window.tsx` is the single generic window (drag, 8-edge resize, snap, zoom,
   minimize, phone Home button); reuse it for any new window. Discrete state is React state; live
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
@@ -185,7 +185,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - The desktop layer is a Home Screen with **two pages** (Nov 2026, the user's idea), swiped like an
   iPhone (CSS scroll snap on `.desktop-layer`, each `.home-page` a 4-column grid) with tappable
   page dots above the dock (`.home-dots`, `aria-current` on the shown page). Page 1: the icons
-  (the Terminal icon is hidden there, it's in the dock), the sticky note widget and the Shubham
+  (the Terminal icon is hidden there, it's in the dock; the phone-only Links icon is shown), the sticky note widget and the Shubham
   Works pill; page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
   and page 2 / the dots are hidden, so the desktop is unchanged. The
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
@@ -201,7 +201,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   ~4.4s. Click or any key skips it ("Tap to skip" on touch screens). Timing is intentionally fixed;
   total must stay within 4-6 seconds if changed.
 - **Terminal** (`components/windows/TerminalWindow.tsx`, commands in `lib/terminal.ts`): prompt
-  `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `sudo hire-me`, history
+  `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `links` (plus one
+  command per profile link id), `sudo hire-me`, history
   with Up/Down, zsh-style "command not found". Output persists across minimize/close; only `clear`
   empties it. The prompt line follows the output (one scrolling `.terminal-body`) and draws a block
   cursor (blinks when focused, hollow when not, follows arrow keys); the real `#terminal-input` is
@@ -270,6 +271,30 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   - IMPORTANT (a bug fixed once): the toast must fire **before** the mailto navigation (wrapped in
     try/catch), because in some sandboxed/preview contexts that throws synchronously and kills the
     rest of the handler. Don't reorder this.
+- **Profile links** (Nov 2026): one ordered list, `PROFILE.links` in `data/profile.ts` (keyed by
+  `ProfileLinkId`; `PROFILE_LINKS` is the same list as an array with ids). Each link has `label`,
+  `detail` (handle shown under the name) and `href`. Current order: GitHub, LinkedIn, dev.to
+  (`https://dev.to/shubham_works`), Hashnode (`https://hashnode.com/@shubham-works`), Instagram.
+  Every place shows every link: the Contact section's "Find me online" card, the logo menu, the
+  phone Links sheet, the Terminal (`links` lists them; one command per id, e.g. `github`) and JSON-LD `sameAs`.
+  The list itself is `ProfileLinkList` (`components/portfolio/ProfileLinkList.tsx`, `.profile-links`:
+  a settings-style grouped list, name with the handle under it, our own `LinkTile` glyphs +
+  `.link-tile--<id>` colors, not the services' logos).
+  - Contact (user's request, so nobody has to scroll to find them): form on the left, the card on
+    the right (`.contact-grid`, a container query on `.contact-layout` at 620px, so it follows the
+    window's width, not the screen's); stacked under the form when narrower and on phones. The
+    button row under the form keeps only actions (Email, Download Resume). Instagram was first
+    left out of the card; the user asked for it in.
+  - Phones (user's idea, like the Shubham Works pill): a **Links** app icon on Home Screen page 1
+    (`#icon-links`, purple chain-link tile, placed before Trash with CSS `order`; hidden on
+    computers) opens the `links` dialog (`LinksDialog` in `SystemDialogs.tsx`), a bottom sheet
+    "Find me online" with every link. Chosen over a separate "Links" tab:
+  the phone tab bar is full at five tabs. A future "Writing" section (latest dev.to / Hashnode
+  posts fetched at build time) was discussed as an option if the user posts regularly.
+  Tile glyphs: code brackets (GitHub), briefcase (LinkedIn), page with lines (dev.to), `#`
+  (Hashnode), camera (Instagram).
+  To add a link: a new id in `ProfileLinkId`, an entry in `PROFILE.links`, a glyph in
+  `LINK_GLYPHS` and a `.link-tile--<id>` gradient in `styles/portfolio.css`.
 - **Projects grouped by company** (Oct 2026, user's choice): `Project.company` (matches
   `company` in `data/experience.ts`) puts work projects under a header per company with the role
   and dates from Experience (newest job first); projects without `company` go under "Personal

@@ -82,6 +82,36 @@ test('the Shubham Works card sits in the bottom-left corner and links the other 
   await expect(links.nth(1)).toHaveAttribute('rel', 'noopener noreferrer');
 });
 
+test('Contact shows the profile links beside the form, and below it in a narrow window', async ({ page }) => {
+  await openDesktop(page);
+  await page.getByRole('tab', { name: 'Contact' }).click();
+  const card = page.getByRole('list', { name: 'Find me online' });
+  const links = card.getByRole('link');
+  await expect(links.locator('.profile-link-label')).toHaveText(['GitHub', 'LinkedIn', 'dev.to', 'Hashnode', 'Instagram']);
+  await expect(links.nth(0)).toHaveAttribute('href', 'https://github.com/chaudharyShub');
+  await expect(links.nth(0)).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(links.nth(2)).toHaveAttribute('href', 'https://dev.to/shubham_works');
+  await expect(links.nth(3)).toHaveAttribute('href', 'https://hashnode.com/@shubham-works');
+  // Only actions stay in the button row.
+  await expect(page.locator('#section-contact .links-row').getByRole('link', { name: 'GitHub' })).toHaveCount(0);
+  // The Links Home Screen icon is for phones only.
+  await expect(page.locator('#icon-links')).toBeHidden();
+
+  // Wide window: to the right of the form, without scrolling.
+  const form = page.locator('#contact-form');
+  let formBox = (await form.boundingBox())!;
+  let cardBox = (await card.boundingBox())!;
+  expect(cardBox.x).toBeGreaterThan(formBox.x + formBox.width);
+  expect(cardBox.y).toBeLessThan(formBox.y + 60);
+
+  // Narrow window: stacked under the form.
+  await page.locator('#window').evaluate((el) => el.style.setProperty('width', '620px', 'important'));
+  await expect.poll(async () => (await card.boundingBox())!.y).toBeGreaterThan(formBox.y + formBox.height);
+  formBox = (await form.boundingBox())!;
+  cardBox = (await card.boundingBox())!;
+  expect(Math.abs(cardBox.x - formBox.x)).toBeLessThan(2);
+});
+
 test('Terminal runs commands and clears', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#logo-menu-button').click();
@@ -97,6 +127,11 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await input.fill('projects');
   await input.press('Enter');
   await expect(output).toContainText('2. CloudPrep');
+
+  await input.fill('links');
+  await input.press('Enter');
+  await expect(output).toContainText('https://github.com/chaudharyShub');
+  await expect(output).toContainText('https://hashnode.com/@shubham-works');
 
   await input.fill('nonsense');
   await input.press('Enter');
