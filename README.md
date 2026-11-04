@@ -14,7 +14,7 @@ an app-style Home Screen.
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-1d1d1f?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-0066cc?style=flat-square)
 ![CSS](https://img.shields.io/badge/CSS-hand--written-6e6e73?style=flat-square)
-![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20analytics-34c759?style=flat-square)
+![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20vercel%20insights-34c759?style=flat-square)
 
 <br>
 
@@ -57,7 +57,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
-| **Analytics** | Vercel Web Analytics (cookieless page views), active only on Vercel deployments. |
+| **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage`, and every animation respects
 `prefers-reduced-motion`. Menus, tabs, window buttons and dialogs are keyboard
@@ -211,16 +211,18 @@ How it behaves:
   If spam still gets through, add hCaptcha (free on Web3Forms; Cloudflare Turnstile and reCAPTCHA
   need a paid plan).
 
-## Web Analytics
+## Web Analytics and Speed Insights
 
-The site uses [Vercel Web Analytics](https://vercel.com/docs/analytics) (`<Analytics />` in
-`app/layout.tsx`). To see data:
+The site uses [Vercel Web Analytics](https://vercel.com/docs/analytics) (`<Analytics />`) and
+[Speed Insights](https://vercel.com/docs/speed-insights) (`<SpeedInsights />`, Core Web Vitals
+from real visits), both in `app/layout.tsx`. To see data:
 
-1. In Vercel, open the project → **Analytics** tab → **Enable** (once per project).
-2. Deploy. Page views appear in the Analytics tab within a few minutes of visits.
+1. In Vercel, open the project → **Analytics** tab → **Enable**, and **Speed Insights** tab →
+   **Enable** (once per project).
+2. Deploy. Page views and Web Vitals appear in those tabs a while after real visits.
 
-The component is only rendered in builds made on Vercel (`process.env.VERCEL`), because its script
-is served by Vercel itself; local `npm run dev` / `npm start` don't load it.
+The components are only rendered in builds made on Vercel (`process.env.VERCEL`), because their
+scripts are served by Vercel itself; local `npm run dev` / `npm start` don't load them.
 
 ## Custom domain
 
