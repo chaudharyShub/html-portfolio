@@ -539,6 +539,65 @@
   color: var(--text);
 }
 
+/* Like button + visitor counter, kept together at the end of the status bar. */
+.status-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.like-button:hover {
+  color: var(--red-text);
+}
+
+.like-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.like-button .heart-icon {
+  fill: none;
+  color: var(--red-text);
+}
+
+.like-button[aria-pressed='true'] .heart-icon {
+  fill: var(--red);
+  color: var(--red);
+}
+
+.like-button--pop .heart-icon {
+  animation: heartPop 420ms var(--ease-spring);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .like-button--pop .heart-icon {
+    animation: none;
+  }
+}
+
 /*
  * Copies used by the genie animation keep the window's rounded corners and its see-through
  * sidebar; only the live blur is dropped (too costly across many strips).

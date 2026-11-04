@@ -34,7 +34,8 @@
   font-size: 13px;
 }
 
-[data-larger-text] .visitor-counter {
+[data-larger-text] .visitor-counter,
+[data-larger-text] .like-button {
   font-size: 12px;
 }
 

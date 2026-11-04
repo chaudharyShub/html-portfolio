@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   debugRunnerBest: 'debugRunnerBest',
   contactSends: 'shubhamOsContactSends',
   ownerDevice: 'shubhamOsDevice',
+  liked: 'shubhamOsLiked',
 } as const;
 
 // localStorage can throw (private mode, blocked storage), so every access is guarded.

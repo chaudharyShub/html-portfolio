@@ -52,3 +52,6 @@ export function recordVisit(): number {
   }
   return visitCount;
 }
+
+/** Whether this browser has liked the portfolio (one like per visitor, no unlike). */
+export const likedPreference = createStoredValue(STORAGE_KEYS.liked, parseFlag, serializeFlag, false);

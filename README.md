@@ -57,9 +57,10 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
+| **Likes** | A heart in the window's status bar with a shared like count (Upstash Redis behind a small API route). One like per visitor. |
 | **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
-All preferences are stored in `localStorage`, and every animation respects
+All preferences are stored in `localStorage` (the like count is the only thing kept on a server), and every animation respects
 `prefers-reduced-motion`. Menus, tabs, window buttons and dialogs are keyboard
 operable (Enter/Space to activate, Escape to close).
 
@@ -122,6 +123,7 @@ so development never serves stale cached bundles.
 
 ```text
 app/
+  api/likes/route.ts    # like counter: GET the count, POST one like
   layout.tsx            # <html>, metadata, pre-paint theme script, SW registration
   page.tsx              # the single page: server-rendered sections -> desktop
   not-found.tsx         # 404 page as a desktop-style alert
@@ -134,11 +136,11 @@ components/
   dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer,
                         # Time Machine, Activity Monitor, About This Developer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)
-  live/                 # small client readouts: clock, career stats, year, visitor counter
+  live/                 # small client readouts: clock, career stats, year, visitor counter, like button
   shared/               # JSON-LD script, service worker registration
   icons/                # hand-drawn app tiles and line icons (Apple-inspired, not Apple assets)
 data/                   # portfolio content: profile, about, skills, projects, experience
-lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, skill usage
+lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, skill usage, likes store
 tests/e2e/              # Playwright browser tests (desktop + phone)
 styles/                 # CSS by area; ios.css holds the phone layout
 public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js
@@ -210,6 +212,26 @@ How it behaves:
   is public. It can only deliver messages to your inbox.
   If spam still gets through, add hCaptcha (free on Web3Forms; Cloudflare Turnstile and reCAPTCHA
   need a paid plan).
+
+## Likes (Upstash Redis)
+
+The heart in the status bar shows how many visitors liked the site. The count is kept in
+[Upstash Redis](https://upstash.com), added through Vercel's **Storage → Marketplace**
+(free plan, eviction off) and connected to the project, which sets `KV_REST_API_URL` and
+`KV_REST_API_TOKEN`. For local testing run `vercel env pull .env.local` (this overwrites the
+file, so keep a copy of anything else in it).
+
+- `app/api/likes/route.ts`: `GET` returns `{ count }`, `POST` adds one like. Posts from other
+  sites are refused. `lib/likes-store.ts` calls Upstash's REST API with `fetch` (no client library).
+- Each browser likes once and can't take it back (remembered in `localStorage`). On the server,
+  each network may add up to 5 likes a day (a hashed IP, never the raw address, kept for 24 hours),
+  so clearing storage doesn't let one person pile up likes, while visitors sharing an office or
+  mobile network still can like.
+- Without the variables, or if the database can't be reached, the heart is simply hidden.
+- Browser tests stub `/api/likes` and point the test build at a dead address, so they never
+  change the real count.
+- Keys: `likes:count` (the total) and `likes:ip:<hash>` (expire after a day).
+  To reset the count, delete `likes:count` in the Upstash console (Data Browser).
 
 ## Web Analytics and Speed Insights
 

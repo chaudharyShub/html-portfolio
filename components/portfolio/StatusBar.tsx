@@ -1,5 +1,6 @@
 import { Clock } from '@/components/live/Clock';
 import { CurrentYear } from '@/components/live/CurrentYear';
+import { LikeButton } from '@/components/live/LikeButton';
 import { VisitorCounter } from '@/components/live/VisitorCounter';
 import { PROFILE } from '@/data/profile';
 
@@ -17,7 +18,10 @@ export function StatusBar() {
       <span>
         &copy; <CurrentYear /> {PROFILE.name}
       </span>
-      <VisitorCounter />
+      <span className="status-chips">
+        <LikeButton />
+        <VisitorCounter />
+      </span>
     </footer>
   );
 }

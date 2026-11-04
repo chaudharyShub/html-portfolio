@@ -241,6 +241,20 @@ export function DownloadIcon() {
   );
 }
 
+/** The status bar's like button: an outline heart, filled once liked (fill comes from CSS). */
+export function HeartIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="12" height="12" className="heart-icon" {...decorative}>
+      <path
+        d="M8 13.6S2 10 2 6a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 7.6-6 7.6z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** The bugs in the Debug Runner game. */
 export function BugIcon({ size = 20 }: { size?: number }) {
   return (
