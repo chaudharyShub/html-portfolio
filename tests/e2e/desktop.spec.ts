@@ -115,6 +115,8 @@ test('Contact shows the profile links beside the form, and below it in a narrow 
 test('Terminal runs commands and clears', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#logo-menu-button').click();
+  // The logo menu lists the profile links on computers (phones use the Links sheet).
+  await expect(page.getByRole('menuitem', { name: /Hashnode/ })).toBeVisible();
   await page.getByRole('menuitem', { name: 'Terminal' }).click();
   const input = page.locator('#terminal-input');
   const output = page.locator('#terminal-window [role="log"]');

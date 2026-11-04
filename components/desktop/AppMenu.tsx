@@ -111,8 +111,9 @@ export function AppMenu() {
             >
               Download Resume
             </div>
+            {/* Computers only: phones have the Links icon on the Home Screen for these. */}
             {PROFILE_LINKS.map(({ id, label, href }) => (
-              <a key={id} className="menu-item" role="menuitem" href={href} target="_blank" rel="noopener noreferrer">
+              <a key={id} className="menu-item menu-item--profile-link" role="menuitem" href={href} target="_blank" rel="noopener noreferrer">
                 {label} <span className="menu-item-hint">↗</span>
               </a>
             ))}

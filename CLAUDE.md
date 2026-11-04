@@ -189,7 +189,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   Works pill; page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
   and page 2 / the dots are hidden, so the desktop is unchanged. The
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
-  sticky Cancel). Alerts use stacked-button styling. Phones held sideways hide the info row.
+  sticky Cancel; the profile links are left out there, the Links icon has them). Alerts use stacked-button styling. Phones held sideways hide the info row.
 - 16px inputs stop iOS zooming into fields.
 - The portfolio's tables turn into stacked cards on phones; that rule is scoped to `.window` so
   other tables (Activity Monitor) stay tables.
@@ -275,8 +275,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `ProfileLinkId`; `PROFILE_LINKS` is the same list as an array with ids). Each link has `label`,
   `detail` (handle shown under the name) and `href`. Current order: GitHub, LinkedIn, dev.to
   (`https://dev.to/shubham_works`), Hashnode (`https://hashnode.com/@shubham-works`), Instagram.
-  Every place shows every link: the Contact section's "Find me online" card, the logo menu, the
-  phone Links sheet, the Terminal (`links` lists them; one command per id, e.g. `github`) and JSON-LD `sameAs`.
+  Every link shows in: the Contact section's "Find me online" card, the logo menu on computers
+  (hidden on phones with `.menu-item--profile-link`, since the Links sheet has them - user's
+  request), the phone Links sheet, the Terminal (`links` lists them; one command per id, e.g. `github`) and JSON-LD `sameAs`.
   The list itself is `ProfileLinkList` (`components/portfolio/ProfileLinkList.tsx`, `.profile-links`:
   a settings-style grouped list, name with the handle under it, our own `LinkTile` glyphs +
   `.link-tile--<id>` colors, not the services' logos).

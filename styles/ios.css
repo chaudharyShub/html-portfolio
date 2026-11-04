@@ -551,6 +551,11 @@
   }
 
   /* ===== Logo menu as an action sheet ===== */
+  /* Profile links live in the Home Screen's Links sheet on phones. */
+  .menu-item--profile-link {
+    display: none;
+  }
+
   .menu-scrim.open {
     display: block;
     position: fixed;
