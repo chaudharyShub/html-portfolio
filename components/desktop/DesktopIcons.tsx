@@ -3,7 +3,7 @@
 import { useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { AppIcon } from '@/components/icons';
 import { useOsApi, type OsActions } from '@/components/os/OsProvider';
-import { MadeByPill, MadeByWidget } from './MadeBy';
+import { /* MadeByPill, */ MadeByWidget } from './MadeBy';
 import { StickyNote } from './StickyNote';
 
 interface DesktopIconDef {
@@ -135,7 +135,8 @@ export function DesktopIcons() {
               <span className="desktop-icon-label">{def.label}</span>
             </div>
           ))}
-          <MadeByPill />
+          {/* Hidden for now to see the Home Screen without it (user's request). */}
+          {/* <MadeByPill /> */}
         </div>
         <div className="home-page home-page-widgets">
           <MadeByWidget />

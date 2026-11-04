@@ -195,8 +195,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - The desktop layer is a Home Screen with **two pages** (Nov 2026, the user's idea), swiped like an
   iPhone (CSS scroll snap on `.desktop-layer`, each `.home-page` a 4-column grid) with tappable
   page dots above the dock (`.home-dots`, `aria-current` on the shown page). Page 1: the icons
-  (the Terminal icon is hidden there, it's in the dock; the phone-only Links icon is shown), the sticky note widget and the Shubham
-  Works pill; page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
+  (the Terminal icon is hidden there, it's in the dock; the phone-only Links icon is shown), the sticky note widget (the Shubham
+  Works pill is commented out for now, see Features); page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
   and page 2 / the dots are hidden, so the desktop is unchanged. The
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
   sticky Cancel; it slides up on open and back down on close with the same timing as the
@@ -335,7 +335,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   comes twice on the two-page Home Screen: page 1 has a slim glass pill above the page dots
   (`MadeByPill`, a button with `aria-expanded`; a tap shows "Made by" + "Also:" above it, a tap
   elsewhere or Escape closes; hidden on sideways phones), page 2 a full-width widget with a large
-  Dial tile (`MadeByWidget`). Shared text styles are `.sw-block`, the glass is `.sw-glass`. It shows
+  Dial tile (`MadeByWidget`). **The page-1 pill is commented out** (Nov 2026, the user wanted to
+  see the Home Screen without it): `{/* <MadeByPill /> */}` and its import in `DesktopIcons.tsx`.
+  Deliberately commented, not removed - the user may ask to bring it back; then uncomment both
+  and restore the pill check in `mobile.spec.ts` from commit 9ff8ce5. Its code and CSS stay. Shared text styles are `.sw-block`, the glass is `.sw-glass`. It shows
   the orange "Dial" mark (`MakerMark` in `components/icons`, the small version, `--maker` token:
   `#c2410c` light, `#fb923c` dark, same as CloudPrep) + "A Shubham Works project", "Made by
   Shubham Chaudhary" (plain text here), "Also:" with every visible personal project that has a

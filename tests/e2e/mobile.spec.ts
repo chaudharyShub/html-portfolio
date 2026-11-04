@@ -203,26 +203,15 @@ test('the Links icon sits before Trash and opens every profile link in a sheet',
   await expect(list).toBeHidden();
 });
 
-test('the Home Screen has two pages: the Shubham Works pill, then its widget', async ({ page }) => {
+test('the Home Screen has two pages: icons first, then the Shubham Works widget', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);
-  // The desktop card gives way to the phone versions.
+  // The desktop card gives way to the phone version.
   await expect(page.locator('.made-by')).toBeHidden();
 
-  // Page 1: a pill centered just above the page dots and the Dock; a tap shows the links.
-  const pill = page.getByRole('button', { name: 'A Shubham Works project' });
-  const pillBox = (await pill.boundingBox())!;
-  const dots = await box(page, '.home-dots');
-  expect(pillBox.y + pillBox.height).toBeLessThanOrEqual(dots.y);
-  expect(Math.abs(pillBox.x + pillBox.width / 2 - page.viewportSize()!.width / 2)).toBeLessThan(2);
-  const cloudPrep = page.locator('.home-pill').getByRole('link', { name: /CloudPrep/ });
-  await expect(cloudPrep).toBeHidden();
-  await pill.tap();
-  await expect(pill).toHaveAttribute('aria-expanded', 'true');
-  await expect(cloudPrep).toBeVisible();
-  // Tapping elsewhere closes it.
-  await page.mouse.click(200, 400);
-  await expect(cloudPrep).toBeHidden();
+  // Page 1: the Shubham Works pill is commented out in DesktopIcons.tsx for now (user's choice, Nov 2026).
+  // To bring it back, uncomment it there and restore this check from git history (commit 9ff8ce5).
+  await expect(page.getByRole('button', { name: 'A Shubham Works project' })).toHaveCount(0);
 
   // Page 2, through its page dot: the widget with every link.
   const widget = page.locator('.sw-widget');
