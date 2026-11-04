@@ -4,15 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { PROFILE_LINKS } from '@/data/profile';
 import { pressableProps } from '@/lib/a11y';
-import type { SectionId } from '@/lib/sections';
-
-const SECTION_ITEMS: { id: SectionId; label: string }[] = [
-  { id: 'about', label: 'About Me' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'experience', label: 'Experience' },
-  { id: 'contact', label: 'Contact' },
-];
+import { isPhoneLayout, prefersReducedMotion } from '@/lib/motion';
 
 /**
  * The logo menu: a drop-down under the menu-bar logo on desktop, an action sheet on phones.
@@ -24,14 +16,19 @@ export function AppMenu() {
   // The "Links" submenu (computers only): where it sits, and whether to focus it (opened by keyboard).
   const [links, setLinks] = useState<{ top: number; left: number; focus: boolean } | null>(null);
   const [wasOpen, setWasOpen] = useState(menuOpen);
+  // Phones: the action sheet stays on screen while it slides back down.
+  const [closing, setClosing] = useState(false);
   const linksItemRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLDivElement>(null);
 
-  // Closing the menu closes the submenu too.
+  // Closing the menu closes the submenu too, and slides the phone sheet down.
   if (wasOpen !== menuOpen) {
     setWasOpen(menuOpen);
     if (!menuOpen) setLinks(null);
+    setClosing(!menuOpen && isPhoneLayout() && !prefersReducedMotion());
   }
+
+  const state = menuOpen ? ' open' : closing ? ' closing' : '';
 
   useEffect(() => {
     if (links?.focus) submenuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
@@ -78,8 +75,16 @@ export function AppMenu() {
 
   return (
     <>
-      <div className={`menu-scrim${menuOpen ? ' open' : ''}`} aria-hidden="true" />
-      <div className={`app-menu${menuOpen ? ' open' : ''}`} id="logo-menu" role="menu" aria-label="Shubham menu">
+      <div className={`menu-scrim${state}`} aria-hidden="true" />
+      <div
+        className={`app-menu${state}`}
+        id="logo-menu"
+        role="menu"
+        aria-label="Shubham menu"
+        onAnimationEnd={(e) => {
+          if (e.animationName === 'sheetDown') setClosing(false);
+        }}
+      >
         {/* On phones the list scrolls inside its own rounded box, with Cancel in a separate box below. */}
         <div
           className="menu-list"
@@ -99,15 +104,6 @@ export function AppMenu() {
             >
               About This Developer
             </div>
-          </div>
-          {/* Phones only: computers have these in the menu bar and the window's sidebar. */}
-          <div className="menu-sep menu-phone-only" role="separator" />
-          <div className="menu-group menu-phone-only">
-            {SECTION_ITEMS.map(({ id, label }) => (
-              <div key={id} {...item(label)} onClick={() => actions.goToSection(id)}>
-                {label}
-              </div>
-            ))}
           </div>
           <div className="menu-sep" role="separator" />
           <div className="menu-group">

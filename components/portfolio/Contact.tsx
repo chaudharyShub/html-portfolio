@@ -16,16 +16,20 @@ export function Contact() {
       <div className="contact-layout">
         <div className="contact-grid">
           <div className="contact-main">
-            <ContactForm accessKey={getWeb3FormsAccessKey()} />
-            <div className="links-row">
-              <a className="btn" href={`mailto:${PROFILE.email}`}>
-                Email
-              </a>
-              <ResumeButton>
-                <DownloadIcon />
-                Download Resume (PDF)
-              </ResumeButton>
-            </div>
+            <ContactForm
+              accessKey={getWeb3FormsAccessKey()}
+              actions={
+                <>
+                  <a className="btn" href={`mailto:${PROFILE.email}`}>
+                    Email
+                  </a>
+                  <ResumeButton>
+                    <DownloadIcon />
+                    Download Resume (PDF)
+                  </ResumeButton>
+                </>
+              }
+            />
           </div>
           <div className="contact-links">
             <h3 className="sub" id="profile-links-title">

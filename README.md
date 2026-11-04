@@ -261,7 +261,7 @@ See `.env.example`. After switching domains, re-submit the sitemap in Google Sea
 [GitHub](https://github.com/chaudharyShub) ·
 [LinkedIn](https://www.linkedin.com/in/shubham-chaudhary-4398bba8) ·
 [dev.to](https://dev.to/shubham_works) ·
-[Hashnode](https://hashnode.com/@shubham-works)
+[Hashnode](https://hashnode.com/@shubhamworks)
 
 <div align="center">
 <br>

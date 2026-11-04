@@ -105,9 +105,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 
 ## Desktop (computers)
 - `MenuBar`: logo button `#logo-menu-button` opens `AppMenu` (`#logo-menu`, with a Links
-  submenu), section links, clock. The logo menu leaves out the section shortcuts (About Me ...
-  Contact) on computers - they're in the menu bar and the sidebar (user's request, Nov 2026);
-  phones still show them in the More sheet (`.menu-phone-only`). Desktop menus (logo menu,
+  submenu), section links, clock. The logo menu has no section shortcuts (About Me ... Contact;
+  removed Nov 2026 at the user's request): computers have them in the menu bar and the sidebar,
+  phones in the app's tab bar. Desktop menus (logo menu,
   submenu, right-click menu) use `--menu-material`: in Light a see-through glass (0.72; the
   opaquer `--material-strong` looked solid over the white window), in Dark the original
   `--material-strong` (more see-through looked bad there - user's call).
@@ -195,7 +195,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   Works pill; page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
   and page 2 / the dots are hidden, so the desktop is unchanged. The
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
-  sticky Cancel; the profile links are left out there, the Links icon has them). Alerts use stacked-button styling. Phones held sideways hide the info row.
+  sticky Cancel; it slides up on open and back down on close with the same timing as the
+  bottom sheets (up 460ms Apple curve, down 180ms, dim in 200ms / out 180ms; the user asked for
+  them to match) - a `closing` class keeps it on screen for the slide, `sheetDown` /
+  `overlayOut` in `styles/ios.css`, none under reduced motion; the profile links are left out there, the Links icon has them). Alerts use stacked-button styling. Phones held sideways hide the info row.
 - 16px inputs stop iOS zooming into fields.
 - The portfolio's tables turn into stacked cards on phones; that rule is scoped to `.window` so
   other tables (Activity Monitor) stay tables.
@@ -280,7 +283,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Profile links** (Nov 2026): one ordered list, `PROFILE.links` in `data/profile.ts` (keyed by
   `ProfileLinkId`; `PROFILE_LINKS` is the same list as an array with ids). Each link has `label`,
   `detail` (handle shown under the name) and `href`. Current order: GitHub, LinkedIn, dev.to
-  (`https://dev.to/shubham_works`), Hashnode (`https://hashnode.com/@shubham-works`), Instagram.
+  (`https://dev.to/shubham_works`), Hashnode (`https://hashnode.com/@shubhamworks`), Instagram.
   Every link shows in: the Contact section's "Find me online" card, the logo menu on computers
   (a "Links ›" item with a macOS-style submenu, `#logo-menu-links`: opens on hover, click,
   Right arrow / Enter / Space; Up/Down move, Left goes back; pointing at another item closes it.
@@ -293,8 +296,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   - Contact (user's request, so nobody has to scroll to find them): form on the left, the card on
     the right (`.contact-grid`, a container query on `.contact-layout` at 620px, so it follows the
     window's width, not the screen's); stacked under the form when narrower and on phones. The
-    button row under the form keeps only actions (Email, Download Resume). Instagram was first
-    left out of the card; the user asked for it in.
+    action buttons (Email, Download Resume) sit on the Send row (`ContactForm`'s `actions` prop):
+    beside the card, Send is on the left and they are on the right, as wide as the form, with a
+    thin divider between (`.form-actions`, user's design); stacked, they just wrap in a row and
+    the divider is hidden. `#section-contact` has no bottom margin, so the Contact tab fits
+    browser windows about 670px tall or more without scrolling (user's request, Nov 2026; checked
+    at 1280x680 in `desktop.spec.ts`). The message box stays 5 lines (the user's call; 4 lines
+    would have fit 1366x657 too). Instagram was first left out of the card; the user asked for it in.
   - Phones (user's idea, like the Shubham Works pill): a **Links** app icon on Home Screen page 1
     (`#icon-links`, purple chain-link tile, placed before Trash with CSS `order`; hidden on
     computers) opens the `links` dialog (`LinksDialog` in `SystemDialogs.tsx`), a bottom sheet

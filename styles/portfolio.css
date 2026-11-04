@@ -282,8 +282,27 @@ h3.exp-header {
 
 /* ===== Contact: form on the left, "Find me online" on the right ===== */
 /* Sized by the window's width (it can be resized), not the screen's. */
+/* Contact is always the last section shown: no gap under it and even padding, so it fits short laptop screens without scrolling. */
+#section-contact {
+  margin-bottom: 0;
+  padding-bottom: 18px;
+}
+
 .contact-layout {
   container-type: inline-size;
+}
+
+.form-actions-extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.form-actions-divider {
+  display: none;
+  width: 1px;
+  height: 20px;
+  background: var(--separator);
 }
 
 @container (min-width: 620px) {
@@ -292,6 +311,18 @@ h3.exp-header {
     grid-template-columns: minmax(0, 440px) minmax(200px, 1fr);
     column-gap: 28px;
     align-items: start;
+  }
+
+  /* Beside the card: Send on the left, Email + Download Resume on the right, a thin divider between;
+     as wide as the form. (Narrower, the buttons wrap, so they just sit in a row.) */
+  .form-actions {
+    justify-content: space-between;
+    align-items: center;
+    max-width: 440px;
+  }
+
+  .form-actions-divider {
+    display: block;
   }
 
   /* Lines the heading up with the form's first label. */

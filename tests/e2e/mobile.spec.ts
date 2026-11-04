@@ -109,12 +109,16 @@ test('the More button opens an action sheet with Cancel on screen', async ({ pag
   // Profile links are in the Home Screen's Links sheet instead; Download Resume stays.
   await expect(page.getByRole('menuitem', { name: /^Links/ })).toBeHidden();
   await expect(page.getByRole('menuitem', { name: 'Download Resume' })).toBeVisible();
-  await expect(page.getByRole('menuitem', { name: 'Experience' })).toBeVisible();
+  // No section shortcuts: the app's tab bar has them.
+  await expect(page.getByRole('menuitem', { name: 'Experience' })).toHaveCount(0);
   await page.waitForTimeout(600); // let the sheet finish sliding up
   const c = (await cancel.boundingBox())!;
   expect(c.y + c.height).toBeLessThanOrEqual(page.viewportSize()!.height);
   await cancel.tap();
+  // It slides back down (still on screen for a moment), then hides.
+  await expect(page.locator('#logo-menu')).toHaveClass(/closing/);
   await expect(page.locator('#logo-menu')).toBeHidden();
+  await expect(page.locator('#logo-menu')).not.toHaveClass(/closing/);
 });
 
 test('Settings opens as a bottom sheet', async ({ page }) => {

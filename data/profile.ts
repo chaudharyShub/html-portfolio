@@ -40,8 +40,8 @@ export const PROFILE = {
     },
     hashnode: {
       label: 'Hashnode',
-      detail: '@shubham-works',
-      href: 'https://hashnode.com/@shubham-works',
+      detail: '@shubhamworks',
+      href: 'https://hashnode.com/@shubhamworks',
     },
     instagram: {
       label: 'Instagram',

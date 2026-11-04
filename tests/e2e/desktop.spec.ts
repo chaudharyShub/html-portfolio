@@ -82,6 +82,27 @@ test('the Shubham Works card sits in the bottom-left corner and links the other 
   await expect(links.nth(1)).toHaveAttribute('rel', 'noopener noreferrer');
 });
 
+test('the Contact tab fits a short laptop screen without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 680 });
+  await openDesktop(page);
+  await page.getByRole('tab', { name: 'Contact' }).click();
+  // Send, Email and Download Resume share one row under the form.
+  const row = page.locator('#contact-form .links-row');
+  await expect(row.getByRole('button', { name: 'Send' })).toBeVisible();
+  await expect(row.getByRole('link', { name: 'Email' })).toBeVisible();
+  await expect(row.getByRole('button', { name: /Download Resume/ })).toBeVisible();
+  // Send on the left, the others pushed to the right edge of the form, a divider between.
+  await expect(row.locator('.form-actions-divider')).toBeVisible();
+  const send = (await row.getByRole('button', { name: 'Send' }).boundingBox())!;
+  const download = (await row.getByRole('button', { name: /Download Resume/ }).boundingBox())!;
+  const form = (await page.locator('#message').boundingBox())!;
+  expect(Math.abs(send.y - download.y)).toBeLessThan(2);
+  expect(Math.abs(send.x - form.x)).toBeLessThan(2);
+  expect(Math.abs(download.x + download.width - (form.x + form.width))).toBeLessThan(2);
+  const overflow = await page.locator('#window .content').evaluate((el) => el.scrollHeight - el.clientHeight);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
 test('Contact shows the profile links beside the form, and below it in a narrow window', async ({ page }) => {
   await openDesktop(page);
   await page.getByRole('tab', { name: 'Contact' }).click();
@@ -91,7 +112,7 @@ test('Contact shows the profile links beside the form, and below it in a narrow 
   await expect(links.nth(0)).toHaveAttribute('href', 'https://github.com/chaudharyShub');
   await expect(links.nth(0)).toHaveAttribute('rel', 'noopener noreferrer');
   await expect(links.nth(2)).toHaveAttribute('href', 'https://dev.to/shubham_works');
-  await expect(links.nth(3)).toHaveAttribute('href', 'https://hashnode.com/@shubham-works');
+  await expect(links.nth(3)).toHaveAttribute('href', 'https://hashnode.com/@shubhamworks');
   // Only actions stay in the button row.
   await expect(page.locator('#section-contact .links-row').getByRole('link', { name: 'GitHub' })).toHaveCount(0);
   // The Links Home Screen icon is for phones only.
@@ -119,8 +140,8 @@ test('the logo menu keeps the profile links in a Links submenu', async ({ page }
   const submenu = page.getByRole('menu', { name: 'Links' });
   // Not listed up front.
   await expect(page.locator('#logo-menu').getByRole('menuitem', { name: /GitHub/ })).toHaveCount(0);
-  // Section shortcuts are left to the menu bar and the sidebar on computers.
-  await expect(page.getByRole('menuitem', { name: 'Experience' })).toBeHidden();
+  // No section shortcuts: the menu bar and the sidebar have them.
+  await expect(page.getByRole('menuitem', { name: 'Experience' })).toHaveCount(0);
   await expect(submenu).toBeHidden();
 
   // Pointing at "Links" opens the submenu beside the menu.
@@ -171,7 +192,7 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await input.fill('links');
   await input.press('Enter');
   await expect(output).toContainText('https://github.com/chaudharyShub');
-  await expect(output).toContainText('https://hashnode.com/@shubham-works');
+  await expect(output).toContainText('https://hashnode.com/@shubhamworks');
 
   await input.fill('nonsense');
   await input.press('Enter');

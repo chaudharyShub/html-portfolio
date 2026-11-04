@@ -551,23 +551,19 @@
   }
 
   /* ===== Logo menu as an action sheet ===== */
-  /* Section shortcuts: computers have them in the menu bar and sidebar, phones only here. */
-  .menu-group.menu-phone-only {
-    display: block;
-  }
-
   /* Profile links live in the Home Screen's Links sheet on phones. */
   .menu-item--profile-link {
     display: none;
   }
 
-  .menu-scrim.open {
+  .menu-scrim.open,
+  .menu-scrim.closing {
     display: block;
     position: fixed;
     inset: 0;
     z-index: 94;
     background: rgba(0, 0, 0, 0.3);
-    animation: overlayIn 0.25s ease-out;
+    animation: overlayIn 0.2s ease-out;
   }
 
   .app-menu {
@@ -586,16 +582,41 @@
     box-shadow: none;
   }
 
-  .app-menu.open {
+  .app-menu.open,
+  .app-menu.closing {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    animation: sheetUp 0.45s var(--ease-apple);
+    animation: sheetUp 0.46s var(--ease-apple);
+  }
+
+  /* Closing: back down the way it came, while the dimming fades. Same timing as the bottom
+     sheets (About This Developer, System Settings): up in 460ms, down in 180ms. */
+  .app-menu.closing {
+    pointer-events: none;
+    animation: sheetDown 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+
+  .menu-scrim.closing {
+    pointer-events: none;
+    animation: overlayOut 0.18s ease-in forwards;
   }
 
   @keyframes sheetUp {
     from {
-      transform: translateY(110%);
+      transform: translateY(105%);
+    }
+  }
+
+  @keyframes sheetDown {
+    to {
+      transform: translateY(105%);
+    }
+  }
+
+  @keyframes overlayOut {
+    to {
+      opacity: 0;
     }
   }
 

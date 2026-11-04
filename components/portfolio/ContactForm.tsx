@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useOsActions } from '@/components/os/OsProvider';
 import {
   buildMailtoLink,
@@ -34,7 +34,8 @@ function validate(email: string, message: string): FieldErrors {
  * Contact form. Sends through Web3Forms when an access key is configured; otherwise (or if
  * sending fails) it falls back to opening the visitor's mail app with a prefilled mailto: link.
  */
-export function ContactForm({ accessKey }: { accessKey: string }) {
+/** `actions` are extra buttons shown on the Send row (Email, Download Resume), so they take no row of their own. */
+export function ContactForm({ accessKey, actions }: { accessKey: string; actions?: ReactNode }) {
   const { showToast } = useOsActions();
   const [sending, setSending] = useState(false);
   // State updates are async, so several submits fired in the same tick would all see
@@ -157,11 +158,17 @@ export function ContactForm({ accessKey }: { accessKey: string }) {
       )}
       {/* Honeypot (Web3Forms "botcheck"): hidden from people and assistive tech, left in for bots. */}
       <input type="checkbox" name="botcheck" className="honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-      <p>
+      <div className="links-row form-actions">
         <button type="submit" className="btn-primary" disabled={sending}>
           {sending ? 'Sending…' : 'Send'}
         </button>
-      </p>
+        {actions && (
+          <>
+            <span className="form-actions-divider" aria-hidden="true" />
+            <span className="form-actions-extra">{actions}</span>
+          </>
+        )}
+      </div>
     </form>
   );
 }

@@ -520,8 +520,7 @@
 }
 
 .menu-cancel,
-.menu-scrim,
-.menu-phone-only {
+.menu-scrim {
   display: none;
 }
 
