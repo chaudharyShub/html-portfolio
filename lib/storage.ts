@@ -7,6 +7,7 @@ export const STORAGE_KEYS = {
   visitorNumber: 'shubhamOsVisitorNum',
   debugRunnerBest: 'debugRunnerBest',
   contactSends: 'shubhamOsContactSends',
+  ownerDevice: 'shubhamOsDevice',
 } as const;
 
 // localStorage can throw (private mode, blocked storage), so every access is guarded.
@@ -23,6 +24,14 @@ export function writeStorage(key: string, value: string): void {
     window.localStorage.setItem(key, value);
   } catch {
     // Preferences simply won't persist.
+  }
+}
+
+export function removeStorage(key: string): void {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Nothing was stored.
   }
 }
 
