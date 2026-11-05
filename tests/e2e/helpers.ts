@@ -29,15 +29,28 @@ export async function stubWeb3Forms(page: Page, { ok = true, delayMs = 150 } = {
   return sent;
 }
 
-/** Replaces /api/likes with an in-memory counter, so tests never touch the real database. */
-export async function stubLikes(page: Page, { start = 41, postOk = true } = {}) {
-  const state = { count: start, posts: 0 };
+/**
+ * Replaces /api/likes with an in-memory counter, so tests never touch the real database. Likes get
+ * ids like the real route; a DELETE only counts for an id handed out here.
+ */
+export async function stubLikes(page: Page, { start = 41, postOk = true, limitReached = false } = {}) {
+  const state = { count: start, posts: 0, deletes: 0, ids: new Set<string>() };
   await page.route('**/api/likes', async (route: Route) => {
-    if (route.request().method() === 'POST') {
+    const method = route.request().method();
+    if (method === 'POST') {
       state.posts++;
       if (!postOk) return route.fulfill({ status: 503, json: { error: 'down' } });
+      if (limitReached) return route.fulfill({ json: { count: state.count, id: null } });
+      const id = `00000000-0000-4000-8000-${String(state.posts).padStart(12, '0')}`;
+      state.ids.add(id);
       state.count++;
-      return route.fulfill({ json: { count: state.count, counted: true } });
+      return route.fulfill({ json: { count: state.count, id } });
+    }
+    if (method === 'DELETE') {
+      state.deletes++;
+      const { id } = route.request().postDataJSON() as { id: string };
+      if (state.ids.delete(id)) state.count--;
+      return route.fulfill({ json: { count: state.count, removed: true } });
     }
     return route.fulfill({ json: { count: state.count } });
   });

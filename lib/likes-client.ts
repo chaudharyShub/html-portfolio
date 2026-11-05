@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { likedPreference } from './preferences';
+import { likeIdPreference } from './preferences';
 
 /**
  * The shared like count in the browser. Every like button reads this one store, so the count is
@@ -41,22 +41,66 @@ export function loadLikes(): void {
     .catch(() => setState({ available: false }));
 }
 
+/** 'busy': a like or unlike is still on its way, so the click is ignored. */
+export type LikeResult = 'saved' | 'limit' | 'failed' | 'busy';
+
+let pending = false;
+
+const changeCount = (by: number) => {
+  if (state.count !== null) setState({ count: Math.max(0, state.count + by) });
+};
+
+/** Marks the like as on its way until the server hands out the real id. */
+const PENDING_ID = '00000000-0000-0000-0000-000000000000';
+
 /**
- * Adds this visitor's like: shown at once, then settled on the server's total. A failure is undone.
- * Returns whether it was saved.
+ * Adds this visitor's like: shown at once, then settled on the server's total. If it isn't
+ * counted (network error, or this network's daily limit) it is undone.
  */
-export async function sendLike(): Promise<boolean> {
-  likedPreference.set(true);
-  if (state.count !== null) setState({ count: state.count + 1 });
+export async function sendLike(): Promise<LikeResult> {
+  if (pending) return 'busy';
+  pending = true;
+  likeIdPreference.set(PENDING_ID);
+  changeCount(1);
   try {
     const res = await fetch('/api/likes', { method: 'POST' });
     if (!res.ok) throw new Error(String(res.status));
+    const data = (await res.json()) as { count: number; id: string | null };
+    likeIdPreference.set(data.id);
+    setState({ count: data.count });
+    return data.id ? 'saved' : 'limit';
+  } catch {
+    likeIdPreference.set(null);
+    changeCount(-1);
+    return 'failed';
+  } finally {
+    pending = false;
+  }
+}
+
+/** Takes this visitor's like back: shown at once; restored if the server can't be reached. */
+export async function removeLike(): Promise<LikeResult> {
+  if (pending) return 'busy';
+  const id = likeIdPreference.get();
+  if (!id) return 'saved';
+  pending = true;
+  likeIdPreference.set(null);
+  changeCount(-1);
+  try {
+    const res = await fetch('/api/likes', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error(String(res.status));
     const data = (await res.json()) as { count: number };
     setState({ count: data.count });
-    return true;
+    return 'saved';
   } catch {
-    likedPreference.set(false);
-    if (state.count !== null) setState({ count: Math.max(0, state.count - 1) });
-    return false;
+    likeIdPreference.set(id);
+    changeCount(1);
+    return 'failed';
+  } finally {
+    pending = false;
   }
 }

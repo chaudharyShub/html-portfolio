@@ -57,7 +57,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
-| **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route). One like per visitor. |
+| **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route), e.g. "Like · 12" with a tooltip on computers. One like per visitor; clicking again takes it back. |
 | **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage` (the like count is the only thing kept on a server), and every animation respects
@@ -123,7 +123,7 @@ so development never serves stale cached bundles.
 
 ```text
 app/
-  api/likes/route.ts    # like counter: GET the count, POST one like
+  api/likes/route.ts    # like counter: GET the count, POST one like, DELETE (unlike) by id
   layout.tsx            # <html>, metadata, pre-paint theme script, SW registration
   page.tsx              # the single page: server-rendered sections -> desktop
   not-found.tsx         # 404 page as a desktop-style alert
@@ -221,17 +221,20 @@ The heart in the status bar shows how many visitors liked the site. The count is
 `KV_REST_API_TOKEN`. For local testing run `vercel env pull .env.local` (this overwrites the
 file, so keep a copy of anything else in it).
 
-- `app/api/likes/route.ts`: `GET` returns `{ count }`, `POST` adds one like. Posts from other
-  sites are refused. `lib/likes-store.ts` calls Upstash's REST API with `fetch` (no client library).
-- Each browser likes once and can't take it back (remembered in `localStorage`). On the server,
+- `app/api/likes/route.ts`: `GET` returns `{ count }`, `POST` adds one like and returns its id,
+  `DELETE` with `{ id }` takes that like back. Requests from other sites are refused. `lib/likes-store.ts` calls Upstash's REST API with `fetch` (no client library).
+- Each browser likes once and can take it back by clicking again (its like's id is kept in
+  `localStorage`). An unlike only lowers the count for an id the server handed out and hasn't
+  removed yet, so nobody can remove other people's likes. On the server,
   each network may add up to 5 likes a day (a hashed IP, never the raw address, kept for 24 hours),
   so clearing storage doesn't let one person pile up likes, while visitors sharing an office or
   mobile network still can like.
 - Without the variables, or if the database can't be reached, the heart is simply hidden.
 - Browser tests stub `/api/likes` and point the test build at a dead address, so they never
   change the real count.
-- Keys: `likes:count` (the total) and `likes:ip:<hash>` (expire after a day).
-  To reset the count, delete `likes:count` in the Upstash console (Data Browser).
+- Keys: `likes:count` (the total), `likes:ids` (ids of likes that can be taken back) and
+  `likes:ip:<hash>` (expire after a day).
+  To reset the count, delete `likes:count` and `likes:ids` in the Upstash console (Data Browser).
 
 ## Web Analytics and Speed Insights
 

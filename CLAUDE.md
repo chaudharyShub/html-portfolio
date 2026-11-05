@@ -108,12 +108,17 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     token's SHA-256 is in the repo - never commit the token. Not in the README on purpose (user's
     call; the repo is public). Tests: `tests/e2e/owner-device.spec.ts`.
 - **Likes** (Nov 2026, the site's first server data, user's request): `app/api/likes/route.ts`
-  (`GET` -> `{ count }`, `POST` adds one; a different `Origin` gets 403; 503 when unconfigured
-  or Upstash fails) over `lib/likes-store.ts`, which calls Upstash Redis's REST `/pipeline` with
+  (`GET` -> `{ count }`, `POST` adds one -> `{ count, id }` (`id: null` over the daily limit),
+  `DELETE` `{ id }` takes one back -> `{ count, removed }` (400 for a malformed id); a different
+  `Origin` gets 403; 503 when unconfigured or Upstash fails) over `lib/likes-store.ts`, which calls Upstash Redis's REST `/pipeline` with
   `fetch` (no `@upstash/redis` dependency). Database `shubham-portfolio-kv` (Upstash via the Vercel
   Marketplace, Mumbai, free plan, eviction off), env `KV_REST_API_URL` / `KV_REST_API_TOKEN`
-  (also in `.env.local`). Keys: `likes:count`; `likes:ip:<HMAC of IP>` counts likes per network
-  per day (max 5, expires after 24h; shared office / mobile-carrier IPs are why it isn't 1).
+  (also in `.env.local`). Keys: `likes:count`; `likes:ids` (set of the server-made UUIDs of likes
+  that can be taken back: a DELETE lowers the count only if `SREM` removed its id, so made-up or
+  repeated requests can't remove other people's likes; likes from before ids existed stay
+  counted); `likes:ip:<HMAC of IP>` counts likes per network
+  per day (max 5, expires after 24h; shared office / mobile-carrier IPs are why it isn't 1;
+  unlikes don't give the quota back).
   Playwright sets both env vars to a dead address so tests can't touch the real count.
 - Keyboard: Escape closes menus/dialogs; Enter/Space activates menu items, tabs and window buttons;
   Enter opens a focused desktop icon.
@@ -368,11 +373,17 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   on computers was tried and undone - the user preferred the plain one. The phone copy goes
   through `Window`'s `titleAccessory` prop (`.title-accessory`, hidden on computers; tapping it
   doesn't trigger the title bar's scroll-to-top). Both read one store, `lib/likes-client.ts`
-  (`useLikes`, `loadLikes` fetches once, `sendLike`). One like per browser, no unlike (user left it to Claude): saved in
-  localStorage `shubhamOsLiked` (`likedPreference`); clicking again shows a "You already liked"
-  toast. Optimistic: fills and pops at once (no pop under reduced motion), then takes the server's
-  total; a failed POST undoes it with a "Like not saved" toast. The button is hidden when GET fails
-  (no env vars, Upstash down). Tests: `tests/e2e/likes.spec.ts` (stubs `/api/likes`).
+  (`useLikes`, `loadLikes` fetches once, `sendLike`, `removeLike`; one request at a time).
+  The status-bar pill reads `♡ Like · 12` / `♥ Liked · 13` (user's spec, Nov 2026; the phone copy
+  stays heart + count) and has our own tooltip instead of the browser's `title` (`.like-tip`,
+  `role="tooltip"`, theme colors, after 0.3s hover or on keyboard focus): "Like this portfolio" /
+  "Unlike". **Unlike** (user's request): clicking a liked heart takes the like back, quietly (no
+  toast; the like toast stays "Thanks for the like!"). The browser keeps its like's id in
+  localStorage `shubhamOsLiked` (`likeIdPreference`; an old saved `1` reads as not liked).
+  Optimistic both ways (pop on like, none under reduced motion), then the server's total; a failed
+  request is undone ("Like not saved" / "Like not removed"), a like over the daily limit too
+  ("Like not counted"). The button is hidden when GET fails (no env vars, Upstash down). Tests:
+  `tests/e2e/likes.spec.ts` (stubs `/api/likes` with ids; also checks the real route's 400/403).
 - **Visitor counter** chip in the status bar (`No. 004821`): locally seeded, not a real global
   count (its `title` says so).
 - **App icon**: the winking monitor (one open eye, one winking arc, smile) on a blue app tile,
