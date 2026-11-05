@@ -386,8 +386,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   The status-bar pill reads `♡ Like · 12` / `♥ Liked · 13` (user's spec, Nov 2026; the phone copy
   stays heart + count) and has our own tooltip instead of the browser's `title` (`.like-tip`,
   `role="tooltip"`, theme colors, after 0.3s hover or on keyboard focus): "Like this portfolio" /
-  "Unlike". **Unlike** (user's request): clicking a liked heart takes the like back, quietly (no
-  toast; the like toast stays "Thanks for the like!"). The browser keeps its like's id in
+  "Unlike". **Unlike** (user's request): clicking a liked heart takes the like back without a
+  toast: a 😞 stands in for the heart for 2s (`.like-sad`, springs in with a little wobble, then
+  the heart pops back; plain swap under reduced motion; user's idea, Nov 2026). The like toast
+  "Thanks for the like!" shows a 😊 instead of the app tile (`showToast`'s optional `emoji`
+  argument, `.toast-emoji`; the tile's person silhouette read as an anonymous profile picture -
+  user's report). Device emoji, like the device font. The browser keeps its like's id in
   localStorage `shubhamOsLiked` (`likeIdPreference`; an old saved `1` reads as not liked).
   Optimistic both ways (pop on like, none under reduced motion), then the server's total; a failed
   request is undone ("Like not saved" / "Like not removed"), a like over the daily limit too

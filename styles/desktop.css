@@ -559,6 +559,14 @@
   }
 }
 
+.toast-emoji {
+  flex: none;
+  width: 36px;
+  font-size: 30px;
+  line-height: 36px;
+  text-align: center;
+}
+
 .toast-text {
   flex: 1;
   min-width: 0;

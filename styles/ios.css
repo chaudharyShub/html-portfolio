@@ -446,6 +446,11 @@
     height: 20px;
   }
 
+  .like-button--title .like-sad {
+    width: 20px;
+    font-size: 15px;
+  }
+
   .like-button--title:active {
     transform: none;
     filter: none;

@@ -3,7 +3,7 @@ import { openDesktop, stubLikes } from './helpers';
 
 const likeButton = (page: Page) => page.locator('.status-bar .like-button');
 
-test('reads "Like · 41", likes with a toast and unlikes quietly', async ({ page }) => {
+test('reads "Like · 41", likes with a smiling toast and unlikes with a sad face', async ({ page }) => {
   const state = await stubLikes(page);
   await openDesktop(page);
   const button = likeButton(page);
@@ -16,14 +16,20 @@ test('reads "Like · 41", likes with a toast and unlikes quietly', async ({ page
   await expect(button).toHaveAttribute('aria-pressed', 'true');
   await expect(button.locator('.like-count')).toHaveText('Liked · 42');
   await expect(page.locator('#toast')).toContainText('Thanks for the like');
+  await expect(page.locator('#toast .toast-emoji')).toHaveText('😊');
 
-  // The like is remembered after a reload; clicking again takes it back without a toast.
+  // The like is remembered after a reload; clicking again takes it back without a toast:
+  // a sad face stands in for the heart for a moment, then the heart comes back.
   await page.reload();
   await expect(likeButton(page)).toHaveAttribute('aria-pressed', 'true');
   await likeButton(page).click();
   await expect(likeButton(page)).toHaveAttribute('aria-pressed', 'false');
+  await expect(likeButton(page).locator('.like-sad')).toHaveText('😞');
+  await expect(likeButton(page).locator('.heart-icon')).toHaveCount(0);
   await expect(likeButton(page).locator('.like-count')).toHaveText('Like · 41');
   await expect(page.locator('#toast')).toBeHidden();
+  await expect(likeButton(page).locator('.like-sad')).toHaveCount(0, { timeout: 4000 });
+  await expect(likeButton(page).locator('.heart-icon')).toBeVisible();
   expect(state.posts).toBe(1);
   expect(state.deletes).toBe(1);
   expect(state.count).toBe(41);

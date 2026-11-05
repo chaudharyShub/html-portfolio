@@ -22,8 +22,8 @@ interface Drag {
 
 /**
  * Notification banner (top-right on desktop, top on phones). Show one with
- * `actions.showToast(title, message)`. It leaves the way it came in (slides right on computers,
- * up on phones); on phones it can also be pushed up to dismiss it, like an iPhone banner.
+ * `actions.showToast(title, message, emoji?)`; an emoji replaces the app tile as its icon.
+ * It leaves the way it came in (slides right on computers, up on phones); on phones it can also be pushed up to dismiss it, like an iPhone banner.
  */
 export function Toast() {
   const { toast } = useOsState();
@@ -123,7 +123,13 @@ export function Toast() {
           onPointerUp={onPointerEnd}
           onPointerCancel={onPointerEnd}
         >
-          <AppIcon name="portfolio" size={36} />
+          {toast.emoji ? (
+            <span className="toast-emoji" aria-hidden="true">
+              {toast.emoji}
+            </span>
+          ) : (
+            <AppIcon name="portfolio" size={36} />
+          )}
           <div className="toast-text">
             <div className="toast-head">
               <span className="toast-title">{toast.title}</span>
