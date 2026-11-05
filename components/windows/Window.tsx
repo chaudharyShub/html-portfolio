@@ -20,6 +20,7 @@ import {
   animatePopOut,
   animateToDock,
   APPLE_EASE,
+  canRestoreFromPrepared,
   isPhoneLayout,
   prefersReducedMotion,
   prepareGenie,
@@ -156,9 +157,10 @@ export function Window({
   const handle = useRef<WindowHandle>(null);
 
   useImperativeHandle(handle, () => {
+    const report = (next: WindowStatus) => callbacks.current.onStatusChange(next);
     const setStatus = (next: WindowStatus) => {
       status.current = next;
-      callbacks.current.onStatusChange(next);
+      report(next);
     };
     const shownSoon = () => window.setTimeout(() => callbacks.current.onShown?.(), 50);
     const hideNow = () => flushSync(() => setHidden(true));
@@ -177,15 +179,19 @@ export function Window({
       const el = elRef.current;
       if (!el || animating.current || status.current !== 'open') return;
       animating.current = true;
-      setStatus('minimized');
+      status.current = 'minimized';
       const icon = getDockIcon();
       if (prefersReducedMotion() || !icon) {
+        report('minimized');
         hideNow();
         animating.current = false;
         return;
       }
       cancelAnim.current?.();
+      // The rest of the desktop (Dock, menu bar) hears about it when the window lands: re-rendering
+      // it on the click held up the animation's first frame.
       cancelAnim.current = animateToDock(el, icon, () => {
+        report('minimized');
         hideNow();
         resetWindowStyles(el);
         animating.current = false;
@@ -197,17 +203,23 @@ export function Window({
       if (!el) return;
       if (status.current !== 'minimized' && !animating.current) return;
       cancelAnim.current?.();
-      setStatus('open');
+      status.current = 'open';
       animating.current = true;
       resetWindowStyles(el);
-      flushSync(() => setHidden(false));
       const icon = getDockIcon();
+      // With copies prepared on hover, the window itself stays hidden until the genie lands.
+      const showAtEnd = !!icon && canRestoreFromPrepared(el);
+      if (!showAtEnd) flushSync(() => setHidden(false));
       if (prefersReducedMotion() || !icon) {
+        report('open');
         animating.current = false;
         shownSoon();
         return;
       }
+      // Reported when it lands, like minimize (keeps the click light).
       cancelAnim.current = animateFromDock(el, icon, () => {
+        if (showAtEnd) flushSync(() => setHidden(false));
+        report('open');
         animating.current = false;
         shownSoon();
       });

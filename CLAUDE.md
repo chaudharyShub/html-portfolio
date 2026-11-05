@@ -184,16 +184,32 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     made no measurable difference.
     Copies are prepared ahead of the click: when a mouse rests ~80ms on the window buttons or on
     the window's dock icon, `prepareGenie` (called from `Window.tsx`) builds the copies into an
-    invisible layer (`.genie-layer--prepared`, opacity 0) so they are laid out and drawn before
-    the click; a minimized window is displayed invisibly for a moment to be copied. On click,
+    invisible layer (`.genie-layer--prepared`, opacity 0) so they are laid out before the
+    click (Chrome doesn't draw invisible layers, so they are still drawn on the first frame;
+    parking them just off-screen instead was tried in Nov 2026 and didn't avoid that either);
+    a minimized window is displayed invisibly for a moment to be copied. On click,
     `genie` uses them only if still valid (same rect and scroll, no content mutations other than
-    text, under 5s old), otherwise it builds anew as before. On the user's machine this cut the
+    text, under 5s old; for a minimized window: no content mutations and the same browser size),
+    otherwise it builds anew as before. On the user's machine this cut the
     click-to-motion pause from ~58ms to ~9ms. The portfolio window's pause comes from its size
     and content (~10x the Terminal's elements), not from the shadow.
+    Keeping the click light (Nov 2026, the user saw a hitch on the portfolio window but not the
+    Terminal): `Window.tsx` tells the rest of the desktop (`onStatusChange`: Dock, menu bar,
+    dialogs) about minimize/restore when the genie **lands**, not on the click (re-rendering them
+    cost ~12ms before the first frame). Restore from valid prepared copies (`canRestoreFromPrepared`)
+    keeps the real window `display: none` until the genie lands (laying it out on the click cost
+    ~40ms); Chrome keeps its scroll position. The live wallpaper is paused with
+    `.os-animating .live-glow`, a class, not `span`: a rule ending in a tag name made Chrome
+    restyle every span on the page, including all the copies (~870 elements), on each animation.
     Before copying, the genie fires `BEFORE_GENIE_COPY` on the window so JS-measured layout can
     re-measure (the sidebar's selection highlight is 0px wide while the window sits in the Dock).
   - Zoom = `animateFrame`: glides the real frame (inline !important left/top/width/height) while the
-    tab panel is frozen at its final width, so text lays out once, not per frame.
+    tab panel is frozen at its final width, so text lays out once, not per frame. While it glides
+    the window has `.window--gliding`, which gives the tab panel, sidebar list and profile card
+    their own GPU layers (`will-change: transform`): otherwise Chrome redrew all their text every
+    frame (~300ms of drawing per zoom on the user's machine, now ~90ms; the sidebar blur and the
+    shadow were measured and aren't the cost). Swapping the text for placeholder bars during the
+    glide was discussed and rejected: the swap would show at the slow start and end.
   - `animatePopIn` uses WAAPI and never touches inline transform (the main window keeps inline
     `transform: none` once centered; `resetWindowStyles` preserves it).
   - Clicking the dock icon mid-minimize reverses it. `.os-animating` on `<html>` pauses the live
