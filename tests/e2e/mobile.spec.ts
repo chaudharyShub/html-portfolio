@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openDesktop } from './helpers';
+import { openDesktop, stubLikes } from './helpers';
 
 /** Phones get the iOS layout: full-screen apps, a Home Screen, sheets and a dock. */
 
@@ -78,6 +78,28 @@ test('the tab bar does not cover the end of the page', async ({ page }) => {
   const footer = await box(page, '#window .status-bar');
   const bar = await box(page, '#window .tab-bar-wrap');
   expect(footer.y + footer.height).toBeLessThanOrEqual(bar.y + 1);
+});
+
+test('the like button sits at the right of the title bar, not in the footer', async ({ page }) => {
+  const state = await stubLikes(page);
+  await openDesktop(page);
+  const heart = page.locator('#window .title-bar .like-button');
+  await expect(heart).toContainText('41');
+  await expect(page.locator('#window .status-bar .like-button')).toBeHidden();
+
+  const bar = await box(page, '#window .title-bar');
+  const b = await box(page, '#window .title-bar .like-button');
+  expect(b.x + b.width).toBeGreaterThan(bar.x + bar.width - 20);
+  await noHorizontalScroll(page);
+
+  // Tapping it likes; it doesn't count as tapping the title bar (which scrolls to the top).
+  const app = page.locator('#window');
+  await app.evaluate((el) => el.scrollTo({ top: 400 }));
+  await heart.tap();
+  await expect(heart).toHaveAttribute('aria-pressed', 'true');
+  await expect(heart).toContainText('42');
+  expect(await app.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+  expect(state.posts).toBe(1);
 });
 
 test('a single tap opens a Home Screen icon', async ({ page }) => {

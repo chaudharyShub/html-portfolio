@@ -56,10 +56,10 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones it is a widget on the second Home Screen page (swipe left). |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
-| **Installable** | Works offline as a PWA via a service worker. |
+| **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route), e.g. "Like · 12" with a tooltip on computers. One like per visitor; clicking again takes it back. |
 | **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
-All preferences are stored in `localStorage`, and every animation respects
+All preferences are stored in `localStorage` (the like count is the only thing kept on a server), and every animation respects
 `prefers-reduced-motion`. Menus, tabs, window buttons and dialogs are keyboard
 operable (Enter/Space to activate, Escape to close).
 
@@ -115,17 +115,15 @@ phone layout (full-screen app, tab bar, Home Screen, action sheet, bottom sheets
 The tests never send real mail: they use a fake Web3Forms key and stub `api.web3forms.com`.
 First time on a new machine, install the browser with `npx playwright install chromium`.
 
-The service worker is only registered in production builds (`npm run build && npm start`),
-so development never serves stale cached bundles.
-
 ## Project structure
 
 ```text
 app/
-  layout.tsx            # <html>, metadata, pre-paint theme script, SW registration
+  api/likes/route.ts    # like counter: GET the count, POST one like, DELETE (unlike) by id
+  layout.tsx            # <html>, metadata, pre-paint theme script
   page.tsx              # the single page: server-rendered sections -> desktop
   not-found.tsx         # 404 page as a desktop-style alert
-  sitemap.ts robots.ts manifest.ts
+  sitemap.ts robots.ts
   globals.css           # imports the stylesheets in styles/
 components/
   os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
@@ -134,14 +132,14 @@ components/
   dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer,
                         # Time Machine, Activity Monitor, About This Developer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)
-  live/                 # small client readouts: clock, career stats, year, visitor counter
-  shared/               # JSON-LD script, service worker registration
+  live/                 # small client readouts: clock, career stats, year, visitor counter, like button
+  shared/               # JSON-LD script, analytics, removal of the old service worker
   icons/                # hand-drawn app tiles and line icons (Apple-inspired, not Apple assets)
 data/                   # portfolio content: profile, about, skills, projects, experience
-lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, skill usage
+lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, skill usage, likes store
 tests/e2e/              # Playwright browser tests (desktop + phone)
 styles/                 # CSS by area; ios.css holds the phone layout
-public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js
+public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js (removes the old offline cache)
 ```
 
 ### How it fits together
@@ -210,6 +208,29 @@ How it behaves:
   is public. It can only deliver messages to your inbox.
   If spam still gets through, add hCaptcha (free on Web3Forms; Cloudflare Turnstile and reCAPTCHA
   need a paid plan).
+
+## Likes (Upstash Redis)
+
+The heart in the status bar shows how many visitors liked the site. The count is kept in
+[Upstash Redis](https://upstash.com), added through Vercel's **Storage → Marketplace**
+(free plan, eviction off) and connected to the project, which sets `KV_REST_API_URL` and
+`KV_REST_API_TOKEN`. For local testing run `vercel env pull .env.local` (this overwrites the
+file, so keep a copy of anything else in it).
+
+- `app/api/likes/route.ts`: `GET` returns `{ count }`, `POST` adds one like and returns its id,
+  `DELETE` with `{ id }` takes that like back. Requests from other sites are refused. `lib/likes-store.ts` calls Upstash's REST API with `fetch` (no client library).
+- Each browser likes once and can take it back by clicking again (its like's id is kept in
+  `localStorage`). An unlike only lowers the count for an id the server handed out and hasn't
+  removed yet, so nobody can remove other people's likes. On the server,
+  each network may add up to 5 likes a day (a hashed IP, never the raw address, kept for 24 hours),
+  so clearing storage doesn't let one person pile up likes, while visitors sharing an office or
+  mobile network still can like.
+- Without the variables, or if the database can't be reached, the heart is simply hidden.
+- Browser tests stub `/api/likes` and point the test build at a dead address, so they never
+  change the real count.
+- Keys: `likes:count` (the total), `likes:ids` (ids of likes that can be taken back) and
+  `likes:ip:<hash>` (expire after a day).
+  To reset the count, delete `likes:count` and `likes:ids` in the Upstash console (Data Browser).
 
 ## Web Analytics and Speed Insights
 

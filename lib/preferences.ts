@@ -52,3 +52,14 @@ export function recordVisit(): number {
   }
   return visitCount;
 }
+
+/**
+ * The id of this browser's like (null = not liked); the server only takes a like back for its id.
+ * An old saved '1' (from before likes could be taken back) reads as not liked.
+ */
+export const likeIdPreference = createStoredValue<string | null>(
+  STORAGE_KEYS.liked,
+  (raw) => (raw && /^[0-9a-f-]{36}$/.test(raw) ? raw : null),
+  (id) => id ?? '',
+  null,
+);

@@ -34,8 +34,13 @@
   font-size: 13px;
 }
 
-[data-larger-text] .visitor-counter {
+[data-larger-text] .visitor-counter,
+[data-larger-text] .like-button {
   font-size: 12px;
+}
+
+[data-larger-text] .like-tip {
+  font-size: 13.5px;
 }
 
 [data-larger-text] .info-name {
@@ -153,6 +158,10 @@
 
   [data-larger-text] .alert-text {
     font-size: 15px;
+  }
+
+  [data-larger-text] .like-button--title {
+    font-size: 17px;
   }
 
   [data-larger-text] .title-home,

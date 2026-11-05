@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // The service worker must always be re-checked so new deploys can take over.
+        // The clean-up service worker (public/sw.js) must always be fetched fresh.
         source: '/sw.js',
         headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }],
       },

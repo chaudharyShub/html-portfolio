@@ -539,6 +539,106 @@
   color: var(--text);
 }
 
+/* The title bar's like button is for phones only (styles/ios.css). */
+.title-accessory {
+  display: none;
+}
+
+/* Like button + visitor counter, kept together at the end of the status bar. */
+.status-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.like-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.like-button:hover {
+  color: var(--red-text);
+}
+
+.like-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Our own tooltip above the status bar's pill, in the theme's colors (not the browser's). */
+.like-tip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 5;
+  padding: 3px 8px;
+  border: 0.5px solid var(--separator);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow-menu);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 11.5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease, visibility 0s linear 0.12s;
+}
+
+.like-button:focus-visible .like-tip {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (hover: hover) {
+  .like-button:hover .like-tip {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.12s ease 0.3s, visibility 0s linear 0.3s;
+  }
+}
+
+.like-button .heart-icon {
+  fill: none;
+  color: var(--red-text);
+}
+
+.like-button[aria-pressed='true'] .heart-icon {
+  fill: var(--red);
+  color: var(--red);
+}
+
+.like-button--pop .heart-icon {
+  animation: heartPop 420ms var(--ease-spring);
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .like-button--pop .heart-icon {
+    animation: none;
+  }
+}
+
 /*
  * Copies used by the genie animation keep the window's rounded corners and its see-through
  * sidebar; only the live blur is dropped (too costly across many strips).

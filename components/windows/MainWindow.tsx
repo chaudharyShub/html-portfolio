@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { TabGlyph } from '@/components/icons';
+import { LikeButton } from '@/components/live/LikeButton';
 import { useOsApi, useOsState, type WindowStatus } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
 import { APPLE_EASE, BEFORE_GENIE_COPY, prefersReducedMotion } from '@/lib/motion';
@@ -36,6 +37,7 @@ export function MainWindow({ sections, infoBar, statusBar }: MainWindowProps) {
       minHeight={300}
       onCloseRequest={() => actions.openDialog('closeConfirm')}
       onStatusChange={(status: WindowStatus) => actions.setWindowStatus('main', status)}
+      titleAccessory={<LikeButton placement="title" />}
     >
       <TabBar />
       {infoBar}

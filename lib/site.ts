@@ -33,7 +33,7 @@ const verification = {
 
 export const SITE = {
   url: resolveSiteUrl(),
-  /** App name: Home Screen icon label, manifest short name. */
+  /** App name: the label under the icon when the site is added to an iPhone Home Screen. */
   name: 'Shubham OS',
   /** The site's name in search results and link previews (Google reads it from WebSite data). */
   siteName: PROFILE.name,
@@ -54,5 +54,4 @@ export const SITE = {
     },
   },
   themeColor: '#1d1d1f',
-  backgroundColor: '#6a5acd',
 } as const;

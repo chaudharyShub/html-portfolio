@@ -70,6 +70,8 @@ interface WindowProps {
   /** Called shortly after the window becomes visible (open/restore). */
   onShown?: () => void;
   role?: 'dialog';
+  /** Phones only: a control at the right of the title bar (the portfolio's like button). */
+  titleAccessory?: ReactNode;
   children: ReactNode;
 }
 
@@ -100,6 +102,7 @@ export function Window({
   onStatusChange,
   onShown,
   role,
+  titleAccessory,
   children,
 }: WindowProps) {
   const elRef = useRef<HTMLDivElement>(null);
@@ -443,7 +446,7 @@ export function Window({
   // iOS: tapping the top bar scrolls the app back to the top (like tapping the status bar).
   const onTitleClick = (e: ReactMouseEvent<HTMLDivElement>) => {
     const el = elRef.current;
-    if (!el || !isPhoneLayout() || (e.target as HTMLElement).closest('.title-home')) return;
+    if (!el || !isPhoneLayout() || (e.target as HTMLElement).closest('.title-home, .title-accessory')) return;
     el.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   };
 
@@ -504,6 +507,7 @@ export function Window({
         <span className="title-text" id={titleId}>
           {title}
         </span>
+        {titleAccessory && <div className="title-accessory">{titleAccessory}</div>}
       </div>
       {children}
     </div>

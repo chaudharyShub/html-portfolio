@@ -404,6 +404,49 @@
     display: none;
   }
 
+  /* The like button moves from the footer to the right of the title bar, opposite "< Home". */
+  .status-bar .like-button--status {
+    display: none;
+  }
+
+  .title-accessory {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: max(6px, env(safe-area-inset-right));
+    bottom: 0;
+    height: 44px;
+  }
+
+  /* A plain iOS toolbar button here, not the status bar's pill. */
+  .like-button--title {
+    gap: 5px;
+    height: 44px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--text-2);
+    font-family: var(--font);
+    font-size: 15px;
+  }
+
+  .like-button--title:hover {
+    filter: none;
+  }
+
+  .like-button--title .heart-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .like-button--title:active {
+    transform: none;
+    filter: none;
+    opacity: 0.4;
+  }
+
   /* Name / role / status / experience: a plain row under the title bar. */
   .info-bar {
     display: flex;

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
-import { ServiceWorkerRegistrar } from '@/components/shared/ServiceWorkerRegistrar';
+import { ServiceWorkerCleanup } from '@/components/shared/ServiceWorkerCleanup';
 import { VercelInsights } from '@/components/shared/VercelInsights';
 import { PROFILE } from '@/data/profile';
 import { SITE } from '@/lib/site';
@@ -76,7 +76,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
-        <ServiceWorkerRegistrar />
+        <ServiceWorkerCleanup />
         {/* Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real
             visits). Their scripts are served only by Vercel, so they are rendered only in builds made
             on Vercel; local dev/start would just get a 404. The owner's own browsers are left out. */}
