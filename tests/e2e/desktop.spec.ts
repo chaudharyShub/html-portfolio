@@ -252,16 +252,41 @@ test('double-clicking the title bar zooms the window, a single click leaves it a
 test('minimizing sends the window to the Dock and the Dock icon brings it back', async ({ page }) => {
   await openDesktop(page);
   const win = page.locator('#window');
+  const dockIcon = page.locator('#dock-portfolio');
   await win.getByRole('button', { name: 'Minimize', exact: true }).click();
   await expect(win).toBeHidden();
+  // The Dock hears about it when the window lands.
+  await expect(dockIcon).toHaveAttribute('aria-pressed', 'false');
   // The Dock magnifies under the pointer, so don't wait for the icon to hold still.
-  await page.locator('#dock-portfolio').click({ force: true });
+  await dockIcon.click({ force: true });
   await expect(win).toBeVisible();
+  await expect(dockIcon).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('heading', { name: 'About Me' })).toBeVisible();
   // The genie animation plays on temporary copies; none may be left behind.
   await expect(page.locator('.genie-layer')).toHaveCount(0);
   await expect(win).toHaveCSS('visibility', 'visible');
   await expect(win).toHaveCSS('opacity', '1');
+});
+
+test('restoring from copies prepared on hover brings the window back as it was', async ({ page }) => {
+  await openDesktop(page);
+  const win = page.locator('#window');
+  const content = win.locator('.content');
+  await content.evaluate((el) => (el.scrollTop = 600));
+  await win.getByRole('button', { name: 'Minimize', exact: true }).click();
+  await expect(win).toBeHidden();
+  await expect(page.locator('.genie-layer')).toHaveCount(0);
+  // Resting the mouse on the Dock icon prepares the genie's copies; the window then stays
+  // hidden until the genie lands.
+  const dockIcon = page.locator('#dock-portfolio');
+  await dockIcon.hover({ force: true });
+  await expect(page.locator('.genie-layer')).toHaveCount(1);
+  await dockIcon.click({ force: true });
+  await expect(win).toBeVisible();
+  await expect(page.locator('.genie-layer')).toHaveCount(0);
+  await expect(win).toHaveCSS('visibility', 'visible');
+  await expect(dockIcon).toHaveAttribute('aria-pressed', 'true');
+  expect(await content.evaluate((el) => el.scrollTop)).toBe(600);
 });
 
 test('zoom fills the screen and restores the window to where it was', async ({ page }) => {
@@ -277,6 +302,8 @@ test('zoom fills the screen and restores the window to where it was', async ({ p
   await win.getByRole('button', { name: 'Restore', exact: true }).click();
   await expect(win).not.toHaveClass(/maximized/);
   await expect.poll(async () => await win.boundingBox()).toEqual(before);
+  // The GPU layers used while it glides are dropped afterwards.
+  await expect(win).not.toHaveClass(/window--gliding/);
 });
 
 test('the close button asks before "quitting" and then minimizes', async ({ page }) => {

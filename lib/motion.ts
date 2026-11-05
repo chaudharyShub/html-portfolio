@@ -269,6 +269,8 @@ interface GeniePrep {
   shadow: { color: string; y: number; blur: number } | null;
   radius: number;
   scrollTops: number[];
+  /** The browser window's size when the copies were made. */
+  viewport: string;
   madeAt: number;
   /** Set when the window's content changes, so the copies would be out of date. */
   stale: boolean;
@@ -281,6 +283,7 @@ const PREP_TTL_MS = 5000;
 const prepared = new WeakMap<HTMLElement, GeniePrep>();
 
 const scrollersOf = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .terminal-body')];
+const viewportSize = () => `${window.innerWidth}x${window.innerHeight}`;
 
 /**
  * Builds the genie's copies of the window (see `genie`) and adds them to the page fully
@@ -376,6 +379,7 @@ function buildGenie(win: HTMLElement): GeniePrep {
     shadow,
     radius,
     scrollTops,
+    viewport: viewportSize(),
     madeAt: performance.now(),
     stale: false,
     dispose: () => {
@@ -394,9 +398,14 @@ function buildGenie(win: HTMLElement): GeniePrep {
   return prep;
 }
 
-/** True when prepared copies still match the window exactly as it is now. */
+/**
+ * True when prepared copies still match the window exactly as it is now. A minimized window
+ * (display: none) can't move or scroll, so for it the content and the browser size are enough.
+ */
 function prepStillValid(prep: GeniePrep): boolean {
   if (prep.stale || performance.now() - prep.madeAt > PREP_TTL_MS || !prep.layer.isConnected) return false;
+  if (prep.viewport !== viewportSize()) return false;
+  if (getComputedStyle(prep.win).display === 'none') return true;
   const r = prep.win.getBoundingClientRect();
   const same = (a: number, b: number) => Math.abs(a - b) < 0.5;
   if (!same(r.left, prep.w.left) || !same(r.top, prep.w.top)) return false;
@@ -659,7 +668,20 @@ export function animateToDock(win: HTMLElement, target: HTMLElement, onDone: () 
   return isPhoneLayout() ? iosZoom(win, target, true, onDone) : genie(win, target, true, onDone);
 }
 
-/** Restore: the reverse of animateToDock. The window must already be displayed. */
+/**
+ * True when restoring `win` can start from copies prepared on hover, so the minimized window
+ * may stay hidden (display: none) until the genie lands: laying it out again on the click
+ * held up the first frame.
+ */
+export function canRestoreFromPrepared(win: HTMLElement): boolean {
+  const prep = prepared.get(win);
+  return !!prep && !isPhoneLayout() && !prefersReducedMotion() && prepStillValid(prep);
+}
+
+/**
+ * Restore: the reverse of animateToDock. The window must already be displayed, unless
+ * `canRestoreFromPrepared` said it may stay hidden; then the caller shows it in `onDone`.
+ */
 export function animateFromDock(win: HTMLElement, target: HTMLElement, onDone: () => void): () => void {
   win.style.opacity = '';
   return isPhoneLayout() ? iosZoom(win, target, false, onDone) : genie(win, target, false, onDone);
@@ -689,7 +711,9 @@ export function animateFrame(
     scroller.style.overflowX = 'hidden';
   }
   const unmark = markAnimating();
+  el.classList.add('window--gliding');
   const restore = () => {
+    el.classList.remove('window--gliding');
     for (const [p, value, priority] of saved) {
       if (value) el.style.setProperty(p, value, priority);
       else el.style.removeProperty(p);

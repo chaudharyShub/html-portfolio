@@ -350,8 +350,12 @@
   }
 }
 
-/* Paused while a window animates, so the blurred glass above it isn't redrawn every frame. */
-.os-animating .live-wallpaper span {
+/*
+ * Paused while a window animates, so the blurred glass above it isn't redrawn every frame.
+ * Matched by class, not by "span": a rule ending in a tag name makes the browser recheck every
+ * span on the page (the genie's window copies hold hundreds) whenever .os-animating changes.
+ */
+.os-animating .live-glow {
   animation-play-state: paused;
 }
 

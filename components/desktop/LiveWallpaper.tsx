@@ -12,10 +12,10 @@ export function LiveWallpaper() {
   if (findWallpaper(wallpaper).id !== DEFAULT_WALLPAPER_ID) return null;
   return (
     <div className="live-wallpaper" aria-hidden="true">
-      <span />
-      <span />
-      <span />
-      <span />
+      <span className="live-glow" />
+      <span className="live-glow" />
+      <span className="live-glow" />
+      <span className="live-glow" />
     </div>
   );
 }

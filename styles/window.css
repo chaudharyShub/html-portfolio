@@ -753,6 +753,16 @@
   box-shadow: none !important;
 }
 
+/*
+ * While a window glides to a new size (zoom), its heavy parts get their own GPU layers, so the
+ * browser moves what it has already drawn instead of redrawing all the text on every frame.
+ */
+.window--gliding [role="tabpanel"],
+.window--gliding .tab-bar,
+.window--gliding .info-bar {
+  will-change: transform;
+}
+
 /* Each section sits in a layout-neutral slot so tabs can hide/reorder server-rendered sections. */
 .section-slot {
   display: contents;
