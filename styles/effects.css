@@ -156,6 +156,10 @@
     font-size: 15px;
   }
 
+  [data-larger-text] .like-button--title {
+    font-size: 17px;
+  }
+
   [data-larger-text] .title-home,
   [data-larger-text] .window > .title-bar .title-text,
   [data-larger-text] .menu-item,

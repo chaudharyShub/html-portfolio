@@ -28,3 +28,18 @@ export async function stubWeb3Forms(page: Page, { ok = true, delayMs = 150 } = {
   });
   return sent;
 }
+
+/** Replaces /api/likes with an in-memory counter, so tests never touch the real database. */
+export async function stubLikes(page: Page, { start = 41, postOk = true } = {}) {
+  const state = { count: start, posts: 0 };
+  await page.route('**/api/likes', async (route: Route) => {
+    if (route.request().method() === 'POST') {
+      state.posts++;
+      if (!postOk) return route.fulfill({ status: 503, json: { error: 'down' } });
+      state.count++;
+      return route.fulfill({ json: { count: state.count, counted: true } });
+    }
+    return route.fulfill({ json: { count: state.count } });
+  });
+  return state;
+}

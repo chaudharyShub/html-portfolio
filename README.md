@@ -57,7 +57,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Installable** | Works offline as a PWA via a service worker. |
-| **Likes** | A heart in the window's status bar with a shared like count (Upstash Redis behind a small API route). One like per visitor. |
+| **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route). One like per visitor. |
 | **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage` (the like count is the only thing kept on a server), and every animation respects

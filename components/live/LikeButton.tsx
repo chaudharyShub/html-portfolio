@@ -3,36 +3,24 @@
 import { useEffect, useState } from 'react';
 import { HeartIcon } from '@/components/icons';
 import { useOsActions } from '@/components/os/OsProvider';
+import { loadLikes, sendLike, useLikes } from '@/lib/likes-client';
 import { likedPreference } from '@/lib/preferences';
 
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
 
 /**
- * Heart + shared like count in the status bar. The count lives in Upstash Redis behind
- * /api/likes; this browser remembers its own like, so each visitor likes once (no unlike).
+ * Heart + shared like count. The count lives in Upstash Redis behind /api/likes; this browser
+ * remembers its own like, so each visitor likes once (no unlike). Two copies are rendered: in the
+ * status bar (computers) and in the title bar (phones); CSS shows the right one.
  * Hidden when the likes service is unavailable (for example locally without the env vars).
  */
-export function LikeButton() {
+export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
   const liked = likedPreference.use();
+  const { count, available } = useLikes();
   const { showToast } = useOsActions();
-  const [count, setCount] = useState<number | null>(null);
-  const [available, setAvailable] = useState(true);
   const [popping, setPopping] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/likes', { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
-      .then((data: { count: number }) => {
-        if (!cancelled) setCount(data.count);
-      })
-      .catch(() => {
-        if (!cancelled) setAvailable(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  useEffect(loadLikes, []);
 
   if (!available) return null;
 
@@ -41,19 +29,10 @@ export function LikeButton() {
       showToast('Thank you', 'You already liked this portfolio.');
       return;
     }
-    // Show the like at once, then settle on the server's total.
-    likedPreference.set(true);
     setPopping(true);
-    setCount((c) => (c === null ? c : c + 1));
-    try {
-      const res = await fetch('/api/likes', { method: 'POST' });
-      if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as { count: number };
-      setCount(data.count);
+    if (await sendLike()) {
       showToast('Thanks for the like!', 'It means a lot - Shubham');
-    } catch {
-      likedPreference.set(false);
-      setCount((c) => (c === null ? c : Math.max(0, c - 1)));
+    } else {
       showToast('Like not saved', 'Something went wrong. Please try again in a moment.');
     }
   };
@@ -66,8 +45,7 @@ export function LikeButton() {
   return (
     <button
       type="button"
-      id="like-button"
-      className={popping ? 'like-button like-button--pop' : 'like-button'}
+      className={`like-button like-button--${placement}${popping ? ' like-button--pop' : ''}`}
       aria-pressed={liked}
       aria-label={label}
       title={label}

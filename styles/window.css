@@ -539,6 +539,11 @@
   color: var(--text);
 }
 
+/* The title bar's like button is for phones only (styles/ios.css). */
+.title-accessory {
+  display: none;
+}
+
 /* Like button + visitor counter, kept together at the end of the status bar. */
 .status-chips {
   display: inline-flex;

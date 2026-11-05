@@ -19,7 +19,7 @@ export function StatusBar() {
         &copy; <CurrentYear /> {PROFILE.name}
       </span>
       <span className="status-chips">
-        <LikeButton />
+        <LikeButton placement="status" />
         <VisitorCounter />
       </span>
     </footer>

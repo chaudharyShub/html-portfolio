@@ -360,9 +360,15 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
   only Completed ones. The Terminal `projects` list is built from `VISIBLE_PROJECTS`.
 - **Notifications**: generic `showToast(title, msg)`; reuse it for confirmations.
-- **Like button** (`components/live/LikeButton.tsx`, `#like-button`, Nov 2026): heart + shared
-  count (compact, e.g. 1.2K) in the status bar beside the visitor chip (`.status-chips`), on
-  computers and phones. One like per browser, no unlike (user left it to Claude): saved in
+- **Like button** (`components/live/LikeButton.tsx`, Nov 2026): heart + shared count (compact,
+  e.g. 1.2K). Two copies, CSS shows one: `placement="status"` in the status bar beside the
+  visitor chip (`.status-chips`, computers) and `placement="title"` at the right of the phone
+  title bar, opposite "< Home" (user's choice: the footer was too far down). The phone copy
+  is a plain iOS toolbar button (bigger heart, system font, no pill); making it the same pill as
+  on computers was tried and undone - the user preferred the plain one. The phone copy goes
+  through `Window`'s `titleAccessory` prop (`.title-accessory`, hidden on computers; tapping it
+  doesn't trigger the title bar's scroll-to-top). Both read one store, `lib/likes-client.ts`
+  (`useLikes`, `loadLikes` fetches once, `sendLike`). One like per browser, no unlike (user left it to Claude): saved in
   localStorage `shubhamOsLiked` (`likedPreference`); clicking again shows a "You already liked"
   toast. Optimistic: fills and pops at once (no pop under reduced motion), then takes the server's
   total; a failed POST undoes it with a "Like not saved" toast. The button is hidden when GET fails
