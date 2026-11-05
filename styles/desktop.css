@@ -559,6 +559,37 @@
   }
 }
 
+/* The like toast's emoji sits on a tile shaped like the app tiles, tinted to match the emoji
+   (--tint, set inline) and toned by the theme: pale in Light, deep in Dark. */
+.toast-emoji {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 22.5%;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--tint) 18%, var(--surface)),
+    color-mix(in srgb, var(--tint) 42%, var(--surface))
+  );
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--tint) 40%, transparent), 0 1px 2px rgba(0, 0, 0, 0.12);
+  font-family: var(--font);
+  font-size: 21px;
+  line-height: 1;
+}
+
+.toast-emoji::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 55%);
+  pointer-events: none;
+}
+
 .toast-text {
   flex: 1;
   min-width: 0;
