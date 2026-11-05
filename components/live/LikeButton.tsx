@@ -41,7 +41,6 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
     if (result === 'failed') showToast('Like not saved', 'Something went wrong. Please try again in a moment.');
   };
 
-  const countText = count === null ? '-' : formatCount.format(count);
   const label =
     count === null
       ? 'Like this portfolio'
@@ -59,7 +58,19 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
       onAnimationEnd={() => setPopping(false)}
     >
       <HeartIcon />
-      <span className="like-count">{status ? `${liked ? 'Liked' : 'Like'} · ${countText}` : countText}</span>
+      <span className="like-count">
+        {status && `${liked ? 'Liked' : 'Like'} · `}
+        {count === null ? (
+          // Three dots in a small wave while the count loads.
+          <span className="like-dots" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+        ) : (
+          formatCount.format(count)
+        )}
+      </span>
       {status && (
         <span className="like-tip" role="tooltip" id={tipId}>
           {liked ? 'Unlike' : 'Like this portfolio'}

@@ -102,6 +102,34 @@ test('the like button sits at the right of the title bar, not in the footer', as
   expect(state.posts).toBe(1);
 });
 
+test('a notification can be pushed up to dismiss it; a short push springs back', async ({ page }) => {
+  await stubLikes(page);
+  await openDesktop(page);
+  await page.locator('#window .title-bar .like-button').tap();
+  const toast = page.locator('.toast-inner');
+  await expect(toast).toContainText('Thanks for the like');
+  // Drag straight away (pressing settles the drop-in animation), well before it times out.
+  const restY = 8; // its resting place: 8px from the top of the screen
+  const box = (await toast.boundingBox())!;
+  const x = box.x + box.width / 2;
+  const y = restY + box.height / 2;
+
+  // A short push: it follows the finger, then springs back.
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y - 15, { steps: 5 });
+  expect((await toast.boundingBox())!.y).toBeLessThan(restY - 10);
+  await page.mouse.up();
+  await expect.poll(async () => Math.round((await toast.boundingBox())!.y)).toBe(restY);
+
+  // A longer push dismisses it.
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y - 80, { steps: 8 });
+  await page.mouse.up();
+  await expect(toast).toHaveCount(0);
+});
+
 test('a single tap opens a Home Screen icon', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);

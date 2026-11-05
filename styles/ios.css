@@ -436,6 +436,11 @@
     filter: none;
   }
 
+  .like-button--title .like-dots span {
+    width: 4px;
+    height: 4px;
+  }
+
   .like-button--title .heart-icon {
     width: 20px;
     height: 20px;
@@ -837,8 +842,13 @@
     max-width: none;
   }
 
+  /* It can be pushed up to dismiss it (components/desktop/Toast.tsx), so the finger drags it
+     instead of scrolling the page. */
   .toast-inner {
     animation-name: toastDrop;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   @keyframes toastDrop {
