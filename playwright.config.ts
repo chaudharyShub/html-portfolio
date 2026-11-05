@@ -16,8 +16,6 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: 'retain-on-failure',
-    // The production service worker could answer requests before the Web3Forms stub sees them.
-    serviceWorkers: 'block',
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: /mobile\.spec\.ts/ },

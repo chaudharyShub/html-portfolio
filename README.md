@@ -56,7 +56,6 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones it is a widget on the second Home Screen page (swipe left). |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
-| **Installable** | Works offline as a PWA via a service worker. |
 | **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route), e.g. "Like · 12" with a tooltip on computers. One like per visitor; clicking again takes it back. |
 | **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
@@ -116,18 +115,15 @@ phone layout (full-screen app, tab bar, Home Screen, action sheet, bottom sheets
 The tests never send real mail: they use a fake Web3Forms key and stub `api.web3forms.com`.
 First time on a new machine, install the browser with `npx playwright install chromium`.
 
-The service worker is only registered in production builds (`npm run build && npm start`),
-so development never serves stale cached bundles.
-
 ## Project structure
 
 ```text
 app/
   api/likes/route.ts    # like counter: GET the count, POST one like, DELETE (unlike) by id
-  layout.tsx            # <html>, metadata, pre-paint theme script, SW registration
+  layout.tsx            # <html>, metadata, pre-paint theme script
   page.tsx              # the single page: server-rendered sections -> desktop
   not-found.tsx         # 404 page as a desktop-style alert
-  sitemap.ts robots.ts manifest.ts
+  sitemap.ts robots.ts
   globals.css           # imports the stylesheets in styles/
 components/
   os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
@@ -137,13 +133,13 @@ components/
                         # Time Machine, Activity Monitor, About This Developer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)
   live/                 # small client readouts: clock, career stats, year, visitor counter, like button
-  shared/               # JSON-LD script, service worker registration
+  shared/               # JSON-LD script, analytics, removal of the old service worker
   icons/                # hand-drawn app tiles and line icons (Apple-inspired, not Apple assets)
 data/                   # portfolio content: profile, about, skills, projects, experience
 lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, skill usage, likes store
 tests/e2e/              # Playwright browser tests (desktop + phone)
 styles/                 # CSS by area; ios.css holds the phone layout
-public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js
+public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js (removes the old offline cache)
 ```
 
 ### How it fits together
