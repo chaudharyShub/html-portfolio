@@ -367,7 +367,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Project status badges**: green for Completed, orange for In Progress (`--orange` /
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
   only Completed ones. The Terminal `projects` list is built from `VISIBLE_PROJECTS`.
-- **Notifications**: generic `showToast(title, msg)`; reuse it for confirmations.
+- **Notifications**: generic `showToast(title, msg)`; reuse it for confirmations. The banner
+  (`components/desktop/Toast.tsx`) stays 4.5s, then leaves the way it came in (WAAPI, 320ms Apple
+  curve: slides right on computers, up on phones; it used to just vanish - user's report, Nov
+  2026). On phones it can be pushed up to dismiss it, like an iPhone banner (pointer drag on
+  `.toast-inner`, `touch-action: none`): past 36px or a quick upward flick dismisses, otherwise it
+  springs back; pulled down it gives a little; it doesn't time out while held. Reduced motion:
+  removed without animation. Tests: `tests/e2e/toast.spec.ts`, the drag in `mobile.spec.ts`.
 - **Like button** (`components/live/LikeButton.tsx`, Nov 2026): heart + shared count (compact,
   e.g. 1.2K). Two copies, CSS shows one: `placement="status"` in the status bar beside the
   visitor chip (`.status-chips`, computers) and `placement="title"` at the right of the phone
@@ -385,7 +391,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   localStorage `shubhamOsLiked` (`likeIdPreference`; an old saved `1` reads as not liked).
   Optimistic both ways (pop on like, none under reduced motion), then the server's total; a failed
   request is undone ("Like not saved" / "Like not removed"), a like over the daily limit too
-  ("Like not counted"). The button is hidden when GET fails (no env vars, Upstash down). Tests:
+  ("Like not counted"). While the count loads, three small dots rise one after another in place
+  of the number (`.like-dots`, still under reduced motion; user's request). The button is hidden
+  when GET fails (no env vars, Upstash down). Tests:
   `tests/e2e/likes.spec.ts` (stubs `/api/likes` with ids; also checks the real route's 400/403).
 - **Visitor counter** chip in the status bar (`No. 004821`): locally seeded, not a real global
   count (its `title` says so).

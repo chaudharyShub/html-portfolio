@@ -29,6 +29,22 @@ test('reads "Like · 41", likes with a toast and unlikes quietly', async ({ page
   expect(state.count).toBe(41);
 });
 
+test('three waving dots show while the count loads', async ({ page }) => {
+  let release!: () => void;
+  const loaded = new Promise<void>((resolve) => (release = resolve));
+  await page.route('**/api/likes', async (route) => {
+    await loaded;
+    await route.fulfill({ json: { count: 41 } });
+  });
+  await openDesktop(page);
+  const button = likeButton(page);
+  await expect(button.locator('.like-dots span')).toHaveCount(3);
+  await expect(button.locator('.like-count')).toHaveText('Like · ');
+  release();
+  await expect(button.locator('.like-count')).toHaveText('Like · 41');
+  await expect(button.locator('.like-dots')).toHaveCount(0);
+});
+
 test('pointing at the pill shows our own tooltip', async ({ page }) => {
   await stubLikes(page);
   await openDesktop(page);
