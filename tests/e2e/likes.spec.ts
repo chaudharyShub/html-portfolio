@@ -16,7 +16,9 @@ test('reads "Like · 41", likes with a smiling toast and unlikes with a sad face
   await expect(button).toHaveAttribute('aria-pressed', 'true');
   await expect(button.locator('.like-count')).toHaveText('Liked · 42');
   await expect(page.locator('#toast')).toContainText('Thanks for the like');
-  await expect(page.locator('#toast .toast-emoji')).toHaveText('😊');
+  // A random happy emoji from the list, on a tinted tile.
+  const thanks = (await page.locator('#toast .toast-emoji').textContent()) ?? '';
+  expect(['😊', '🥰', '😄', '🤩', '💗', '💖', '✨', '🎉', '🙌', '🌟', '🥳', '🌈']).toContain(thanks);
 
   // The like is remembered after a reload; clicking again takes it back without a toast:
   // a sad face stands in for the heart for a moment, then the heart comes back.

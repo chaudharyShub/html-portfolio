@@ -2,11 +2,37 @@
 
 import { useEffect, useId, useRef, useState, type AnimationEvent } from 'react';
 import { HeartIcon } from '@/components/icons';
-import { useOsActions } from '@/components/os/OsProvider';
+import { useOsActions, type ToastEmoji } from '@/components/os/OsProvider';
 import { loadLikes, removeLike, sendLike, useLikes } from '@/lib/likes-client';
 import { likeIdPreference } from '@/lib/preferences';
 
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
+/** The like toast's icon: a random one of these each time, each on a tile in its own tint. */
+const THANKS_EMOJIS: readonly ToastEmoji[] = [
+  { emoji: '😊', tint: '#ffb020' },
+  { emoji: '🥰', tint: '#ff5e8a' },
+  { emoji: '😄', tint: '#ffb020' },
+  { emoji: '🤩', tint: '#ffc83d' },
+  { emoji: '💗', tint: '#ff4f9a' },
+  { emoji: '💖', tint: '#e84aa6' },
+  { emoji: '✨', tint: '#a78bfa' },
+  { emoji: '🎉', tint: '#8b5cf6' },
+  { emoji: '🙌', tint: '#f59e0b' },
+  { emoji: '🌟', tint: '#fbbf24' },
+  { emoji: '🥳', tint: '#ec4899' },
+  { emoji: '🌈', tint: '#38bdf8' },
+];
+
+let lastThanks = -1;
+
+/** A random thanks emoji, never the same one twice in a row. */
+function pickThanksEmoji(): ToastEmoji {
+  let i = Math.floor(Math.random() * THANKS_EMOJIS.length);
+  if (i === lastThanks) i = (i + 1) % THANKS_EMOJIS.length;
+  lastThanks = i;
+  return THANKS_EMOJIS[i] as ToastEmoji;
+}
 
 /** How long the sad face stands in for the heart after an unlike. */
 const SAD_MS = 2000;
@@ -19,7 +45,7 @@ type Mood = 'sad' | 'back' | null;
  * likes once and can take it back by clicking again (it keeps its like's id; the server only
  * removes a like for its id). Two copies are rendered: in the status bar (computers: "Like · 12"
  * with a tooltip) and in the title bar (phones: heart + count); CSS shows the right one.
- * Liking shows a toast with a smile; unliking swaps the heart for a sad face for a moment.
+ * Liking shows a toast with a random happy emoji; unliking swaps the heart for a sad face for a moment.
  * Hidden when the likes service is unavailable (for example locally without the env vars).
  */
 export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
@@ -53,7 +79,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
     setMood(null);
     setPopping(true);
     const result = await sendLike();
-    if (result === 'saved') showToast('Thanks for the like!', 'It means a lot - Shubham', '😊');
+    if (result === 'saved') showToast('Thanks for the like!', 'It means a lot - Shubham', pickThanksEmoji());
     if (result === 'limit') showToast('Like not counted', "Your network has reached today's like limit. Please try again tomorrow.");
     if (result === 'failed') showToast('Like not saved', 'Something went wrong. Please try again in a moment.');
   };

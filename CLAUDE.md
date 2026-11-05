@@ -389,9 +389,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   "Unlike". **Unlike** (user's request): clicking a liked heart takes the like back without a
   toast: a 😞 stands in for the heart for 2s (`.like-sad`, springs in with a little wobble, then
   the heart pops back; plain swap under reduced motion; user's idea, Nov 2026). The like toast
-  "Thanks for the like!" shows a 😊 instead of the app tile (`showToast`'s optional `emoji`
-  argument, `.toast-emoji`; the tile's person silhouette read as an anonymous profile picture -
-  user's report). Device emoji, like the device font. The browser keeps its like's id in
+  "Thanks for the like!" shows a random happy emoji instead of the app tile (`THANKS_EMOJIS` in
+  `LikeButton.tsx`, 11 of them, never the same twice in a row; the user dropped the rainbow) on a
+  tile shaped like the app tiles, tinted to match the emoji and toned by the theme (`showToast`'s
+  optional `ToastEmoji` `{ emoji, tint }`, `.toast-emoji` mixes `--tint` with `--surface`; the
+  tile's person silhouette read as an anonymous profile picture - user's report). Device emoji,
+  like the device font. The browser keeps its like's id in
   localStorage `shubhamOsLiked` (`likeIdPreference`; an old saved `1` reads as not liked).
   Optimistic both ways (pop on like, none under reduced motion), then the server's total; a failed
   request is undone ("Like not saved" / "Like not removed"), a like over the daily limit too

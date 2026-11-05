@@ -41,12 +41,17 @@ interface MessageState {
   text: string;
 }
 
+/** An emoji on a tile tinted with `tint` (a CSS color), shown in place of the app tile. */
+export interface ToastEmoji {
+  emoji: string;
+  tint: string;
+}
+
 interface ToastState {
   id: number;
   title: string;
   message: string;
-  /** Shown in place of the app tile (for example the like toast's smile). */
-  emoji?: string;
+  emoji?: ToastEmoji;
 }
 
 export interface OsState {
@@ -73,7 +78,7 @@ type Action =
   | { type: 'toggleMenu' }
   | { type: 'closeMenus' }
   | { type: 'openContextMenu'; x: number; y: number }
-  | { type: 'showToast'; title: string; message: string; emoji?: string }
+  | { type: 'showToast'; title: string; message: string; emoji?: ToastEmoji }
   | { type: 'hideToast'; id: number }
   | { type: 'windowStatus'; key: WindowKey; status: WindowStatus };
 
@@ -137,7 +142,7 @@ export interface OsActions {
   closeDialog: (id: DialogId) => void;
   showMessage: (icon: DialogIconType, title: string, text: string) => void;
   /** `emoji` replaces the app tile as the banner's icon. */
-  showToast: (title: string, message: string, emoji?: string) => void;
+  showToast: (title: string, message: string, emoji?: ToastEmoji) => void;
   hideToast: (id: number) => void;
   denyNewTextDocument: () => void;
   shutDown: () => void;
