@@ -56,7 +56,7 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones it is a widget on the second Home Screen page (swipe left). |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
-| **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route), e.g. "Like · 12" with a tooltip on computers. One like per visitor (a toast with a random happy emoji says thanks); clicking again takes it back (a sad face stands in for the heart for a moment). |
+| **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route), e.g. "Like · 12" with a tooltip on computers. One like per visitor (a toast with a random happy emoji says thanks); clicking again takes it back (a random sad face stands in for the heart for a moment). |
 | **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
 
 All preferences are stored in `localStorage` (the like count is the only thing kept on a server), and every animation respects

@@ -387,7 +387,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   stays heart + count) and has our own tooltip instead of the browser's `title` (`.like-tip`,
   `role="tooltip"`, theme colors, after 0.3s hover or on keyboard focus): "Like this portfolio" /
   "Unlike". **Unlike** (user's request): clicking a liked heart takes the like back without a
-  toast: a 😞 stands in for the heart for 2s (`.like-sad`, springs in with a little wobble, then
+  toast: a random sad emoji (`SAD_EMOJIS`: 😞 😢 😔 🥺 😿 💔, never
+  the same twice in a row; just the emoji, no tile - user's pick) stands in for the heart for 2s (`.like-sad`, springs in with a little wobble, then
   the heart pops back; plain swap under reduced motion; user's idea, Nov 2026). The like toast
   "Thanks for the like!" shows a random happy emoji instead of the app tile (`THANKS_EMOJIS` in
   `LikeButton.tsx`, 11 of them, never the same twice in a row; the user dropped the rainbow) on a

@@ -21,7 +21,6 @@ const THANKS_EMOJIS: readonly ToastEmoji[] = [
   { emoji: '🙌', tint: '#f59e0b' },
   { emoji: '🌟', tint: '#fbbf24' },
   { emoji: '🥳', tint: '#ec4899' },
-  { emoji: '🌈', tint: '#38bdf8' },
 ];
 
 let lastThanks = -1;
@@ -32,6 +31,19 @@ function pickThanksEmoji(): ToastEmoji {
   if (i === lastThanks) i = (i + 1) % THANKS_EMOJIS.length;
   lastThanks = i;
   return THANKS_EMOJIS[i] as ToastEmoji;
+}
+
+/** Unliking: a random one of these stands in for the heart (just the emoji, no tile). */
+const SAD_EMOJIS = ['😞', '😢', '😔', '🥺', '😿', '💔'];
+
+let lastSad = -1;
+
+/** A random sad emoji, never the same one twice in a row. */
+function pickSadEmoji(): string {
+  let i = Math.floor(Math.random() * SAD_EMOJIS.length);
+  if (i === lastSad) i = (i + 1) % SAD_EMOJIS.length;
+  lastSad = i;
+  return SAD_EMOJIS[i] as string;
 }
 
 /** How long the sad face stands in for the heart after an unlike. */
@@ -45,7 +57,8 @@ type Mood = 'sad' | 'back' | null;
  * likes once and can take it back by clicking again (it keeps its like's id; the server only
  * removes a like for its id). Two copies are rendered: in the status bar (computers: "Like · 12"
  * with a tooltip) and in the title bar (phones: heart + count); CSS shows the right one.
- * Liking shows a toast with a random happy emoji; unliking swaps the heart for a sad face for a moment.
+ * Liking shows a toast with a random happy emoji; unliking swaps the heart
+ * for a random sad face for a moment.
  * Hidden when the likes service is unavailable (for example locally without the env vars).
  */
 export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
@@ -54,6 +67,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
   const { showToast } = useOsActions();
   const [popping, setPopping] = useState(false);
   const [mood, setMood] = useState<Mood>(null);
+  const [sadEmoji, setSadEmoji] = useState(SAD_EMOJIS[0]);
   const sadTimer = useRef<number | undefined>(undefined);
   const tipId = useId();
 
@@ -66,6 +80,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
     window.clearTimeout(sadTimer.current);
     if (liked) {
       // No toast: a sad face stands in for the heart for a moment, then the heart comes back.
+      setSadEmoji(pickSadEmoji());
       setMood('sad');
       sadTimer.current = window.setTimeout(() => setMood('back'), SAD_MS);
       const result = await removeLike();
@@ -107,7 +122,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
     >
       {mood === 'sad' ? (
         <span className="like-sad" aria-hidden="true">
-          😞
+          {sadEmoji}
         </span>
       ) : (
         <HeartIcon />
