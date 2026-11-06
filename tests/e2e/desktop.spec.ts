@@ -59,11 +59,12 @@ test('projects are grouped by company, then personal projects', async ({ page })
   );
 });
 
-test('the Shubham Works card sits in the bottom-left corner and links the other sites', async ({ page }) => {
+test('the Shubham Works pill sits in the bottom-left corner and opens the other sites', async ({ page }) => {
   await openDesktop(page);
   const footer = page.locator('.made-by');
-  await expect(footer).toBeVisible();
-  const b = (await footer.boundingBox())!;
+  const pill = footer.getByRole('button', { name: 'A Shubham Works project' });
+  await expect(pill).toBeVisible();
+  const b = (await pill.boundingBox())!;
   expect(b.x).toBeLessThan(40);
   expect(b.y + b.height).toBeGreaterThan(page.viewportSize()!.height - 120);
   // It sits behind windows, like the desktop icons.
@@ -73,13 +74,29 @@ test('the Shubham Works card sits in the bottom-left corner and links the other 
   await expect(page.locator('.home-pill')).toBeHidden();
   await expect(page.locator('.sw-widget')).toBeHidden();
   await expect(page.locator('.home-dots')).toBeHidden();
-  await expect(footer).toContainText('A Shubham Works project');
-  await expect(footer).toContainText('Made by Shubham Chaudhary');
-  const links = footer.getByRole('link');
+
+  // Closed until clicked; then "Made by" and the links show above the pill.
+  const panel = footer.locator('.home-pill-panel');
+  await expect(panel).toBeHidden();
+  await expect(pill).toHaveAttribute('aria-expanded', 'false');
+  await pill.click();
+  await expect(pill).toHaveAttribute('aria-expanded', 'true');
+  await expect(panel).toBeVisible();
+  expect((await panel.boundingBox())!.y).toBeLessThan(b.y);
+  await expect(panel).toContainText('Made by Shubham Chaudhary');
+  const links = panel.getByRole('link');
   await expect(links).toHaveText(['CloudPrep ↗', 'Frontend Interview Prep ↗']);
   await expect(links.nth(0)).toHaveAttribute('href', 'https://aws-cloud-prepare.vercel.app');
   await expect(links.nth(1)).toHaveAttribute('href', 'https://frontend-interview-prepare.vercel.app');
   await expect(links.nth(1)).toHaveAttribute('rel', 'noopener noreferrer');
+
+  // Escape closes it, and so does a click anywhere else.
+  await page.keyboard.press('Escape');
+  await expect(panel).toBeHidden();
+  await pill.click();
+  await expect(panel).toBeVisible();
+  await page.mouse.click(700, 300);
+  await expect(panel).toBeHidden();
 });
 
 test('the Contact tab fits a short laptop screen without scrolling', async ({ page }) => {
@@ -371,6 +388,11 @@ test('Time Machine opens from the Dock and travels from today back to birth', as
   await expect(ticks.first()).toHaveAttribute('aria-selected', 'true');
   await expect(panel).toContainText('System first booted');
   await expect(dialog.locator('.tm-year-display')).toHaveText('1995');
+
+  // Going back past birth: no trip, just a note.
+  await dialog.getByRole('button', { name: 'Back in time' }).click();
+  await expect(dialog.getByRole('status')).toHaveText('No data before 1995. Try asking my parents.');
+  await expect(ticks.first()).toHaveAttribute('aria-selected', 'true');
 
   // Scrolling down over the snapshots travels forward in time again.
   await dialog.locator('.tm-stack').hover();

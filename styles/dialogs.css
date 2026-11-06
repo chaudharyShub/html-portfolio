@@ -616,6 +616,32 @@
   }
 }
 
+/* Going back past birth: a short note over the stack (TimeMachineDialog's hitEdge). */
+.time-machine > .tm-edge-note {
+  position: absolute;
+  z-index: 4;
+  top: 92px;
+  left: 50%;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(10, 14, 32, 0.88);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 0 0 0.5px rgba(255, 255, 255, 0.2);
+  color: #e8ecff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.96);
+  transition: opacity 0.25s ease, transform 0.35s var(--ease-apple);
+}
+
+.time-machine > .tm-edge-note.show {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
 .tm-hint {
   /* Phones: its own full-width line under the timeline (it lives inside .tm-controls). */
   flex-basis: 100%;
@@ -627,7 +653,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tm-snapshot,
-  .tm-dot {
+  .tm-dot,
+  .time-machine > .tm-edge-note {
     transition: none;
   }
 }

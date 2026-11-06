@@ -6,7 +6,7 @@ import { DesktopIcons } from '@/components/desktop/DesktopIcons';
 import { DisplayEffects } from '@/components/desktop/DisplayEffects';
 import { Dock } from '@/components/desktop/Dock';
 import { LiveWallpaper } from '@/components/desktop/LiveWallpaper';
-import { MadeBy } from '@/components/desktop/MadeBy';
+import { MadeByPill } from '@/components/desktop/MadeBy';
 import { MenuBar } from '@/components/desktop/MenuBar';
 import { Toast } from '@/components/desktop/Toast';
 import { DebugRunnerDialog } from '@/components/dialogs/DebugRunnerDialog';
@@ -45,7 +45,7 @@ function Desktop(props: MainWindowProps) {
       <BootScreen onFinish={bootComplete} />
       <LiveWallpaper />
       <DesktopIcons />
-      <MadeBy />
+      <MadeByPill className="made-by" />
       <MenuBar />
       <AppMenu />
       <MainWindow {...props} />

@@ -51,9 +51,9 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | **Activity Monitor** | The skills as running processes: live load graph, filter by group, sortable columns, and a "Used in" panel listing the jobs and projects that use each one. |
 | **About This Developer** | A Mac-style About window: photo, role and a playful spec sheet (years in IT, projects shipped, live career uptime). |
 | **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
-| **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets (tap Done or pull down to close) and alerts. |
+| **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets (tap Done or pull the top down to close) and alerts. |
 | **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. Beside it, a "Find me online" card lists Shubham's profiles; on phones a Links icon on the Home Screen opens them in a sheet. |
-| **Shubham Works card** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a glass card in the desktop's bottom-left corner. On phones it is a widget on the second Home Screen page (swipe left). |
+| **Shubham Works pill** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a pill in the desktop's bottom-left corner that shows the links when clicked. On phones it is a widget on the second Home Screen page (swipe left). |
 | **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
 | **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
 | **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route), e.g. "Like · 12" with a tooltip on computers. One like per visitor (a toast with a random happy emoji says thanks); clicking again takes it back (a random sad face stands in for the heart for a moment). |
@@ -128,7 +128,7 @@ app/
 components/
   os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
   windows/              # generic Window (drag/resize/snap/animate), MainWindow, TerminalWindow
-  desktop/              # menu bar, Dock, logo menu, icons, context menu, sticky note, Shubham Works card, live wallpaper, notifications
+  desktop/              # menu bar, Dock, logo menu, icons, context menu, sticky note, Shubham Works pill, live wallpaper, notifications
   dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer,
                         # Time Machine, Activity Monitor, About This Developer
   portfolio/            # About, Skills, Projects, Experience, Contact (server components)

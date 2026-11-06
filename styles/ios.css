@@ -119,7 +119,7 @@
   }
 
   /* ===== Shubham Works on the Home Screen =====
-     The desktop card gives way to a pill on page 1 and a widget on page 2. Heights above the
+     The desktop pill gives way to a pill on page 1 and a widget on page 2. Heights above the
      Dock: 58px icons + 14px padding top and bottom = 86px, plus the page dots. */
   .made-by {
     display: none;
@@ -138,46 +138,6 @@
     max-width: calc(100% - 32px);
     font-size: 13px;
     text-align: center;
-  }
-
-  .home-pill-button {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 36px;
-    padding: 6px 16px 6px 10px;
-    border-radius: 999px;
-    color: var(--text);
-    font: inherit;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .home-pill-button:active {
-    transform: scale(0.96);
-  }
-
-  .home-pill-panel {
-    padding: 10px 16px;
-    border-radius: 18px;
-    animation: pillPanelIn 0.25s var(--ease-apple);
-  }
-
-  .home-pill-panel[hidden] {
-    display: none;
-  }
-
-  @keyframes pillPanelIn {
-    from {
-      opacity: 0;
-      transform: translateY(6px) scale(0.97);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .home-pill-panel {
-      animation: none;
-    }
   }
 
   .sw-widget {
