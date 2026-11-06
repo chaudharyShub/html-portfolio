@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { JetBrains_Mono } from 'next/font/google';
+import { Figtree, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { ServiceWorkerCleanup } from '@/components/shared/ServiceWorkerCleanup';
 import { VercelInsights } from '@/components/shared/VercelInsights';
@@ -8,8 +8,9 @@ import { SITE } from '@/lib/site';
 import { buildAppearanceInitScript, DEFAULT_THEME } from '@/lib/themes';
 import './globals.css';
 
-// Text uses each device's own font; only the mono accent is a web font (SIL Open Font License),
-// downloaded at build time and served from this site, so no request goes to Google.
+// Both fonts (SIL Open Font License) are downloaded at build time and served from this site, so no
+// request goes to Google and every device shows the same text.
+const figtree = Figtree({ subsets: ['latin'], variable: '--font-text', display: 'swap' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
@@ -68,7 +69,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       data-theme={DEFAULT_THEME}
-      className={jetbrainsMono.variable}
+      className={`${figtree.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>

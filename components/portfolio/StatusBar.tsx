@@ -7,15 +7,15 @@ import { PROFILE } from '@/data/profile';
 export function StatusBar() {
   return (
     <footer className="status-bar">
-      <span>
+      <span className="status-time">
         Time:{' '}
         <span id="clock">
           <Clock />
         </span>
       </span>
-      <span>Status: System Online</span>
-      <span>Made with Next.js | React | TypeScript</span>
-      <span>
+      <span className="status-state">Status: System Online</span>
+      <span className="status-made">Made with Next.js | React | TypeScript</span>
+      <span className="status-copy">
         &copy; <CurrentYear /> {PROFILE.name}
       </span>
       <span className="status-chips">

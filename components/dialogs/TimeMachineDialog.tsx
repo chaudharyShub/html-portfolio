@@ -2,17 +2,11 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
-import { VISIBLE_EXPERIENCE } from '@/data/experience';
 import { prefersReducedMotion } from '@/lib/motion';
 import { startStarfield, type Starfield } from '@/lib/starfield';
+import { MILESTONES } from '@/lib/timeline';
 import { Dialog } from './Dialog';
 
-/** Career milestones, oldest first (the experience data is newest first). */
-const MILESTONES = [...VISIBLE_EXPERIENCE].reverse().map((e) => ({
-  ...e,
-  year: Number(e.period.match(/\d{4}/)?.[0] ?? 0),
-  start: e.period.split(' - ')[0],
-}));
 const LAST = MILESTONES.length - 1;
 /** How long one trip takes; scrolling is ignored until it's over. */
 const TRAVEL_MS = 700;
@@ -25,7 +19,8 @@ function snapshotStyle(stepsBack: number): CSSProperties {
   if (stepsBack < 0) return { transform: 'translate3d(0, 60px, 320px)', opacity: 0 };
   return {
     transform: `translate3d(0, ${-stepsBack * 14}px, ${-stepsBack * 150}px)`,
-    opacity: stepsBack > 3 ? 0 : 1 - stepsBack * 0.22,
+    // Only two older snapshots show behind: deeper ones would rise into the year counter.
+    opacity: stepsBack > 2 ? 0 : 1 - stepsBack * 0.22,
     zIndex: MILESTONES.length - stepsBack,
   };
 }
@@ -48,7 +43,7 @@ function rollYear(el: HTMLElement, from: number, to: number) {
   return () => cancelAnimationFrame(frame);
 }
 
-/** Time Machine: the career as snapshots flying through a starfield, from the first job to today. */
+/** Time Machine: life and career as snapshots flying through a starfield, from birth to today. */
 export function TimeMachineDialog() {
   const { dialogs } = useOsState();
   const open = dialogs.timeMachine;
@@ -107,15 +102,17 @@ export function TimeMachineDialog() {
       if (busy()) return;
       wheel += e.deltaY;
       if (Math.abs(wheel) < 40) return;
+      // Read the direction now: React may run the updater later, after `wheel` is reset below.
+      const step = wheel > 0 ? 1 : -1;
+      wheel = 0;
       setCurrent((cur) => {
-        const next = Math.max(0, Math.min(LAST, cur + (wheel > 0 ? 1 : -1)));
+        const next = Math.max(0, Math.min(LAST, cur + step));
         if (next !== cur) {
           lastTrip.current = performance.now();
           starfield.current?.warp(next < cur ? 1 : -1, 1);
         }
         return next;
       });
-      wheel = 0;
     };
     const onTouchStart = (e: TouchEvent) => {
       touchX = e.touches[0]?.clientX ?? null;
@@ -175,7 +172,7 @@ export function TimeMachineDialog() {
         <div className="tm-head">
           <span ref={yearRef} className="tm-year-display" aria-hidden="true" />
           <span className="tm-now" aria-live="polite">
-            {milestone?.start} · {milestone?.company}
+            {milestone?.start} · {milestone?.org}
           </span>
         </div>
 
@@ -184,9 +181,9 @@ export function TimeMachineDialog() {
             const stepsBack = current - i;
             return (
               <article
-                key={m.company}
+                key={m.id}
                 id={`tm-snapshot-${i}`}
-                className={`tm-snapshot tm-era-${i % 4}`}
+                className={`tm-snapshot tm-era-${m.era}${m.lane === 'side' ? ' tm-snapshot--side' : ''}`}
                 style={snapshotStyle(stepsBack)}
                 role="tabpanel"
                 aria-labelledby={`tm-tick-${i}`}
@@ -194,7 +191,7 @@ export function TimeMachineDialog() {
                 inert={stepsBack !== 0}
               >
                 <div className="tm-menubar" aria-hidden="true">
-                  <span>{m.company}</span>
+                  <span>{m.lane === 'side' ? `Side lane · ${m.org}` : m.org}</span>
                   <span>{m.start}</span>
                 </div>
                 <div className="tm-window">
@@ -205,15 +202,19 @@ export function TimeMachineDialog() {
                   </div>
                   <div className="tm-window-body">
                     <h3 className="tm-title">{m.title}</h3>
-                    <p className="tm-meta">
-                      {m.company} · {m.period} · {m.duration}
-                    </p>
+                    <p className="tm-meta">{m.meta}</p>
                     <p className="tm-summary">{m.summary}</p>
-                    <ul className="tm-tags" aria-label="Skills">
+                    <ul className="tm-tags" aria-label={m.tagsLabel}>
                       {m.tags.map((t) => (
                         <li key={t}>{t}</li>
                       ))}
                     </ul>
+                    {m.website && (
+                      <a className="tm-link" href={m.website} target="_blank" rel="noopener noreferrer">
+                        {new URL(m.website).hostname.replace(/^www\./, '')} <span aria-hidden="true">↗</span>
+                        <span className="sr-only"> ({m.org}, opens in a new tab)</span>
+                      </a>
+                    )}
                   </div>
                 </div>
               </article>
@@ -225,29 +226,33 @@ export function TimeMachineDialog() {
           <button type="button" className="tm-arrow" onClick={() => travel(current - 1)} disabled={current === 0} aria-label="Back in time">
             ‹
           </button>
-          <div className="tm-rail" role="tablist" aria-label="Career timeline">
+          <div className="tm-rail" role="tablist" aria-label="Life timeline">
             {MILESTONES.map((m, i) => (
               <button
-                key={m.company}
+                key={m.id}
                 type="button"
                 id={`tm-tick-${i}`}
-                className={`tm-tick${i === current ? ' active' : ''}${i < current ? ' past' : ''}`}
+                className={`tm-tick${i === current ? ' active' : ''}${i < current ? ' past' : ''}${m.lane === 'side' ? ' tm-tick--side' : ''}`}
                 role="tab"
+                aria-label={`${m.rail === 'zzz' ? m.start : m.year}: ${m.title}`}
                 aria-selected={i === current}
                 aria-controls={`tm-snapshot-${i}`}
                 tabIndex={i === current ? 0 : -1}
                 onClick={() => travel(i)}
               >
                 <span className="tm-dot" aria-hidden="true" />
-                <span className="tm-year">{m.year}</span>
+                <span className="tm-year" aria-hidden="true">
+                  {m.rail}
+                </span>
               </button>
             ))}
           </div>
           <button type="button" className="tm-arrow" onClick={() => travel(current + 1)} disabled={current === LAST} aria-label="Forward in time">
             ›
           </button>
+          {/* On computers it sits under the main line, beside the side lane (styles/dialogs.css). */}
+          <p className="tm-hint">Scroll, swipe or pick a year to travel through Shubham&apos;s life, from birth to today.</p>
         </div>
-        <p className="tm-hint">Scroll, swipe or pick a year to travel through Shubham&apos;s career.</p>
       </div>
     </Dialog>
   );

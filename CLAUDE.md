@@ -41,12 +41,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - Apple-inspired, not Apple assets: no Apple logo (the menu-bar logo is our winking-monitor
   `BrandMark`), own app tiles (`AppIcon`: CSS gradient rounded square + white SVG glyph), own
   gradient wallpapers, no Apple fonts (no bundled SF). "Inspired by", never copied.
-- Fonts (Oct 2026, user's pick): text uses the **device's own font** (`--font` system stack:
-  Apple's font on Mac/iPhone, Segoe UI on Windows). Inter, Geist, Plus Jakarta Sans, Manrope and
-  DM Sans were compared on the real page; the user preferred the system font. **JetBrains Mono**
-  (SIL OFL, `next/font/google` in `app/layout.tsx`, downloaded at build and served from this site,
-  `--font-mono`, used through `--mono`) is for the Terminal, dates, tech lines, skill tags and the
-  visitor counter. Portfolio type scale: section titles 24px,
+- Fonts (user's pick, Nov 2026): text uses **Figtree** (`--font-text`, read through `--font`, with
+  the system stack as fallback) so Mac, Windows and Android look the same; the device's own font
+  (Oct 2026 choice) differed on every system (SF / Segoe UI / Roboto). Inter was offered and
+  rejected; Albert Sans was the runner-up. **JetBrains Mono** (`--font-mono`, used through
+  `--mono`) is for the Terminal, dates, tech lines, skill tags and the visitor counter. Both are
+  SIL OFL, loaded with `next/font/google` in `app/layout.tsx`: downloaded at build and served from
+  this site. The sticky note keeps its handwriting stack (device fonts). Portfolio type scale: section titles 24px,
   body 15px / 1.6, tables and skills 14px, project/job titles 17px, stat numbers 28px. No italics
   (the user decided against them).
 - Desktop vs phone is one media query: `(max-width: 700px), (max-height: 500px) and (pointer: coarse)`
@@ -64,7 +65,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - `app/page.tsx` renders the portfolio sections (`components/portfolio/*`) as **Server Components**
   and passes them as props into the client desktop root `components/os/ShubhamOS.tsx`. All content
   is in the server HTML (SEO); the client only chooses which sections a tab shows and their order.
-- Content lives in `data/*.ts` (profile, about, skills, projects, experience). Entries with
+- Content lives in `data/*.ts` (profile, about, skills, projects, experience, education). Entries with
   `hidden: true` (BrowseAnywhere project, ShepHertz job) are kept but not rendered.
 - `components/os/OsProvider.tsx`: one reducer for dialogs, menus, tab, toast and window status, plus
   stable actions (`useOsActions()`): `showToast`, `showMessage`, `openDialog`, `goToSection`,
@@ -145,6 +146,11 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   server `InfoBar` with avatar initials; its "Name:/Role:/Status:" labels are visually hidden but kept
   for screen readers) and the section list (the tablist, colored `tab-tile`s, a selection highlight
   that glides between rows). Content and status bar on the right.
+- Status bar (`StatusBar.tsx`, Time / Status / Made with / © / like + visitor chips) is always one
+  row on computers (it used to wrap to two rows - user's report, Nov 2026): a container query on
+  `.status-bar` (em widths, so Larger Text works too) hides Made with, then ©, Status, Time as the
+  window narrows; the chips always stay; "Made with" can also shorten with an ellipsis. Phones
+  keep the wrapped, centered footer. Test: `desktop.spec.ts`.
 - Tabs (`lib/sections.ts`, Oct 2026): Home (every section), About (About + Experience), Projects,
   Skills, Contact. Skills got its own tab at the user's request (it used to sit under Projects).
   The phone tab bar holds all five.
@@ -203,6 +209,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     restyle every span on the page, including all the copies (~870 elements), on each animation.
     Before copying, the genie fires `BEFORE_GENIE_COPY` on the window so JS-measured layout can
     re-measure (the sidebar's selection highlight is 0px wide while the window sits in the Dock).
+  - **Maximize = full screen, Dock on top** (Nov 2026, user's call: every app the same). The
+    green button on the portfolio window, the Terminal, the Time Machine and Activity Monitor
+    covers the whole screen, menu bar included; the Dock floats above it. Layers: maximized
+    windows 91 (Terminal 92 while the portfolio is maximized, so it stays reachable), zoomed
+    panels 93 (`.dialog-overlay--zoomed`), Dock 98, other dialogs 200. Each pads its bottom by
+    `--dock-reserve` (status bar, `.terminal-body`, `.activity`, `.time-machine`) so nothing
+    sits behind the Dock. Half-screen snaps still stop at the menu bar and Dock.
   - Zoom = `animateFrame`: glides the real frame (inline !important left/top/width/height) while the
     tab panel is frozen at its final width, so text lays out once, not per frame. While it glides
     the window has `.window--gliding`, which gives the tab panel, sidebar list and profile card
@@ -258,16 +271,39 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   invisible and laid over the typed text, so typing, history and phone keyboards still work.
 - **Debug Runner**: tiny jump-over-bugs game, best score in localStorage.
 - **Time Machine** (`components/dialogs/TimeMachineDialog.tsx`, a wide panel dialog, always dark):
-  the visible experience entries, oldest first, as "desktop snapshots" (own era gradient each)
+  the whole life, oldest first, as "desktop snapshots" (own era gradient each). Nine stops
+  (Nov 2026, user's request - three jobs alone felt thin): birth 1995 ("System first booted"),
+  "3 years of doing nothing" 1995-1998 (rail label `zzz`), St. Thomas English Medium School
+  (Nursery - 8th, 1998-2009), City Vocational Public School (9th - 12th, 2009-2013), B.Tech
+  Mechanical, Vidya College of Engineering (2013-2017), then the visible jobs; the online MBA
+  (Amity University Online, July 2025 - July 2027, same wording as the resume) sits on a gold
+  **side lane** that branches below the main rail and runs on to its right edge (it happens
+  during the job; `lane: 'side'`, `.tm-tick--side`, dashed `.tm-snapshot--side`). The user gave
+  the institutions and the 1995 / 2013 / 2017 dates; the school years were worked out from them
+  (no gaps; nursery at 3). There is no stop for 2017-2020 (between college and Riviera) - don't
+  invent one. Education facts are in `data/education.ts`, birth + idle years and the merge/sort
+  in `lib/timeline.ts`; the playful summaries were written by Claude at the user's request.
+  Only two older snapshots show behind the current one (deeper ones rose into the year counter).
+  On narrow screens the rail shows only the selected year. No scrollbar on computers (user's
+  request): the box is a flex column and the card stack shrinks to fit; screens under 780px tall
+  get tighter spacing. The hint ("Scroll, swipe or pick a year...") sits in the empty space under
+  the main line, left of the MBA's side lane, level with its "2025" label, at 11px (user's
+  idea); phones keep it on its own line below (it lives inside `.tm-controls`, `flex-basis: 100%`). The snapshots are
   stacked in 3D perspective inside a deep-space backdrop. A canvas starfield (`lib/starfield.ts`,
   runs only while open) drifts and warps into streaks while traveling; a big year counter rolls
   through every year in between; newer snapshots fly past the camera. Travel by mouse wheel /
   trackpad (up = back in time, like macOS), sideways swipe on phones, arrow keys, the ‹ › buttons
   or the year rail (`role="tablist"`, roving focus). Reduced motion: no warp, no rolling.
+  Its title bar stays dark in every theme (a theme-colored one was tried and looked odd over the
+  space scene - user's call, Nov 2026). Cards link to the official site where the user gave one
+  (`website` in `data/experience.ts` / `data/education.ts`), shown as the bare
+  host name (`.tm-link`, new tab). Photos/logos of the schools and companies were discussed and
+  not used: they're other organizations' copyrighted assets; the user's own photos would be fine.
   Green button (or double-clicking the title bar) glides it to full screen (`zoomed` /
   `onToggleZoom` on `Dialog`, desktop only); Escape leaves full screen first, then closes.
-  Opens on the latest job. From the Dock, the desktop/Home Screen icon and the logo menu. Built
-  only from `data/experience.ts` - no extra career content.
+  Opens on the latest job. From the Dock, the desktop/Home Screen icon and the logo menu.
+  Education is shown only here (not in the portfolio sections); the resume already lists the
+  MBA and the B.Tech.
 - **About This Developer** (`components/dialogs/AboutDeveloperDialog.tsx`): a Mac-style About
   window - photo, name, role and a playful spec list (Chip, Memory = years in IT, Storage = shipped
   projects, live Uptime since the career start, Serial number = GitHub), "More Info…" (About

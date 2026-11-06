@@ -43,11 +43,29 @@
 
 .window.maximized {
   left: 0 !important;
-  top: var(--menubar-h) !important;
+  top: 0 !important;
   transform: none !important;
   width: 100vw !important;
-  max-height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
-  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  max-height: 100vh !important;
+  height: 100vh !important;
+  border-radius: 0;
+}
+
+/* Maximized = full screen (user's call, Nov 2026): the window covers the menu bar too, and the
+   Dock floats on top of it (z-index in desktop.css). The window's last row reaches under the
+   Dock, so nothing important is hidden behind it. */
+.window.maximized,
+.subwindow.maximized {
+  z-index: 91;
+}
+
+/* The Terminal stays reachable above a full-screen portfolio window. */
+html:has(.window.maximized) .subwindow {
+  z-index: 92;
+}
+
+.window.maximized .status-bar {
+  padding-bottom: calc(7px + var(--dock-reserve));
 }
 
 .window.snapped-left,
@@ -88,9 +106,14 @@
 
 .subwindow.maximized {
   left: 0 !important;
-  top: var(--menubar-h) !important;
+  top: 0 !important;
   width: 100vw !important;
-  height: calc(100vh - var(--menubar-h) - var(--dock-reserve)) !important;
+  height: 100vh !important;
+  border-radius: 0;
+}
+
+.subwindow.maximized .terminal-body {
+  padding-bottom: calc(20px + var(--dock-reserve));
 }
 
 .window.maximized .resize-handle,
@@ -514,11 +537,16 @@
   background: var(--content-bg);
 }
 
+/* Always one row: as the window narrows, the least important text goes first (Made with, then
+   the copyright, Status, Time); the like + visitor chips always stay. The em widths are the
+   bar's own font size, so they hold with Larger Text too. "Made with" can also shorten with an
+   ellipsis, which absorbs small changes like a longer like count or an AM/PM clock. */
 .status-bar {
   grid-column: 2;
   grid-row: 4;
+  container-type: inline-size;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
   gap: 4px 12px;
@@ -527,6 +555,46 @@
   border-top: 0.5px solid var(--separator);
   font-size: 11px;
   color: var(--text-2);
+  white-space: nowrap;
+}
+
+.status-bar > * {
+  flex-shrink: 0;
+}
+
+.status-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.status-bar > .status-made {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@container (max-width: 62em) {
+  .status-made {
+    display: none;
+  }
+}
+
+@container (max-width: 50em) {
+  .status-copy {
+    display: none;
+  }
+}
+
+@container (max-width: 36em) {
+  .status-state {
+    display: none;
+  }
+}
+
+@container (max-width: 24em) {
+  .status-time {
+    display: none;
+  }
 }
 
 .visitor-counter {

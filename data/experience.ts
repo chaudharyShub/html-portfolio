@@ -5,6 +5,8 @@ export interface ExperienceEntry {
   duration: string;
   summary: string;
   tags: string[];
+  /** The company's official site, linked from the Time Machine card (links given by the user). */
+  website?: string;
   /** Hidden entries are kept for reference but not rendered (previously commented out in the HTML). */
   hidden?: boolean;
 }
@@ -18,6 +20,7 @@ export const EXPERIENCE: ExperienceEntry[] = [
     summary:
       'Contributed as a Frontend Developer on Agent Fabric UI, a React 19+ TypeScript enterprise web application built with Vite, Mantine, and Redux Toolkit Query, enabling teams to configure, test, qualify, and govern AI agents across their full lifecycle, leveraging Cursor AI-assisted development to accelerate implementation and delivery.',
     tags: ['React.js', 'Cursor', 'Claude', 'TypeScript', 'Tailwind', 'Playwright', 'Redux', 'Git', 'PostgreSQL'],
+    website: 'https://www.koruux.com',
   },
   {
     company: 'ShepHertz Technologies',
@@ -32,6 +35,7 @@ export const EXPERIENCE: ExperienceEntry[] = [
   {
     company: 'Quokka Labs',
     title: 'Software Engineer',
+    website: 'https://quokkalabs.com',
     period: 'Sept 2022 - March 2026',
     duration: '3 yrs 6 mos',
     summary:
@@ -54,6 +58,7 @@ export const EXPERIENCE: ExperienceEntry[] = [
   {
     company: 'Riviera Home Furnishings',
     title: 'Mechanical Engineer',
+    website: 'https://www.rivierahome.in',
     period: 'June 2020 - June 2022',
     duration: '2 yrs',
     summary:
