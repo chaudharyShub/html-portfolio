@@ -22,7 +22,13 @@ check each of these and update it if needed:
 - **`CLAUDE.md`** (this file): the matching section (Design, Architecture, Desktop, Phones,
   Features); move cut features to "Features tried and REMOVED" and declined ideas to
   "Ideas discussed but NOT built"; new ids, dialog ids, window keys, storage keys, deps.
-- **`README.md`**: features list, Terminal commands, project structure, run/deploy notes.
+- **`README.md`**: a showcase for visitors only (Nov 2026, user's rule): what the site is, the
+  features, Terminal commands, "How it's built" highlights, contact. **No instructions for other
+  developers** - no run-locally steps, setup guides, project structure or "edit data/*.ts to..."
+  (the repo is public but not open source; the user doesn't want copies). Those go in
+  **`MAINTENANCE.md`** (repo root, gitignored, exists only on the user's machine): run/test
+  scripts, project structure, deploy settings, Search Console, Web3Forms, Upstash (incl. resetting
+  the like count), analytics, custom domain. Keep it updated like the other docs.
 - **Site copy / SEO** when what the site is or shows changes: `lib/site.ts`,
   `package.json` description, JSON-LD; `og-image.jpg` if the desktop looks clearly different.
 - **Resume PDF** (`public/Shubham_resume.pdf`) when `data/*.ts` career content changes.
