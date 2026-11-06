@@ -80,12 +80,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   CSS picks grid (desktop) or flex (phones).
 - `components/dialogs/Dialog.tsx` is the generic dialog: `kind: 'alert' | 'panel'`, focus in, Escape
   closes, focus returns. Panels are bottom sheets on phones (grabber, "Done"); like iOS they can
-  also be pulled down to close (`enableSheetDrag` in `lib/motion.ts`: from the title bar always,
-  from the content when it's scrolled to the top and the first move goes down; past a third of the
+  also be pulled down to close (`enableSheetDrag` in `lib/motion.ts`:
+  only from the title bar with the grabber (Nov 2026, user's call: pulling anywhere in the content
+  closed sheets by accident); past a third of the
   height or a quick flick closes, otherwise it springs back; pulled up, it stretches taller with
   resistance instead of sliding, so its bottom never leaves the screen's edge (sliding showed a gap
-  with the page behind - user's report, Nov 2026); `data-sheet-no-drag` opts an element
-  out, used on the Debug Runner stage). Contents stay mounted
+  with the page behind - user's report, Nov 2026)). Contents stay mounted
   while closed.
 - CSS in `styles/*.css`, imported in order by `app/globals.css`. No Tailwind, no CSS-in-JS.
 - localStorage-backed preferences use `lib/stored-value.ts` (`useSyncExternalStore`, server snapshot =
@@ -290,7 +290,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   the main line, left of the MBA's side lane, level with its "2025" label, at 11px (user's
   idea); phones keep it on its own line below (it lives inside `.tm-controls`, `flex-basis: 100%`). The snapshots are
   stacked in 3D perspective inside a deep-space backdrop. A canvas starfield (`lib/starfield.ts`,
-  runs only while open) drifts and warps into streaks while traveling; a big year counter rolls
+  runs only while open) drifts and warps into streaks while traveling; one small ringed planet
+  top-center (our own canvas gradient, a solid shaded sphere - the first, see-through version was
+  too faint to notice) gets nudged by a trip and springs back (Nov 2026, user's pick; a big warm
+  planet low on the left was removed at the user's request). Going back past
+  birth (Back button, Left arrow, wheel, swipe) doesn't travel: the stack shakes and a note says
+  "No data before 1995. Try asking my parents." (`hitEdge`, `.tm-edge-note`, `role="status"`;
+  the Back button stays enabled at 1995 for it); a big year counter rolls
   through every year in between; newer snapshots fly past the camera. Travel by mouse wheel /
   trackpad (up = back in time, like macOS), sideways swipe on phones, arrow keys, the ‹ › buttons
   or the year rail (`role="tablist"`, roving focus). Reduced motion: no warp, no rolling.
@@ -399,10 +405,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Shubham Works block** (`components/desktop/MadeBy.tsx`, Nov 2026): "Shubham Works" is the
   umbrella name for the user's sites (this portfolio, CloudPrep, Frontend Interview Prep); each
   site shows the same small block, specified in CloudPrep's `docs/SHUBHAM_WORKS.md` (sibling
-  folder `CloudPrep`). Here it is a glass card (Dock material) on the desktop, bottom-left,
-  behind windows (z-index 2); on screens under 1240px wide it moves up above the Dock's height.
-  The user picked this from three mockups (glass card, plain text on the wallpaper, a pill that
-  opens on hover); it first sat under the Contact card, which the user didn't want.
+  folder `CloudPrep`). On the desktop it is a slim glass pill, bottom-left, behind windows
+  (z-index 2; 89 while open); a click shows "Made by" + "Also:" above it, a click elsewhere or
+  Escape closes (`MadeByPill` with `className="made-by"`, the same component as the phone pill;
+  Nov 2026, user's call - it replaced a glass card with the full text). On screens under 1240px
+  wide it moves up above the Dock's height. It first sat under the Contact card, which the user
+  didn't want.
   On phones (user's choice after mockups; a centered copy of the desktop card looked odd) it
   comes twice on the two-page Home Screen: page 1 has a slim glass pill above the page dots
   (`MadeByPill`, a button with `aria-expanded`; a tap shows "Made by" + "Also:" above it, a tap
@@ -496,11 +504,18 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   the user's request (an old cached worker kept serving stale files). See Architecture for the
   clean-up worker.
 - **Startup chime**: unreliable because of browser autoplay rules.
+- **"Meanwhile in tech" on Time Machine cards** (one true software event per stop, e.g. "born
+  the same year as JavaScript"): built and removed at the user's request before it shipped
+  (Nov 2026).
 - **Bouncing "SHUBHAM OS" logo** and its joke error dialogs: replaced by the drifting wallpaper.
 - **Contact form via Vercel function + Resend**: reverted after local-testing friction (Web3Forms
   is used instead).
 
 ## Ideas discussed but NOT built
+- **Time Machine extras not picked** (Nov 2026): a rocket in the backdrop (declined: it reads as
+  a space trip), a time-vortex swirl of the warp streaks (built, the user preferred the straight
+  streaks), a "scheduled update" future card (MBA 2027 + "Next: your team?"), era-styled
+  card windows, a `timetravel <year>` Terminal command, the age next to the year.
 - **Mobile number in the profile card**: declined by the user (Oct 2026, spam/scraping risk). Don't add.
 - **Wallpaper that follows the time of day**: skipped by the user (Oct 2026).
 - **Edique live link** (`https://www.edique.in`) on the MDM Desktop Application card: declined by

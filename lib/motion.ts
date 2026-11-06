@@ -792,21 +792,11 @@ export function animateSheetOut(el: HTMLElement, durationMs: number): void {
   el.style.transform = 'translateY(105%)';
 }
 
-/** True if `target` sits in something scrolled down inside `box` (then a pull scrolls, not drags). */
-function scrolledBetween(target: Element, box: HTMLElement): boolean {
-  for (let el: Element | null = target; el; el = el.parentElement) {
-    if (el.scrollTop > 0) return true;
-    if (el === box) return false;
-  }
-  return false;
-}
-
 /**
- * Lets a bottom sheet be pulled down to close, like iOS: the drag starts when the first move goes
- * down while the content under the finger is scrolled to the top (the title bar always works).
- * Let go past a third of its height, or with a quick flick, and it closes; otherwise it springs
- * back. Elements marked `data-sheet-no-drag` (the game stage) keep their own touches.
- * Returns a cleanup function.
+ * Lets a bottom sheet be pulled down to close, like iOS, but only by its top: the title bar with
+ * the grabber (user's call, Nov 2026: dragging from anywhere in the content closed sheets by
+ * accident). Let go past a third of its height, or with a quick flick, and it closes; otherwise
+ * it springs back. Returns a cleanup function.
  */
 export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => void {
   let startY = 0;
@@ -815,7 +805,6 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
   let lastT = 0;
   let velocity = 0;
   let state: 'idle' | 'maybe' | 'dragging' = 'idle';
-  let fromTitleBar = false;
   let baseHeight = 0;
 
   const offset = (y: number) => {
@@ -835,9 +824,7 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
     const target = e.target as Element;
     state = 'idle';
     const touch = e.touches[0];
-    if (!touch || e.touches.length !== 1 || target.closest('[data-sheet-no-drag], input, textarea, select')) return;
-    fromTitleBar = !!target.closest('.dialog-title-bar');
-    if (!fromTitleBar && scrolledBetween(target, box)) return;
+    if (!touch || e.touches.length !== 1 || !target.closest('.dialog-title-bar')) return;
     startY = lastY = touch.clientY;
     startX = touch.clientX;
     lastT = e.timeStamp;
@@ -853,8 +840,8 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
       const dy = clientY - startY;
       const dx = clientX - startX;
       if (Math.abs(dy) < 1 && Math.abs(dx) < 1) return;
-      // Decide on the first move: down = drag the sheet; sideways or up = leave it to the content.
-      if (!(fromTitleBar ? Math.abs(dy) >= Math.abs(dx) : dy > 0 && dy >= Math.abs(dx))) {
+      // Decide on the first move: mostly up or down = drag the sheet; sideways = leave it.
+      if (Math.abs(dy) < Math.abs(dx)) {
         state = 'idle';
         return;
       }

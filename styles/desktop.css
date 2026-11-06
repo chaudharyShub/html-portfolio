@@ -659,26 +659,76 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), inset 0 0.5px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* Computers: a card in the bottom-left corner, above the wallpaper, behind windows. */
+/* The pill and the panel it opens (computers and the phone Home Screen). */
+.home-pill-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 16px 6px 10px;
+  border-radius: 999px;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.home-pill-button:active {
+  transform: scale(0.96);
+}
+
+.home-pill-panel {
+  padding: 10px 16px;
+  border-radius: 18px;
+  animation: pillPanelIn 0.25s var(--ease-apple);
+}
+
+.home-pill-panel[hidden] {
+  display: none;
+}
+
+@keyframes pillPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-pill-panel {
+    animation: none;
+  }
+}
+
+/* Computers: the pill in the bottom-left corner, above the wallpaper, behind windows; the panel
+   opens above it. */
 .made-by {
   position: fixed;
   left: 16px;
   bottom: 14px;
   z-index: 2;
-  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Open, it comes in front of windows so the links are never under one. */
+.made-by:has(.home-pill-button[aria-expanded="true"]) {
+  z-index: 89;
+}
+
+.made-by .home-pill-button {
+  min-height: 32px;
+  padding: 5px 14px 5px 9px;
+}
+
+.made-by .home-pill-panel {
+  padding: 9px 14px;
   border-radius: 14px;
 }
 
-.made-by .made-by-brand {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 2px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-/* Narrower screens: the Dock would reach the corner, so the card sits just above it. */
+/* Narrower screens: the Dock would reach the corner, so the pill sits just above it. */
 @media (max-width: 1240px) {
   .made-by {
     bottom: calc(var(--dock-reserve) + 6px);

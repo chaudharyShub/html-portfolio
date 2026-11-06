@@ -188,7 +188,7 @@ test('Settings opens as a bottom sheet', async ({ page }) => {
   await expect(sheet).toBeHidden();
 });
 
-test('a bottom sheet springs back from a short pull and closes when pulled down', async ({ page }) => {
+test('a bottom sheet is pulled down by its top: springs back from a short pull, closes from a long one', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);
   await page.locator('#dock-settings').tap();
@@ -201,10 +201,10 @@ test('a bottom sheet springs back from a short pull and closes when pulled down'
 
   // Real touch events (Chromium), moved in small steps like a finger.
   const cdp = await page.context().newCDPSession(page);
-  const pull = async (distance: number) => {
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  const pull = async (distance: number, fromY = y) => {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: fromY }] });
     for (let i = 1; i <= 10; i++) {
-      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + (distance * i) / 10 }] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: fromY + (distance * i) / 10 }] });
       await page.waitForTimeout(30);
     }
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
@@ -227,6 +227,12 @@ test('a bottom sheet springs back from a short pull and closes when pulled down'
   expect(Math.round(settled.height)).toBe(Math.round(b.height));
 
   await pull(40);
+  await page.waitForTimeout(500);
+  await expect(sheet).toBeVisible();
+  expect(Math.round((await sheet.boundingBox())!.y)).toBe(Math.round(b.y));
+
+  // Only the top (title bar + grabber) drags it: a long pull on the content leaves it open.
+  await pull(b.height / 2, b.y + 140);
   await page.waitForTimeout(500);
   await expect(sheet).toBeVisible();
   expect(Math.round((await sheet.boundingBox())!.y)).toBe(Math.round(b.y));
@@ -256,7 +262,7 @@ test('the Links icon sits before Trash and opens every profile link in a sheet',
 test('the Home Screen has two pages: icons first, then the Shubham Works widget', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);
-  // The desktop card gives way to the phone version.
+  // The desktop pill gives way to the phone version.
   await expect(page.locator('.made-by')).toBeHidden();
 
   // Page 1: the Shubham Works pill is commented out in DesktopIcons.tsx for now (user's choice, Nov 2026).

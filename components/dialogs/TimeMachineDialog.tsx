@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { prefersReducedMotion } from '@/lib/motion';
 import { startStarfield, type Starfield } from '@/lib/starfield';
@@ -10,6 +10,8 @@ import { Dialog } from './Dialog';
 const LAST = MILESTONES.length - 1;
 /** How long one trip takes; scrolling is ignored until it's over. */
 const TRAVEL_MS = 700;
+/** How long the "no data before 1995" note stays. */
+const EDGE_NOTE_MS = 2600;
 
 /**
  * Snapshots further back in time recede into the tunnel (3D perspective); newer ones than the
@@ -56,9 +58,29 @@ export function TimeMachineDialog() {
   const starfield = useRef<Starfield | null>(null);
   const shownYear = useRef(MILESTONES[LAST]?.year ?? 0);
   const lastTrip = useRef(0);
+  const [edgeNote, setEdgeNote] = useState(false);
+  const edgeTimer = useRef(0);
   const close = () => actions.closeDialog('timeMachine');
 
+  // Trying to go back past birth: the stack shakes a little and a note says there's no data.
+  const hitEdge = () => {
+    window.clearTimeout(edgeTimer.current);
+    setEdgeNote(true);
+    edgeTimer.current = window.setTimeout(() => setEdgeNote(false), EDGE_NOTE_MS);
+    if (!prefersReducedMotion()) {
+      stackRef.current?.animate(
+        [{ transform: 'none' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(-3px)' }, { transform: 'none' }],
+        { duration: 360, easing: 'ease-out' },
+      );
+    }
+  };
+  useEffect(() => () => window.clearTimeout(edgeTimer.current), []);
+
   const travel = (to: number) => {
+    if (to < 0) {
+      hitEdge();
+      return false;
+    }
     const next = Math.max(0, Math.min(LAST, to));
     if (next === current) return false;
     lastTrip.current = performance.now();
@@ -89,6 +111,11 @@ export function TimeMachineDialog() {
     return cancel;
   }, [current]);
 
+  // Reads the latest `current`, so the listeners below can stay attached.
+  const stepBy = useEffectEvent((step: 1 | -1) => {
+    travel(current + step);
+  });
+
   // Scroll (wheel / trackpad) travels through time like the real Time Machine: up goes back.
   // Swiping sideways does the same on touch screens.
   useEffect(() => {
@@ -97,22 +124,15 @@ export function TimeMachineDialog() {
     let wheel = 0;
     let touchX: number | null = null;
     const busy = () => performance.now() - lastTrip.current < TRAVEL_MS;
+    // One step from a wheel or a swipe; also lands the edge joke when stepping back past birth.
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (busy()) return;
       wheel += e.deltaY;
       if (Math.abs(wheel) < 40) return;
-      // Read the direction now: React may run the updater later, after `wheel` is reset below.
       const step = wheel > 0 ? 1 : -1;
       wheel = 0;
-      setCurrent((cur) => {
-        const next = Math.max(0, Math.min(LAST, cur + step));
-        if (next !== cur) {
-          lastTrip.current = performance.now();
-          starfield.current?.warp(next < cur ? 1 : -1, 1);
-        }
-        return next;
-      });
+      stepBy(step);
     };
     const onTouchStart = (e: TouchEvent) => {
       touchX = e.touches[0]?.clientX ?? null;
@@ -123,15 +143,8 @@ export function TimeMachineDialog() {
       const dx = endX - touchX;
       touchX = null;
       if (Math.abs(dx) < 50 || busy()) return;
-      setCurrent((cur) => {
-        // Swipe left = forward in time, like flipping to the next card.
-        const next = Math.max(0, Math.min(LAST, cur + (dx < 0 ? 1 : -1)));
-        if (next !== cur) {
-          lastTrip.current = performance.now();
-          starfield.current?.warp(next < cur ? 1 : -1, 1);
-        }
-        return next;
-      });
+      // Swipe left = forward in time, like flipping to the next card.
+      stepBy(dx < 0 ? 1 : -1);
     };
     stack.addEventListener('wheel', onWheel, { passive: false });
     stack.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -147,6 +160,10 @@ export function TimeMachineDialog() {
     const step = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[e.key];
     if (step === undefined) return;
     e.preventDefault();
+    if (current + step < 0) {
+      hitEdge();
+      return;
+    }
     const next = Math.max(0, Math.min(LAST, current + step));
     travel(next);
     // Keep keyboard focus on the selected year (roving tabs).
@@ -222,8 +239,12 @@ export function TimeMachineDialog() {
           })}
         </div>
 
+        <p className={`tm-edge-note${edgeNote ? ' show' : ''}`} role="status">
+          {edgeNote ? 'No data before 1995. Try asking my parents.' : ''}
+        </p>
+
         <div className="tm-controls">
-          <button type="button" className="tm-arrow" onClick={() => travel(current - 1)} disabled={current === 0} aria-label="Back in time">
+          <button type="button" className="tm-arrow" onClick={() => travel(current - 1)} aria-label="Back in time">
             ‹
           </button>
           <div className="tm-rail" role="tablist" aria-label="Life timeline">

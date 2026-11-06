@@ -8,8 +8,9 @@ import { PROFILE } from '@/data/profile';
 /*
  * The "Shubham Works" block shared by all the developer's sites (same wording and order
  * everywhere). Three looks of the same text:
- * - desktop: a glass card in the bottom-left corner, behind windows (`MadeBy`);
- * - phone Home Screen page 1: a slim pill above the Dock that opens the links (`MadeByPill`);
+ * - desktop: a slim pill in the bottom-left corner, behind windows; a click shows the links above
+ *   it (`MadeByPill` with `className="made-by"`; it replaced a glass card, user's call Nov 2026);
+ * - phone Home Screen page 1: the same pill above the Dock (`MadeByPill`, commented out for now);
  * - phone Home Screen page 2: a full-width widget (`MadeByWidget`).
  * Only the mark is orange; the rest is quiet text.
  */
@@ -52,21 +53,11 @@ function Details() {
   );
 }
 
-/** Desktop: glass card in the bottom-left corner (hidden on phones). */
-export function MadeBy() {
-  return (
-    <footer className="made-by sw-block sw-glass">
-      <p className="made-by-brand">
-        <Mark />
-        {BRAND}
-      </p>
-      <Details />
-    </footer>
-  );
-}
-
-/** Phone Home Screen, page 1: a slim pill above the Dock; tapping it shows the links above it. */
-export function MadeByPill() {
+/**
+ * A slim pill; clicking it shows "Made by" and the links above it. `made-by` places it in the
+ * desktop's bottom-left corner, `home-pill` above the phone Dock.
+ */
+export function MadeByPill({ className = 'home-pill' }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
@@ -89,7 +80,7 @@ export function MadeByPill() {
   }, [open]);
 
   return (
-    <div className="home-pill sw-block" ref={rootRef}>
+    <div className={`${className} sw-block`} ref={rootRef}>
       <div className="home-pill-panel sw-glass" id={panelId} hidden={!open}>
         <Details />
       </div>
