@@ -503,7 +503,11 @@
     border: 0;
   }
 
+  /* Phones show every line of the footer, wrapped and centered under the content. */
   .status-bar {
+    container-type: normal;
+    flex-wrap: wrap;
+    white-space: normal;
     justify-content: center;
     text-align: center;
     margin-bottom: calc(env(safe-area-inset-bottom) + 68px);

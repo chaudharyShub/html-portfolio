@@ -131,9 +131,98 @@
   background: #04050c;
 }
 
-/* Green button (Time Machine, Activity Monitor): the panel takes over the whole screen. */
+/* Never a scrollbar (user's request): the box is a column and the card stack takes what's left,
+   so on a short screen the tall card is cut at its empty bottom instead of the box scrolling.
+   Shorter screens also get tighter spacing (below). Phones keep the scrolling bottom sheet. */
+@media (min-width: 701px) {
+  .dialog-box.time-machine-box {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .time-machine-box > .time-machine {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .time-machine-box .tm-stack {
+    flex: 0 1 auto;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .time-machine-box .tm-stack > .tm-snapshot {
+    min-height: 0;
+  }
+
+  .time-machine-box .tm-controls,
+  .time-machine-box .tm-head,
+  .time-machine-box .tm-hint {
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 701px) and (max-height: 780px) {
+  .time-machine {
+    padding-top: 12px;
+  }
+
+  .time-machine-box .tm-year-display {
+    font-size: 34px;
+  }
+
+  .time-machine-box .tm-stack {
+    padding-top: 30px;
+  }
+
+  .time-machine-box .tm-snapshot {
+    padding-bottom: 14px;
+  }
+
+  .time-machine-box .tm-menubar {
+    margin-bottom: 12px;
+  }
+
+  .time-machine-box .tm-controls {
+    margin-top: 14px;
+  }
+}
+
+/* The hint fills the empty space under the main line, left of the MBA's side lane, level with
+   the lane's year label. */
+@media (min-width: 701px) {
+  .tm-controls {
+    position: relative;
+  }
+
+  .time-machine-box .tm-hint {
+    position: absolute;
+    top: 69px;
+    left: 44px;
+    max-width: calc((100% - 88px) * 0.78);
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.3;
+    text-align: left;
+  }
+}
+
+/* Green button (Time Machine, Activity Monitor): the panel takes over the whole screen, like a
+   maximized window. It sits under the Dock (z-index 98), which floats on top. */
 .dialog-overlay--zoomed {
+  z-index: 93;
   padding: 0;
+}
+
+.dialog-box.zoomed .activity {
+  padding-bottom: var(--dock-reserve);
+}
+
+.time-machine-box.zoomed .time-machine {
+  padding-bottom: calc(18px + var(--dock-reserve));
 }
 
 .dialog-overlay--zoomed .dialog-box.zoomed {
@@ -161,6 +250,8 @@
   font-size: 64px;
 }
 
+/* Always dark, in every theme: a light title bar looked odd over the space scene (user's call,
+   Nov 2026, after trying it). */
 .time-machine-box .dialog-title-bar {
   background: rgba(10, 14, 32, 0.85);
   border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -188,6 +279,11 @@
 .time-machine > :not(.tm-space) {
   position: relative;
   z-index: 1;
+}
+
+/* Above the stack, so the older snapshots rising behind never cover the year and place. */
+.time-machine > .tm-head {
+  z-index: 2;
 }
 
 .tm-head {
@@ -250,6 +346,37 @@
 
 .tm-era-3 {
   background: linear-gradient(160deg, #9aa7b4, #4b5563);
+}
+
+/* Before the jobs: baby pastels, a sleepy night, chalkboard green, exam-notebook blue, blueprint. */
+.tm-era-birth {
+  background: linear-gradient(160deg, #ffd6e4, #a9c8f0);
+}
+
+.tm-era-idle {
+  background: linear-gradient(160deg, #a99be0, #3f3570);
+}
+
+.tm-era-primary-school {
+  background: linear-gradient(160deg, #6fbf8a, #1f5a40);
+}
+
+.tm-era-high-school {
+  background: linear-gradient(160deg, #8fb2ec, #34488f);
+}
+
+.tm-era-btech {
+  background: linear-gradient(160deg, #5a8fd6, #12305f);
+}
+
+/* The MBA runs beside the job: gold wallpaper and a dashed edge, like a side track. */
+.tm-era-mba {
+  background: linear-gradient(160deg, #f6d27a, #b9782a);
+}
+
+.tm-snapshot--side {
+  outline: 2px dashed rgba(246, 210, 122, 0.7);
+  outline-offset: 4px;
 }
 
 .tm-menubar {
@@ -334,14 +461,30 @@
   font-size: 11px;
 }
 
+.tm-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tm-link:hover {
+  text-decoration: underline;
+}
+
 .tm-controls {
+  container-type: inline-size;
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 10px;
   margin-top: 22px;
 }
 
 .tm-arrow {
+  flex-shrink: 0;
   width: 30px;
   height: 30px;
   padding: 0 0 2px;
@@ -353,20 +496,24 @@
   line-height: 1;
 }
 
+/* Dots spread evenly; the year labels hang below them without taking width, so nine stops fit.
+   The side lane (the MBA) branches down from the main line and runs on to the right edge: it
+   is still going. clip-path cuts that line at the rail's end. */
 .tm-rail {
   position: relative;
   flex: 1;
   display: flex;
   justify-content: space-between;
-  padding-top: 8px;
+  padding: 8px 4px 24px;
+  clip-path: inset(-60px 0 -60px -60px);
 }
 
 .tm-rail::before {
   content: "";
   position: absolute;
   top: 14px;
-  left: 18px;
-  right: 18px;
+  left: 12px;
+  right: 12px;
   height: 2px;
   border-radius: 1px;
   background: rgba(255, 255, 255, 0.18);
@@ -375,7 +522,7 @@
 .tm-tick {
   position: relative;
   flex-direction: column;
-  gap: 6px;
+  justify-content: flex-start;
   padding: 0 6px;
   background: none;
   box-shadow: none;
@@ -386,7 +533,47 @@
   color: #fff;
 }
 
+.tm-year {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.tm-tick--side {
+  padding-top: 40px;
+}
+
+.tm-tick--side .tm-year {
+  top: 60px;
+  color: #f6d27a;
+}
+
+/* The branch from the main line down to the side lane, then the lane itself. */
+.tm-tick--side::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: calc(50% - 1px);
+  height: 32px;
+  border-left: 2px dashed rgba(246, 210, 122, 0.55);
+}
+
+.tm-tick--side::after {
+  content: "";
+  position: absolute;
+  top: 46px;
+  left: 50%;
+  width: 2000px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(246, 210, 122, 0.6), rgba(246, 210, 122, 0.15) 300px);
+}
+
 .tm-dot {
+  position: relative;
+  z-index: 1;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -397,6 +584,11 @@
 
 .tm-tick.past .tm-dot {
   border-color: #6ea8ff;
+}
+
+.tm-tick--side .tm-dot,
+.tm-tick--side.past .tm-dot {
+  border-color: #f6d27a;
 }
 
 .tm-tick.active {
@@ -411,7 +603,22 @@
   transform: scale(1.2);
 }
 
+.tm-tick--side.active .tm-dot {
+  border-color: #f6d27a;
+  background: #f6d27a;
+  box-shadow: 0 0 12px rgba(246, 210, 122, 0.85);
+}
+
+/* Not enough room for every year: show only the selected one. */
+@container (max-width: 560px) {
+  .tm-tick:not(.active) .tm-year {
+    visibility: hidden;
+  }
+}
+
 .tm-hint {
+  /* Phones: its own full-width line under the timeline (it lives inside .tm-controls). */
+  flex-basis: 100%;
   margin: 14px 0 0;
   font-size: 12px;
   color: rgba(232, 236, 255, 0.55);

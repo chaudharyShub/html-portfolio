@@ -139,7 +139,8 @@
   left: 50%;
   bottom: 6px;
   transform: translateX(-50%);
-  z-index: 90;
+  /* Above full-screen windows and panels (91-93), below the other dialogs (200). */
+  z-index: 98;
 }
 
 .dock-list {

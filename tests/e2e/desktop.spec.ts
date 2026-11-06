@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { openDesktop } from './helpers';
 
 test('boot screen finishes on its own in 4-6 seconds', async ({ page }) => {
@@ -289,6 +289,16 @@ test('restoring from copies prepared on hover brings the window back as it was',
   expect(await content.evaluate((el) => el.scrollTop)).toBe(600);
 });
 
+/** The Dock is drawn above whatever covers the screen (full-screen windows and panels). */
+async function expectDockOnTop(page: Page) {
+  const box = (await page.locator('#dock-portfolio').boundingBox())!;
+  const onTop = await page.evaluate(
+    ({ x, y }) => !!document.elementFromPoint(x, y)?.closest('.dock'),
+    { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+  );
+  expect(onTop).toBe(true);
+}
+
 test('zoom fills the screen and restores the window to where it was', async ({ page }) => {
   await openDesktop(page);
   const win = page.locator('#window');
@@ -299,6 +309,14 @@ test('zoom fills the screen and restores the window to where it was', async ({ p
   await expect(win).toHaveClass(/maximized/);
   // The zoom glides the real frame; wait until it reaches the full width.
   await expect.poll(async () => (await win.boundingBox())?.width).toBe(page.viewportSize()?.width);
+  // Full screen: it covers the menu bar too, the Dock floats on top, and the status bar sits
+  // above the Dock.
+  await expect.poll(async () => (await win.boundingBox())?.height).toBe(page.viewportSize()?.height);
+  expect((await win.boundingBox())!.y).toBe(0);
+  await expectDockOnTop(page);
+  const dockTop = (await page.locator('.dock').boundingBox())!.y;
+  const chipBox = (await win.locator('.status-bar .visitor-counter').boundingBox())!;
+  expect(chipBox.y + chipBox.height).toBeLessThanOrEqual(dockTop);
   await win.getByRole('button', { name: 'Restore', exact: true }).click();
   await expect(win).not.toHaveClass(/maximized/);
   await expect.poll(async () => await win.boundingBox()).toEqual(before);
@@ -316,32 +334,51 @@ test('the close button asks before "quitting" and then minimizes', async ({ page
   await expect(win).toBeHidden();
 });
 
-test('Time Machine opens from the Dock and travels through the career', async ({ page }) => {
+test('Time Machine opens from the Dock and travels from today back to birth', async ({ page }) => {
   await openDesktop(page);
   await page.locator('#dock-timemachine').click({ force: true });
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
-  // Starts at the latest job.
   const ticks = dialog.getByRole('tab');
+  const panel = dialog.locator('.tm-snapshot[aria-hidden="false"]');
+  // Birth, idle years, two schools, college, three jobs and the MBA on its side lane.
+  await expect(ticks).toHaveCount(9);
   const last = (await ticks.count()) - 1;
+  // Starts at the latest job.
   await expect(ticks.nth(last)).toHaveAttribute('aria-selected', 'true');
   await expect(dialog.getByRole('heading', { name: 'Frontend Developer' })).toBeVisible();
 
+  // One step back is the MBA, which runs alongside the job on the side lane.
   await dialog.getByRole('button', { name: 'Back in time' }).click();
   await expect(ticks.nth(last - 1)).toHaveAttribute('aria-selected', 'true');
-  await expect(dialog.getByRole('tabpanel')).toContainText('Quokka Labs');
+  await expect(ticks.nth(last - 1)).toHaveClass(/tm-tick--side/);
+  await expect(panel).toContainText('Amity University Online');
+  await expect(panel.locator('.tm-link')).toHaveAttribute('href', 'https://amityonline.com');
+  await expect(panel).toContainText('July 2025 - July 2027');
+  await dialog.getByRole('button', { name: 'Back in time' }).click();
+  await expect(panel).toContainText('Quokka Labs');
 
   // Arrow keys move along the timeline and keep focus on the selected year.
-  await ticks.nth(last - 1).focus();
+  await ticks.nth(last - 2).focus();
   await page.keyboard.press('ArrowLeft');
+  await expect(panel).toContainText('Riviera Home Furnishings');
+  await page.keyboard.press('ArrowLeft');
+  await expect(panel).toContainText('Vidya College of Engineering');
+  await expect(ticks.nth(4)).toBeFocused();
+
+  // The very first stop is birth, in 1995.
+  await ticks.first().click();
   await expect(ticks.first()).toHaveAttribute('aria-selected', 'true');
-  await expect(ticks.first()).toBeFocused();
-  await expect(dialog.getByRole('tabpanel')).toContainText('Riviera Home Furnishings');
+  await expect(panel).toContainText('System first booted');
+  await expect(dialog.locator('.tm-year-display')).toHaveText('1995');
 
   // Scrolling down over the snapshots travels forward in time again.
   await dialog.locator('.tm-stack').hover();
+  // Scrolling is ignored while the last trip is still traveling (TRAVEL_MS = 700).
+  await page.waitForTimeout(750);
   await page.mouse.wheel(0, 120);
   await expect(ticks.nth(1)).toHaveAttribute('aria-selected', 'true');
+  await expect(panel).toContainText('3 years of doing nothing');
 });
 
 test('the green button takes the Time Machine full screen, Escape leaves it first', async ({ page }) => {
@@ -355,6 +392,7 @@ test('the green button takes the Time Machine full screen, Escape leaves it firs
   // The box glides to the full screen; wait until it gets there.
   await expect.poll(async () => (await dialog.boundingBox())!.width).toBe(viewport.width);
   await expect.poll(async () => (await dialog.boundingBox())!.height).toBe(viewport.height);
+  await expectDockOnTop(page);
 
   await page.keyboard.press('Escape');
   await expect(dialog).toBeVisible();
@@ -435,4 +473,39 @@ test('the sticky note switches to another motto on the hour', async ({ page }) =
   });
   await page.clock.runFor(toNextHour + 1_000);
   await expect(text).not.toHaveText(first ?? '');
+});
+
+test('the status bar stays on one row at any window width, with Larger Text too', async ({ page }) => {
+  await openDesktop(page);
+  const bar = page.locator('#window .status-bar');
+  for (const width of [1440, 1200, 1000, 800]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const larger of [false, true]) {
+      await page.evaluate((on) => document.documentElement.toggleAttribute('data-larger-text', on), larger);
+      const rows = await bar.evaluate((el) => {
+        const tops = [...el.children]
+          .map((child) => child.getBoundingClientRect())
+          .filter((r) => r.width > 0)
+          .map((r) => Math.round(r.top + r.height / 2));
+        return new Set(tops.map((t) => Math.round(t / 4))).size;
+      });
+      expect(rows, `${width}px, larger text ${larger}`).toBe(1);
+      // The like and visitor chips always stay.
+      await expect(bar.locator('.visitor-counter')).toBeVisible();
+    }
+  }
+});
+
+test('the Time Machine never needs a scrollbar, even on a short laptop screen', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 657 });
+  await openDesktop(page);
+  await page.locator('#dock-timemachine').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Time Machine' });
+  await expect(dialog).toBeVisible();
+  const fits = () =>
+    page.locator('.time-machine-box').evaluate((el) => el.scrollHeight <= el.clientHeight);
+  await expect.poll(fits).toBe(true);
+  await expect(dialog.locator('.tm-hint')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Enter Full Screen' }).click();
+  await expect.poll(fits).toBe(true);
 });

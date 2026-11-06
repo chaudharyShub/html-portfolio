@@ -43,11 +43,11 @@ server, so it is in the HTML for search engines before any JavaScript runs.
 | | |
 |---|---|
 | **Startup screen** | Logo, progress bar and boot steps. Click or press any key to skip. |
-| **Windows** | An app-style window (sidebar with a profile card and sections), traffic-light buttons, drag, resize from 8 edges, zoom that glides the real frame, snap to screen edges, and a genie minimize into the Dock. |
+| **Windows** | An app-style window (sidebar with a profile card and sections), traffic-light buttons, drag, resize from 8 edges, full-screen zoom that glides the real frame (the Dock stays on top), snap to screen edges, and a genie minimize into the Dock. |
 | **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies smoothly with the pointer and bounces apps as they launch. |
 | **Terminal** | A real command parser with history (↑ / ↓). |
 | **Desktop** | Draggable icons, a custom right-click menu and a sticky note with a new motto every hour (a widget on the phone Home Screen). |
-| **Time Machine** | The career as "desktop snapshots" flying through a starfield: scroll, swipe, use the arrow keys or pick a year; a big year counter rolls through every year in between. The green button takes it full screen. |
+| **Time Machine** | Life from birth to today (school, college, jobs, and the MBA on a side lane beside the job) as "desktop snapshots" flying through a starfield: scroll, swipe, use the arrow keys or pick a year; a big year counter rolls through every year in between. The green button takes it full screen. |
 | **Activity Monitor** | The skills as running processes: live load graph, filter by group, sortable columns, and a "Used in" panel listing the jobs and projects that use each one. |
 | **About This Developer** | A Mac-style About window: photo, role and a playful spec sheet (years in IT, projects shipped, live career uptime). |
 | **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
@@ -64,8 +64,8 @@ All preferences are stored in `localStorage` (the like count is the only thing k
 operable (Enter/Space to activate, Escape to close).
 
 The look is inspired by Apple's, not copied: no Apple logo, icons, wallpapers or
-fonts are used. Text uses the device's system font (so Apple devices show their own);
-dates, tech tags and the Terminal use JetBrains Mono (free, served from the site).
+fonts are used. Text uses Figtree and dates, tech tags and the Terminal use JetBrains Mono
+(both free and served from the site), so every device shows the same fonts.
 
 ## Try the Terminal
 
@@ -135,8 +135,8 @@ components/
   live/                 # small client readouts: clock, career stats, year, visitor counter, like button
   shared/               # JSON-LD script, analytics, removal of the old service worker
   icons/                # hand-drawn app tiles and line icons (Apple-inspired, not Apple assets)
-data/                   # portfolio content: profile, about, skills, projects, experience
-lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, skill usage, likes store
+data/                   # portfolio content: profile, about, skills, projects, experience, education
+lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, Time Machine timeline, skill usage, likes store
 tests/e2e/              # Playwright browser tests (desktop + phone)
 styles/                 # CSS by area; ios.css holds the phone layout
 public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js (removes the old offline cache)
