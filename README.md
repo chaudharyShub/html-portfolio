@@ -29,43 +29,27 @@ an app-style Home Screen.
 This is the personal portfolio of **Shubham Chaudhary**, Full Stack Engineer with 4+ years
 of experience in React, Next.js and Node.js. Instead of a typical landing page, it opens as a
 small interactive desktop: a short startup screen, then a single window with About, Projects
-(grouped by company, then personal projects), Skills, Experience and Contact. On phones (portrait, or landscape on a touch screen) it
+(grouped by company, then personal projects), Skills, Experience and Contact. On phones it
 becomes an app-style Home Screen.
 
-The earlier Windows 95-style version is kept on the `windows-95-classic` branch.
+This is a personal project, not an open-source template.
 
-It is a Next.js (App Router) app written in TypeScript with hand-written CSS -
-no UI libraries, no CSS framework. All portfolio content is rendered on the
-server, so it is in the HTML for search engines before any JavaScript runs.
-
-## Features
+## What's inside
 
 | | |
 |---|---|
 | **Startup screen** | Logo, progress bar and boot steps. Click or press any key to skip. |
-| **Windows** | An app-style window (sidebar with a profile card and sections), traffic-light buttons, drag, resize from 8 edges, full-screen zoom that glides the real frame (the Dock stays on top), snap to screen edges, and a genie minimize into the Dock. |
-| **Menu bar & Dock** | Logo menu, quick section links, a live clock; a Dock that magnifies smoothly with the pointer and bounces apps as they launch. |
+| **Windows** | An app-style window with a sidebar, traffic-light buttons, drag, resize, snap to screen edges, a full-screen zoom and a genie minimize into the Dock. |
+| **Menu bar & Dock** | Logo menu, section links, a live clock; a Dock that magnifies with the pointer and bounces apps as they launch. |
 | **Terminal** | A real command parser with history (↑ / ↓). |
-| **Desktop** | Draggable icons, a custom right-click menu and a sticky note with a new motto every hour (a widget on the phone Home Screen). |
-| **Time Machine** | Life from birth to today (school, college, jobs, and the MBA on a side lane beside the job) as "desktop snapshots" flying through a starfield: scroll, swipe, use the arrow keys or pick a year; a big year counter rolls through every year in between. The green button takes it full screen. |
-| **Activity Monitor** | The skills as running processes: live load graph, filter by group, sortable columns, and a "Used in" panel listing the jobs and projects that use each one. |
-| **About This Developer** | A Mac-style About window: photo, role and a playful spec sheet (years in IT, projects shipped, live career uptime). |
-| **System Settings** | Light (default) / Dark / Auto appearance, 8 gradient wallpapers (the default one drifts slowly) and a Larger Text switch. |
-| **On phones** | Full-screen apps with a tab bar and a "< Home" button, a Home Screen and dock, action sheet, bottom sheets (tap Done or pull the top down to close) and alerts. |
-| **Contact form** | Sends via Web3Forms (honeypot spam trap, 5 messages per minute per visitor); falls back to your mail app via `mailto:`. Beside it, a "Find me online" card lists Shubham's profiles; on phones a Links icon on the Home Screen opens them in a sheet. |
-| **Shubham Works pill** | The small "A Shubham Works project" block shared by all of Shubham's sites, linking CloudPrep and Frontend Interview Prep: a pill in the desktop's bottom-left corner that shows the links when clicked. On phones it is a widget on the second Home Screen page (swipe left). |
-| **Resume Installer** | A step-by-step installer that "installs" the resume PDF. |
-| **Debug Runner** | A tiny jump-over-the-bugs game with a saved best score. |
-| **Likes** | A heart in the window's status bar (the title bar on phones) with a shared like count (Upstash Redis behind a small API route), e.g. "Like · 12" with a tooltip on computers. One like per visitor (a toast with a random happy emoji says thanks); clicking again takes it back (a random sad face stands in for the heart for a moment). |
-| **Analytics** | Vercel Web Analytics (cookieless page views) and Speed Insights (Core Web Vitals from real visits), active only on Vercel deployments. |
-
-All preferences are stored in `localStorage` (the like count is the only thing kept on a server), and every animation respects
-`prefers-reduced-motion`. Menus, tabs, window buttons and dialogs are keyboard
-operable (Enter/Space to activate, Escape to close).
-
-The look is inspired by Apple's, not copied: no Apple logo, icons, wallpapers or
-fonts are used. Text uses Figtree and dates, tech tags and the Terminal use JetBrains Mono
-(both free and served from the site), so every device shows the same fonts.
+| **Time Machine** | Life from birth to today - school, college, jobs, and the MBA on a side lane beside the job - as snapshots flying through a starfield. Try going back past 1995. |
+| **Activity Monitor** | The skills as running processes, with a live load graph and the jobs and projects that use each one. |
+| **About This Developer** | A Mac-style About window with a playful spec sheet. |
+| **System Settings** | Light / Dark / Auto, 8 gradient wallpapers and a Larger Text switch. |
+| **Phones** | Full-screen apps with a tab bar, a two-page Home Screen, a Dock, action sheets and bottom sheets. |
+| **Contact** | A contact form and every profile link in one place. |
+| **Likes** | A heart with a shared like count; click again to take it back. |
+| **And more** | A sticky note, a resume "installer", a tiny jump-over-the-bugs game and the Trash. |
 
 ## Try the Terminal
 
@@ -80,201 +64,31 @@ shubham@portfolio ~ % links
 shubham@portfolio ~ % sudo hire-me
 ```
 
-There are a few undocumented commands too. Minimizing the main window is also
-worth a try.
+There are a few undocumented commands too. Minimizing the main window is also worth a try.
 
-## Run locally
+## How it's built
 
-Requires Node.js 20.9+ (developed on Node 24) and npm.
-
-```bash
-npm install
-npm run dev        # http://localhost:3000
-```
-
-Other scripts:
-
-```bash
-npm run build      # production build (also type-checks)
-npm start          # serve the production build
-npm run lint       # ESLint (Next.js + React Compiler rules)
-npm run typecheck  # tsc --noEmit
-npm run test:e2e   # browser tests (Playwright)
-```
-
-### Browser tests
-
-`npm run test:e2e` builds the site into its own folder (`.next-e2e`, so your normal build is
-untouched), starts it on port 3200 and runs the tests in `tests/e2e/` in Chromium, at desktop
-size and at phone size (375×667, touch). They cover the boot screen, tabs, the Terminal, Dock
-minimize/restore, zoom, the default Light appearance, the quit prompt, saved appearance, Larger Text,
-the Time Machine, Activity Monitor, About This Developer, the sticky note, the contact form
-(sending, burst submits, the 5-per-minute limit, the honeypot, the mail-app fallback) and the
-phone layout (full-screen app, tab bar, Home Screen, action sheet, bottom sheets).
-
-The tests never send real mail: they use a fake Web3Forms key and stub `api.web3forms.com`.
-First time on a new machine, install the browser with `npx playwright install chromium`.
-
-## Project structure
-
-```text
-app/
-  api/likes/route.ts    # like counter: GET the count, POST one like, DELETE (unlike) by id
-  layout.tsx            # <html>, metadata, pre-paint theme script
-  page.tsx              # the single page: server-rendered sections -> desktop
-  not-found.tsx         # 404 page as a desktop-style alert
-  sitemap.ts robots.ts
-  globals.css           # imports the stylesheets in styles/
-components/
-  os/                   # OsProvider (shared state + actions), ShubhamOS root, BootScreen
-  windows/              # generic Window (drag/resize/snap/animate), MainWindow, TerminalWindow
-  desktop/              # menu bar, Dock, logo menu, icons, context menu, sticky note, Shubham Works pill, live wallpaper, notifications
-  dialogs/              # generic Dialog (alerts + panels/sheets), Trash, game, settings, installer,
-                        # Time Machine, Activity Monitor, About This Developer
-  portfolio/            # About, Skills, Projects, Experience, Contact (server components)
-  live/                 # small client readouts: clock, career stats, year, visitor counter, like button
-  shared/               # JSON-LD script, analytics, removal of the old service worker
-  icons/                # hand-drawn app tiles and line icons (Apple-inspired, not Apple assets)
-data/                   # portfolio content: profile, about, skills, projects, experience, education
-lib/                    # site config, themes, wallpapers, Terminal commands, storage, motion, starfield, Time Machine timeline, skill usage, likes store
-tests/e2e/              # Playwright browser tests (desktop + phone)
-styles/                 # CSS by area; ios.css holds the phone layout
-public/                 # resume PDF, app icon (icon.svg + rendered PNGs), og-image, sw.js (removes the old offline cache)
-```
-
-### How it fits together
-
-- **Content is data.** Edit `data/*.ts` to change projects, experience or skills. A project
-  with `company` is listed under that job; without it, under "Personal Projects".
-  Entries with `hidden: true` are kept but not rendered.
-- **Server vs client.** Portfolio sections are Server Components. They are passed as
-  props into the client-side desktop (`components/os/ShubhamOS.tsx`), which only decides
-  which sections a tab shows and in what order.
-- **State.** `OsProvider` holds dialogs, menus, tabs, toasts and window status in a
-  reducer and exposes stable actions (`useOsActions()`), e.g. `showToast`, `showMessage`,
-  `openDialog`, `goToSection`, `openTerminal`, `toggleMenu`.
-- **Windows.** `components/windows/Window.tsx` is the one draggable/resizable window
-  implementation. Reuse it for any new window instead of duplicating drag/resize logic.
-- **Preferences** use small `localStorage`-backed stores (`lib/preferences.ts`) read
-  through `useSyncExternalStore`, so server HTML and the first client render always match.
-
-## Deploy to Vercel
-
-The repo includes `vercel.json` with `"framework": "nextjs"`, so Vercel builds it as a
-Next.js app (important because this project previously deployed as a static site).
-
-1. Push the branch and open the project on Vercel (or run `vercel` / `vercel --prod`).
-2. Check **Project Settings → Build & Development**: Framework Preset *Next.js*,
-   build command `next build`, and no custom output directory left over from the static setup.
-3. Add the environment variable `WEB3FORMS_ACCESS_KEY` (see below) and deploy.
-
-## Search engines (Google, Bing)
-
-The page is built for indexing: all text is in the server HTML, with a title and description that
-lead with the name, JSON-LD (`WebSite`, `ProfilePage`, `Person`), `robots.txt` and
-`sitemap.xml` (the page and the resume PDF).
-
-1. **Google Search Console** ([search.google.com/search-console](https://search.google.com/search-console)):
-   add a *URL prefix* property for the site URL and prove ownership, either with the **HTML file**
-   (download it into `public/`, deploy, press **Verify**; this site uses
-   `public/googlec9536a809aa9ed01.html`, so keep that file) or with the **HTML tag** (copy only the
-   code from `content="..."`, set it as `GOOGLE_SITE_VERIFICATION` in Vercel, redeploy, **Verify**). Then submit `sitemap.xml` under **Sitemaps** and use **URL Inspection → Request
-   indexing** for the home page.
-2. **Bing Webmaster Tools** ([bing.com/webmasters](https://www.bing.com/webmasters)): import the
-   site from Search Console (no code needed), or set `BING_SITE_VERIFICATION` the same way.
-   Bing's index also feeds DuckDuckGo, Yahoo and ChatGPT search.
-
-## Contact form (Web3Forms)
-
-1. Create a free access key at [web3forms.com](https://web3forms.com) with the email address
-   that should receive messages.
-2. Set `WEB3FORMS_ACCESS_KEY` in Vercel (**Settings → Environment Variables**, Production
-   and Preview) and in `.env.local` for local testing, then redeploy. The value is read at build time
-   (the page is statically generated), so changing it needs a redeploy.
-
-How it behaves:
-
-- With a key: the message is sent from the page, a toast confirms it and the form clears.
-- If sending fails (network error, quota reached): the visitor's email app opens with the
-  message prefilled instead.
-- Without a key: the form only uses the `mailto:` fallback (the original behavior).
-- A hidden `botcheck` checkbox catches simple bots; their submissions are silently dropped.
-- Each visitor can send up to 5 messages per minute. Over the limit, a "Please wait" toast
-  shows how many seconds are left and the typed text stays in the form. Send times are kept in
-  `localStorage`, so refreshing the page doesn't reset the limit. Submits fired at the same
-  instant (e.g. by a script) only send once.
-- The key is visible in the page source by design: Web3Forms only accepts browser submissions on the
-  free plan (server-side calls need a paid plan with a safelisted IP), and their docs state the key
-  is public. It can only deliver messages to your inbox.
-  If spam still gets through, add hCaptcha (free on Web3Forms; Cloudflare Turnstile and reCAPTCHA
-  need a paid plan).
-
-## Likes (Upstash Redis)
-
-The heart in the status bar shows how many visitors liked the site. The count is kept in
-[Upstash Redis](https://upstash.com), added through Vercel's **Storage → Marketplace**
-(free plan, eviction off) and connected to the project, which sets `KV_REST_API_URL` and
-`KV_REST_API_TOKEN`. For local testing run `vercel env pull .env.local` (this overwrites the
-file, so keep a copy of anything else in it).
-
-- `app/api/likes/route.ts`: `GET` returns `{ count }`, `POST` adds one like and returns its id,
-  `DELETE` with `{ id }` takes that like back. Requests from other sites are refused. `lib/likes-store.ts` calls Upstash's REST API with `fetch` (no client library).
-- Each browser likes once and can take it back by clicking again (its like's id is kept in
-  `localStorage`). An unlike only lowers the count for an id the server handed out and hasn't
-  removed yet, so nobody can remove other people's likes. On the server,
-  each network may add up to 5 likes a day (a hashed IP, never the raw address, kept for 24 hours),
-  so clearing storage doesn't let one person pile up likes, while visitors sharing an office or
-  mobile network still can like.
-- Without the variables, or if the database can't be reached, the heart is simply hidden.
-- Browser tests stub `/api/likes` and point the test build at a dead address, so they never
-  change the real count.
-- Keys: `likes:count` (the total), `likes:ids` (ids of likes that can be taken back) and
-  `likes:ip:<hash>` (expire after a day).
-  To reset the count, delete `likes:count` and `likes:ids` in the Upstash console (Data Browser).
-
-## Web Analytics and Speed Insights
-
-The site uses [Vercel Web Analytics](https://vercel.com/docs/analytics) (`<Analytics />`) and
-[Speed Insights](https://vercel.com/docs/speed-insights) (`<SpeedInsights />`, Core Web Vitals
-from real visits), both in `app/layout.tsx`. To see data:
-
-1. In Vercel, open the project → **Analytics** tab → **Enable**, and **Speed Insights** tab →
-   **Enable** (once per project).
-2. Deploy. Page views and Web Vitals appear in those tabs a while after real visits.
-
-The components are only rendered in builds made on Vercel (`process.env.VERCEL`), because their
-scripts are served by Vercel itself; local `npm run dev` / `npm start` don't load them.
-
-## Custom domain
-
-1. In Vercel: **Project → Settings → Domains → Add**, enter your domain and follow the
-   DNS instructions (an `A` record for the apex domain or a `CNAME` for `www`).
-2. Set **`NEXT_PUBLIC_SITE_URL`** to the new origin (e.g. `https://your-domain.com`) in
-   **Settings → Environment Variables** for *Production*, then redeploy.
-
-The site URL drives the canonical link, Open Graph/Twitter URLs, JSON-LD, `sitemap.xml`
-and `robots.txt`. It is resolved in `lib/site.ts` in this order:
-
-1. `NEXT_PUBLIC_SITE_URL`, if set
-2. `VERCEL_PROJECT_PRODUCTION_URL` (set automatically by Vercel; it prefers your custom
-   domain once one is attached)
-3. `https://shubhamworks.vercel.app`
-
-See `.env.example`. After switching domains, re-submit the sitemap in Google Search Console.
-
-## Design notes
-
-- Apple-inspired desktop on computers, app-style Home Screen on phones, chosen by one media query
-  (`(max-width: 700px), (max-height: 500px) and (pointer: coarse)`, also `PHONE_QUERY`
-  in `lib/motion.ts`). Same components; `styles/ios.css` restyles them.
-- Colors are CSS variables in `styles/base.css`, with a light and a dark set. The blue is
-  `#0066cc` (light) / `#4da3ff` text and `#0068d6` buttons (dark), so small text passes
-  WCAG AA contrast.
-- Motion uses Apple-like curves (`cubic-bezier(0.32, 0.72, 0, 1)` and a gentle spring);
-  everything is skipped under `prefers-reduced-motion`. The genie minimize warps thin copies of the
-  window with transforms only (`lib/motion.ts`), so it stays smooth.
-- Icons and wallpapers are hand-made, inspired by Apple's style rather than copied from it.
-- One scrolling window, kept deliberately simple, rather than a full desktop simulator.
+- **Next.js App Router, TypeScript (strict), hand-written CSS.** No UI library, no CSS
+  framework; the only runtime dependencies are Next.js, React and Vercel's analytics.
+- **Server-rendered content.** Every portfolio section is a Server Component, so all the text is
+  in the HTML for search engines before any JavaScript runs; the client desktop only decides
+  which sections a tab shows.
+- **One generic window.** Drag, 8-edge resize, snapping, zoom and minimize live in a single
+  `Window` component that every app reuses.
+- **Smooth animations on modest hardware.** The genie minimize warps thin copies of the window
+  with transforms only, prepared before the click; zoom glides the real frame while the content
+  is laid out once. Everything respects `prefers-reduced-motion`.
+- **A small, abuse-resistant API.** The like counter is a Next.js route over Upstash Redis
+  (plain `fetch`, no client library), with server-issued ids so nobody can remove other people's
+  likes, and a per-network daily limit that never stores raw IP addresses.
+- **No hydration flashes.** Saved preferences are read through `useSyncExternalStore`, and a tiny
+  pre-paint script applies the theme before the first frame.
+- **Accessible.** Keyboard-operable menus, tabs and dialogs, focus that returns where it came
+  from, and colors chosen to pass WCAG AA. Lighthouse accessibility: 100.
+- **Tested.** Playwright browser tests at desktop and phone sizes cover the boot screen, windows,
+  Terminal, Time Machine, contact form, likes and the phone layout.
+- **Own assets.** Inspired by Apple's design, not copied: the icons, wallpapers and app icon are
+  drawn for this site, and the fonts (Figtree and JetBrains Mono) are free and served from it.
 
 ## Contact
 
