@@ -549,6 +549,15 @@
     stroke-width: 1.8;
   }
 
+  /* Like iOS: the selected tab's icon is filled, the others are outlines. */
+  .tab.active .tab-glyph-line {
+    display: none;
+  }
+
+  .tab.active .tab-glyph-fill {
+    display: inline;
+  }
+
   /* Terminal app */
   .subwindow {
     background: #1c1c1e;
@@ -705,6 +714,9 @@
     border-radius: 14px 14px 0 0;
     padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.2);
+    /* No rubber-band bounce: sheets taller than the cap (Time Machine, Activity Monitor) scroll,
+       and pulling their content down at the top showed an empty gap above it (user's report). */
+    overscroll-behavior-y: none;
   }
 
   .dialog-title-bar {

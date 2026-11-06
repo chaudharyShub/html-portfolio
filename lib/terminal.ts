@@ -22,9 +22,25 @@ export type TerminalResult = { kind: 'append'; lines: string[] } | { kind: 'clea
 type CommandOutput = string | null | { clear: true };
 type Command = (fx: TerminalEffects) => CommandOutput;
 
+/**
+ * Clues for the hidden commands (sudo hire-me, matrix, rm -rf), one per `hint`, in turn. They
+ * point the way without giving the command away, so finding them is still the fun part.
+ */
+const HINTS = [
+  'Ask for the job the way a superuser would.',
+  'Red pill or blue pill? Type the world Neo woke up from.',
+  'Try deleting everything. Go on, I dare you.',
+];
+let nextHint = 0;
+
 const COMMANDS: Record<string, Command> = {
   help: () =>
-    `Available commands:\n  whoami, about, skills, projects, experience, contact,\n  links, ${PROFILE_LINKS.map((link) => link.id).join(', ')},\n  date, ver, echo <text>, clear, exit`,
+    `Available commands:\n  whoami, about, skills, projects, experience, contact,\n  resume, links, ${PROFILE_LINKS.map((link) => link.id).join(', ')},\n  date, ver, echo <text>, clear, exit\n\nPsst: ${HINTS.length} commands are hidden. Type 'hint' for a clue.`,
+  hint: () => {
+    const i = nextHint;
+    nextHint = (nextHint + 1) % HINTS.length;
+    return `Clue ${i + 1} of ${HINTS.length}: ${HINTS[i]}`;
+  },
   whoami: () => 'Shubham Chaudhary - Full Stack Engineer - 4+ years experience, building with AI agents',
   about: () =>
     'Full-stack engineer specializing in the full stack (frontend-heavy).\n4+ years as a Software Engineer (plus 2 yrs prior as a Mechanical Engineer).\nBuilding with AI via Cursor AI and Agent Fabric (multi-agent orchestration).',
@@ -78,7 +94,8 @@ export function runTerminalCommand(raw: string, fx: TerminalEffects): TerminalRe
   if (lower === 'matrix') {
     return { kind: 'append', lines: [echo, 'Wake up... there is no spoon, only React state.'] };
   }
-  if (lower.startsWith('echo ')) return { kind: 'append', lines: [echo, cmd.slice(5)] };
+  // `echo` alone prints an empty line, like zsh.
+  if (lower === 'echo' || lower.startsWith('echo ')) return { kind: 'append', lines: [echo, cmd.slice(5)] };
 
   const command = COMMANDS[lower.split(' ')[0] ?? ''];
   if (!command) {

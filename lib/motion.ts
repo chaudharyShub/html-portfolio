@@ -815,9 +815,11 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
 
   // Down slides the sheet; up stretches it taller like iOS, so its bottom stays on the screen's edge
   // (sliding it up left a gap that showed the page behind).
+  // The height stays pinned while dragging: sheets taller than their max-height cap (Time Machine,
+  // Activity Monitor) would otherwise grow to their full content and jump past the top.
   const place = (dy: number) => {
     box.style.transform = dy > 0 ? `translateY(${dy}px)` : '';
-    box.style.height = dy < 0 ? `${baseHeight - dy}px` : '';
+    box.style.height = `${dy < 0 ? baseHeight - dy : baseHeight}px`;
   };
 
   const onStart = (e: TouchEvent) => {
@@ -848,6 +850,7 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
       state = 'dragging';
       box.style.transition = 'none';
       baseHeight = box.getBoundingClientRect().height;
+      box.style.height = `${baseHeight}px`;
       box.style.maxHeight = 'none';
     }
     e.preventDefault();
@@ -869,6 +872,7 @@ export function enableSheetDrag(box: HTMLElement, onDismiss: () => void): () => 
       // The close animation carries on from where the finger left the sheet
       // (with reduced motion there is none, so the sheet just goes).
       box.style.transition = '';
+      box.style.height = '';
       box.style.maxHeight = '';
       if (prefersReducedMotion()) box.style.transform = '';
       onDismiss();

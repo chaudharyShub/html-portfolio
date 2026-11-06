@@ -104,30 +104,58 @@ test('the like button sits at the right of the title bar, not in the footer', as
 
 test('a notification can be pushed up to dismiss it; a short push springs back', async ({ page }) => {
   await stubLikes(page);
+  // On a busy machine the test can outlast the banner's 4.5s auto-hide, and it left mid-push.
+  // Stretch only that timer (Toast.tsx's TOAST_DURATION_MS); pausing the whole clock froze animations.
+  await page.addInitScript(() => {
+    const realSetTimeout = window.setTimeout;
+    window.setTimeout = ((fn: TimerHandler, ms?: number, ...args: unknown[]) =>
+      realSetTimeout(fn, ms === 4500 ? 600_000 : ms, ...args)) as typeof window.setTimeout;
+  });
   await openDesktop(page);
   await page.locator('#window .title-bar .like-button').tap();
   const toast = page.locator('.toast-inner');
   await expect(toast).toContainText('Thanks for the like');
-  // Drag straight away (pressing settles the drop-in animation), well before it times out.
   const restY = 8; // its resting place: 8px from the top of the screen
+  // The browser applies pointer moves once per frame, so wait for the banner to catch up with
+  // the finger before checking or letting go (reading right away saw only the first few px).
+  const toastTop = async () => (await toast.boundingBox())!.y;
+  // Press only once it has slid in: a press where it will land, while it is still above, hits the
+  // empty container instead and grabs nothing.
+  await expect.poll(async () => Math.round(await toastTop())).toBe(restY);
   const box = (await toast.boundingBox())!;
   const x = box.x + box.width / 2;
   const y = restY + box.height / 2;
+  // Finger-speed steps: moves sent all at once read as a quick flick, which dismisses it.
+  const push = async (distance: number, steps: number) => {
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    for (let i = 1; i <= steps; i++) {
+      await page.mouse.move(x, y - (distance * i) / steps);
+      await page.waitForTimeout(30);
+    }
+  };
 
   // A short push: it follows the finger, then springs back.
-  await page.mouse.move(x, y);
-  await page.mouse.down();
-  await page.mouse.move(x, y - 15, { steps: 5 });
-  expect((await toast.boundingBox())!.y).toBeLessThan(restY - 10);
+  await push(15, 5);
+  await expect.poll(toastTop).toBeLessThan(restY - 10);
   await page.mouse.up();
-  await expect.poll(async () => Math.round((await toast.boundingBox())!.y)).toBe(restY);
+  await expect.poll(async () => Math.round(await toastTop())).toBe(restY);
 
   // A longer push dismisses it.
-  await page.mouse.move(x, y);
-  await page.mouse.down();
-  await page.mouse.move(x, y - 80, { steps: 8 });
+  await push(80, 8);
+  await expect.poll(toastTop).toBeLessThan(restY - 60);
   await page.mouse.up();
   await expect(toast).toHaveCount(0);
+});
+
+test('the tab bar fills the selected tab icon and outlines the others', async ({ page }) => {
+  await openDesktop(page);
+  const shows = (id: string, part: 'line' | 'fill') => page.locator(`#tab-${id} .tab-glyph-${part}`);
+  await page.locator('#tab-projects').tap();
+  await expect(shows('projects', 'fill')).toBeVisible();
+  await expect(shows('projects', 'line')).toBeHidden();
+  await expect(shows('home', 'line')).toBeVisible();
+  await expect(shows('home', 'fill')).toBeHidden();
 });
 
 test('a single tap opens a Home Screen icon', async ({ page }) => {
@@ -188,12 +216,20 @@ test('Settings opens as a bottom sheet', async ({ page }) => {
   await expect(sheet).toBeHidden();
 });
 
-test('a bottom sheet is pulled down by its top: springs back from a short pull, closes from a long one', async ({ page }) => {
+// Time Machine and Activity Monitor are taller than the screen allows (capped, content scrolls);
+// they once grew to full content height on the first touch and jumped past the top of the screen.
+for (const [name, opener] of [
+  ['System Settings', '#dock-settings'],
+  ['Time Machine', '#icon-timemachine'],
+  ['Activity Monitor', '#icon-activity'],
+] as const) test(`the ${name} sheet is pulled down by its top: springs back from a short pull, closes from a long one`, async ({ page }) => {
   await openDesktop(page);
   await goHome(page);
-  await page.locator('#dock-settings').tap();
-  const sheet = page.getByRole('dialog', { name: 'System Settings' });
+  await page.locator(opener).tap();
+  const sheet = page.getByRole('dialog', { name });
   await expect(sheet).toBeVisible();
+  // Scrolling sheets must not rubber-band (iOS showed an empty gap above the pulled-down content).
+  await expect(sheet).toHaveCSS('overscroll-behavior-y', 'none');
   await page.waitForTimeout(600);
   const b = (await sheet.boundingBox())!;
   const x = b.x + b.width / 2;
@@ -226,7 +262,16 @@ test('a bottom sheet is pulled down by its top: springs back from a short pull, 
   expect(Math.round(settled.y)).toBe(Math.round(b.y));
   expect(Math.round(settled.height)).toBe(Math.round(b.height));
 
-  await pull(40);
+  // Pulled down a bit, it slides down whole: same height, top under the finger (no gap above it).
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (let i = 1; i <= 10; i++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + 6 * i }] });
+    await page.waitForTimeout(30);
+  }
+  const lowered = (await sheet.boundingBox())!;
+  expect(Math.round(lowered.height)).toBe(Math.round(b.height));
+  expect(Math.abs(lowered.y - (b.y + 60))).toBeLessThan(3);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await page.waitForTimeout(500);
   await expect(sheet).toBeVisible();
   expect(Math.round((await sheet.boundingBox())!.y)).toBe(Math.round(b.y));
@@ -294,4 +339,17 @@ test('the Home Screen has a sticky note widget and the Time Machine app', async 
   await page.locator('#icon-timemachine').tap();
   await expect(page.getByRole('dialog', { name: 'Time Machine' })).toBeVisible();
   await noHorizontalScroll(page);
+
+  // Scrolled, the year slides under the sticky title bar, not over it.
+  await page.waitForTimeout(600);
+  const onTop = await page.evaluate(() => {
+    const box = document.querySelector<HTMLElement>('.time-machine-box')!;
+    const bar = box.querySelector<HTMLElement>('.dialog-title-bar')!;
+    const year = box.querySelector<HTMLElement>('.tm-year-display')!;
+    box.scrollTop += year.getBoundingClientRect().top - bar.getBoundingClientRect().top;
+    const r = year.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return bar.contains(hit);
+  });
+  expect(onTop).toBe(true);
 });

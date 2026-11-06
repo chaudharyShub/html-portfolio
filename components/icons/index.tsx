@@ -205,30 +205,89 @@ export function WindowGlyph({ name }: { name: WindowGlyphName }) {
 
 export type TabGlyphName = 'home' | 'about' | 'projects' | 'skills' | 'contact';
 
-/** Icons for the iOS tab bar (hidden on desktop). */
+/** Filled shapes: same outline (so the size matches), solid inside. */
+const solid = { ...line, fill: 'currentColor' } as const;
+/** Inside a mask: black hides, so these lines are cut out of a filled shape. */
+const cut = { ...line, stroke: '#000' } as const;
+
+/** One cut-out mask per glyph that needs one (there is a single tab bar, so the ids are unique). */
+function CutMask({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect width="24" height="24" fill="#fff" />
+      {children}
+    </mask>
+  );
+}
+
+const TAB_GLYPHS: Record<TabGlyphName, { line: ReactNode; fill: ReactNode }> = {
+  home: {
+    line: <path d="M4 11.2L12 4.5l8 6.7V20h-5.2v-5.4H9.2V20H4z" {...line} />,
+    // The door is a notch in the outline, so it stays open when filled.
+    fill: <path d="M4 11.2L12 4.5l8 6.7V20h-5.2v-5.4H9.2V20H4z" {...solid} />,
+  },
+  about: {
+    line: (
+      <>
+        <circle cx="12" cy="8.5" r="3.8" {...line} />
+        <path d="M4.8 20c.8-3.9 3.7-6 7.2-6s6.4 2.1 7.2 6" {...line} />
+      </>
+    ),
+    fill: (
+      <>
+        <circle cx="12" cy="8.5" r="3.8" {...solid} />
+        <path d="M4.8 20c.8-3.9 3.7-6 7.2-6s6.4 2.1 7.2 6z" {...solid} />
+      </>
+    ),
+  },
+  projects: {
+    line: (
+      <>
+        <rect x="3.5" y="7" width="17" height="12.5" rx="2.5" {...line} />
+        <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17" {...line} />
+      </>
+    ),
+    fill: (
+      <>
+        <CutMask id="tab-cut-projects">
+          <path d="M2 12.5h20" {...cut} />
+        </CutMask>
+        <rect x="3.5" y="7" width="17" height="12.5" rx="2.5" {...solid} mask="url(#tab-cut-projects)" />
+        <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" {...line} />
+      </>
+    ),
+  },
+  skills: {
+    line: <path d="M12 3.8l2.4 5 5.4.7-4 3.8 1 5.4L12 16.1l-4.8 2.6 1-5.4-4-3.8 5.4-.7z" {...line} />,
+    fill: <path d="M12 3.8l2.4 5 5.4.7-4 3.8 1 5.4L12 16.1l-4.8 2.6 1-5.4-4-3.8 5.4-.7z" {...solid} />,
+  },
+  contact: {
+    line: (
+      <>
+        <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" {...line} />
+        <path d="M4.5 7l7.5 6 7.5-6" {...line} />
+      </>
+    ),
+    fill: (
+      <>
+        <CutMask id="tab-cut-contact">
+          <path d="M4.5 7l7.5 6 7.5-6" {...cut} />
+        </CutMask>
+        <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" {...solid} mask="url(#tab-cut-contact)" />
+      </>
+    ),
+  },
+};
+
+/**
+ * Icons for the sections: outline, and on phones the selected tab shows the filled version
+ * (like iOS tab bars; CSS picks which group shows).
+ */
 export function TabGlyph({ name }: { name: TabGlyphName }) {
   return (
     <svg viewBox="0 0 24 24" width="24" height="24" className="tab-glyph" {...decorative}>
-      {name === 'home' && <path d="M4 11.2L12 4.5l8 6.7V20h-5.2v-5.4H9.2V20H4z" {...line} />}
-      {name === 'about' && (
-        <>
-          <circle cx="12" cy="8.5" r="3.8" {...line} />
-          <path d="M4.8 20c.8-3.9 3.7-6 7.2-6s6.4 2.1 7.2 6" {...line} />
-        </>
-      )}
-      {name === 'projects' && (
-        <>
-          <rect x="3.5" y="7" width="17" height="12.5" rx="2.5" {...line} />
-          <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17" {...line} />
-        </>
-      )}
-      {name === 'skills' && <path d="M12 3.8l2.4 5 5.4.7-4 3.8 1 5.4L12 16.1l-4.8 2.6 1-5.4-4-3.8 5.4-.7z" {...line} />}
-      {name === 'contact' && (
-        <>
-          <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" {...line} />
-          <path d="M4.5 7l7.5 6 7.5-6" {...line} />
-        </>
-      )}
+      <g className="tab-glyph-line">{TAB_GLYPHS[name].line}</g>
+      <g className="tab-glyph-fill">{TAB_GLYPHS[name].fill}</g>
     </svg>
   );
 }

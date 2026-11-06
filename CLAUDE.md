@@ -91,7 +91,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   closed sheets by accident); past a third of the
   height or a quick flick closes, otherwise it springs back; pulled up, it stretches taller with
   resistance instead of sliding, so its bottom never leaves the screen's edge (sliding showed a gap
-  with the page behind - user's report, Nov 2026)). Contents stay mounted
+  with the page behind - user's report, Nov 2026)). The height is pinned while dragging: Time
+  Machine and Activity Monitor are taller than the 92dvh cap, and lifting the cap let them grow
+  to full content height and jump past the top (user's report, Nov 2026; `mobile.spec.ts` drags
+  Settings, Time Machine and Activity Monitor). Those two also scroll inside the sheet, so phone
+  sheets have `overscroll-behavior-y: none` (iOS's bounce showed an empty gap above the pulled
+  content), and `.time-machine` has `isolation: isolate` so its year and edge note stay under
+  the sticky title bar. Contents stay mounted
   while closed.
 - CSS in `styles/*.css`, imported in order by `app/globals.css`. No Tailwind, no CSS-in-JS.
 - localStorage-backed preferences use `lib/stored-value.ts` (`useSyncExternalStore`, server snapshot =
@@ -236,7 +242,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 
 ## Phones
 - No fake status bar (Safari shows the real one). Windows are full-screen apps: the whole `.window`
-  scrolls, title bar sticky, the tablist becomes a fixed bottom tab bar with `TabGlyph`s, the profile
+  scrolls, title bar sticky, the tablist becomes a fixed bottom tab bar with `TabGlyph`s (the
+  selected tab's icon is filled, the others are outlines, like iOS - user's request, Nov 2026;
+  each glyph has a `.tab-glyph-line` and a `.tab-glyph-fill` group, details are cut out of the
+  fill with masks; the computer sidebar keeps the outlines), the profile
   card becomes an info row, and a "< Home" button on the left of the title bar goes to the Home
   Screen. Closing an app zooms it into its Home Screen icon (WAAPI). (A fake iOS home indicator was
   tried and removed in Oct 2026: it sat on top of the iPhone's real one and nobody knew to tap it.)
@@ -271,7 +280,11 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Terminal** (`components/windows/TerminalWindow.tsx`, commands in `lib/terminal.ts`): prompt
   `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `links` (plus one
   command per profile link id), `sudo hire-me`, history
-  with Up/Down, zsh-style "command not found". Output persists across minimize/close; only `clear`
+  with Up/Down, zsh-style "command not found". Hidden commands (`sudo hire-me`, `matrix`,
+  `rm -rf ...`) aren't in `help`, but `help` ends with "Psst: 3 commands are hidden. Type 'hint'
+  for a clue." and each `hint` gives the next clue (`HINTS` in `lib/terminal.ts`; clues, never
+  the command itself - user's point, Nov 2026: unmentioned easter eggs nobody finds). Keep the
+  count in sync when adding one. `echo` alone prints an empty line. Output persists across minimize/close; only `clear`
   empties it. The prompt line follows the output (one scrolling `.terminal-body`) and draws a block
   cursor (blinks when focused, hollow when not, follows arrow keys); the real `#terminal-input` is
   invisible and laid over the typed text, so typing, history and phone keyboards still work.
@@ -297,7 +310,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   Mechanical, Vidya College of Engineering (2013-2017), then the visible jobs; the online MBA
   (Amity University Online, July 2025 - July 2027, same wording as the resume) sits on a gold
   **side lane** that branches below the main rail and runs on to its right edge (it happens
-  during the job; `lane: 'side'`, `.tm-tick--side`, dashed `.tm-snapshot--side`). The user gave
+  during the job; `lane: 'side'`, `.tm-tick--side`, dashed `.tm-snapshot--side`). The branch
+  line's dashes are a repeating gradient, not a dashed border (iPhone Safari drew those like
+  uneven dots - user's report, Nov 2026). The user gave
   the institutions and the 1995 / 2013 / 2017 dates; the school years were worked out from them
   (no gaps; nursery at 3). There is no stop for 2017-2020 (between college and Riviera) - don't
   invent one. Education facts are in `data/education.ts`, birth + idle years and the merge/sort

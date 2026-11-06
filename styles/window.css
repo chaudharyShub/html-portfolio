@@ -527,6 +527,11 @@ html:has(.window.maximized) .subwindow {
   stroke-width: 2.2;
 }
 
+/* Filled versions are for the phone tab bar's selected tab (ios.css). */
+.tab-glyph-fill {
+  display: none;
+}
+
 /* ===== Content and footer ===== */
 .content {
   grid-column: 2;

@@ -260,6 +260,9 @@
 
 .time-machine {
   position: relative;
+  /* Its own layer stack: the year and the edge note stay under the sticky title bar when the
+     phone sheet scrolls (their z-index used to beat the title bar's). */
+  isolation: isolate;
   overflow: hidden;
   padding: 18px 24px;
   background: radial-gradient(120% 90% at 50% 38%, #1d2b63 0%, #0b1030 45%, #04050c 100%);
@@ -551,14 +554,18 @@
   color: #f6d27a;
 }
 
-/* The branch from the main line down to the side lane, then the lane itself. */
+/* The branch from the main line down to the side lane, then the lane itself. The dashes are a
+   gradient, not a dashed border: iPhone Safari drew the border's dashes short and uneven, like
+   dots. From under the main line (the tick's y 8) to the dot (y 40): four 4px dashes, the last
+   one touching the dot. */
 .tm-tick--side::before {
   content: "";
   position: absolute;
   top: 8px;
   left: calc(50% - 1px);
+  width: 2px;
   height: 32px;
-  border-left: 2px dashed rgba(246, 210, 122, 0.55);
+  background: repeating-linear-gradient(to bottom, transparent 0 4px, rgba(246, 210, 122, 0.55) 4px 8px);
 }
 
 .tm-tick--side::after {

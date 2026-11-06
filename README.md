@@ -65,7 +65,8 @@ shubham@portfolio ~ % links
 shubham@portfolio ~ % sudo hire-me
 ```
 
-There are a few undocumented commands too. Minimizing the main window is also worth a try.
+There are a few hidden commands too; `hint` gives a clue. Minimizing the main window is also
+worth a try.
 
 ## How it's built
 

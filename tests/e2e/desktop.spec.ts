@@ -212,6 +212,22 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await expect(output).toContainText('https://github.com/chaudharyShub');
   await expect(output).toContainText('https://hashnode.com/@shubhamworks');
 
+  // help lists resume and points to the hidden commands; hint gives one clue at a time.
+  await input.fill('help');
+  await input.press('Enter');
+  await expect(output).toContainText('resume, links');
+  await expect(output).toContainText("3 commands are hidden. Type 'hint' for a clue.");
+  await input.fill('hint');
+  await input.press('Enter');
+  await expect(output).toContainText('Clue 1 of 3:');
+  await input.fill('hint');
+  await input.press('Enter');
+  await expect(output).toContainText('Clue 2 of 3:');
+
+  await input.fill('echo');
+  await input.press('Enter');
+  await expect(output).not.toContainText('command not found: echo');
+
   await input.fill('nonsense');
   await input.press('Enter');
   await expect(output).toContainText('zsh: command not found: nonsense');
@@ -550,7 +566,9 @@ test('Debug Runner: the score climbs, a crash shows a joke and saves the best sc
   const best = Number(await page.evaluate(() => localStorage.getItem('debugRunnerBest')));
   expect(best).toBeGreaterThan(0);
 
-  // Space starts a new run.
+  // Space starts a new run, once the 400ms after a crash have passed (RESTART_DELAY_MS in
+  // DebugRunnerDialog.tsx ignores a key still held from jumping; pressing sooner was flaky).
+  await page.waitForTimeout(500);
   await page.keyboard.press('Space');
   await expect(over).toBeHidden();
   await dialog.locator('.dialog-buttons').getByRole('button', { name: 'Close' }).click();
