@@ -255,17 +255,6 @@ export function HeartIcon() {
   );
 }
 
-/** The bugs in the Debug Runner game. */
-export function BugIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} {...decorative}>
-      <ellipse cx="12" cy="14" rx="5" ry="6" fill="#34c759" />
-      <circle cx="12" cy="7" r="3" fill="#30a14e" />
-      <path d="M7 11L4 9M17 11l3-2M7 15H3.5M17 15h3.5M7.5 18.5L5 21M16.5 18.5L19 21" stroke="#1f7a35" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 /* ===== Alert icons ===== */
 
 export type DialogIconType = 'info' | 'warning' | 'error' | 'forbidden' | 'question';

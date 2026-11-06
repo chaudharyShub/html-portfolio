@@ -49,7 +49,8 @@ This is a personal project, not an open-source template.
 | **Phones** | Full-screen apps with a tab bar, a two-page Home Screen, a Dock, action sheets and bottom sheets. |
 | **Contact** | A contact form and every profile link in one place. |
 | **Likes** | A heart with a shared like count; click again to take it back. |
-| **And more** | A sticky note, a resume "installer", a tiny jump-over-the-bugs game and the Trash. |
+| **Debug Runner** | A small runner game: hop the bugs, hold to long-jump memory leaks, stay under the 404s, grab coffee for hotfix mode and ship a version every 100 points. |
+| **And more** | A sticky note, a resume "installer" and the Trash. |
 
 ## Try the Terminal
 
