@@ -1023,6 +1023,11 @@
   background: linear-gradient(#e6f2ff, #cde4ff);
   overflow: hidden;
   cursor: pointer;
+  /* Holding a finger on it jumps higher: no scrolling, text selection or callout meanwhile. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 :root[data-theme="dark"] #game-stage {
@@ -1035,39 +1040,13 @@
   }
 }
 
-#game-player {
+/* The game is drawn on a canvas that fills the stage (lib/debug-runner.ts). */
+.game-canvas {
   position: absolute;
-  bottom: 2px;
-  left: 20px;
-  width: 22px;
-  height: 30px;
-}
-
-.player-body {
-  position: absolute;
-  bottom: 0;
-  left: 3px;
-  width: 16px;
-  height: 16px;
-  border-radius: 5px;
-  background: var(--accent);
-}
-
-.player-head {
-  position: absolute;
-  bottom: 15px;
-  left: 5px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ffd2a8;
-}
-
-.game-bug {
-  position: absolute;
-  bottom: 2px;
-  width: 20px;
-  height: 20px;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 #game-over-msg {
@@ -1084,8 +1063,10 @@
 }
 
 .game-over-title {
+  padding: 0 16px;
   font-size: 17px;
   font-weight: 700;
+  text-align: center;
 }
 
 .game-over-sub {

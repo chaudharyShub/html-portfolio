@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { GAME_OVER_LINES } from '../../lib/debug-runner';
 import { openDesktop } from './helpers';
 
 test('boot screen finishes on its own in 4-6 seconds', async ({ page }) => {
@@ -530,4 +531,28 @@ test('the Time Machine never needs a scrollbar, even on a short laptop screen', 
   await expect(dialog.locator('.tm-hint')).toBeVisible();
   await dialog.getByRole('button', { name: 'Enter Full Screen' }).click();
   await expect.poll(fits).toBe(true);
+});
+
+test('Debug Runner: the score climbs, a crash shows a joke and saves the best score', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#dock-game').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
+  await expect(dialog).toBeVisible();
+  const scoreLine = dialog.locator('.game-score-line span').first();
+  // Points come in per second, whatever the screen's refresh rate.
+  await expect.poll(async () => Number(await scoreLine.textContent()), { timeout: 5_000 }).toBeGreaterThan(5);
+
+  // Nobody jumps, so the first bug ends the run with one of the game-over lines.
+  const over = dialog.locator('#game-over-msg');
+  await expect(over).toBeVisible({ timeout: 10_000 });
+  const line = await over.locator('.game-over-title').textContent();
+  expect(GAME_OVER_LINES).toContain(line);
+  const best = Number(await page.evaluate(() => localStorage.getItem('debugRunnerBest')));
+  expect(best).toBeGreaterThan(0);
+
+  // Space starts a new run.
+  await page.keyboard.press('Space');
+  await expect(over).toBeHidden();
+  await dialog.locator('.dialog-buttons').getByRole('button', { name: 'Close' }).click();
+  await expect(dialog).toBeHidden();
 });

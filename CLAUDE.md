@@ -275,7 +275,20 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   empties it. The prompt line follows the output (one scrolling `.terminal-body`) and draws a block
   cursor (blinks when focused, hollow when not, follows arrow keys); the real `#terminal-input` is
   invisible and laid over the typed text, so typing, history and phone keyboards still work.
-- **Debug Runner**: tiny jump-over-bugs game, best score in localStorage.
+- **Debug Runner** (`components/dialogs/DebugRunnerDialog.tsx`, engine + drawing in
+  `lib/debug-runner.ts`, a canvas; Nov 2026 upgrade at the user's request): movement is per second,
+  not per frame (the first version ran twice as fast on 120Hz screens). Tap = small hop, hold
+  (Space, mouse or finger) = higher jump (low gravity while held, up to 0.25s; letting go early cuts
+  the climb; a press just before landing still jumps). Obstacles join as the score grows: bug (any
+  jump), **memory leak** (a wide puddle, only a held jump clears it; width follows the speed),
+  **merge conflict** (two bugs: two hops, one jump can't clear both), **404** (floats just over
+  the runner's head: stay down or clear it with a full jump) - checked in a simulation at slow,
+  medium and top speed. Coffee ☕ (device emoji) = 4s "hotfix mode", nothing can hit you (orange
+  glow). Every 100 points a version ships ("v1.1 shipped" ... "v2.0") and the speed steps up.
+  Game over shows a random line from `GAME_OVER_LINES` (never the same twice in a row); Space or
+  Restart starts again. Polish: squash/stretch, landing dust, a two-layer skyline scrolling at
+  different speeds (no dust or scrolling under reduced motion). Best score in localStorage
+  (`debugRunnerBest`). Sound and a global leaderboard were left out on purpose.
 - **Time Machine** (`components/dialogs/TimeMachineDialog.tsx`, a wide panel dialog, always dark):
   the whole life, oldest first, as "desktop snapshots" (own era gradient each). Nine stops
   (Nov 2026, user's request - three jobs alone felt thin): birth 1995 ("System first booted"),
