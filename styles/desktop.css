@@ -581,9 +581,6 @@
     color-mix(in srgb, var(--tint) 42%, var(--surface))
   );
   box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--tint) 40%, transparent), 0 1px 2px rgba(0, 0, 0, 0.12);
-  font-family: var(--font);
-  font-size: 21px;
-  line-height: 1;
 }
 
 .toast-emoji::after {
@@ -609,6 +606,58 @@
 .toast-title {
   font-weight: 600;
 }
+
+/* The contact form's tick before "Message sent". */
+.toast-title-icon {
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+
+/* Our emoji drawings (components/icons/Emoji.tsx): small loops while they show (none under
+   reduced motion). Each animated part has no transform of its own, so CSS can move it. */
+.emoji-art .emo {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .emo-blink { animation: emoBlink 3.6s infinite; }
+  .emo-float1 { animation: emoFloat 2.6s ease-in-out infinite; }
+  .emo-float2 { animation: emoFloat 2.6s ease-in-out 0.9s infinite; }
+  .emo-float3 { animation: emoFloat 2.6s ease-in-out 1.7s infinite; }
+  .emo-twinkle1 { animation: emoTwinkle 1.8s ease-in-out infinite; }
+  .emo-twinkle2 { animation: emoTwinkle 1.8s ease-in-out 0.6s infinite; }
+  .emo-twinkle3 { animation: emoTwinkle 1.8s ease-in-out 1.2s infinite; }
+  .emo-spin { animation: emoSpin 4s linear infinite; }
+  .emo-beat { animation: emoBeat 1.4s ease-in-out infinite; }
+  .emo-glow { animation: emoGlow 2s ease-in-out infinite; }
+  .emo-pop { animation: emoPop 1.8s ease-out infinite; }
+  .emoji-art .emo-wave-l { transform-origin: 50% 100%; animation: emoWaveL 1.2s ease-in-out infinite; }
+  .emoji-art .emo-wave-r { transform-origin: 50% 100%; animation: emoWaveR 1.2s ease-in-out infinite; }
+  .emo-tear { animation: emoTear 2.4s ease-in infinite; }
+  .emo-droop { animation: emoDroop 3s ease-in-out infinite; }
+  .emo-shimmer { animation: emoShimmer 1.6s ease-in-out infinite; }
+  .emoji-art .emo-split-l { transform-origin: 50% 100%; animation: emoSplitL 2.4s ease-in-out infinite; }
+  .emoji-art .emo-split-r { transform-origin: 50% 100%; animation: emoSplitR 2.4s ease-in-out infinite; }
+  .emo-steam1 { animation: emoSteam 2.2s ease-in-out infinite; }
+  .emo-steam2 { animation: emoSteam 2.2s ease-in-out 1.1s infinite; }
+}
+
+@keyframes emoBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+@keyframes emoFloat { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(-2px); opacity: 0.75; } }
+@keyframes emoTwinkle { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.6); } }
+@keyframes emoSpin { to { transform: rotate(360deg); } }
+@keyframes emoBeat { 0%, 40%, 100% { transform: scale(1); } 15% { transform: scale(1.12); } 28% { transform: scale(1.05); } }
+@keyframes emoGlow { 0%, 100% { opacity: 0.12; transform: scale(0.94); } 50% { opacity: 0.3; transform: scale(1.04); } }
+@keyframes emoPop { 0% { transform: scale(0.6); opacity: 0; } 20% { opacity: 1; } 70% { transform: translate(1.5px, -1.5px) scale(1); opacity: 1; } 100% { opacity: 0; } }
+@keyframes emoWaveL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-8deg); } }
+@keyframes emoWaveR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(8deg); } }
+@keyframes emoTear { 0% { transform: translateY(-2px) scale(0.5); opacity: 0; } 25% { transform: none; opacity: 1; } 85% { transform: translateY(5px); opacity: 1; } 100% { transform: translateY(6px); opacity: 0; } }
+@keyframes emoDroop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(0.8px); } }
+@keyframes emoShimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes emoSplitL { 0%, 30%, 100% { transform: rotate(0deg); } 50%, 80% { transform: translateX(-1px) rotate(-7deg); } }
+@keyframes emoSplitR { 0%, 30%, 100% { transform: rotate(0deg); } 50%, 80% { transform: translateX(1px) rotate(7deg); } }
+@keyframes emoSteam { 0% { transform: translateY(1.5px); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(-2.5px); opacity: 0; } }
 
 .toast-time {
   font-size: 11px;

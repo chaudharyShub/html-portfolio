@@ -408,7 +408,6 @@
 
   .like-button--title .like-sad {
     width: 20px;
-    font-size: 15px;
   }
 
   .like-button--title.like-button--nudge::after {

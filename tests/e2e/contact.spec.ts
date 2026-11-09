@@ -21,6 +21,9 @@ test('sends a message and clears the form', async ({ page }) => {
   await page.getByRole('button', { name: 'Send', exact: true }).click();
 
   await expect(toast(page)).toContainText('Message sent');
+  // Our own tick drawing before the title, not a text check mark.
+  await expect(toast(page).locator('.toast-title svg[data-emoji="check"]')).toBeVisible();
+  await expect(toast(page).locator('.toast-title')).toHaveText('Message sent');
   expect(sent.count).toBe(1);
   await expect(page.getByLabel('Message:')).toHaveValue('');
 });

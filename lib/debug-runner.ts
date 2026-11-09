@@ -33,6 +33,31 @@ const MAX_SPEED = 480;
 export const POINTS_PER_SECOND = 10;
 const HOTFIX_SECONDS = 4;
 
+/**
+ * The coffee cup, our own drawing on a 32x32 grid (also the "coffee" emoji drawing in
+ * components/icons/Emoji.tsx). The game draws it on the canvas from these paths.
+ */
+export const COFFEE_PATHS = {
+  steam1: 'M11.6 10q-1.6-2 0-3.6t0-3.6',
+  steam2: 'M16.6 10q-1.6-2 0-3.6t0-3.6',
+  handle: 'M22.4 15.4h1.4a3.3 3.3 0 0 1 0 6.6h-1.8',
+  mug: 'M6.6 12.6h16v8.6a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6Z',
+  code: 'M12.2 17.6l-1.8 1.8 1.8 1.8M17 17.6l1.8 1.8-1.8 1.8',
+} as const;
+/** Size the cup is drawn at, in px. */
+const COFFEE_SIZE = 20;
+
+type CoffeeShapes = Record<keyof typeof COFFEE_PATHS, Path2D>;
+let coffeeShapes: CoffeeShapes | null = null;
+
+/** The cup's paths as Path2D, made once (only in the browser: the server never draws). */
+function getCoffeeShapes(): CoffeeShapes {
+  coffeeShapes ??= Object.fromEntries(
+    Object.entries(COFFEE_PATHS).map(([key, d]) => [key, new Path2D(d)]),
+  ) as CoffeeShapes;
+  return coffeeShapes;
+}
+
 type Kind = 'bug' | 'leak' | 'notfound';
 
 interface Obstacle {
@@ -394,6 +419,46 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     ctx.fillText(text, x, y);
   };
 
+  /** The coffee cup centered on (x, y); its steam rises unless motion is reduced. */
+  const drawCoffee = (x: number, y: number, now: number) => {
+    if (!ctx) return;
+    const shapes = getCoffeeShapes();
+    ctx.save();
+    ctx.translate(x - COFFEE_SIZE / 2, y - COFFEE_SIZE / 2);
+    ctx.scale(COFFEE_SIZE / 32, COFFEE_SIZE / 32);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    // Two wisps, half a cycle apart, fading in and out as they rise.
+    ctx.strokeStyle = '#b9a58f';
+    ctx.lineWidth = 1.6;
+    for (const [shape, offset] of [[shapes.steam1, 0], [shapes.steam2, 0.5]] as const) {
+      const t = reducedMotion ? 0.5 : (now / 2200 + offset) % 1;
+      ctx.save();
+      ctx.globalAlpha = reducedMotion ? 0.8 : Math.sin(t * Math.PI);
+      ctx.translate(0, 1.5 - t * 4);
+      ctx.stroke(shape);
+      ctx.restore();
+    }
+    ctx.strokeStyle = '#7a4a24';
+    ctx.lineWidth = 2.2;
+    ctx.stroke(shapes.handle);
+    const body = ctx.createLinearGradient(0, 12.6, 0, 27.2);
+    body.addColorStop(0, '#ffffff');
+    body.addColorStop(1, '#e3dbd0');
+    ctx.fillStyle = body;
+    ctx.fill(shapes.mug);
+    ctx.lineWidth = 1.2;
+    ctx.stroke(shapes.mug);
+    ctx.fillStyle = '#7a4a24';
+    ctx.beginPath();
+    ctx.ellipse(14.6, 12.8, 7.6, 1.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#0066cc';
+    ctx.lineWidth = 1.4;
+    ctx.stroke(shapes.code);
+    ctx.restore();
+  };
+
   const drawObstacle = (o: Obstacle) => {
     if (!ctx) return;
     const top = groundY() - o.y - o.h;
@@ -479,11 +544,7 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
 
     for (const c of coffees) {
       const bob = reducedMotion ? 0 : Math.sin(now / 220) * 2;
-      ctx.font = '16px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('☕', c.x, groundY() - c.y + bob);
-      ctx.textBaseline = 'alphabetic';
+      drawCoffee(c.x, groundY() - c.y + bob, now);
     }
     for (const o of obstacles) drawObstacle(o);
     for (const p of particles) {

@@ -2,6 +2,7 @@
 
 import { createContext, use, useMemo, useReducer, type ReactNode } from 'react';
 import type { DialogIconType } from '@/components/icons';
+import type { EmojiName } from '@/components/icons/Emoji';
 import { SECTION_TO_TAB, type SectionId, type TabId } from '@/lib/sections';
 
 export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard' | 'timeMachine' | 'about' | 'activity' | 'links';
@@ -41,10 +42,17 @@ interface MessageState {
   text: string;
 }
 
-/** An emoji on a tile tinted with `tint` (a CSS color), shown in place of the app tile. */
+/** One of our emoji drawings on a tile tinted with `tint` (a CSS color), shown in place of the app tile. */
 export interface ToastEmoji {
-  emoji: string;
+  emoji: EmojiName;
   tint: string;
+}
+
+export interface ToastOptions {
+  /** Replaces the app tile as the banner's icon. */
+  emoji?: ToastEmoji;
+  /** A small drawing before the title (the contact form's tick). */
+  titleIcon?: EmojiName;
 }
 
 interface ToastState {
@@ -52,6 +60,7 @@ interface ToastState {
   title: string;
   message: string;
   emoji?: ToastEmoji;
+  titleIcon?: EmojiName;
 }
 
 export interface OsState {
@@ -78,7 +87,7 @@ type Action =
   | { type: 'toggleMenu' }
   | { type: 'closeMenus' }
   | { type: 'openContextMenu'; x: number; y: number }
-  | { type: 'showToast'; title: string; message: string; emoji?: ToastEmoji }
+  | { type: 'showToast'; title: string; message: string; options?: ToastOptions }
   | { type: 'hideToast'; id: number }
   | { type: 'windowStatus'; key: WindowKey; status: WindowStatus };
 
@@ -113,7 +122,7 @@ function reducer(state: OsState, action: Action): OsState {
     case 'openContextMenu':
       return { ...state, contextMenu: { x: action.x, y: action.y } };
     case 'showToast':
-      return { ...state, toast: { id: (state.toast?.id ?? 0) + 1, title: action.title, message: action.message, emoji: action.emoji } };
+      return { ...state, toast: { id: (state.toast?.id ?? 0) + 1, title: action.title, message: action.message, ...action.options } };
     case 'hideToast':
       return state.toast?.id === action.id ? { ...state, toast: null } : state;
     case 'windowStatus':
@@ -141,8 +150,7 @@ export interface OsActions {
   openDialog: (id: DialogId) => void;
   closeDialog: (id: DialogId) => void;
   showMessage: (icon: DialogIconType, title: string, text: string) => void;
-  /** `emoji` replaces the app tile as the banner's icon. */
-  showToast: (title: string, message: string, emoji?: ToastEmoji) => void;
+  showToast: (title: string, message: string, options?: ToastOptions) => void;
   hideToast: (id: number) => void;
   denyNewTextDocument: () => void;
   shutDown: () => void;
@@ -218,7 +226,7 @@ export function OsProvider({ children }: { children: ReactNode }) {
       openDialog: (id) => dispatch({ type: 'openDialog', id }),
       closeDialog: (id) => dispatch({ type: 'closeDialog', id }),
       showMessage,
-      showToast: (title, message, emoji) => dispatch({ type: 'showToast', title, message, emoji }),
+      showToast: (title, message, options) => dispatch({ type: 'showToast', title, message, options }),
       hideToast: (id) => dispatch({ type: 'hideToast', id }),
       denyNewTextDocument: () =>
         showMessage('forbidden', 'Shubham OS', "Access denied: you don't have permission to create files in this dimension."),
