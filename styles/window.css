@@ -777,16 +777,18 @@ html:has(.window.maximized) .subwindow {
 }
 
 /* After an unlike: a sad face drops in where the heart was, then the heart pops back. */
-/* Emoji draw wider than their font size: 10px fits the heart's 12px slot, so the text keeps its
-   place and its gap. */
+/* The drawing fills the heart's 12px slot, so the text keeps its place and its gap. */
 .like-sad {
   display: inline-flex;
   justify-content: center;
   width: 12px;
-  font-family: var(--font);
-  font-size: 10px;
-  line-height: 1;
   animation: sadIn 520ms var(--ease-spring);
+}
+
+.like-sad .emoji-art {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 @keyframes sadIn {

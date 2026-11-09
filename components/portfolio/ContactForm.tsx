@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { useOsActions } from '@/components/os/OsProvider';
+import { useOsActions, type ToastOptions } from '@/components/os/OsProvider';
 import {
   buildMailtoLink,
   recordMessageSent,
@@ -50,8 +50,8 @@ export function ContactForm({ accessKey, actions }: { accessKey: string; actions
 
   // The toast must fire BEFORE navigating: in some sandboxed/preview contexts opening a
   // mailto: link throws synchronously and would otherwise kill the rest of the handler.
-  const openMailFallback = (msg: ContactMessage, title: string, text: string) => {
-    showToast(title, text);
+  const openMailFallback = (msg: ContactMessage, title: string, text: string, options?: ToastOptions) => {
+    showToast(title, text, options);
     try {
       clickLink(buildMailtoLink(msg));
     } catch (err) {
@@ -81,15 +81,16 @@ export function ContactForm({ accessKey, actions }: { accessKey: string; actions
     // Honeypot: real visitors never see or tick this, bots usually do. Pretend it worked.
     if (data.get('botcheck')) {
       form.reset();
-      showToast('✔ Message sent', 'Thanks! Shubham will get back to you soon.');
+      showToast('Message sent', 'Thanks! Shubham will get back to you soon.', { titleIcon: 'check' });
       return;
     }
 
     if (!accessKey) {
       openMailFallback(
         msg,
-        '✔ Message ready to send',
+        'Message ready to send',
         "Your email client should open now. Shubham will reply within 1 business day - or when he's done debugging.",
+        { titleIcon: 'check' },
       );
       return;
     }
@@ -111,7 +112,9 @@ export function ContactForm({ accessKey, actions }: { accessKey: string; actions
     if (sent) {
       recordMessageSent();
       form.reset();
-      showToast('✔ Message sent', "Shubham will reply within 1 business day - or when he's done debugging.");
+      showToast('Message sent', "Shubham will reply within 1 business day - or when he's done debugging.", {
+        titleIcon: 'check',
+      });
     } else {
       openMailFallback(
         msg,

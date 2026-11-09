@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type AnimationEvent } from 'react';
 import { HeartIcon } from '@/components/icons';
+import { Emoji, type EmojiName } from '@/components/icons/Emoji';
 import { useOsActions, type ToastEmoji } from '@/components/os/OsProvider';
 import { loadLikes, removeLike, sendLike, useLikes } from '@/lib/likes-client';
 import { prefersReducedMotion } from '@/lib/motion';
@@ -9,19 +10,19 @@ import { likeIdPreference } from '@/lib/preferences';
 
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
 
-/** The like toast's icon: a random one of these each time, each on a tile in its own tint. */
+/** The like toast's icon: a random one of our drawings each time, each on a tile in its own tint. */
 const THANKS_EMOJIS: readonly ToastEmoji[] = [
-  { emoji: '😊', tint: '#ffb020' },
-  { emoji: '🥰', tint: '#ff5e8a' },
-  { emoji: '😄', tint: '#ffb020' },
-  { emoji: '🤩', tint: '#ffc83d' },
-  { emoji: '💗', tint: '#ff4f9a' },
-  { emoji: '💖', tint: '#e84aa6' },
-  { emoji: '✨', tint: '#a78bfa' },
-  { emoji: '🎉', tint: '#8b5cf6' },
-  { emoji: '🙌', tint: '#f59e0b' },
-  { emoji: '🌟', tint: '#fbbf24' },
-  { emoji: '🥳', tint: '#ec4899' },
+  { emoji: 'wink', tint: '#ffb020' },
+  { emoji: 'love', tint: '#ff5e8a' },
+  { emoji: 'grin', tint: '#ffb020' },
+  { emoji: 'stars', tint: '#ffc83d' },
+  { emoji: 'glowheart', tint: '#ff4f9a' },
+  { emoji: 'sparkheart', tint: '#e84aa6' },
+  { emoji: 'sparkles', tint: '#a78bfa' },
+  { emoji: 'popper', tint: '#8b5cf6' },
+  { emoji: 'hands', tint: '#f59e0b' },
+  { emoji: 'star', tint: '#fbbf24' },
+  { emoji: 'party', tint: '#ec4899' },
 ];
 
 let lastThanks = -1;
@@ -34,17 +35,17 @@ function pickThanksEmoji(): ToastEmoji {
   return THANKS_EMOJIS[i] as ToastEmoji;
 }
 
-/** Unliking: a random one of these stands in for the heart (just the emoji, no tile). */
-const SAD_EMOJIS = ['😞', '😢', '😔', '🥺', '😿', '💔'];
+/** Unliking: a random one of these drawings stands in for the heart (no tile). */
+const SAD_EMOJIS: readonly EmojiName[] = ['letdown', 'teary', 'pensive', 'plead', 'monitor', 'broken'];
 
 let lastSad = -1;
 
 /** A random sad emoji, never the same one twice in a row. */
-function pickSadEmoji(): string {
+function pickSadEmoji(): EmojiName {
   let i = Math.floor(Math.random() * SAD_EMOJIS.length);
   if (i === lastSad) i = (i + 1) % SAD_EMOJIS.length;
   lastSad = i;
-  return SAD_EMOJIS[i] as string;
+  return SAD_EMOJIS[i] as EmojiName;
 }
 
 /** How long the sad face stands in for the heart after an unlike. */
@@ -75,7 +76,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
   const { showToast } = useOsActions();
   const [popping, setPopping] = useState(false);
   const [mood, setMood] = useState<Mood>(null);
-  const [sadEmoji, setSadEmoji] = useState(SAD_EMOJIS[0]);
+  const [sadEmoji, setSadEmoji] = useState<EmojiName>('teary');
   // The nudge: once per page load, only for visitors who haven't liked yet.
   const [nudging, setNudging] = useState(false);
   const [nudged, setNudged] = useState(false);
@@ -133,7 +134,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
     setNudging(false);
     setPopping(true);
     const result = await sendLike();
-    if (result === 'saved') showToast('Thanks for the like!', 'It means a lot - Shubham', pickThanksEmoji());
+    if (result === 'saved') showToast('Thanks for the like!', 'It means a lot - Shubham', { emoji: pickThanksEmoji() });
     if (result === 'limit') showToast('Like not counted', "Your network has reached today's like limit. Please try again tomorrow.");
     if (result === 'failed') showToast('Like not saved', 'Something went wrong. Please try again in a moment.');
   };
@@ -161,7 +162,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
     >
       {mood === 'sad' ? (
         <span className="like-sad" aria-hidden="true">
-          {sadEmoji}
+          <Emoji name={sadEmoji} />
         </span>
       ) : (
         <HeartIcon />
