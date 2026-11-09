@@ -1092,6 +1092,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Top score of all players (from /api/debug-runner). */
+.game-top {
+  color: var(--text-2);
+}
+
+.game-record {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--orange-text);
+}
+
 /* ===== Terminal ===== */
 /* Output and prompt scroll together, with the prompt right after the last output (like a real terminal). */
 .terminal-body {

@@ -1,0 +1,80 @@
+import { useSyncExternalStore } from 'react';
+
+/**
+ * The Debug Runner top score (all visitors) in the browser. Loaded when the game first opens;
+ * each run asks the server for a ticket when it starts and sends its score with it at game over
+ * (see lib/runner-score-store.ts).
+ */
+export interface TopScoreState {
+  /** null until loaded. */
+  best: number | null;
+  /** false when /api/debug-runner isn't available: the top score is hidden. */
+  available: boolean;
+  /** The last run set a new top score. */
+  record: boolean;
+}
+
+const SERVER_STATE: TopScoreState = { best: null, available: true, record: false };
+let state: TopScoreState = SERVER_STATE;
+let loadStarted = false;
+const listeners = new Set<() => void>();
+
+function setState(next: Partial<TopScoreState>) {
+  state = { ...state, ...next };
+  listeners.forEach((l) => l());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function useTopScore(): TopScoreState {
+  return useSyncExternalStore(subscribe, () => state, () => SERVER_STATE);
+}
+
+/** Loads the top score once (later calls do nothing). */
+export function loadTopScore(): void {
+  if (loadStarted) return;
+  loadStarted = true;
+  fetch('/api/debug-runner', { cache: 'no-store' })
+    .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+    .then((data: { best: number }) => setState({ best: data.best }))
+    .catch(() => setState({ available: false }));
+}
+
+/** The current run's ticket (a promise, so a quick game over still waits for it). */
+let ticket: Promise<string | null> = Promise.resolve(null);
+
+/** Call when a run starts. */
+export function startRun(): void {
+  if (state.record) setState({ record: false });
+  if (!state.available) {
+    ticket = Promise.resolve(null);
+    return;
+  }
+  ticket = fetch('/api/debug-runner/run', { method: 'POST' })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data: { ticket?: string } | null) => data?.ticket ?? null)
+    .catch(() => null);
+}
+
+/** Call at game over. Updates the top score from the server's answer. */
+export async function finishRun(score: number): Promise<void> {
+  // Taken before waiting, so a run started meanwhile keeps its own ticket.
+  const current = ticket;
+  ticket = Promise.resolve(null);
+  const runTicket = await current;
+  if (!runTicket || score <= 0) return;
+  try {
+    const res = await fetch('/api/debug-runner', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticket: runTicket, score }),
+    });
+    const data = (await res.json()) as { best?: number; record?: boolean };
+    if (typeof data.best === 'number') setState({ best: data.best, record: res.ok && Boolean(data.record) });
+  } catch {
+    // The score just isn't shared; the visitor's own best is still saved on this device.
+  }
+}

@@ -49,7 +49,7 @@ This is a personal project, not an open-source template.
 | **Phones** | Full-screen apps with a tab bar, a two-page Home Screen, a Dock, action sheets and bottom sheets. |
 | **Contact** | A contact form and every profile link in one place. |
 | **Likes** | A heart with a shared like count; click again to take it back. |
-| **Debug Runner** | A small runner game: hop the bugs, hold to long-jump memory leaks, stay under the 404s, grab coffee for hotfix mode and ship a version every 100 points. |
+| **Debug Runner** | A small runner game: hop the bugs, hold to long-jump memory leaks, stay under the 404s, grab coffee for hotfix mode and ship a version every 100 points. Shows your score, your best and the top score of all players. |
 | **And more** | A sticky note, a resume "installer" and the Trash. |
 
 ## Try the Terminal
@@ -80,15 +80,17 @@ worth a try.
 - **Smooth animations on modest hardware.** The genie minimize warps thin copies of the window
   with transforms only, prepared before the click; zoom glides the real frame while the content
   is laid out once. Everything respects `prefers-reduced-motion`.
-- **A small, abuse-resistant API.** The like counter is a Next.js route over Upstash Redis
-  (plain `fetch`, no client library), with server-issued ids so nobody can remove other people's
-  likes, and a per-network daily limit that never stores raw IP addresses.
+- **A small, abuse-resistant API.** The like counter and the Debug Runner top score are Next.js
+  routes over Upstash Redis (plain `fetch`, no client library). Likes use server-issued ids so
+  nobody can remove other people's likes, and a per-network daily limit that never stores raw IP
+  addresses. A top score only counts with a signed, single-use run ticket, and can't be higher
+  than the time since that run started allows, so faking one takes as long as playing for it.
 - **No hydration flashes.** Saved preferences are read through `useSyncExternalStore`, and a tiny
   pre-paint script applies the theme before the first frame.
 - **Accessible.** Keyboard-operable menus, tabs and dialogs, focus that returns where it came
   from, and colors chosen to pass WCAG AA. Lighthouse accessibility: 100.
 - **Tested.** Playwright browser tests at desktop and phone sizes cover the boot screen, windows,
-  Terminal, Time Machine, contact form, likes and the phone layout.
+  Terminal, Time Machine, contact form, likes, the game's top score and the phone layout.
 - **Own assets.** Inspired by Apple's design, not copied: the icons, wallpapers and app icon are
   drawn for this site, and the fonts (Figtree and JetBrains Mono) are free and served from it.
 

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { GAME_OVER_LINES } from '../../lib/debug-runner';
-import { openDesktop } from './helpers';
+import { openDesktop, stubTopScore } from './helpers';
 
 test('boot screen finishes on its own in 4-6 seconds', async ({ page }) => {
   await page.goto('/');
@@ -547,6 +547,54 @@ test('the Time Machine never needs a scrollbar, even on a short laptop screen', 
   await expect(dialog.locator('.tm-hint')).toBeVisible();
   await dialog.getByRole('button', { name: 'Enter Full Screen' }).click();
   await expect.poll(fits).toBe(true);
+});
+
+test('Debug Runner: the top score of all players shows, and a run sends its score with its ticket', async ({
+  page,
+}) => {
+  // A low top score, so the first crash beats it.
+  const state = await stubTopScore(page, { start: 1 });
+  await openDesktop(page);
+  await page.locator('#dock-game').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
+  await expect(dialog.locator('.game-top')).toHaveText(/Top score: 1$/);
+
+  const over = dialog.locator('#game-over-msg');
+  await expect(over).toBeVisible({ timeout: 10_000 });
+  await expect(over.locator('.game-record')).toHaveText('New top score for all players!');
+  expect(state.tickets).toBe(1);
+  expect(state.submits).toHaveLength(1);
+  expect(state.submits[0]?.ticket).toBe('test-ticket-1');
+  const sent = state.submits[0]?.score ?? 0;
+  expect(sent).toBeGreaterThan(1);
+  await expect(over.locator('.game-over-sub')).toContainText(`Top score: ${sent.toLocaleString('en-US')}`);
+  await expect(dialog.locator('.game-top')).toContainText(sent.toLocaleString('en-US'));
+
+  // The next run gets a fresh ticket and the record message goes away.
+  await page.waitForTimeout(500);
+  await page.keyboard.press('Space');
+  await expect(over).toBeHidden();
+  expect(state.tickets).toBe(2);
+});
+
+test('Debug Runner: the top score hides when the server has none, and other sites cannot send scores', async ({
+  page,
+  request,
+}) => {
+  // Tests point the database at a dead address, so the real route answers 503.
+  await openDesktop(page);
+  await page.locator('#dock-game').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
+  await expect(dialog.locator('.game-score-line')).toContainText('Your best');
+  await expect(dialog.locator('.game-top')).toHaveCount(0);
+  expect((await request.get('/api/debug-runner')).status()).toBe(503);
+  const foreign = await request.post('/api/debug-runner', {
+    headers: { Origin: 'https://example.com' },
+    data: { ticket: 'x', score: 99999 },
+  });
+  expect(foreign.status()).toBe(403);
+  const foreignRun = await request.post('/api/debug-runner/run', { headers: { Origin: 'https://example.com' } });
+  expect(foreignRun.status()).toBe(403);
 });
 
 test('Debug Runner: the score climbs, a crash shows a joke and saves the best score', async ({ page }) => {
