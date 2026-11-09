@@ -315,7 +315,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   different speeds (no dust or scrolling under reduced motion). Best score in localStorage
   (`debugRunnerBest`, shown as "Your best"), plus "Top score" of all players from the server
   (see Architecture; hidden when the API is unavailable; game over says "New top score for all
-  players!" on a record). Sound and a named leaderboard were left out on purpose.
+  players!" on a record). A record shows without waiting for the server (user's request, Nov
+  2026: it took ~2s): mid-run, once the score passes the known top score, "Top score" follows
+  the live score in orange (`.game-top--record`); at game over the record message shows at once,
+  then `finishRun` sends it and the server's answer settles it (if it isn't saved, the old top
+  score comes back and the message goes; `run` counter so a late answer doesn't touch a newer
+  run). Sound and a named leaderboard were left out on purpose.
 - **Time Machine** (`components/dialogs/TimeMachineDialog.tsx`, a wide panel dialog, always dark):
   the whole life, oldest first, as "desktop snapshots" (own era gradient each). Nine stops
   (Nov 2026, user's request - three jobs alone felt thin): birth 1995 ("System first booted"),

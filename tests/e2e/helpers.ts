@@ -59,9 +59,13 @@ export async function stubLikes(page: Page, { start = 41, postOk = true, limitRe
 
 /**
  * Replaces the Debug Runner top-score API with an in-memory one, so tests never touch the real
- * database. Returns what reached it.
+ * database. Returns what reached it. `hold` delays the score's answer until it resolves;
+ * `submitOk: false` makes saving fail.
  */
-export async function stubTopScore(page: Page, { start = 120 } = {}) {
+export async function stubTopScore(
+  page: Page,
+  { start = 120, submitOk = true, hold }: { start?: number; submitOk?: boolean; hold?: Promise<void> } = {},
+) {
   const state = { best: start, tickets: 0, submits: [] as { ticket: string; score: number }[] };
   await page.route('**/api/debug-runner/run', async (route: Route) => {
     state.tickets++;
@@ -71,6 +75,8 @@ export async function stubTopScore(page: Page, { start = 120 } = {}) {
     if (route.request().method() === 'POST') {
       const body = route.request().postDataJSON() as { ticket: string; score: number };
       state.submits.push(body);
+      await hold;
+      if (!submitOk) return route.fulfill({ status: 503, json: { error: 'down' } });
       const record = body.score > state.best;
       if (record) state.best = body.score;
       return route.fulfill({ json: { best: state.best, record } });

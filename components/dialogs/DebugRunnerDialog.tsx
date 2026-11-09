@@ -115,6 +115,10 @@ export function DebugRunnerDialog() {
 
   // Hidden when the shared score can't be reached (no database, or it's down).
   const showTop = top.available;
+  // Passing the top score mid-run shows at once: the top score follows the live score.
+  const passing = !over && top.best !== null && score > top.best;
+  const shownTop = passing ? score : top.best;
+  const topClass = passing || top.record ? 'game-top game-top--record' : 'game-top';
 
   return (
     <Dialog open={open} title="Debug Runner" onClose={actions.closeGame} boxClassName="wide">
@@ -136,7 +140,7 @@ export function DebugRunnerDialog() {
               {showTop ? (
                 <>
                   {' '}
-                  | Top score: <span>{formatScore(top.best)}</span>
+                  | Top score: <span>{formatScore(shownTop)}</span>
                 </>
               ) : null}
             </span>
@@ -152,8 +156,8 @@ export function DebugRunnerDialog() {
         <p className="game-score-line">
           Score: <span>{score}</span> &nbsp; Your best: <span>{best}</span>
           {showTop ? (
-            <span className="game-top" title="Highest score of everyone who has played">
-              &nbsp; Top score: <span>{formatScore(top.best)}</span>
+            <span className={topClass} title="Highest score of everyone who has played">
+              &nbsp; Top score: <span>{formatScore(shownTop)}</span>
             </span>
           ) : null}
         </p>

@@ -45,9 +45,12 @@ export function loadTopScore(): void {
 
 /** The current run's ticket (a promise, so a quick game over still waits for it). */
 let ticket: Promise<string | null> = Promise.resolve(null);
+/** Counts runs, so a late server answer doesn't change the record flag of a newer run. */
+let run = 0;
 
 /** Call when a run starts. */
 export function startRun(): void {
+  run++;
   if (state.record) setState({ record: false });
   if (!state.available) {
     ticket = Promise.resolve(null);
@@ -59,13 +62,31 @@ export function startRun(): void {
     .catch(() => null);
 }
 
-/** Call at game over. Updates the top score from the server's answer. */
+/**
+ * Call at game over. A score above the known top score shows as the new top score at once;
+ * then it is sent, and the server's answer settles it (if it isn't saved, the old one is back).
+ */
 export async function finishRun(score: number): Promise<void> {
   // Taken before waiting, so a run started meanwhile keeps its own ticket.
   const current = ticket;
   ticket = Promise.resolve(null);
+  const thisRun = run;
+  const previous = state.best;
+  const beaten = state.available && previous !== null && score > previous;
+  if (beaten) setState({ best: score, record: true });
+  /** Applies the server's top score; the record flag only while this run is still the last one. */
+  const settle = (best: number | null, record: boolean) =>
+    setState(run === thisRun ? { best, record } : { best });
+  // Put back the old top score if this one didn't make it.
+  const undo = () => {
+    if (beaten && state.best === score) settle(previous, false);
+  };
+
   const runTicket = await current;
-  if (!runTicket || score <= 0) return;
+  if (!runTicket || score <= 0) {
+    undo();
+    return;
+  }
   try {
     const res = await fetch('/api/debug-runner', {
       method: 'POST',
@@ -73,8 +94,10 @@ export async function finishRun(score: number): Promise<void> {
       body: JSON.stringify({ ticket: runTicket, score }),
     });
     const data = (await res.json()) as { best?: number; record?: boolean };
-    if (typeof data.best === 'number') setState({ best: data.best, record: res.ok && Boolean(data.record) });
+    if (typeof data.best !== 'number') throw new Error(String(res.status));
+    settle(data.best, res.ok && Boolean(data.record));
   } catch {
     // The score just isn't shared; the visitor's own best is still saved on this device.
+    undo();
   }
 }
