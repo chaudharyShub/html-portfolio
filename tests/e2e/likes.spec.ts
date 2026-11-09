@@ -106,3 +106,39 @@ test('the API refuses to remove a like without a real id, or from another site',
   });
   expect(foreign.status()).toBe(403);
 });
+
+test('30s into a visit the heart beats once, only if not liked yet', async ({ page }) => {
+  await stubLikes(page);
+  await page.clock.install();
+  await openDesktop(page);
+  const button = likeButton(page);
+  await expect(button).toContainText('41');
+  await page.clock.runFor(20_000);
+  await expect(button).not.toHaveClass(/like-button--nudge/);
+  await page.clock.runFor(10_500);
+  await expect(button).toHaveClass(/like-button--nudge/);
+  // It goes after 5s and doesn't come back.
+  await page.clock.runFor(5_000);
+  await expect(button).not.toHaveClass(/like-button--nudge/);
+  await page.clock.runFor(60_000);
+  await expect(button).not.toHaveClass(/like-button--nudge/);
+});
+
+test('no pulse for a visitor who already liked, or under reduced motion', async ({ page }) => {
+  await stubLikes(page);
+  await page.clock.install();
+  await openDesktop(page);
+  await likeButton(page).click();
+  await expect(likeButton(page)).toHaveAttribute('aria-pressed', 'true');
+  await page.clock.runFor(31_000);
+  await expect(likeButton(page)).not.toHaveClass(/like-button--nudge/);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.evaluate(() => localStorage.removeItem('shubhamOsLiked'));
+  await page.reload();
+  await expect(page.locator('#boot-text')).not.toBeEmpty();
+  await page.keyboard.press('Space');
+  await expect(likeButton(page)).toHaveAttribute('aria-pressed', 'false');
+  await page.clock.runFor(31_000);
+  await expect(likeButton(page)).not.toHaveClass(/like-button--nudge/);
+});

@@ -411,6 +411,10 @@
     font-size: 15px;
   }
 
+  .like-button--title.like-button--nudge::after {
+    inset: 6px 2px;
+  }
+
   .like-button--title:active {
     transform: none;
     filter: none;
