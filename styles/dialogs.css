@@ -1097,6 +1097,11 @@
   color: var(--text-2);
 }
 
+.game-top--record {
+  font-weight: 600;
+  color: var(--orange-text);
+}
+
 .game-record {
   font-size: 13px;
   font-weight: 600;

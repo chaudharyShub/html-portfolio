@@ -552,16 +552,25 @@ test('the Time Machine never needs a scrollbar, even on a short laptop screen', 
 test('Debug Runner: the top score of all players shows, and a run sends its score with its ticket', async ({
   page,
 }) => {
-  // A low top score, so the first crash beats it.
-  const state = await stubTopScore(page, { start: 1 });
+  // A low top score, so the run beats it; the server's answer is held back.
+  let release!: () => void;
+  const hold = new Promise<void>((resolve) => (release = resolve));
+  const state = await stubTopScore(page, { start: 1, hold });
   await openDesktop(page);
   await page.locator('#dock-game').click({ force: true });
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
-  await expect(dialog.locator('.game-top')).toHaveText(/Top score: 1$/);
+  const top = dialog.locator('.game-top');
+  await expect(top).toHaveText(/Top score: [\d,]+$/);
 
+  // Passing it mid-run shows at once: the top score follows the live score, highlighted.
+  await expect(top).toHaveClass(/game-top--record/, { timeout: 5_000 });
+
+  // At game over the record shows before the server has answered.
   const over = dialog.locator('#game-over-msg');
   await expect(over).toBeVisible({ timeout: 10_000 });
   await expect(over.locator('.game-record')).toHaveText('New top score for all players!');
+  await expect.poll(() => state.submits.length).toBe(1);
+  release();
   expect(state.tickets).toBe(1);
   expect(state.submits).toHaveLength(1);
   expect(state.submits[0]?.ticket).toBe('test-ticket-1');
@@ -575,6 +584,18 @@ test('Debug Runner: the top score of all players shows, and a run sends its scor
   await page.keyboard.press('Space');
   await expect(over).toBeHidden();
   expect(state.tickets).toBe(2);
+});
+
+test('Debug Runner: a record that the server does not save is taken back', async ({ page }) => {
+  await stubTopScore(page, { start: 1, submitOk: false });
+  await openDesktop(page);
+  await page.locator('#dock-game').click({ force: true });
+  const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
+  const over = dialog.locator('#game-over-msg');
+  await expect(over).toBeVisible({ timeout: 10_000 });
+  await expect(over.locator('.game-record')).toHaveCount(0, { timeout: 5_000 });
+  await expect(dialog.locator('.game-top')).toHaveText(/Top score: 1$/);
+  await expect(dialog.locator('.game-top')).not.toHaveClass(/game-top--record/);
 });
 
 test('Debug Runner: the top score hides when the server has none, and other sites cannot send scores', async ({
