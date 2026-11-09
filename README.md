@@ -13,7 +13,7 @@ an app-style Home Screen.
 
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-1d1d1f?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-0066cc?style=flat-square)
-![CSS](https://img.shields.io/badge/CSS-hand--written-6e6e73?style=flat-square)
+![CSS](https://img.shields.io/badge/CSS-plain%2C%20no%20framework-6e6e73?style=flat-square)
 ![Runtime deps](https://img.shields.io/badge/runtime%20deps-next%20%2B%20react%20%2B%20vercel%20insights-34c759?style=flat-square)
 
 <br>
@@ -70,8 +70,10 @@ worth a try.
 
 ## How it's built
 
-- **Next.js App Router, TypeScript (strict), hand-written CSS.** No UI library, no CSS
-  framework; the only runtime dependencies are Next.js, React and Vercel's analytics.
+- **Next.js App Router, TypeScript (strict), plain CSS.** No UI library, no CSS framework, no
+  CSS-in-JS; the only runtime dependencies are Next.js, React and Vercel's analytics.
+- **Built with AI assistance.** AI coding tools helped write the code; what the site is, what
+  made it in and what got cut were decided and tested by me on real devices.
 - **Server-rendered content.** Every portfolio section is a Server Component, so all the text is
   in the HTML for search engines before any JavaScript runs; the client desktop only decides
   which sections a tab shows.
@@ -102,7 +104,7 @@ worth a try.
 [GitHub](https://github.com/chaudharyShub) ·
 [LinkedIn](https://www.linkedin.com/in/shubham-chaudhary-4398bba8) ·
 [dev.to](https://dev.to/shubham_works) ·
-[Hashnode](https://hashnode.com/@shubhamworks)
+[Hashnode](https://shubham-works.hashnode.dev)
 
 <div align="center">
 <br>

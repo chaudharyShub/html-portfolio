@@ -3,7 +3,7 @@
 ## What this is
 The personal portfolio of Shubham Chaudhary (Full Stack Engineer), built as an interactive desktop:
 an Apple-inspired desktop on computers and an app-style Home Screen on phones. Next.js App Router,
-TypeScript strict, hand-written CSS. Live at https://shubhamworks.vercel.app (Vercel deploys `main`).
+TypeScript strict, plain CSS (no framework). Live at https://shubhamworks.vercel.app (Vercel deploys `main`).
 
 **Earlier Windows 95 version:** preserved on branch `windows-95-classic` and tag `win95-final`
 (commit 51a3789). It was removed from `main` in Oct 2026 at the user's request - don't bring
@@ -42,6 +42,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 "macOS" or "iOS" in titles, descriptions, share text or the share image ("desktop-style" /
 "interactive desktop" is fine). Copy lives in `lib/site.ts` (title, description, share text),
 `package.json`, README and `og-image.jpg`. Prefer plain hyphens over em dashes in UI text.
+- **Honest about how it's made** (user's rule, Nov 2026): never call the CSS "hand-written"
+  (say "plain CSS" / "no framework"). Saying AI was used is fine and expected; never say it was
+  made entirely by AI or name it as "100% made by Claude".
 
 ## Design
 - Apple-inspired, not Apple assets: no Apple logo (the menu-bar logo is our winking-monitor
@@ -418,7 +421,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Profile links** (Nov 2026): one ordered list, `PROFILE.links` in `data/profile.ts` (keyed by
   `ProfileLinkId`; `PROFILE_LINKS` is the same list as an array with ids). Each link has `label`,
   `detail` (handle shown under the name) and `href`. Current order: GitHub, LinkedIn, dev.to
-  (`https://dev.to/shubham_works`), Hashnode (`https://hashnode.com/@shubhamworks`), Instagram.
+  (`https://dev.to/shubham_works`), Hashnode (`https://shubham-works.hashnode.dev`: the blog, not the `hashnode.com/@shubhamworks`
+  profile - user's call, Nov 2026; `detail` stays the handle), Instagram.
   Every link shows in: the Contact section's "Find me online" card, the logo menu on computers
   (a "Links ›" item with a macOS-style submenu, `#logo-menu-links`: opens on hover, click,
   Right arrow / Enter / Space; Up/Down move, Left goes back; pointing at another item closes it.
@@ -524,8 +528,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   manifest-only `icon-192/512` and `icon-maskable-*` were deleted with the PWA; `favicon.ico` holds 16/32/48 PNGs; `icon.svg` is also
   the SVG favicon. Many concepts were tried before the winking monitor; don't swap it for a generic icon.
 - **Link previews**: Open Graph + Twitter tags from `lib/site.ts`. `og-image.jpg` (1200x630, JPEG
-  ~105 KB to stay under WhatsApp's preview size limit) is a real screenshot of the desktop in a card
-  that leads with "Portfolio / Shubham Chaudhary / Full Stack Engineer - 4+ years".
+  ~100 KB to stay under WhatsApp's preview size limit) is a real screenshot of the desktop in a card
+  that leads with "Portfolio / Shubham Chaudhary / Full Stack Engineer - 4+ years". Retaken
+  2026-11-09 (photo, Skills tab, desktop icons, full Dock, Figtree); the like chip is hidden in
+  it so no count goes stale. How to redo it: MAINTENANCE.md, "Share image".
 - **SEO**: meta description, JSON-LD, a visually hidden `<h1>`; section titles are `<h2>`
   inside each `<legend>` so headings go h1 -> h2 -> h3. `<main>` is the landmark; `role="tabpanel"`
   is on the div inside it.
@@ -604,7 +610,7 @@ inventing placeholder text - this reflects a real person's actual career history
   resume PDF.
 
 ## Known constraints
-- Next.js App Router + TypeScript (strict) + hand-written CSS. Runtime dependencies are only
+- Next.js App Router + TypeScript (strict) + plain CSS (no framework). Runtime dependencies are only
   `next`, `react`, `react-dom`, `@vercel/analytics`, `@vercel/speed-insights` - don't add libraries
   without a clear reason.
   npm is the package manager.

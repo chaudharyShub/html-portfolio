@@ -130,7 +130,7 @@ test('Contact shows the profile links beside the form, and below it in a narrow 
   await expect(links.nth(0)).toHaveAttribute('href', 'https://github.com/chaudharyShub');
   await expect(links.nth(0)).toHaveAttribute('rel', 'noopener noreferrer');
   await expect(links.nth(2)).toHaveAttribute('href', 'https://dev.to/shubham_works');
-  await expect(links.nth(3)).toHaveAttribute('href', 'https://hashnode.com/@shubhamworks');
+  await expect(links.nth(3)).toHaveAttribute('href', 'https://shubham-works.hashnode.dev');
   // Only actions stay in the button row.
   await expect(page.locator('#section-contact .links-row').getByRole('link', { name: 'GitHub' })).toHaveCount(0);
   // The Links Home Screen icon is for phones only.
@@ -210,7 +210,7 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await input.fill('links');
   await input.press('Enter');
   await expect(output).toContainText('https://github.com/chaudharyShub');
-  await expect(output).toContainText('https://hashnode.com/@shubhamworks');
+  await expect(output).toContainText('https://shubham-works.hashnode.dev');
 
   // help lists resume and points to the hidden commands; hint gives one clue at a time.
   await input.fill('help');
