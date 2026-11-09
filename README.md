@@ -93,8 +93,8 @@ worth a try.
   from, and colors chosen to pass WCAG AA. Lighthouse accessibility: 100.
 - **Tested.** Playwright browser tests at desktop and phone sizes cover the boot screen, windows,
   Terminal, Time Machine, contact form, likes, the game's top score and the phone layout.
-- **Own assets.** Inspired by Apple's design, not copied: the icons, wallpapers and app icon are
-  drawn for this site, and the fonts (Figtree and JetBrains Mono) are free and served from it.
+- **Own assets.** Inspired by Apple's design, not copied: the icons, emoji, wallpapers and app icon
+  are drawn for this site, and the fonts (Figtree and JetBrains Mono) are free and served from it.
 
 ## Contact
 

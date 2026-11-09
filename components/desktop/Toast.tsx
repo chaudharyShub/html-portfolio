@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { AppIcon } from '@/components/icons';
+import { Emoji } from '@/components/icons/Emoji';
 import { useOsActions, useOsState } from '@/components/os/OsProvider';
 import { APPLE_EASE, isPhoneLayout, prefersReducedMotion } from '@/lib/motion';
 
@@ -22,7 +23,8 @@ interface Drag {
 
 /**
  * Notification banner (top-right on desktop, top on phones). Show one with
- * `actions.showToast(title, message, emoji?)`; an emoji (on a tinted tile) replaces the app tile.
+ * `actions.showToast(title, message, { emoji?, titleIcon? })`; an emoji drawing (on a tinted tile)
+ * replaces the app tile, `titleIcon` puts a small one before the title.
  * It leaves the way it came in (slides right on computers, up on phones); on phones it can also be pushed up to dismiss it, like an iPhone banner.
  */
 export function Toast() {
@@ -125,14 +127,17 @@ export function Toast() {
         >
           {toast.emoji ? (
             <span className="toast-emoji" style={{ '--tint': toast.emoji.tint } as CSSProperties} aria-hidden="true">
-              {toast.emoji.emoji}
+              <Emoji name={toast.emoji.emoji} size={24} />
             </span>
           ) : (
             <AppIcon name="portfolio" size={36} />
           )}
           <div className="toast-text">
             <div className="toast-head">
-              <span className="toast-title">{toast.title}</span>
+              <span className="toast-title">
+                {toast.titleIcon && <Emoji name={toast.titleIcon} size={15} className="toast-title-icon" />}
+                {toast.title}
+              </span>
               <span className="toast-time" aria-hidden="true">
                 now
               </span>

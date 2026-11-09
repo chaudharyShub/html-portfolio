@@ -50,6 +50,17 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - Apple-inspired, not Apple assets: no Apple logo (the menu-bar logo is our winking-monitor
   `BrandMark`), own app tiles (`AppIcon`: CSS gradient rounded square + white SVG glyph), own
   gradient wallpapers, no Apple fonts (no bundled SF). "Inspired by", never copied.
+- **Emoji are our own drawings** (Nov 2026, user's request: "custom, not anyone else's" - so no
+  Twemoji / Noto / OpenMoji either): `Emoji` in `components/icons/Emoji.tsx`, 19 SVGs on a 32x32
+  grid in the app tiles' style, same on every system (device emoji differed). Like toast: wink,
+  love, grin, stars, glowheart, sparkheart, sparkles, popper, hands, star, party; unlike:
+  letdown, teary, pensive, plead, monitor (the app icon's monitor with a tear), broken; plus
+  coffee (Debug Runner) and check (contact toasts). Wink and monitor borrow the winking monitor.
+  Small loops (`.emo-*` in `styles/desktop.css`, none under reduced motion); each animated part
+  has no `transform` attribute so CSS can move it. Each instance makes its own gradient ids
+  (`useId`): one like-button copy is always hidden, and gradients in hidden copies don't paint.
+  `data-emoji="<name>"` on the svg (tests read it). The review page with all of them was a
+  claude.ai artifact ("Shubham Emoji Set"). Don't add device emoji to the UI; draw a new one.
 - Fonts (user's pick, Nov 2026): text uses **Figtree** (`--font-text`, read through `--font`, with
   the system stack as fallback) so Mac, Windows and Android look the same; the device's own font
   (Oct 2026 choice) differed on every system (SF / Segoe UI / Roboto). Inter was offered and
@@ -311,7 +322,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   jump), **memory leak** (a wide puddle, only a held jump clears it; width follows the speed),
   **merge conflict** (two bugs: two hops, one jump can't clear both), **404** (floats just over
   the runner's head: stay down or clear it with a full jump) - checked in a simulation at slow,
-  medium and top speed. Coffee ☕ (device emoji) = 4s "hotfix mode", nothing can hit you (orange
+  medium and top speed. Coffee (our cup drawing, `COFFEE_PATHS` drawn on the canvas with `Path2D`; the `coffee`
+  emoji shares them) = 4s "hotfix mode", nothing can hit you (orange
   glow). Every 100 points a version ships ("v1.1 shipped" ... "v2.0") and the speed steps up.
   Game over shows a random line from `GAME_OVER_LINES` (never the same twice in a row); Space or
   Restart starts again. Polish: squash/stretch, landing dust, a two-layer skyline scrolling at
@@ -484,7 +496,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Project status badges**: green for Completed, orange for In Progress (`--orange` /
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
   only Completed ones. The Terminal `projects` list is built from `VISIBLE_PROJECTS`.
-- **Notifications**: generic `showToast(title, msg)`; reuse it for confirmations. The banner
+- **Notifications**: generic `showToast(title, msg, options?)`; reuse it for confirmations.
+  `options.emoji` puts a drawing on a tinted tile instead of the app tile; `options.titleIcon`
+  puts a small one before the title (the contact form's "Message sent" / "Message ready to
+  send" use the `check`; they used to start with a text ✔). The banner
   (`components/desktop/Toast.tsx`) stays 4.5s, then leaves the way it came in (WAAPI, 320ms Apple
   curve: slides right on computers, up on phones; it used to just vanish - user's report, Nov
   2026). On phones it can be pushed up to dismiss it, like an iPhone banner (pointer drag on
@@ -504,15 +519,14 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   stays heart + count) and has our own tooltip instead of the browser's `title` (`.like-tip`,
   `role="tooltip"`, theme colors, after 0.3s hover or on keyboard focus): "Like this portfolio" /
   "Unlike". **Unlike** (user's request): clicking a liked heart takes the like back without a
-  toast: a random sad emoji (`SAD_EMOJIS`: 😞 😢 😔 🥺 😿 💔, never
-  the same twice in a row; just the emoji, no tile - user's pick) stands in for the heart for 2s (`.like-sad`, springs in with a little wobble, then
+  toast: a random sad drawing (`SAD_EMOJIS`: letdown, teary, pensive,
+  plead, monitor, broken; never the same twice in a row; just the drawing, no tile - user's pick) stands in for the heart for 2s (`.like-sad`, springs in with a little wobble, then
   the heart pops back; plain swap under reduced motion; user's idea, Nov 2026). The like toast
-  "Thanks for the like!" shows a random happy emoji instead of the app tile (`THANKS_EMOJIS` in
+  "Thanks for the like!" shows a random happy drawing instead of the app tile (`THANKS_EMOJIS` in
   `LikeButton.tsx`, 11 of them, never the same twice in a row; the user dropped the rainbow) on a
   tile shaped like the app tiles, tinted to match the emoji and toned by the theme (`showToast`'s
-  optional `ToastEmoji` `{ emoji, tint }`, `.toast-emoji` mixes `--tint` with `--surface`; the
-  tile's person silhouette read as an anonymous profile picture - user's report). Device emoji,
-  like the device font. The browser keeps its like's id in
+  optional `{ emoji: ToastEmoji }`, `ToastEmoji` = `{ emoji: EmojiName, tint }`, `.toast-emoji` mixes `--tint` with `--surface`; the
+  tile's person silhouette read as an anonymous profile picture - user's report). The browser keeps its like's id in
   localStorage `shubhamOsLiked` (`likeIdPreference`; an old saved `1` reads as not liked).
   Optimistic both ways (pop on like, none under reduced motion), then the server's total; a failed
   request is undone ("Like not saved" / "Like not removed"), a like over the daily limit too
