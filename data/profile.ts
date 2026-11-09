@@ -41,7 +41,7 @@ export const PROFILE = {
     hashnode: {
       label: 'Hashnode',
       detail: '@shubhamworks',
-      href: 'https://hashnode.com/@shubhamworks',
+      href: 'https://shubham-works.hashnode.dev',
     },
     instagram: {
       label: 'Instagram',
