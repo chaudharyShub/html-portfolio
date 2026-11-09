@@ -1,21 +1,12 @@
+import { clientIp, forbidden, fromOtherSite, NO_STORE } from '@/lib/api-response';
 import { addLike, getLikes, isLikeId, likesConfigured, removeLike } from '@/lib/likes-store';
 
 // Always read the live count; never cache this route.
 export const dynamic = 'force-dynamic';
 
-const NO_STORE = { 'Cache-Control': 'no-store' };
-
 function unavailable() {
   return Response.json({ error: 'Likes are not available' }, { status: 503, headers: NO_STORE });
 }
-
-/** Only this site's own pages may add or take back likes. */
-function fromOtherSite(request: Request): boolean {
-  const origin = request.headers.get('origin');
-  return Boolean(origin && new URL(origin).host !== request.headers.get('host'));
-}
-
-const forbidden = () => Response.json({ error: 'Forbidden' }, { status: 403, headers: NO_STORE });
 
 export async function GET() {
   if (!likesConfigured()) return unavailable();
@@ -31,10 +22,8 @@ export async function POST(request: Request) {
   if (!likesConfigured()) return unavailable();
   if (fromOtherSite(request)) return forbidden();
 
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
   try {
-    return Response.json(await addLike(ip), { headers: NO_STORE });
+    return Response.json(await addLike(clientIp(request)), { headers: NO_STORE });
   } catch {
     return unavailable();
   }

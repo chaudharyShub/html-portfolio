@@ -4,6 +4,7 @@ import { useEffect, useImperativeHandle, useRef, useState, type PointerEvent } f
 import { useOsApi, useOsState } from '@/components/os/OsProvider';
 import { createRunner, GAME_OVER_LINES, type Runner } from '@/lib/debug-runner';
 import { prefersReducedMotion } from '@/lib/motion';
+import { finishRun, loadTopScore, startRun, useTopScore } from '@/lib/runner-score-client';
 import { createStoredValue } from '@/lib/stored-value';
 import { STORAGE_KEYS } from '@/lib/storage';
 import { Dialog } from './Dialog';
@@ -18,6 +19,9 @@ const bestScore = createStoredValue(
   0,
 );
 
+/** "…" while loading. */
+const formatScore = (n: number | null) => (n === null ? '…' : n.toLocaleString('en-US'));
+
 /** A key held down at game over shouldn't restart straight away. */
 const RESTART_DELAY_MS = 400;
 
@@ -25,6 +29,7 @@ export function DebugRunnerDialog() {
   const { dialogs } = useOsState();
   const { actions, connect } = useOsApi();
   const best = bestScore.use();
+  const top = useTopScore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const runner = useRef<Runner | null>(null);
   const endedAt = useRef(0);
@@ -41,6 +46,7 @@ export function DebugRunnerDialog() {
         onScore: setScore,
         onGameOver: (final) => {
           if (final > bestScore.get()) bestScore.set(final);
+          void finishRun(final);
           let i = Math.floor(Math.random() * GAME_OVER_LINES.length);
           if (i === lastLine.current) i = (i + 1) % GAME_OVER_LINES.length;
           lastLine.current = i;
@@ -59,6 +65,7 @@ export function DebugRunnerDialog() {
 
   const start = () => {
     setOver(null);
+    startRun();
     runner.current?.start();
   };
 
@@ -72,6 +79,7 @@ export function DebugRunnerDialog() {
   const open = dialogs.game;
   useEffect(() => {
     if (!open) return;
+    loadTopScore();
     runner.current?.render();
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code !== 'Space') return;
@@ -82,6 +90,7 @@ export function DebugRunnerDialog() {
       if (r.isRunning()) r.press();
       else if (performance.now() - endedAt.current > RESTART_DELAY_MS) {
         setOver(null);
+        startRun();
         r.start();
       }
     };
@@ -104,6 +113,9 @@ export function DebugRunnerDialog() {
   };
   const onPointerUp = () => runner.current?.release();
 
+  // Hidden when the shared score can't be reached (no database, or it's down).
+  const showTop = top.available;
+
   return (
     <Dialog open={open} title="Debug Runner" onClose={actions.closeGame} boxClassName="wide">
       <div className="dialog-body">
@@ -118,8 +130,15 @@ export function DebugRunnerDialog() {
           <canvas ref={canvasRef} className="game-canvas" aria-hidden="true" />
           <div id="game-over-msg" style={{ display: over ? 'flex' : 'none' }} role="status">
             <span className="game-over-title">{over?.line}</span>
+            {showTop && top.record ? <span className="game-record">New top score for all players!</span> : null}
             <span className="game-over-sub">
-              Score: <span>{over?.score ?? 0}</span> | Best: <span>{best}</span>
+              Score: <span>{over?.score ?? 0}</span> | Your best: <span>{best}</span>
+              {showTop ? (
+                <>
+                  {' '}
+                  | Top score: <span>{formatScore(top.best)}</span>
+                </>
+              ) : null}
             </span>
             <button type="button" className="btn-primary" onClick={start}>
               Restart
@@ -131,7 +150,12 @@ export function DebugRunnerDialog() {
           404s, and grab the coffee for hotfix mode.
         </p>
         <p className="game-score-line">
-          Score: <span>{score}</span> &nbsp; Best: <span>{best}</span>
+          Score: <span>{score}</span> &nbsp; Your best: <span>{best}</span>
+          {showTop ? (
+            <span className="game-top" title="Highest score of everyone who has played">
+              &nbsp; Top score: <span>{formatScore(top.best)}</span>
+            </span>
+          ) : null}
         </p>
         <div className="dialog-buttons">
           <button type="button" onClick={actions.closeGame}>

@@ -29,7 +29,8 @@ const JUMP_BUFFER = 0.12;
 const BASE_SPEED = 180; // px/s
 const SPEED_STEP = 30; // per version shipped (100 points)
 const MAX_SPEED = 480;
-const POINTS_PER_SECOND = 10;
+/** Points come only from time survived; the server checks submitted scores against this. */
+export const POINTS_PER_SECOND = 10;
 const HOTFIX_SECONDS = 4;
 
 type Kind = 'bug' | 'leak' | 'notfound';

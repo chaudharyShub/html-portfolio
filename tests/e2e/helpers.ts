@@ -56,3 +56,26 @@ export async function stubLikes(page: Page, { start = 41, postOk = true, limitRe
   });
   return state;
 }
+
+/**
+ * Replaces the Debug Runner top-score API with an in-memory one, so tests never touch the real
+ * database. Returns what reached it.
+ */
+export async function stubTopScore(page: Page, { start = 120 } = {}) {
+  const state = { best: start, tickets: 0, submits: [] as { ticket: string; score: number }[] };
+  await page.route('**/api/debug-runner/run', async (route: Route) => {
+    state.tickets++;
+    await route.fulfill({ json: { ticket: `test-ticket-${state.tickets}` } });
+  });
+  await page.route('**/api/debug-runner', async (route: Route) => {
+    if (route.request().method() === 'POST') {
+      const body = route.request().postDataJSON() as { ticket: string; score: number };
+      state.submits.push(body);
+      const record = body.score > state.best;
+      if (record) state.best = body.score;
+      return route.fulfill({ json: { best: state.best, record } });
+    }
+    return route.fulfill({ json: { best: state.best } });
+  });
+  return state;
+}
