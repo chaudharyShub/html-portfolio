@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type AnimationEvent } from 'react';
 import { HeartIcon } from '@/components/icons';
 import { useOsActions, type ToastEmoji } from '@/components/os/OsProvider';
 import { loadLikes, removeLike, sendLike, useLikes } from '@/lib/likes-client';
+import { prefersReducedMotion } from '@/lib/motion';
 import { likeIdPreference } from '@/lib/preferences';
 
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
@@ -49,6 +50,12 @@ function pickSadEmoji(): string {
 /** How long the sad face stands in for the heart after an unlike. */
 const SAD_MS = 2000;
 
+/** How long a visitor looks around before the heart calls for attention (5s in `npm run dev`, to try it out). */
+const NUDGE_MS = process.env.NODE_ENV === 'development' ? 5_000 : 30_000;
+
+/** How long the nudge (beating heart, ripple ring) stays. */
+const NUDGE_SHOW_MS = 5_000;
+
 /** 'sad': a sad face replaces the heart after an unlike; 'back': the heart is popping back in. */
 type Mood = 'sad' | 'back' | null;
 
@@ -58,7 +65,8 @@ type Mood = 'sad' | 'back' | null;
  * removes a like for its id). Two copies are rendered: in the status bar (computers: "Like · 12"
  * with a tooltip) and in the title bar (phones: heart + count); CSS shows the right one.
  * Liking shows a toast with a random happy emoji; unliking swaps the heart
- * for a random sad face for a moment.
+ * for a random sad face for a moment. Visitors who haven't liked yet get a nudge once per page
+ * load, 30s in: the heart beats and a ring ripples out (5s; not under reduced motion).
  * Hidden when the likes service is unavailable (for example locally without the env vars).
  */
 export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
@@ -68,11 +76,41 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
   const [popping, setPopping] = useState(false);
   const [mood, setMood] = useState<Mood>(null);
   const [sadEmoji, setSadEmoji] = useState(SAD_EMOJIS[0]);
+  // The nudge: once per page load, only for visitors who haven't liked yet.
+  const [nudging, setNudging] = useState(false);
+  const [nudged, setNudged] = useState(false);
+  const loaded = count !== null;
   const sadTimer = useRef<number | undefined>(undefined);
   const tipId = useId();
 
   useEffect(loadLikes, []);
   useEffect(() => () => window.clearTimeout(sadTimer.current), []);
+
+  useEffect(() => {
+    if (!available || !loaded || liked || nudged || prefersReducedMotion()) return;
+    const pulse = () => {
+      setNudged(true);
+      setNudging(true);
+    };
+    // A pulse in a background tab would be missed: wait until the visitor is back.
+    const onVisible = () => {
+      if (!document.hidden) pulse();
+    };
+    const timer = window.setTimeout(() => {
+      if (document.hidden) document.addEventListener('visibilitychange', onVisible);
+      else pulse();
+    }, NUDGE_MS);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [available, loaded, liked, nudged]);
+
+  useEffect(() => {
+    if (!nudging) return;
+    const timer = window.setTimeout(() => setNudging(false), NUDGE_SHOW_MS);
+    return () => window.clearTimeout(timer);
+  }, [nudging]);
 
   if (!available) return null;
 
@@ -92,6 +130,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
       return;
     }
     setMood(null);
+    setNudging(false);
     setPopping(true);
     const result = await sendLike();
     if (result === 'saved') showToast('Thanks for the like!', 'It means a lot - Shubham', pickThanksEmoji());
@@ -113,7 +152,7 @@ export function LikeButton({ placement }: { placement: 'status' | 'title' }) {
   return (
     <button
       type="button"
-      className={`like-button like-button--${placement}${popping ? ' like-button--pop' : ''}${mood ? ` like-button--${mood}` : ''}`}
+      className={`like-button like-button--${placement}${popping ? ' like-button--pop' : ''}${nudging ? ' like-button--nudge' : ''}${mood ? ` like-button--${mood}` : ''}`}
       aria-pressed={liked}
       aria-label={label}
       aria-describedby={status ? tipId : undefined}

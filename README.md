@@ -48,7 +48,7 @@ This is a personal project, not an open-source template.
 | **System Settings** | Light / Dark / Auto, 8 gradient wallpapers and a Larger Text switch. |
 | **Phones** | Full-screen apps with a tab bar, a two-page Home Screen, a Dock, action sheets and bottom sheets. |
 | **Contact** | A contact form and every profile link in one place. |
-| **Likes** | A heart with a shared like count; click again to take it back. |
+| **Likes** | A heart with a shared like count that beats once after you've looked around for a bit; click again to take it back. |
 | **Debug Runner** | A small runner game: hop the bugs, hold to long-jump memory leaks, stay under the 404s, grab coffee for hotfix mode and ship a version every 100 points. Shows your score, your best and the top score of all players. |
 | **And more** | A sticky note, a resume "installer" and the Trash. |
 

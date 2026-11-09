@@ -516,7 +516,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   localStorage `shubhamOsLiked` (`likeIdPreference`; an old saved `1` reads as not liked).
   Optimistic both ways (pop on like, none under reduced motion), then the server's total; a failed
   request is undone ("Like not saved" / "Like not removed"), a like over the daily limit too
-  ("Like not counted"). While the count loads, three small dots rise one after another in place
+  ("Like not counted"). **Nudge** (user's request, Nov 2026: visitors didn't notice the
+  button): 30s into a visit (`NUDGE_MS`; 5s under `npm run dev` to try it out; counted from when the count loads, during the startup
+  screen), once per page load, only if not liked: for 5s the heart beats three times and a red
+  ring ripples out (`.like-button--nudge`, `heartNudge`, `likeRing`). A gentle two-beat pulse
+  alone was tried first: nobody noticed it (user's report); a red "Enjoying it? Leave a like"
+  bubble was added and then removed at the user's request. Waits for the tab to be visible; none under reduced motion. While the count loads, three small dots rise one after another in place
   of the number (`.like-dots`, still under reduced motion; user's request). The button is hidden
   when GET fails (no env vars, Upstash down). Tests:
   `tests/e2e/likes.spec.ts` (stubs `/api/likes` with ids; also checks the real route's 400/403).
