@@ -40,9 +40,13 @@ test('the tab bar sits at the bottom and switches sections', async ({ page }) =>
   await openDesktop(page);
   const bar = await box(page, '#window .tab-bar-wrap');
   expect(bar.y + bar.height).toBeCloseTo(page.viewportSize()!.height, 0);
-  // All five tabs fit on one row.
-  const tabs = page.locator('#window [role="tab"]');
+  // Five tabs fit on one row; Writing is a computer-sidebar tab (on phones the posts are on Home).
+  const tabs = page.locator('#window [role="tab"]').filter({ visible: true });
   await expect(tabs).toHaveCount(5);
+  await expect(page.locator('#tab-writing')).toBeHidden();
+  await expect(page.locator('#section-writing')).toBeAttached();
+  await page.locator('#section-writing').scrollIntoViewIfNeeded();
+  await expect(page.locator('#section-writing')).toBeVisible();
   const last = await box(page, '#tab-contact');
   expect(last.x + last.width).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
   expect(last.y).toBeGreaterThanOrEqual(bar.y);

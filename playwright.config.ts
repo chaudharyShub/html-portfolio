@@ -38,6 +38,8 @@ export default defineConfig({
       // and anything they don't stub fails fast instead of changing the real count.
       KV_REST_API_URL: 'http://127.0.0.1:9',
       KV_REST_API_TOKEN: 'test-token-not-real',
+      // Blog posts from fixture files instead of the live Hashnode feed and dev.to API.
+      BLOG_FIXTURES: '1',
       // Fake ownership codes, so the SEO test can see the verification tags.
       GOOGLE_SITE_VERIFICATION: 'test-google-code',
       BING_SITE_VERIFICATION: 'test-bing-code',

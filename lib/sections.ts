@@ -1,7 +1,7 @@
-export const SECTION_IDS = ['about', 'skills', 'projects', 'experience', 'contact'] as const;
+export const SECTION_IDS = ['about', 'skills', 'projects', 'experience', 'writing', 'contact'] as const;
 export type SectionId = (typeof SECTION_IDS)[number];
 
-export const TAB_IDS = ['home', 'about', 'projects', 'skills', 'contact'] as const;
+export const TAB_IDS = ['home', 'about', 'projects', 'skills', 'writing', 'contact'] as const;
 export type TabId = (typeof TAB_IDS)[number];
 
 export const TAB_LABELS: Record<TabId, string> = {
@@ -9,15 +9,17 @@ export const TAB_LABELS: Record<TabId, string> = {
   about: 'About',
   projects: 'Projects',
   skills: 'Skills',
+  writing: 'Writing',
   contact: 'Contact',
 };
 
 /** Which sections each tab shows, in display order. */
 export const TAB_SECTIONS: Record<TabId, readonly SectionId[]> = {
-  home: ['about', 'skills', 'projects', 'experience', 'contact'],
+  home: ['about', 'skills', 'projects', 'experience', 'writing', 'contact'],
   about: ['about', 'experience'],
   projects: ['projects'],
   skills: ['skills'],
+  writing: ['writing'],
   contact: ['contact'],
 };
 
@@ -25,6 +27,7 @@ export const TAB_SECTIONS: Record<TabId, readonly SectionId[]> = {
 export const SECTION_TO_TAB: Record<SectionId, TabId> = {
   about: 'about',
   experience: 'about',
+  writing: 'writing',
   skills: 'skills',
   projects: 'projects',
   contact: 'contact',
