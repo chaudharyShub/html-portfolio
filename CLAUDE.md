@@ -55,7 +55,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   grid in the app tiles' style, same on every system (device emoji differed). Like toast: wink,
   love, grin, stars, glowheart, sparkheart, sparkles, popper, hands, star, party; unlike:
   letdown, teary, pensive, plead, monitor (the app icon's monitor with a tear), broken; plus
-  coffee (Debug Runner) and check (contact toasts). Wink and monitor borrow the winking monitor.
+  coffee (Debug Runner), check (contact toasts), and the monitor again as the icon of the "Page
+  Not Found" alert (`app/not-found.tsx`). Wink and monitor borrow the winking monitor.
   Small loops (`.emo-*` in `styles/desktop.css`, none under reduced motion); each animated part
   has no `transform` attribute so CSS can move it. Each instance makes its own gradient ids
   (`useId`): one like-button copy is always hidden, and gradients in hidden copies don't paint.
@@ -408,6 +409,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `DISPLAY_FLAGS` in `lib/themes.ts`) so there is no flash. (CRT scanlines and mouse trails were
   removed in Oct 2026; a Reduce Transparency switch was tried and removed at the user's request.)
 - **Right-click menu**: New Folder (joke), Get Info, System Settings..., Clean Up, Reload.
+- **Page Not Found** (`app/not-found.tsx`, 404, not indexed): a Mac-style alert on the plain
+  wallpaper with the crying Sad monitor (Nov 2026, user's pick; it had the warning icon),
+  "moved to the Trash, or never existed", and "Back to Desktop".
 - **Trash** dialog (joke file list), quit alert on the main window's close button (Quit/Cancel just
   minimizes).
 - **Resume installer** (`InstallWizardDialog`): one centered page per step ("Step N of 4"):
@@ -585,6 +589,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **"Meanwhile in tech" on Time Machine cards** (one true software event per stop, e.g. "born
   the same year as JavaScript"): built and removed at the user's request before it shipped
   (Nov 2026).
+- **Startup-screen wink** (the app icon's open eye blinking once before the zoom out): built and
+  removed at the user's request before it shipped (Nov 2026).
 - **Bouncing "SHUBHAM OS" logo** and its joke error dialogs: replaced by the drifting wallpaper.
 - **Contact form via Vercel function + Resend**: reverted after local-testing friction (Web3Forms
   is used instead).

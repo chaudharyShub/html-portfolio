@@ -1,19 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { DialogIcon } from '@/components/icons';
+import { Emoji } from '@/components/icons/Emoji';
 
 export const metadata: Metadata = {
   title: 'Page Not Found',
   robots: { index: false },
 };
 
-/** macOS-style alert on the plain desktop. */
+/** macOS-style alert on the plain desktop, with our Sad monitor (a tear rolls down) as its icon. */
 export default function NotFound() {
   return (
     <main className="not-found">
       <div className="dialog-box dialog-box--alert" role="alertdialog" aria-labelledby="nf-title" aria-describedby="nf-text">
         <div className="dialog-icon">
-          <DialogIcon type="warning" />
+          <Emoji name="monitor" size={64} />
         </div>
         <h1 className="alert-title" id="nf-title">
           Page Not Found

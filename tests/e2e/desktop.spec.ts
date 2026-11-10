@@ -14,6 +14,16 @@ test('boot screen finishes on its own in 4-6 seconds', async ({ page }) => {
   expect(elapsed).toBeLessThan(6_500);
 });
 
+test('a wrong address shows the Page Not Found alert with the Sad monitor', async ({ page }) => {
+  const res = await page.goto('/no-such-page');
+  expect(res?.status()).toBe(404);
+  const alert = page.getByRole('alertdialog', { name: 'Page Not Found' });
+  await expect(alert.locator('svg[data-emoji="monitor"]')).toBeVisible();
+  await alert.getByRole('link', { name: 'Back to Desktop' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator('#boot-screen')).toBeAttached();
+});
+
 test('a key press skips the boot screen and shows the portfolio', async ({ page }) => {
   await openDesktop(page);
   await expect(page.locator('#window')).toBeVisible();
