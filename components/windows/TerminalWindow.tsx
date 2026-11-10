@@ -9,11 +9,12 @@ import {
   TERMINAL_PROMPT,
   runTerminalCommand,
   type TerminalEffects,
+  type TerminalPost,
 } from '@/lib/terminal';
 import { Window } from './Window';
 
 /** Terminal window (an app on phones). Output persists across minimize/close; only `clear` empties it. */
-export function TerminalWindow() {
+export function TerminalWindow({ posts }: { posts: TerminalPost[] }) {
   const { connect: { terminalWindow }, actions } = useOsApi();
   return (
     <Window
@@ -30,7 +31,7 @@ export function TerminalWindow() {
       onStatusChange={(status: WindowStatus) => actions.setWindowStatus('terminal', status)}
       onShown={actions.focusTerminal}
     >
-      <TerminalConsole />
+      <TerminalConsole posts={posts} />
     </Window>
   );
 }
@@ -77,7 +78,7 @@ function OutputLines({ text }: { text: string }) {
  * block cursor. The real <input> sits invisibly over the prompt line, so typing, history,
  * selection and phone keyboards all work; what you see is the typed text plus the cursor.
  */
-function TerminalConsole() {
+function TerminalConsole({ posts }: { posts: TerminalPost[] }) {
   const { connect, actions } = useOsApi();
   const [output, setOutput] = useState('');
   const [draft, setDraft] = useState('');
@@ -119,7 +120,7 @@ function TerminalConsole() {
     if (e.key === 'Enter') {
       const value = e.currentTarget.value;
       setLine('');
-      const result = runTerminalCommand(value, effects);
+      const result = runTerminalCommand(value, effects, posts);
       setOutput((current) => (result.kind === 'clear' ? '' : appendTerminalLines(current, result.lines)));
       history.current.push(value);
       historyIndex.current = history.current.length;

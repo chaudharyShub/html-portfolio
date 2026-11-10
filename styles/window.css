@@ -510,6 +510,10 @@ html:has(.window.maximized) .subwindow {
   background: linear-gradient(160deg, #ff7a93, #e8364f);
 }
 
+.tab-tile--writing {
+  background: linear-gradient(160deg, #8f9bff, #4f5bd5);
+}
+
 .tab-tile--contact {
   background: linear-gradient(160deg, #5be37a, #23a046);
 }

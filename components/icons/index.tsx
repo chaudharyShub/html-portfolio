@@ -203,7 +203,7 @@ export function WindowGlyph({ name }: { name: WindowGlyphName }) {
   );
 }
 
-export type TabGlyphName = 'home' | 'about' | 'projects' | 'skills' | 'contact';
+export type TabGlyphName = 'home' | 'about' | 'projects' | 'skills' | 'writing' | 'contact';
 
 /** Filled shapes: same outline (so the size matches), solid inside. */
 const solid = { ...line, fill: 'currentColor' } as const;
@@ -260,6 +260,27 @@ const TAB_GLYPHS: Record<TabGlyphName, { line: ReactNode; fill: ReactNode }> = {
   skills: {
     line: <path d="M12 3.8l2.4 5 5.4.7-4 3.8 1 5.4L12 16.1l-4.8 2.6 1-5.4-4-3.8 5.4-.7z" {...line} />,
     fill: <path d="M12 3.8l2.4 5 5.4.7-4 3.8 1 5.4L12 16.1l-4.8 2.6 1-5.4-4-3.8 5.4-.7z" {...solid} />,
+  },
+  // A pencil; the band below the eraser is cut out when filled.
+  writing: {
+    line: (
+      <>
+        <path d="M4.5 19.5l1-4.3L15.6 5.1a2 2 0 0 1 2.8 0l.5.5a2 2 0 0 1 0 2.8L8.8 18.5z" {...line} />
+        <path d="M13.6 7.1l3.3 3.3" {...line} />
+      </>
+    ),
+    fill: (
+      <>
+        <CutMask id="tab-cut-writing">
+          <path d="M13.6 7.1l3.3 3.3" {...cut} />
+        </CutMask>
+        <path
+          d="M4.5 19.5l1-4.3L15.6 5.1a2 2 0 0 1 2.8 0l.5.5a2 2 0 0 1 0 2.8L8.8 18.5z"
+          {...solid}
+          mask="url(#tab-cut-writing)"
+        />
+      </>
+    ),
   },
   contact: {
     line: (

@@ -24,7 +24,7 @@ export const PROJECTS: Project[] = [
     status: 'Completed',
     tech: ['React.js', 'TypeScript', 'Vite', 'Tailwind CSS', 'Supabase', 'PostgreSQL', 'MediaPipe'],
     description:
-      'AWS Certification Exam Simulator - a full-length timed mock exam engine with a 2,000 question bank and a learning mode with instant explanations, on a Supabase backend with Postgres, plus an opt-in AI-proctored exam mode with in-browser computer vision (MediaPipe).',
+      'AWS certification exam simulator for 3 exams (Cloud Practitioner, Solutions Architect – Associate, Developer – Associate), with a 3,600-question original bank, full-length timed mock exams, and a learning mode with instant explanations and spaced-repetition review. Built with React and TypeScript on a Supabase backend (Postgres, Auth, row-level security), plus an opt-in AI-proctored exam mode that runs computer vision in the browser (MediaPipe).',
     liveUrl: 'https://aws-cloud-prepare.vercel.app',
   },
   {

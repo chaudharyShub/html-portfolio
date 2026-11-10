@@ -18,6 +18,7 @@ import { InstallWizardDialog } from '@/components/dialogs/InstallWizardDialog';
 import { CloseConfirmDialog, LinksDialog, MessageDialog, TrashDialog } from '@/components/dialogs/SystemDialogs';
 import { TerminalWindow } from '@/components/windows/TerminalWindow';
 import { MainWindow, type MainWindowProps } from '@/components/windows/MainWindow';
+import type { TerminalPost } from '@/lib/terminal';
 import { BootScreen } from './BootScreen';
 import { OsProvider, useOsActions } from './OsProvider';
 import { useDesktopEvents } from './useDesktopEvents';
@@ -26,7 +27,12 @@ import { useDesktopEvents } from './useDesktopEvents';
  * Root of the interactive desktop. Portfolio content arrives as server-rendered props and is
  * slotted into the main window; everything else here is client-side "OS" chrome.
  */
-export function ShubhamOS(props: MainWindowProps) {
+interface ShubhamOSProps extends MainWindowProps {
+  /** The latest blog posts, for the Terminal's `blog` command. */
+  posts: TerminalPost[];
+}
+
+export function ShubhamOS(props: ShubhamOSProps) {
   return (
     <OsProvider>
       <Desktop {...props} />
@@ -34,7 +40,7 @@ export function ShubhamOS(props: MainWindowProps) {
   );
 }
 
-function Desktop(props: MainWindowProps) {
+function Desktop({ posts, ...props }: ShubhamOSProps) {
   const { bootComplete } = useOsActions();
   useDesktopEvents();
 
@@ -49,7 +55,7 @@ function Desktop(props: MainWindowProps) {
       <MenuBar />
       <AppMenu />
       <MainWindow {...props} />
-      <TerminalWindow />
+      <TerminalWindow posts={posts} />
       <Dock />
       <MessageDialog />
       <CloseConfirmDialog />

@@ -27,7 +27,7 @@ test('the page tells search engines who this is', async ({ request }) => {
   expect(byType('Person').sameAs).toContain('https://dev.to/shubham_works');
 
   // All the portfolio text is in the HTML, not only after JavaScript runs.
-  for (const text of ['About Me', 'Agent Fabric', 'Quokka Labs', 'CloudPrep']) expect(html).toContain(text);
+  for (const text of ['About Me', 'Agent Fabric', 'Quokka Labs', 'CloudPrep' /* , 'Older Post About npm' (Writing, turned off) */]) expect(html).toContain(text);
 });
 
 test('robots.txt and the sitemap let crawlers find the page and the resume', async ({ request }) => {

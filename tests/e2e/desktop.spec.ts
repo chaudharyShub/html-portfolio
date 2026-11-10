@@ -70,6 +70,48 @@ test('projects are grouped by company, then personal projects', async ({ page })
   );
 });
 
+// The Writing section is turned off for now (Nov 2026); switch back to test() when it returns.
+test.skip('the Writing tab lists the latest blog posts as rows with a cover, newest first', async ({ page }) => {
+  // Cover images go through next/image; answer with a local picture instead of the network.
+  await page.route('**/_next/image**', (route) => route.fulfill({ path: 'public/favicon.png' }));
+  await openDesktop(page);
+  const writing = page.locator('#section-writing');
+  await page.getByRole('tab', { name: 'About' }).click();
+  await expect(writing).toBeHidden();
+
+  await page.getByRole('tab', { name: 'Writing' }).click();
+  await expect(writing.getByRole('heading', { name: 'Writing', exact: true })).toBeVisible();
+  await expect(page.locator('#section-about')).toBeHidden();
+  // From tests/fixtures/blog: emoji and entities cleaned up, sorted by date, reading time from the word count.
+  const rows = writing.locator('.post-row');
+  await expect(rows.locator('.post-title')).toHaveText(['Newest Post: Tests & Fixtures', 'Older Post About npm']);
+  await expect(rows.first().locator('.post-meta')).toHaveText('Nov 9, 2026 · 4 min read · dev.to ↗');
+  // The Hashnode cover wins over the dev.to one; a post without a cover gets the pencil tile.
+  await expect(rows.first().locator('.post-thumb img')).toHaveAttribute('src', /cdn\.hashnode\.com%2Fuploads%2Fcovers%2Ftest%2Fnewest\.jpg/);
+  await expect(rows.nth(1).locator('.post-thumb img')).toHaveCount(0);
+  await expect(rows.nth(1).locator('.post-thumb-empty')).toBeVisible();
+  // The row opens the Hashnode post; dev.to has its own link, only where the post was cross-posted.
+  await expect(rows.first().getByRole('link', { name: /on Hashnode/ })).toHaveAttribute(
+    'href',
+    'https://shubham-works.hashnode.dev/newest-post',
+  );
+  await expect(rows.first().getByRole('link', { name: /on dev\.to/ })).toHaveAttribute(
+    'href',
+    'https://dev.to/shubham_works/newest-post-1abc',
+  );
+  await expect(rows.nth(1).getByRole('link', { name: /on dev\.to/ })).toHaveCount(0);
+  await expect(writing).not.toContainText('only on dev.to');
+
+  // Clicking anywhere on the row (here: the cover) opens the post; the dev.to link opens dev.to.
+  await page.context().route(/hashnode\.dev|dev\.to\/shubham_works/, (route) => route.fulfill({ body: 'post' }));
+  const hashnode = page.waitForEvent('popup');
+  await rows.first().click({ position: { x: 50, y: 30 } });
+  expect((await hashnode).url()).toBe('https://shubham-works.hashnode.dev/newest-post');
+  const devto = page.waitForEvent('popup');
+  await rows.first().locator('.post-devto').click();
+  expect((await devto).url()).toBe('https://dev.to/shubham_works/newest-post-1abc');
+});
+
 test('the Shubham Works pill sits in the bottom-left corner and opens the other sites', async ({ page }) => {
   await openDesktop(page);
   const footer = page.locator('.made-by');
@@ -222,10 +264,26 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await expect(output).toContainText('https://github.com/chaudharyShub');
   await expect(output).toContainText('https://shubham-works.hashnode.dev');
 
+  // The blog command is turned off with the Writing section (Nov 2026); uncomment when it returns.
+  // // blog lists the posts; blog <n> opens one in a new tab.
+  // await input.fill('blog');
+  // await input.press('Enter');
+  // await expect(output).toContainText(' 1. Newest Post: Tests & Fixtures');
+  // await expect(output).toContainText('Nov 3, 2026 · 1 min read');
+  // const popup = page.waitForEvent('popup');
+  // await page.context().route('https://shubham-works.hashnode.dev/**', (route) => route.fulfill({ body: 'post' }));
+  // await input.fill('blog 2');
+  // await input.press('Enter');
+  // expect((await popup).url()).toBe('https://shubham-works.hashnode.dev/older-post');
+  // await expect(output).toContainText('Opening "Older Post About npm"...');
+  // await input.fill('blog 9');
+  // await input.press('Enter');
+  // await expect(output).toContainText("blog: no post '9'. Pick 1-2");
+
   // help lists resume and points to the hidden commands; hint gives one clue at a time.
   await input.fill('help');
   await input.press('Enter');
-  await expect(output).toContainText('resume, links');
+  await expect(output).toContainText('resume, links'); // 'resume, blog, links' with the Writing section
   await expect(output).toContainText("3 commands are hidden. Type 'hint' for a clue.");
   await input.fill('hint');
   await input.press('Enter');

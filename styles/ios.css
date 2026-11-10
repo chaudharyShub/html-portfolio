@@ -524,6 +524,33 @@
     transition: color 0.2s ease;
   }
 
+  /* The phone tab bar holds five tabs; there the posts are on the Home tab. */
+  #tab-writing {
+    display: none;
+  }
+
+  /* Blog rows: a smaller cover beside the text. */
+  .post-row {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .post-thumb {
+    width: 96px;
+    margin-top: 2px;
+  }
+
+  /* The column is narrow: the title says enough, and dev.to gets its own line. */
+  .post-summary,
+  .post-sep {
+    display: none;
+  }
+
+  .post-devto-wrap {
+    display: block;
+    margin-top: 2px;
+  }
+
   .tab:not(.active):hover {
     color: var(--text-2);
     background: none;
