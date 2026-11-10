@@ -87,8 +87,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   and passes them as props into the client desktop root `components/os/ShubhamOS.tsx`. All content
   is in the server HTML (SEO); the client only chooses which sections a tab shows and their order.
 - Content lives in `data/*.ts` (profile, about, skills, projects, experience, education); blog
-  posts come from the blogs themselves (`lib/blog.ts`, see Features: Writing). `app/page.tsx`
-  is ISR with `revalidate = 86400` (a literal; `BLOG_REVALIDATE` in `lib/blog.ts` matches).
+  posts come from the blogs themselves (`lib/blog.ts`, see Features: Writing - turned off for now,
+  so the page is static; with it on, `app/page.tsx` is ISR with `revalidate = 86400`, a literal;
+  `BLOG_REVALIDATE` in `lib/blog.ts` matches).
   Entries with `hidden: true` (BrowseAnywhere project, ShepHertz job) are kept but not rendered.
 - `components/os/OsProvider.tsx`: one reducer for dialogs, menus, tab, toast and window status, plus
   stable actions (`useOsActions()`): `showToast`, `showMessage`, `openDialog`, `goToSection`,
@@ -193,7 +194,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   window narrows; the chips always stay; "Made with" can also shorten with an ellipsis. Phones
   keep the wrapped, centered footer. Test: `desktop.spec.ts`.
 - Tabs (`lib/sections.ts`, Oct 2026): Home (every section), About (About + Experience), Projects,
-  Skills, Writing, Contact. Skills got its own tab at the user's request (it used to sit under Projects);
+  Skills, Contact (and Writing, turned off for now - see Features). Skills got its own tab at the user's request (it used to sit under Projects);
   Writing too (Nov 2026, pencil `TabGlyph`, indigo tile). The phone tab bar holds five: Writing's
   tab is hidden there (`#tab-writing` in `ios.css`) and phones find the posts on Home.
 - Profile photo: `public/profile.jpg` (192px square crop of the user's photo; the original is kept
@@ -308,8 +309,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   ~4.4s. Click or any key skips it ("Tap to skip" on touch screens). Timing is intentionally fixed;
   total must stay within 4-6 seconds if changed.
 - **Terminal** (`components/windows/TerminalWindow.tsx`, commands in `lib/terminal.ts`): prompt
-  `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `blog` (lists the Writing
-  posts; `blog <n>` opens one, `blog all` the blog; posts come down from `app/page.tsx` as the
+  `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `blog` (turned off with
+  the Writing section; when on it lists the Writing posts; `blog <n>` opens one, `blog all` the blog; posts come down from `app/page.tsx` as the
   `posts` prop of `ShubhamOS` -> `TerminalWindow`), `links` (plus one
   command per profile link id), `sudo hire-me`, history
   with Up/Down, zsh-style "command not found". Hidden commands (`sudo hire-me`, `matrix`,
@@ -473,7 +474,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   To add a link: a new id in `ProfileLinkId`, an entry in `PROFILE.links`, a glyph in
   `LINK_GLYPHS` and a `.link-tile--<id>` gradient in `styles/portfolio.css`.
 - **Writing** (`components/portfolio/Writing.tsx`, `lib/blog.ts`, Nov 2026, user's request: show
-  the dev.to and Hashnode blogs): its own sidebar tab on computers (hidden in the phone tab bar,
+  the dev.to and Hashnode blogs). **Turned off for now** (Nov 2026, the user's call: "don't want that feature right now"; built, merged, then commented out, like the Shubham Works pill). The code, CSS, fixtures and `next/image` hosts stay. To bring it back, uncomment the `writing` lines in `lib/sections.ts`, `app/page.tsx` (the `getBlogPosts` fetch, `revalidate`, `async`, the `posts` prop and the section) and the `blog` command in `lib/terminal.ts` (plus `'blog, '` in `help`, `_posts` -> `posts`), then un-skip / uncomment the Writing checks in `desktop.spec.ts`, `mobile.spec.ts` and `seo.spec.ts`, and add Writing back to the README. What it does when on:
+  it has its own sidebar tab on computers (hidden in the phone tab bar,
   which is full) and a section after Experience on Home. The latest 6 posts as rows in one grouped
   list (`.post-list`, like the Contact links card): a 120px cover thumbnail (`.post-thumb`, 1.91:1,
   `next/image` `fill`; 96px on phones; Hashnode's `<enclosure>`, else the dev.to copy's
