@@ -1,6 +1,7 @@
 import { CareerUptime, YearsExperience } from '@/components/live/CareerStats';
 import { ABOUT_SUMMARY, CORE_MODULES, STATIC_STATS } from '@/data/about';
 import { PROFILE } from '@/data/profile';
+import { careerYears } from '@/lib/uptime';
 
 export function About() {
   return (
@@ -32,7 +33,7 @@ export function About() {
       <div className="stats-grid">
         <div className="stat-box">
           <div className="num">
-            <YearsExperience />
+            <YearsExperience serverYears={careerYears(new Date())} />
           </div>
           <div className="lbl">Years Experience</div>
         </div>

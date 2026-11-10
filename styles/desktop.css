@@ -66,6 +66,10 @@
   background: linear-gradient(160deg, #a78bfa, #6d28d9);
 }
 
+.app-icon--writing {
+  background: linear-gradient(160deg, #8f9bff, #4f5bd5);
+}
+
 .app-icon--more {
   background: linear-gradient(160deg, #98989d, #48484a);
 }

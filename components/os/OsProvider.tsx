@@ -5,7 +5,7 @@ import type { DialogIconType } from '@/components/icons';
 import type { EmojiName } from '@/components/icons/Emoji';
 import { SECTION_TO_TAB, type SectionId, type TabId } from '@/lib/sections';
 
-export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard' | 'timeMachine' | 'about' | 'activity' | 'links';
+export type DialogId = 'message' | 'closeConfirm' | 'trash' | 'game' | 'settings' | 'wizard' | 'timeMachine' | 'about' | 'activity' | 'links' | 'writing';
 export type WindowStatus = 'open' | 'minimized' | 'closed';
 export type WindowKey = 'main' | 'terminal';
 
@@ -92,7 +92,7 @@ type Action =
   | { type: 'windowStatus'; key: WindowKey; status: WindowStatus };
 
 const initialState: OsState = {
-  dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false, timeMachine: false, about: false, activity: false, links: false },
+  dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false, timeMachine: false, about: false, activity: false, links: false, writing: false },
   message: { icon: 'info', title: 'Shubham OS', text: '' },
   wizardSession: 0,
   tab: 'home',

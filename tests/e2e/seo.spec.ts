@@ -27,7 +27,10 @@ test('the page tells search engines who this is', async ({ request }) => {
   expect(byType('Person').sameAs).toContain('https://dev.to/shubham_works');
 
   // All the portfolio text is in the HTML, not only after JavaScript runs.
-  for (const text of ['About Me', 'Agent Fabric', 'Quokka Labs', 'CloudPrep' /* , 'Older Post About npm' (Writing, turned off) */]) expect(html).toContain(text);
+  for (const text of ['About Me', 'Agent Fabric', 'Quokka Labs', 'CloudPrep', 'Older Post About npm']) expect(html).toContain(text);
+  // The years of experience are in the HTML too, not a "-" placeholder until the clock starts.
+  expect(html).toMatch(/Experience:<\/b> (<!-- -->)?\d+\+ Years/);
+  expect(html).toMatch(/<div class="num">\d+\+<\/div><div class="lbl">Years Experience/);
 });
 
 test('robots.txt and the sitemap let crawlers find the page and the resume', async ({ request }) => {
@@ -39,4 +42,14 @@ test('robots.txt and the sitemap let crawlers find the page and the resume', asy
   expect(sitemap).toMatch(/<loc>[^<]+\/<\/loc>/);
   expect(sitemap).toMatch(/<loc>[^<]+\/Shubham_resume\.pdf<\/loc>/);
   expect((await request.get('/Shubham_resume.pdf')).status()).toBe(200);
+});
+
+test('every response carries the security headers (no framing by other sites)', async ({ request }) => {
+  for (const path of ['/', '/api/likes', '/Shubham_resume.pdf']) {
+    const headers = (await request.get(path)).headers();
+    expect(headers['x-frame-options'], path).toBe('DENY');
+    expect(headers['content-security-policy'], path).toBe("frame-ancestors 'none'");
+    expect(headers['x-content-type-options'], path).toBe('nosniff');
+    expect(headers['referrer-policy'], path).toBe('strict-origin-when-cross-origin');
+  }
 });

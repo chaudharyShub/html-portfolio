@@ -11,11 +11,16 @@ function useCareerUptime() {
   return now === null ? null : computeUptime(CAREER_START, new Date(now));
 }
 
-/** Whole years since the career start, e.g. "4+" or "4+ Years". */
-export function YearsExperience({ withUnit = false }: { withUnit?: boolean }) {
+/**
+ * Whole years since the career start, e.g. "4+" or "4+ Years". `serverYears` (worked out when the
+ * page is rendered on the server) fills the server HTML and hydration, so crawlers, link previews
+ * and the first paint see the number instead of a dash; then the live clock takes over.
+ */
+export function YearsExperience({ withUnit = false, serverYears }: { withUnit?: boolean; serverYears?: number }) {
   const uptime = useCareerUptime();
-  if (!uptime) return <>-</>;
-  return <>{withUnit ? `${uptime.years}+ Years` : `${uptime.years}+`}</>;
+  const years = uptime?.years ?? serverYears;
+  if (years === undefined) return <>-</>;
+  return <>{withUnit ? `${years}+ Years` : `${years}+`}</>;
 }
 
 /** Live "IT Career Uptime" ticker: 4y 1m 21d 13:05:09. */

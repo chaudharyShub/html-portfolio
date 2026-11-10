@@ -11,6 +11,7 @@ const TRASH_ITEMS = [
   'unused_css.css',
   'todo_list_i_will_never_finish.txt',
   'a_bug_i_fixed_by_accident.js',
+  'sad_memories.js',
   'impostor_syndrome.app (permission denied)',
 ];
 

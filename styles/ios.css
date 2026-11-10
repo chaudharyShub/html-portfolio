@@ -524,11 +524,6 @@
     transition: color 0.2s ease;
   }
 
-  /* The phone tab bar holds five tabs; there the posts are on the Home tab. */
-  #tab-writing {
-    display: none;
-  }
-
   /* Blog rows: a smaller cover beside the text. */
   .post-row {
     align-items: flex-start;
@@ -738,7 +733,8 @@
 
   .dialog-box--panel,
   .dialog-box--panel.wide,
-  .dialog-box--panel.wizard-box {
+  .dialog-box--panel.wizard-box,
+  .dialog-box--panel.writing-box {
     width: 100%;
     max-height: 92dvh;
     border-radius: 14px 14px 0 0;

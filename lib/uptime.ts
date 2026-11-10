@@ -1,3 +1,5 @@
+import { PROFILE } from '@/data/profile';
+
 export interface Uptime {
   years: number;
   months: number;
@@ -42,4 +44,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 export function formatUptime(u: Uptime): string {
   return `${u.years}y ${u.months}m ${u.days}d ${pad(u.hours)}:${pad(u.minutes)}:${pad(u.seconds)}`;
+}
+
+/** Whole years of career at `now`, for server-rendered text (the live readouts use the clock). */
+export function careerYears(now: Date): number {
+  return computeUptime(new Date(PROFILE.careerStart), now).years;
 }

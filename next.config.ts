@@ -20,6 +20,20 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Security headers on every response. No other site may show this one in a frame (so
+        // nobody can trick visitors into clicking Like on a hidden copy). A full script CSP is
+        // left out on purpose: Next.js ships the page data as inline scripts, and the theme
+        // pre-paint script is inline too.
+        source: '/:path*',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()' },
+        ],
+      },
+      {
         // The clean-up service worker (public/sw.js) must always be fetched fresh.
         source: '/sw.js',
         headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }],

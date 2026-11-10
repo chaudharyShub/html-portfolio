@@ -1,5 +1,6 @@
 import { YearsExperience } from '@/components/live/CareerStats';
 import { PROFILE } from '@/data/profile';
+import { careerYears } from '@/lib/uptime';
 
 /**
  * Name, role, status and experience. On desktop it is the profile card at the top of the
@@ -21,7 +22,7 @@ export function InfoBar() {
         <b>Status:</b> <span className="status-dot">&#9679;</span> ONLINE
       </span>
       <span className="info-item info-exp">
-        <b>Experience:</b> <YearsExperience withUnit />
+        <b>Experience:</b> <YearsExperience withUnit serverYears={careerYears(new Date())} />
       </span>
     </header>
   );

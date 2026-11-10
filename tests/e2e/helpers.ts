@@ -85,3 +85,14 @@ export async function stubTopScore(
   });
   return state;
 }
+
+/** Waits until every one-off animation on the page (sheet slide-ups, springs) has finished. Looping ones (wallpaper, emoji) are ignored. */
+export async function animationsSettled(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.getAnimations().filter((a) => a.playState === 'running' && a.effect?.getTiming().iterations !== Infinity).length,
+      ),
+    )
+    .toBe(0);
+}

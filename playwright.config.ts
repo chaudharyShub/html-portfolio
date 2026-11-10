@@ -10,6 +10,9 @@ const PORT = 3200;
 export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,
+  // Some tests (contact form, Terminal, long Debug Runner runs) take up to ~25s on a busy machine;
+  // the default 30s made them time out now and then when the whole suite ran in parallel.
+  timeout: 60_000,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: 'list',

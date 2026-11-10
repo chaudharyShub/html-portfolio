@@ -106,6 +106,9 @@ test('the API refuses to remove a like without a real id, or from another site',
     headers: { origin: 'https://example.com' },
   });
   expect(foreign.status()).toBe(403);
+  // `Origin: null` (sandboxed frames) is refused too, not a server error.
+  const nullOrigin = await request.post('/api/likes', { headers: { origin: 'null' } });
+  expect(nullOrigin.status()).toBe(403);
 });
 
 test('30s into a visit the heart beats once, only if not liked yet', async ({ page }) => {

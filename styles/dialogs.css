@@ -41,6 +41,17 @@
   width: 480px;
 }
 
+/* The Writing app: wide enough for a cover beside each title; the list scrolls on short screens. */
+.dialog-box.writing-box {
+  width: min(620px, calc(100vw - 32px));
+}
+
+.writing-body {
+  max-height: min(600px, calc(100dvh - 200px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* ===== Alerts ===== */
 .dialog-box--alert {
   width: 280px;

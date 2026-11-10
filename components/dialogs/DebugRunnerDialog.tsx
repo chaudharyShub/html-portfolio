@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useImperativeHandle, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useEffectEvent, useImperativeHandle, useRef, useState, type PointerEvent } from 'react';
 import { useOsApi, useOsState } from '@/components/os/OsProvider';
 import { createRunner, GAME_OVER_LINES, type Runner } from '@/lib/debug-runner';
 import { prefersReducedMotion } from '@/lib/motion';
@@ -36,6 +36,7 @@ export function DebugRunnerDialog() {
   const lastLine = useRef(-1);
   const [score, setScore] = useState(0);
   const [over, setOver] = useState<{ score: number; line: string } | null>(null);
+  const isOpen = useEffectEvent(() => dialogs.game);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,6 +58,11 @@ export function DebugRunnerDialog() {
       prefersReducedMotion(),
     );
     runner.current = r;
+    // The dialog loads on first open (ShubhamOS), after openGame() already asked for a start.
+    if (isOpen()) {
+      startRun();
+      r.start();
+    }
     return () => {
       r.destroy();
       runner.current = null;

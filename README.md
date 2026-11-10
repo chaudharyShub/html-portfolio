@@ -47,6 +47,7 @@ This is a personal project, not an open-source template.
 | **About This Developer** | A Mac-style About window with a playful spec sheet. |
 | **System Settings** | Light / Dark / Auto, 8 gradient wallpapers and a Larger Text switch. |
 | **Phones** | Full-screen apps with a tab bar, a two-page Home Screen, a Dock, action sheets and bottom sheets. |
+| **Writing** | A desktop app with my latest posts from Hashnode and dev.to and their cover images, updated by themselves when I publish. |
 | **Contact** | A contact form and every profile link in one place. |
 | **Likes** | A heart with a shared like count that beats once after you've looked around for a bit; click again to take it back. |
 | **Debug Runner** | A small runner game: hop the bugs, hold to long-jump memory leaks, stay under the 404s, grab coffee for hotfix mode and ship a version every 100 points. Shows your score, your best and the top score of all players. |
@@ -61,6 +62,7 @@ shubham@portfolio ~ % whoami
 shubham@portfolio ~ % skills
 shubham@portfolio ~ % projects
 shubham@portfolio ~ % resume
+shubham@portfolio ~ % blog
 shubham@portfolio ~ % links
 shubham@portfolio ~ % sudo hire-me
 ```
@@ -77,6 +79,9 @@ worth a try.
 - **Server-rendered content.** Every portfolio section is a Server Component, so all the text is
   in the HTML for search engines before any JavaScript runs; the client desktop only decides
   which sections a tab shows.
+- **Blog posts without a CMS.** The Writing app reads my Hashnode RSS feed (and dev.to's API
+  for the cross-post links) on the server and refreshes once a day with incremental static
+  regeneration, so new posts appear without a deploy.
 - **One generic window.** Drag, 8-edge resize, snapping, zoom and minimize live in a single
   `Window` component that every app reuses.
 - **Smooth animations on modest hardware.** The genie minimize warps thin copies of the window

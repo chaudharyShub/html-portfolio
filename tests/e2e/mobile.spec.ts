@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openDesktop, stubLikes } from './helpers';
+import { animationsSettled, openDesktop, stubLikes } from './helpers';
 
 /** Phones get the iOS layout: full-screen apps, a Home Screen, sheets and a dock. */
 
@@ -25,7 +25,7 @@ async function goHome(page: Page) {
 test('the portfolio opens as a full-screen app', async ({ page }) => {
   await openDesktop(page);
   await noHorizontalScroll(page);
-  await page.waitForTimeout(700); // let the open animation settle
+  await animationsSettled(page); // let the open animation settle
   const win = await box(page, '#window');
   const viewport = page.viewportSize()!;
   expect(Math.round(win.x)).toBe(0);
@@ -40,14 +40,9 @@ test('the tab bar sits at the bottom and switches sections', async ({ page }) =>
   await openDesktop(page);
   const bar = await box(page, '#window .tab-bar-wrap');
   expect(bar.y + bar.height).toBeCloseTo(page.viewportSize()!.height, 0);
-  // Five tabs fit on one row. (With the Writing section, turned off for now, Writing is a
-  // computer-sidebar tab and on phones the posts are on Home.)
-  const tabs = page.locator('#window [role="tab"]').filter({ visible: true });
+  // All five tabs fit on one row.
+  const tabs = page.locator('#window [role="tab"]');
   await expect(tabs).toHaveCount(5);
-  // await expect(page.locator('#tab-writing')).toBeHidden();
-  // await expect(page.locator('#section-writing')).toBeAttached();
-  // await page.locator('#section-writing').scrollIntoViewIfNeeded();
-  // await expect(page.locator('#section-writing')).toBeVisible();
   const last = await box(page, '#tab-contact');
   expect(last.x + last.width).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
   expect(last.y).toBeGreaterThanOrEqual(bar.y);
@@ -194,7 +189,7 @@ test('the More button opens an action sheet with Cancel on screen', async ({ pag
   await expect(page.getByRole('menuitem', { name: 'Download Resume' })).toBeVisible();
   // No section shortcuts: the app's tab bar has them.
   await expect(page.getByRole('menuitem', { name: 'Experience' })).toHaveCount(0);
-  await page.waitForTimeout(600); // let the sheet finish sliding up
+  await animationsSettled(page); // let the sheet finish sliding up
   const c = (await cancel.boundingBox())!;
   expect(c.y + c.height).toBeLessThanOrEqual(page.viewportSize()!.height);
   await cancel.tap();
@@ -211,7 +206,7 @@ test('Settings opens as a bottom sheet', async ({ page }) => {
   const sheet = page.getByRole('dialog', { name: 'System Settings' });
   await expect(sheet).toBeVisible();
   // Let the slide-up finish before measuring.
-  await page.waitForTimeout(600);
+  await animationsSettled(page);
   const b = (await sheet.boundingBox())!;
   const viewport = page.viewportSize()!;
   expect(b.x).toBe(0);
@@ -235,7 +230,7 @@ for (const [name, opener] of [
   await expect(sheet).toBeVisible();
   // Scrolling sheets must not rubber-band (iOS showed an empty gap above the pulled-down content).
   await expect(sheet).toHaveCSS('overscroll-behavior-y', 'none');
-  await page.waitForTimeout(600);
+  await animationsSettled(page);
   const b = (await sheet.boundingBox())!;
   const x = b.x + b.width / 2;
   const y = b.y + 20; // the title bar, by the grabber
@@ -307,6 +302,19 @@ test('the Links icon sits before Trash and opens every profile link in a sheet',
   // The sheet's "Done" button.
   await page.getByRole('dialog', { name: 'Find me online' }).getByRole('button', { name: 'Close' }).tap();
   await expect(list).toBeHidden();
+});
+
+test('the Writing icon on the Home Screen opens the blog posts in a sheet', async ({ page }) => {
+  await page.route('**/_next/image**', (route) => route.fulfill({ path: 'public/favicon.png' }));
+  await openDesktop(page);
+  await goHome(page);
+  await expect(page.locator('#icon-writing')).toBeInViewport();
+  await page.locator('#icon-writing').tap();
+  const sheet = page.getByRole('dialog', { name: 'Writing' });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.locator('.post-title')).toHaveText(['Newest Post: Tests & Fixtures', 'Older Post About npm']);
+  await sheet.getByRole('button', { name: 'Close' }).tap();
+  await expect(sheet).toBeHidden();
 });
 
 test('the Home Screen has two pages: icons first, then the Shubham Works widget', async ({ page }) => {
