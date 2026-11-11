@@ -8,7 +8,8 @@ export async function openDesktop(page: Page) {
   await page.keyboard.press('Space');
   await expect(page.locator('#boot-screen')).toBeHidden();
   // The portfolio window springs open; let it settle so measurements are final.
-  await expect.poll(() => page.locator('#window').evaluate((el) => el.getAnimations().length)).toBe(0);
+  // The first tests of a run hit a freshly started server on a busy machine; 5s wasn't always enough.
+  await expect.poll(() => page.locator('#window').evaluate((el) => el.getAnimations().length), { timeout: 15_000 }).toBe(0);
 }
 
 /**

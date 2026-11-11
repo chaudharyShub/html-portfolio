@@ -437,9 +437,9 @@ test('the close button asks before "quitting" and then minimizes', async ({ page
   await expect(win).toBeHidden();
 });
 
-test('Time Machine opens from the Dock and travels from today back to birth', async ({ page }) => {
+test('Time Machine opens from the desktop and travels from today back to birth', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#dock-timemachine').click({ force: true });
+  await page.locator('#icon-timemachine').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
   const ticks = dialog.getByRole('tab');
@@ -491,7 +491,7 @@ test('Time Machine opens from the Dock and travels from today back to birth', as
 
 test('the green button takes the Time Machine full screen, Escape leaves it first', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#dock-timemachine').click({ force: true });
+  await page.locator('#icon-timemachine').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
   const viewport = page.viewportSize()!;
@@ -595,9 +595,18 @@ test('right-click opens the desktop menu, but links and text fields keep the bro
   await expect(menu).toBeHidden();
 });
 
+test('the desktop shows Shubham HD, Debug Runner, Time Machine and Writing; the other apps are in the Dock', async ({ page }) => {
+  await openDesktop(page);
+  await expect(page.locator('.desktop-icon').filter({ visible: true })).toHaveText(['Shubham HD', 'Debug Runner', 'Time Machine', 'Writing']);
+  // The others are Home Screen icons on phones; here they're in the Dock.
+  for (const id of ['activity', 'trash']) await expect(page.locator(`#dock-${id}`)).toBeVisible();
+  // Debug Runner and Time Machine are desktop apps, not in the Dock.
+  for (const id of ['game', 'timemachine']) await expect(page.locator(`#dock-${id}`)).toHaveCount(0);
+});
+
 test('a dragged desktop icon stays under the pointer', async ({ page }) => {
   await openDesktop(page);
-  const icon = page.locator('#icon-trash');
+  const icon = page.locator('#icon-writing');
   const before = (await icon.boundingBox())!;
   await page.mouse.move(before.x + 30, before.y + 30);
   await page.mouse.down();
@@ -647,7 +656,7 @@ test('the status bar stays on one row at any window width, with Larger Text too'
 test('the Time Machine never needs a scrollbar, even on a short laptop screen', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 657 });
   await openDesktop(page);
-  await page.locator('#dock-timemachine').click({ force: true });
+  await page.locator('#icon-timemachine').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
   const fits = () =>
@@ -666,7 +675,7 @@ test('Debug Runner: the top score of all players shows, and a run sends its scor
   const hold = new Promise<void>((resolve) => (release = resolve));
   const state = await stubTopScore(page, { start: 1, hold });
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   const top = dialog.locator('.game-top');
   await expect(top).toHaveText(/Top score: [\d,]+$/);
@@ -698,7 +707,7 @@ test('Debug Runner: the top score of all players shows, and a run sends its scor
 test('Debug Runner: a record that the server does not save is taken back', async ({ page }) => {
   await stubTopScore(page, { start: 1, submitOk: false });
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   const over = dialog.locator('#game-over-msg');
   await expect(over).toBeVisible({ timeout: 10_000 });
@@ -713,7 +722,7 @@ test('Debug Runner: the top score hides when the server has none, and other site
 }) => {
   // Tests point the database at a dead address, so the real route answers 503.
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   await expect(dialog.locator('.game-score-line')).toContainText('Your best');
   await expect(dialog.locator('.game-top')).toHaveCount(0);
@@ -734,7 +743,7 @@ test('the bigger apps load on first open, then stay mounted', async ({ page }) =
   // Not in the page at startup (they used to be rendered and hydrated with it).
   for (const selector of ['.game-canvas', '.tm-space']) await expect(page.locator(selector)).toHaveCount(0);
 
-  await page.locator('#dock-timemachine').click({ force: true });
+  await page.locator('#icon-timemachine').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
   await page.keyboard.press('Escape');
@@ -746,7 +755,7 @@ test('the bigger apps load on first open, then stay mounted', async ({ page }) =
 
 test('Debug Runner: the score climbs, a crash shows a joke and saves the best score', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   await expect(dialog).toBeVisible();
   const scoreLine = dialog.locator('.game-score-line span').first();

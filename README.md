@@ -55,7 +55,7 @@ This is a personal project, not an open-source template.
 
 ## Try the Terminal
 
-Open **Terminal** from the Dock, the desktop or the logo menu and type `help`.
+Open **Terminal** from the Dock or the logo menu and type `help`.
 
 ```text
 shubham@portfolio ~ % whoami

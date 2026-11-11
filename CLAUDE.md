@@ -192,7 +192,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   submenu, right-click menu) use `--menu-material`: in Light a see-through glass (0.72; the
   opaquer `--material-strong` looked solid over the white window), in Dark the original
   `--material-strong` (more see-through looked bad there - user's call).
-- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-game`, `#dock-timemachine`, `#dock-activity`, `#dock-settings`, `#dock-resume`,
+- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-activity`, `#dock-settings`, `#dock-resume`,
   `#dock-trash` (`#dock-more` is phone-only). Magnification is JS (`useMagnification`): cosine
   falloff by pointer distance against the resting layout, written to `--s` per item; items widen (so
   the dock grows) and icons scale from their bottom edge. Launch bounce animates the tile, not the
@@ -224,10 +224,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom
   (exception: the green button works in the Time Machine and Activity Monitor, see below; its minimize stays gray on purpose -
   the genie can't copy the starfield canvas).
-- Desktop icons (Shubham HD, Debug Runner, Time Machine, Activity Monitor, Writing, Terminal, Trash) in a top-right column
-  (`columnLayout`: on shorter screens the spacing shrinks from 104px to 80px and the column may run
-  down beside the centered Dock; only below that a second column starts, which sits behind the
-  portfolio window, so avoid it); double-click with
+- Desktop icons on computers: only Shubham HD, Debug Runner, Time Machine and Writing, in a
+  top-right column (`columnLayout`, 104px apart). Nov 2026, user's call: seven icons looked
+  crowded, so the apps that are in the Dock (Activity Monitor, Trash) are `phoneOnly` in
+  `DESKTOP_ICONS` (`.desktop-icon--phone-only`: hidden on computers, shown on the Home Screen,
+  like Links), and Debug Runner and Time Machine left the Dock for the desktop (`#dock-game` and
+  `#dock-timemachine` are gone; user's calls). The Terminal desktop icon was
+  removed (Dock on both). Clean Up shuffles only the visible icons. Double-click with
   a mouse, single tap on touch. The default Aurora wallpaper drifts slowly (`LiveWallpaper`).
 - Animations (`lib/motion.ts`, all return a cancel function):
   - Minimize = real genie: the window is copied into 10-16 horizontal strips (each only its slice's
@@ -309,7 +312,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - The desktop layer is a Home Screen with **two pages** (Nov 2026, the user's idea), swiped like an
   iPhone (CSS scroll snap on `.desktop-layer`, each `.home-page` a 4-column grid) with tappable
   page dots above the dock (`.home-dots`, `aria-current` on the shown page). Page 1: the icons
-  (the Terminal icon is hidden there, it's in the dock; the phone-only Links icon is shown), the sticky note widget (the Shubham
+  (every icon incl. the `phoneOnly` ones - Time Machine, Activity Monitor, Trash, Links; Terminal
+  is in the dock), the sticky note widget (the Shubham
   Works pill is commented out for now, see Features); page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
   and page 2 / the dots are hidden, so the desktop is unchanged. The
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
@@ -401,7 +405,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   not used: they're other organizations' copyrighted assets; the user's own photos would be fine.
   Green button (or double-clicking the title bar) glides it to full screen (`zoomed` /
   `onToggleZoom` on `Dialog`, desktop only); Escape leaves full screen first, then closes.
-  Opens on the latest job. From the Dock, the desktop/Home Screen icon and the logo menu.
+  Opens on the latest job. From its desktop / Home Screen icon and the logo menu.
   Education is shown only here (not in the portfolio sections); the resume already lists the
   MBA and the B.Tech.
 - **About This Developer** (`components/dialogs/AboutDeveloperDialog.tsx`): a Mac-style About
@@ -416,10 +420,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   tags mention the skill (aliases like MUI/Material UI are matched). A "Threads = usage count"
   column was dropped: JavaScript/HTML/CSS aren't tagged anywhere and showed 0. Samples only tick
   while open; none under reduced motion. Green button = full screen. From the Dock, the
-  desktop/Home Screen icon and the logo menu.
+  Home Screen icon (phones) and the logo menu.
 - **Sticky note** (`components/desktop/StickyNote.tsx`): yellow note in the top-left of the desktop
   (mouse-draggable), a 2x2 widget in the top-right of the phone Home Screen (icons fill the left half beside it,
-  Trash continues below; the user's layout choice). Shows one of a few short mottos
+  Trash continues below; the user's layout choice). Shows one of nine short mottos
   (written by Claude at the user's request), switching on the visitor's local hour (no
   "new note every hour" caption - the user removed it). Not in the
   server HTML (depends on the clock), via `useSyncExternalStore`.

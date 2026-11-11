@@ -11,29 +11,30 @@ interface DesktopIconDef {
   label: string;
   icon: ReactNode;
   open: (actions: OsActions) => void;
+  /**
+   * Home Screen only. On computers these apps are in the Dock (or, for Links, in the Contact
+   * section), so the desktop doesn't repeat them; the phone Dock only holds four apps.
+   */
+  phoneOnly?: boolean;
 }
 
 const DESKTOP_ICONS: DesktopIconDef[] = [
   { id: 'icon-mycomputer', label: 'Shubham HD', icon: <AppIcon name="drive" size={56} />, open: (a) => a.openDialog('about') },
   { id: 'icon-game', label: 'Debug Runner', icon: <AppIcon name="game" size={56} />, open: (a) => a.openGame() },
   { id: 'icon-timemachine', label: 'Time Machine', icon: <AppIcon name="timemachine" size={56} />, open: (a) => a.openDialog('timeMachine') },
-  { id: 'icon-activity', label: 'Activity Monitor', icon: <AppIcon name="activity" size={56} />, open: (a) => a.openDialog('activity') },
+  { id: 'icon-activity', label: 'Activity Monitor', icon: <AppIcon name="activity" size={56} />, open: (a) => a.openDialog('activity'), phoneOnly: true },
   // The blog posts, as their own app (not a tab in the portfolio window, not in the Dock).
   { id: 'icon-writing', label: 'Writing', icon: <AppIcon name="writing" size={56} />, open: (a) => a.openDialog('writing') },
-  { id: 'icon-terminal', label: 'Terminal', icon: <AppIcon name="terminal" size={56} />, open: (a) => a.openTerminal() },
-  { id: 'icon-trash', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('trash') },
-  // Phones only (the Contact section shows the links on computers); placed before Trash by CSS.
-  { id: 'icon-links', label: 'Links', icon: <AppIcon name="links" size={56} />, open: (a) => a.openDialog('links') },
+  { id: 'icon-trash', label: 'Trash', icon: <AppIcon name="trash" size={56} />, open: (a) => a.openDialog('trash'), phoneOnly: true },
+  // Placed before Trash by CSS.
+  { id: 'icon-links', label: 'Links', icon: <AppIcon name="links" size={56} />, open: (a) => a.openDialog('links'), phoneOnly: true },
 ];
 
 /** Keep in sync with --menubar-h in styles/base.css. */
 const MENUBAR_HEIGHT = 28;
-const ICON_HEIGHT = 96;
-/** Spacing between icons: the roomy default, and the tightest before labels would touch. */
-const MAX_STEP = 104;
-const MIN_STEP = 80;
-/** On computers the Links icon is hidden (its links are in Contact), so it takes no slot. */
-const COLUMN_ICONS = DESKTOP_ICONS.filter((def) => def.id !== 'icon-links');
+const ICON_STEP = 104;
+/** The icons computers show, top to bottom. */
+const COLUMN_ICONS = DESKTOP_ICONS.filter((def) => !def.phoneOnly);
 
 interface Position {
   left: number;
@@ -41,24 +42,19 @@ interface Position {
 }
 
 /**
- * A column down the right edge, like the macOS desktop. On shorter screens the icons move closer
- * together, and the column may run down beside the Dock (it is centered, so the right edge is
- * free). Only on very short screens does a second column start to its left. (Phones ignore all
- * this: they use a grid.) Positions are inside the desktop layer, which starts below the menu bar.
+ * A column down the right edge, like the macOS desktop. (Phones ignore this: they use a grid.)
+ * Positions are inside the desktop layer, which starts below the menu bar. `order` lists the
+ * computer icons from top to bottom (Clean Up shuffles it); phone-only icons are hidden here.
  */
-function columnLayout(viewportWidth: number, viewportHeight: number): Position[] {
-  const top = MENUBAR_HEIGHT + 16;
-  const maxTop = viewportHeight - MENUBAR_HEIGHT - ICON_HEIGHT - 8;
-  const step = Math.max(MIN_STEP, Math.min(MAX_STEP, (maxTop - top) / (COLUMN_ICONS.length - 1)));
-  const perColumn = Math.max(1, Math.floor((maxTop - top) / step) + 1);
-  return DESKTOP_ICONS.map((def) => {
-    // Links (hidden here) gets the slot after the others, so Clean Up never stacks two icons.
-    const slot = def.id === 'icon-links' ? COLUMN_ICONS.length : COLUMN_ICONS.indexOf(def);
-    return {
-      left: viewportWidth - 112 - Math.floor(slot / perColumn) * 104,
-      top: Math.round(top + (slot % perColumn) * step),
-    };
-  });
+function columnLayout(viewportWidth: number, order: readonly DesktopIconDef[] = COLUMN_ICONS): Position[] {
+  return DESKTOP_ICONS.map((def) => ({
+    left: viewportWidth - 112,
+    top: MENUBAR_HEIGHT + 16 + Math.max(0, order.indexOf(def)) * ICON_STEP,
+  }));
+}
+
+function shuffled<T>(items: readonly T[]): T[] {
+  return [...items].sort(() => Math.random() - 0.5);
 }
 
 const HOME_PAGES = 2;
@@ -72,7 +68,7 @@ const HOME_PAGES = 2;
 export function DesktopIcons() {
   const { actions, connect } = useOsApi();
   // Server and first client render use the desktop layout; the real viewport layout is applied after boot.
-  const [positions, setPositions] = useState<Position[]>(() => columnLayout(1024, 900));
+  const [positions, setPositions] = useState<Position[]>(() => columnLayout(1024));
   const detach = useRef<(() => void) | null>(null);
   const lastPointerType = useRef('mouse');
   const layerRef = useRef<HTMLDivElement>(null);
@@ -91,8 +87,8 @@ export function DesktopIcons() {
   };
 
   useImperativeHandle(connect.desktopIcons, () => ({
-    resetLayout: () => setPositions(columnLayout(window.innerWidth, window.innerHeight)),
-    arrange: () => setPositions(columnLayout(window.innerWidth, window.innerHeight).sort(() => Math.random() - 0.5)),
+    resetLayout: () => setPositions(columnLayout(window.innerWidth)),
+    arrange: () => setPositions(columnLayout(window.innerWidth, shuffled(COLUMN_ICONS))),
   }));
 
   useEffect(() => () => detach.current?.(), []);
@@ -109,8 +105,7 @@ export function DesktopIcons() {
 
     const onMove = (ev: globalThis.MouseEvent) => {
       const maxLeft = (layer?.clientWidth ?? window.innerWidth) - iconEl.offsetWidth;
-      // Down to the screen's bottom edge (the layer stops above the Dock, but icons may sit beside it).
-      const maxTop = window.innerHeight - (layer?.getBoundingClientRect().top ?? 0) - iconEl.offsetHeight;
+      const maxTop = (layer?.clientHeight ?? window.innerHeight) - iconEl.offsetHeight;
       const left = Math.max(0, Math.min(ev.clientX - offsetX, maxLeft));
       const top = Math.max(0, Math.min(ev.clientY - offsetY, maxTop));
       setPositions((prev) => prev.map((p, i) => (i === index ? { left, top } : p)));
@@ -142,7 +137,7 @@ export function DesktopIcons() {
             <div
               key={def.id}
               id={def.id}
-              className="desktop-icon"
+              className={def.phoneOnly ? 'desktop-icon desktop-icon--phone-only' : 'desktop-icon'}
               style={positions[i]}
               role="button"
               tabIndex={0}

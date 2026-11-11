@@ -81,16 +81,12 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   }
 
-  /* Terminal lives in the dock on phones. */
-  #icon-terminal {
-    display: none;
-  }
-
-  /* Links is a phone-only icon; it sits before Trash (it comes last in the markup). */
-  #icon-links {
+  /* The Home Screen shows every icon (the phone Dock only has four apps; Terminal is one). */
+  .desktop-icon.desktop-icon--phone-only {
     display: flex;
   }
 
+  /* Links sits before Trash (it comes last in the markup). */
   #icon-trash {
     order: 1;
   }
