@@ -9,11 +9,22 @@
   padding: 16px;
   background: rgba(0, 0, 0, 0.22);
   animation: overlayIn 0.2s ease-out;
-  transition: opacity 0.18s ease-in;
+  transition: opacity 0.18s ease-in, background-color 0.25s ease;
 }
 
 .dialog-overlay.closing {
   opacity: 0;
+}
+
+/* A panel on its way to (or in) the Dock: the dimming fades and clicks reach the desktop. */
+.dialog-overlay--minimized {
+  background-color: transparent;
+  pointer-events: none;
+}
+
+/* In the Dock: invisible but still laid out, so the way back can be prepared ahead. */
+.dialog-overlay--away {
+  visibility: hidden;
 }
 
 @keyframes overlayIn {
@@ -50,6 +61,19 @@
   max-height: min(600px, calc(100dvh - 200px));
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+/* Full screen: the list fills the screen and stops above the Dock. */
+.writing-box.zoomed .writing-body {
+  flex: 1;
+  max-height: none;
+  padding-bottom: calc(16px + var(--dock-reserve));
+}
+
+/* Rows stay a readable length on a wide screen. */
+.writing-box.zoomed .writing {
+  max-width: 820px;
+  margin: 0 auto;
 }
 
 /* ===== Alerts ===== */
@@ -236,7 +260,9 @@
   padding-bottom: calc(18px + var(--dock-reserve));
 }
 
-.dialog-overlay--zoomed .dialog-box.zoomed {
+/* (Also the genie's copies of a full-screen panel, which aren't inside the overlay.) */
+.dialog-overlay--zoomed .dialog-box.zoomed,
+.genie-copy.dialog-box.zoomed {
   display: flex;
   flex-direction: column;
   width: 100%;

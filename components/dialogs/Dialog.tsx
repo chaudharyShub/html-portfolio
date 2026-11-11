@@ -2,16 +2,20 @@
 
 import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { WindowGlyph } from '@/components/icons';
+import { useOsApi, type DialogId } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
 import {
+  animateFromDock,
   animatePopIn,
   animatePopOut,
   animateSheetIn,
   animateSheetOut,
+  animateToDock,
   APPLE_EASE,
   enableSheetDrag,
   isPhoneLayout,
   prefersReducedMotion,
+  prepareGenie,
   resetAnimationStyles,
 } from '@/lib/motion';
 
@@ -31,29 +35,59 @@ interface DialogProps {
   /** Panels only: makes the green button work, filling the screen (desktop only). */
   zoomed?: boolean;
   onToggleZoom?: () => void;
+  /**
+   * Panels only: makes the yellow button work (desktop only). The panel pours into the Dock
+   * button `dockIconId` (genie) and stays open, out of sight; `openDialog(id)` brings it back.
+   */
+  minimizable?: { id: DialogId; dockIconId: string };
+  /** The pointer is on the window buttons (true) or left them: e.g. to hold live content still. */
+  onButtonsHover?: (over: boolean) => void;
   children: ReactNode;
 }
 
 const CLOSE_MS = 180;
 const ZOOM_MS = 420;
 
+/** A minimizable panel: on screen, pouring into the Dock, in the Dock, or coming back. */
+type Phase = 'shown' | 'leaving' | 'away' | 'returning';
+
 /**
  * Modal dialog. Stays mounted while closed (so app state like the game survives). Alerts spring
  * in, panels pop in on desktop and slide up as sheets on phones; all of it is skipped under
  * reduced motion. Focus moves in on open and returns on close; Escape closes.
  */
-export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassName, zoomed = false, onToggleZoom, children }: DialogProps) {
+export function Dialog({
+  open,
+  title,
+  onClose,
+  kind = 'panel',
+  icon,
+  boxClassName,
+  zoomed = false,
+  onToggleZoom,
+  minimizable,
+  onButtonsHover,
+  children,
+}: DialogProps) {
+  const { actions, connect } = useOsApi();
   const titleId = useId();
   const boxRef = useRef<HTMLDivElement>(null);
   const zoomFrom = useRef<DOMRect | null>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
+  const prepareTimer = useRef(0);
   const [closing, setClosing] = useState(false);
   const [prevOpen, setPrevOpen] = useState(open);
+  const [phase, setPhase] = useState<Phase>('shown');
+  const phaseRef = useRef<Phase>('shown');
+  const cancelGenie = useRef<(() => void) | undefined>(undefined);
+  const minimizeRef = useRef<(() => void) | undefined>(undefined);
 
   // Adjust state while rendering when `open` flips (keeps the box visible for the close animation).
   if (prevOpen !== open) {
     setPrevOpen(open);
-    setClosing(!open && !prefersReducedMotion());
+    // Closed while in the Dock: it just goes (nothing on screen to animate).
+    setClosing(!open && !prefersReducedMotion() && phase === 'shown');
+    if (!open && phase !== 'shown') setPhase('shown');
   }
 
   useLayoutEffect(() => {
@@ -111,6 +145,87 @@ export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassNam
     return () => anim.cancel();
   }, [zoomed]);
 
+  /*
+   * Minimize: the panel pours into its Dock icon right from the click; the rest of the desktop
+   * hears about it when it lands (re-rendering it on the click held up the first frame, as with
+   * the windows). In the Dock it is only invisible (--away), so it stays laid out and its way
+   * back can be prepared while the pointer rests on the Dock icon. Restore plays it backwards.
+   */
+  const panelId = minimizable?.id;
+  const dockIconId = minimizable?.dockIconId;
+  useEffect(() => {
+    if (!panelId || !dockIconId) return;
+    const go = (next: Phase) => {
+      phaseRef.current = next;
+      setPhase(next);
+    };
+    const icon = () => document.getElementById(dockIconId);
+    const minimize = () => {
+      const box = boxRef.current;
+      if (!box || phaseRef.current !== 'shown') return;
+      if (box.contains(document.activeElement)) returnFocus.current?.focus({ preventScroll: true });
+      const land = () => {
+        cancelGenie.current = undefined;
+        go('away');
+        actions.reportPanelMinimized(panelId, true);
+      };
+      go('leaving');
+      const target = icon();
+      if (!target || prefersReducedMotion()) land();
+      else cancelGenie.current = animateToDock(box, target, land);
+    };
+    const restore = () => {
+      const box = boxRef.current;
+      if (!box || (phaseRef.current !== 'away' && phaseRef.current !== 'leaving')) return;
+      cancelGenie.current?.();
+      const back = () => {
+        cancelGenie.current = undefined;
+        box.style.opacity = '';
+        go('shown');
+        box.focus({ preventScroll: true });
+        actions.reportPanelMinimized(panelId, false);
+      };
+      const target = icon();
+      if (!target || prefersReducedMotion()) {
+        back();
+        return;
+      }
+      cancelGenie.current = animateFromDock(box, target, back);
+      go('returning');
+    };
+    minimizeRef.current = minimize;
+    connect.panel(panelId, {
+      isMinimized: () => phaseRef.current === 'leaving' || phaseRef.current === 'away',
+      restore,
+      prepareRestore: () => {
+        if (phaseRef.current === 'away' && boxRef.current) prepareGenie(boxRef.current);
+      },
+    });
+    return () => {
+      minimizeRef.current = undefined;
+      connect.panel(panelId, null);
+    };
+  }, [panelId, dockIconId, actions, connect]);
+
+  // Closed while minimized: forget the trip (the genie left the box transparent).
+  useLayoutEffect(() => {
+    if (open || !panelId) return;
+    cancelGenie.current?.();
+    cancelGenie.current = undefined;
+    phaseRef.current = 'shown';
+    if (boxRef.current) boxRef.current.style.opacity = '';
+  }, [open, panelId]);
+
+  // Copies for the genie are made while the pointer rests on the buttons, so the click starts it at once.
+  // On the yellow button itself: after a click on the green one the panel has a new size.
+  const prepareMinimize = () => {
+    window.clearTimeout(prepareTimer.current);
+    prepareTimer.current = window.setTimeout(() => {
+      if (boxRef.current) prepareGenie(boxRef.current);
+    }, 80);
+  };
+  useEffect(() => () => window.clearTimeout(prepareTimer.current), []);
+
   const toggleZoom = () => {
     if (!onToggleZoom) return;
     zoomFrom.current = boxRef.current?.getBoundingClientRect() ?? null;
@@ -128,7 +243,16 @@ export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassNam
 
   return (
     <div
-      className={`dialog-overlay dialog-overlay--${kind}${zoomed ? ' dialog-overlay--zoomed' : ''}${closing ? ' closing' : ''}`}
+      className={[
+        'dialog-overlay',
+        `dialog-overlay--${kind}`,
+        zoomed && 'dialog-overlay--zoomed',
+        closing && 'closing',
+        (phase === 'leaving' || phase === 'away') && 'dialog-overlay--minimized',
+        phase === 'away' && 'dialog-overlay--away',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       style={{ display: open || closing ? 'flex' : 'none' }}
       onClick={(e) => {
         // Tapping the dimmed area closes a sheet, like iOS.
@@ -159,8 +283,28 @@ export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassNam
                 Done
               </span>
             </span>
-            <span className="dialog-lights-off">
-              <span className="tl tl-min tl-disabled" aria-hidden="true" />
+            <span
+              className="dialog-lights-off"
+              onPointerEnter={() => onButtonsHover?.(true)}
+              onPointerLeave={() => {
+                window.clearTimeout(prepareTimer.current);
+                onButtonsHover?.(false);
+              }}
+            >
+              {minimizable ? (
+                <span
+                  className="tl tl-min dialog-min"
+                  {...pressableProps}
+                  onPointerEnter={prepareMinimize}
+                  onClick={() => minimizeRef.current?.()}
+                  aria-label="Minimize"
+                  title="Minimize"
+                >
+                  <WindowGlyph name="minimize" />
+                </span>
+              ) : (
+                <span className="tl tl-min tl-disabled" aria-hidden="true" />
+              )}
               {onToggleZoom ? (
                 <span
                   className="tl tl-zoom dialog-zoom"

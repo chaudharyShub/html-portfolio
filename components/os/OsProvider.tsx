@@ -36,6 +36,15 @@ export interface GameHandle {
   stop: () => void;
 }
 
+/** A panel that can minimize into the Dock (see `Dialog`'s `minimizable`). */
+export interface PanelHandle {
+  /** True from the yellow button's click until it is restored. */
+  isMinimized: () => boolean;
+  restore: () => void;
+  /** Builds the genie's copies ahead of a restore (the pointer is on its Dock icon). */
+  prepareRestore: () => void;
+}
+
 interface MessageState {
   icon: DialogIconType;
   title: string;
@@ -65,6 +74,12 @@ interface ToastState {
 
 export interface OsState {
   dialogs: Record<DialogId, boolean>;
+  /**
+   * Open apps sent to the Dock with the yellow button (Activity Monitor, Writing); still open.
+   * Reported by the panel when its genie lands, like the windows (re-rendering on the click held
+   * up the animation's first frame).
+   */
+  minimized: Partial<Record<DialogId, boolean>>;
   message: MessageState;
   /** Bumped each time the wizard opens so it starts fresh. */
   wizardSession: number;
@@ -81,6 +96,7 @@ export interface OsState {
 type Action =
   | { type: 'openDialog'; id: DialogId }
   | { type: 'closeDialog'; id: DialogId }
+  | { type: 'panelMinimized'; id: DialogId; minimized: boolean }
   | { type: 'showMessage'; message: MessageState }
   | { type: 'openWizard' }
   | { type: 'setTab'; tab: TabId }
@@ -93,6 +109,7 @@ type Action =
 
 const initialState: OsState = {
   dialogs: { message: false, closeConfirm: false, trash: false, game: false, settings: false, wizard: false, timeMachine: false, about: false, activity: false, links: false, writing: false },
+  minimized: {},
   message: { icon: 'info', title: 'Shubham OS', text: '' },
   wizardSession: 0,
   tab: 'home',
@@ -108,7 +125,11 @@ function reducer(state: OsState, action: Action): OsState {
     case 'openDialog':
       return { ...state, dialogs: { ...state.dialogs, [action.id]: true } };
     case 'closeDialog':
-      return { ...state, dialogs: { ...state.dialogs, [action.id]: false } };
+      return { ...state, dialogs: { ...state.dialogs, [action.id]: false }, minimized: { ...state.minimized, [action.id]: false } };
+    case 'panelMinimized':
+      return !!state.minimized[action.id] === action.minimized
+        ? state
+        : { ...state, minimized: { ...state.minimized, [action.id]: action.minimized } };
     case 'showMessage':
       return { ...state, message: action.message, dialogs: { ...state.dialogs, message: true } };
     case 'openWizard':
@@ -144,11 +165,16 @@ export interface OsConnectors {
   terminalConsole: (handle: TerminalConsoleHandle | null) => void;
   desktopIcons: (handle: DesktopIconsHandle | null) => void;
   game: (handle: GameHandle | null) => void;
+  panel: (id: DialogId, handle: PanelHandle | null) => void;
 }
 
 export interface OsActions {
   openDialog: (id: DialogId) => void;
   closeDialog: (id: DialogId) => void;
+  /** A panel's genie landed in the Dock (true) or back on screen (false). */
+  reportPanelMinimized: (id: DialogId, minimized: boolean) => void;
+  /** The pointer rests on a minimized app's Dock icon: get its way back ready. */
+  preparePanelRestore: (id: DialogId) => void;
   showMessage: (icon: DialogIconType, title: string, text: string) => void;
   showToast: (title: string, message: string, options?: ToastOptions) => void;
   hideToast: (id: number) => void;
@@ -183,6 +209,7 @@ interface Registry {
   terminalConsole: TerminalConsoleHandle | null;
   desktopIcons: DesktopIconsHandle | null;
   game: GameHandle | null;
+  panels: Partial<Record<DialogId, PanelHandle>>;
 }
 
 interface OsApi {
@@ -207,6 +234,7 @@ export function OsProvider({ children }: { children: ReactNode }) {
       terminalConsole: null,
       desktopIcons: null,
       game: null,
+      panels: {},
     };
     const connect: OsConnectors = {
       mainWindow: (h) => void (r.mainWindow = h),
@@ -216,6 +244,10 @@ export function OsProvider({ children }: { children: ReactNode }) {
       terminalConsole: (h) => void (r.terminalConsole = h),
       desktopIcons: (h) => void (r.desktopIcons = h),
       game: (h) => void (r.game = h),
+      panel: (id, h) => {
+        if (h) r.panels[id] = h;
+        else delete r.panels[id];
+      },
     };
     const closeMenus = () => dispatch({ type: 'closeMenus' });
     const showMessage = (icon: DialogIconType, title: string, text: string) =>
@@ -223,8 +255,15 @@ export function OsProvider({ children }: { children: ReactNode }) {
     const switchTab = (tab: TabId) => dispatch({ type: 'setTab', tab });
 
     const actions: OsActions = {
-      openDialog: (id) => dispatch({ type: 'openDialog', id }),
+      // Opening a minimized app (Dock, desktop icon, menu) brings it back from the Dock.
+      openDialog: (id) => {
+        const panel = r.panels[id];
+        if (panel?.isMinimized()) panel.restore();
+        else dispatch({ type: 'openDialog', id });
+      },
       closeDialog: (id) => dispatch({ type: 'closeDialog', id }),
+      reportPanelMinimized: (id, minimized) => dispatch({ type: 'panelMinimized', id, minimized }),
+      preparePanelRestore: (id) => r.panels[id]?.prepareRestore(),
       showMessage,
       showToast: (title, message, options) => dispatch({ type: 'showToast', title, message, options }),
       hideToast: (id) => dispatch({ type: 'hideToast', id }),

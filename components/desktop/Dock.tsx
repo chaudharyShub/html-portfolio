@@ -1,13 +1,33 @@
 'use client';
 
-import { useEffect, useRef, type MouseEvent, type RefObject } from 'react';
+import { useEffect, useRef, useState, type MouseEvent, type RefObject } from 'react';
 import { AppIcon, type AppIconName } from '@/components/icons';
-import { useOsApi, useOsState } from '@/components/os/OsProvider';
+import { useOsApi, useOsState, type DialogId, type OsActions } from '@/components/os/OsProvider';
 import { isPhoneLayout, prefersReducedMotion } from '@/lib/motion';
 
 /** Largest icon scale right under the pointer, and how far (px) the magnification reaches. */
 const MAX_SCALE = 1.6;
 const REACH = 150;
+/** How long a Dock tile takes to slide out when its app closes (matches dockItemOut in desktop.css). */
+const LEAVE_MS = 280;
+
+/** The Dock button each app bounces when it opens (`dock-terminal` is handled with its window). */
+const DOCK_BUTTONS: Partial<Record<DialogId, string>> = {
+  activity: 'dock-activity',
+  settings: 'dock-settings',
+  wizard: 'dock-resume',
+  trash: 'dock-trash',
+  game: 'dock-game',
+  timeMachine: 'dock-timemachine',
+  writing: 'dock-writing',
+};
+
+/** Apps that aren't kept in the Dock: they get a tile there only while open, like on a Mac. */
+const VISITING_APPS: { dialog: DialogId; id: string; label: string; icon: AppIconName; open: (a: OsActions) => void }[] = [
+  { dialog: 'game', id: 'dock-game', label: 'Debug Runner', icon: 'game', open: (a) => a.openGame() },
+  { dialog: 'timeMachine', id: 'dock-timemachine', label: 'Time Machine', icon: 'timemachine', open: (a) => a.openDialog('timeMachine') },
+  { dialog: 'writing', id: 'dock-writing', label: 'Writing', icon: 'writing', open: (a) => a.openDialog('writing') },
+];
 
 /** The little hop a dock icon does while its app launches (on the tile, so it never fights the magnification). */
 function bounce(button: HTMLElement | null) {
@@ -35,11 +55,22 @@ interface ItemProps {
   onClick: (e: MouseEvent) => void;
   buttonRef?: (el: HTMLButtonElement | null) => void;
   pressed?: boolean;
+  /** A visiting app's tile: slides in when it appears, out when `leaving`. */
+  visiting?: boolean;
+  leaving?: boolean;
+  /** The pointer rests on it (used to get a minimized app's way back ready). */
+  onRest?: () => void;
 }
 
-function DockItem({ id, label, icon, running, only, onClick, buttonRef, pressed }: ItemProps) {
+/** How long the pointer rests on a Dock icon before the genie's copies are prepared. */
+const REST_MS = 80;
+
+function DockItem({ id, label, icon, running, only, onClick, buttonRef, pressed, visiting, leaving, onRest }: ItemProps) {
+  const restTimer = useRef(0);
+  useEffect(() => () => window.clearTimeout(restTimer.current), []);
+  const classes = ['dock-item', only && `dock-${only}-only`, visiting && 'dock-item--visiting', leaving && 'dock-item--leaving'];
   return (
-    <li className={`dock-item${only ? ` dock-${only}-only` : ''}`}>
+    <li className={classes.filter(Boolean).join(' ')}>
       <button
         ref={buttonRef}
         type="button"
@@ -48,6 +79,15 @@ function DockItem({ id, label, icon, running, only, onClick, buttonRef, pressed 
         aria-label={label}
         aria-pressed={pressed}
         onClick={onClick}
+        onPointerEnter={
+          onRest
+            ? () => {
+                window.clearTimeout(restTimer.current);
+                restTimer.current = window.setTimeout(onRest, REST_MS);
+              }
+            : undefined
+        }
+        onPointerLeave={() => window.clearTimeout(restTimer.current)}
       >
         <AppIcon name={icon} size={48} />
       </button>
@@ -109,11 +149,17 @@ function useMagnification(listRef: RefObject<HTMLUListElement | null>) {
       onLeave();
       centers = null;
     };
+    // A tile came or went: measure the resting layout again on the next move.
+    const changes = new MutationObserver(() => {
+      centers = null;
+    });
+    changes.observe(list, { childList: true });
     list.addEventListener('mousemove', onMove);
     list.addEventListener('mouseleave', onLeave);
     window.addEventListener('resize', onResize);
     return () => {
       onLeave();
+      changes.disconnect();
       list.removeEventListener('mousemove', onMove);
       list.removeEventListener('mouseleave', onLeave);
       window.removeEventListener('resize', onResize);
@@ -124,16 +170,41 @@ function useMagnification(listRef: RefObject<HTMLUListElement | null>) {
 /** macOS Dock on desktop (magnifies under the pointer); the iOS dock on phones. */
 export function Dock() {
   const { actions, connect } = useOsApi();
-  const { windows, dialogs, menuOpen } = useOsState();
+  const { windows, dialogs, menuOpen, minimized } = useOsState();
+  // Resting on a minimized app's icon builds its genie copies ahead, so the click starts at once.
+  const restFor = (dialog: DialogId) => (minimized[dialog] ? () => actions.preparePanelRestore(dialog) : undefined);
   const prevTerminal = useRef(windows.terminal);
+  const prevDialogs = useRef(dialogs);
   const listRef = useRef<HTMLUListElement>(null);
   useMagnification(listRef);
 
-  // Bounce the Terminal's icon when it launches from closed.
+  // Visiting tiles of apps that just closed stay a moment to slide out.
+  const [leaving, setLeaving] = useState<DialogId[]>([]);
+  const [shownDialogs, setShownDialogs] = useState(dialogs);
+  if (shownDialogs !== dialogs) {
+    const closed = VISITING_APPS.filter((app) => shownDialogs[app.dialog] && !dialogs[app.dialog]).map((app) => app.dialog);
+    setShownDialogs(dialogs);
+    const next = [...leaving.filter((d) => !dialogs[d]), ...(prefersReducedMotion() ? [] : closed)];
+    if (next.length !== leaving.length || next.some((d, i) => d !== leaving[i])) setLeaving(next);
+  }
+  useEffect(() => {
+    if (!leaving.length) return;
+    const timer = window.setTimeout(() => setLeaving([]), LEAVE_MS);
+    return () => window.clearTimeout(timer);
+  }, [leaving]);
+
+  // An app's icon bounces when it launches from closed (from the Dock, the desktop or a menu).
   useEffect(() => {
     if (prevTerminal.current === 'closed' && windows.terminal === 'open') bounce(actions.getDockIcon('terminal'));
     prevTerminal.current = windows.terminal;
   }, [windows.terminal, actions]);
+  useEffect(() => {
+    for (const [dialog, id] of Object.entries(DOCK_BUTTONS)) {
+      const key = dialog as DialogId;
+      if (!prevDialogs.current[key] && dialogs[key]) bounce(document.getElementById(id));
+    }
+    prevDialogs.current = dialogs;
+  }, [dialogs]);
 
   return (
     <nav className="dock" aria-label="Dock">
@@ -163,9 +234,31 @@ export function Dock() {
           only="mac"
           running={dialogs.activity}
           onClick={() => actions.openDialog('activity')}
+          onRest={restFor('activity')}
         />
-        <DockItem id="dock-settings" label="Settings" icon="settings" onClick={() => actions.openDialog('settings')} />
-        <DockItem id="dock-resume" label="Resume" icon="resume" only="mac" onClick={actions.openResumeWizard} />
+        <DockItem
+          id="dock-settings"
+          label="Settings"
+          icon="settings"
+          running={dialogs.settings}
+          onClick={() => actions.openDialog('settings')}
+        />
+        <DockItem id="dock-resume" label="Resume" icon="resume" only="mac" running={dialogs.wizard} onClick={actions.openResumeWizard} />
+        {VISITING_APPS.filter((app) => dialogs[app.dialog] || leaving.includes(app.dialog)).map((app) => (
+          <DockItem
+            key={app.id}
+            id={app.id}
+            label={app.label}
+            icon={app.icon}
+            only="mac"
+            visiting
+            leaving={!dialogs[app.dialog]}
+            running={dialogs[app.dialog]}
+            onRest={restFor(app.dialog)}
+            // Already open: the click only brings it back if it's in the Dock (a running game isn't restarted).
+            onClick={() => (dialogs[app.dialog] && app.dialog === 'game' ? undefined : app.open(actions))}
+          />
+        ))}
         <DockItem
           id="dock-more"
           label="More"
@@ -178,7 +271,7 @@ export function Dock() {
           }}
         />
         <li className="dock-sep dock-mac-only" aria-hidden="true" />
-        <DockItem id="dock-trash" label="Trash" icon="trash" only="mac" onClick={() => actions.openDialog('trash')} />
+        <DockItem id="dock-trash" label="Trash" icon="trash" only="mac" running={dialogs.trash} onClick={() => actions.openDialog('trash')} />
       </ul>
     </nav>
   );

@@ -192,11 +192,19 @@ test('the More button opens an action sheet with Cancel on screen', async ({ pag
   await animationsSettled(page); // let the sheet finish sliding up
   const c = (await cancel.boundingBox())!;
   expect(c.y + c.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  // It slides back down (still on screen for a moment), then hides. The slide lasts 180ms, too
+  // short to be sure of seeing it on a busy machine, so the page notes it as it happens.
+  await page.locator('#logo-menu').evaluate((menu) => {
+    const w = window as unknown as { sawClosing: boolean };
+    w.sawClosing = false;
+    new MutationObserver(() => {
+      if (menu.classList.contains('closing')) w.sawClosing = true;
+    }).observe(menu, { attributes: true, attributeFilter: ['class'] });
+  });
   await cancel.tap();
-  // It slides back down (still on screen for a moment), then hides.
-  await expect(page.locator('#logo-menu')).toHaveClass(/closing/);
   await expect(page.locator('#logo-menu')).toBeHidden();
   await expect(page.locator('#logo-menu')).not.toHaveClass(/closing/);
+  expect(await page.evaluate(() => (window as unknown as { sawClosing: boolean }).sawClosing)).toBe(true);
 });
 
 test('Settings opens as a bottom sheet', async ({ page }) => {
@@ -253,14 +261,13 @@ for (const [name, opener] of [
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - 12 * i }] });
     await page.waitForTimeout(30);
   }
-  const stretched = (await sheet.boundingBox())!;
-  expect(stretched.y).toBeLessThan(b.y - 10);
-  expect(Math.round(stretched.y + stretched.height)).toBe(viewportHeight);
+  // Each check waits for the sheet to follow (a busy machine may draw it a frame or two late).
+  const box = async () => (await sheet.boundingBox())!;
+  await expect.poll(async () => (await box()).y).toBeLessThan(b.y - 10);
+  await expect.poll(async () => Math.round((await box()).y + (await box()).height)).toBe(viewportHeight);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  await page.waitForTimeout(500);
-  const settled = (await sheet.boundingBox())!;
-  expect(Math.round(settled.y)).toBe(Math.round(b.y));
-  expect(Math.round(settled.height)).toBe(Math.round(b.height));
+  await expect.poll(async () => Math.round((await box()).y)).toBe(Math.round(b.y));
+  await expect.poll(async () => Math.round((await box()).height)).toBe(Math.round(b.height));
 
   // Pulled down a bit, it slides down whole: same height, top under the finger (no gap above it).
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
@@ -268,19 +275,17 @@ for (const [name, opener] of [
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + 6 * i }] });
     await page.waitForTimeout(30);
   }
-  const lowered = (await sheet.boundingBox())!;
-  expect(Math.round(lowered.height)).toBe(Math.round(b.height));
-  expect(Math.abs(lowered.y - (b.y + 60))).toBeLessThan(3);
+  await expect.poll(async () => Math.abs((await box()).y - (b.y + 60))).toBeLessThan(3);
+  expect(Math.round((await box()).height)).toBe(Math.round(b.height));
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  await page.waitForTimeout(500);
+  await expect.poll(async () => Math.round((await box()).y)).toBe(Math.round(b.y));
   await expect(sheet).toBeVisible();
-  expect(Math.round((await sheet.boundingBox())!.y)).toBe(Math.round(b.y));
 
   // Only the top (title bar + grabber) drags it: a long pull on the content leaves it open.
   await pull(b.height / 2, b.y + 140);
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(500); // nothing should happen: give it time to (wrongly) move
   await expect(sheet).toBeVisible();
-  expect(Math.round((await sheet.boundingBox())!.y)).toBe(Math.round(b.y));
+  await expect.poll(async () => Math.round((await box()).y)).toBe(Math.round(b.y));
 
   await pull(b.height / 2);
   await expect(sheet).toBeHidden();
@@ -354,7 +359,7 @@ test('the Home Screen has a sticky note widget and the Time Machine app', async 
   await noHorizontalScroll(page);
 
   // Scrolled, the year slides under the sticky title bar, not over it.
-  await page.waitForTimeout(600);
+  await animationsSettled(page); // the sheet has finished sliding up
   const onTop = await page.evaluate(() => {
     const box = document.querySelector<HTMLElement>('.time-machine-box')!;
     const bar = box.querySelector<HTMLElement>('.dialog-title-bar')!;

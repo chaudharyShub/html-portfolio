@@ -81,19 +81,24 @@ function LoadGraph({ values }: { values: number[] }) {
 
 /** Activity Monitor: the skills as running processes, with a live load graph and where each is used. */
 export function ActivityMonitorDialog() {
-  const { dialogs } = useOsState();
+  const { dialogs, minimized: minimizedApps } = useOsState();
   const open = dialogs.activity;
+  const minimized = !!minimizedApps.activity;
   const actions = useOsActions();
   const [filter, setFilter] = useState('All');
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'cpu', desc: true });
   const [selected, setSelected] = useState(SKILL_PROCESSES[0]?.name ?? '');
   const [samples, setSamples] = useState(initialSamples);
   const [zoomed, setZoomed] = useState(false);
+  // Held still while the pointer is on the window buttons: the genie's copies are made then, and
+  // a new sample would make them out of date (rebuilt on the click, which held up the animation).
+  const [held, setHeld] = useState(false);
   const close = () => actions.closeDialog('activity');
 
-  // New samples every second, only while the app is open.
+  // New samples every second, only while the app is open (and not in the Dock).
+  const live = open && !minimized && !held;
   useEffect(() => {
-    if (!open || prefersReducedMotion()) return;
+    if (!live || prefersReducedMotion()) return;
     const timer = window.setInterval(() => {
       const randoms = SKILL_PROCESSES.map(() => Math.random());
       setSamples((prev) =>
@@ -106,7 +111,7 @@ export function ActivityMonitorDialog() {
       );
     }, TICK_MS);
     return () => window.clearInterval(timer);
-  }, [open]);
+  }, [live]);
 
   const rows = SKILL_PROCESSES.filter((p) => filter === 'All' || p.group === filter).sort((a, b) => {
     const order = compare(a, b, sort.key, samples) || a.name.localeCompare(b.name);
@@ -144,8 +149,11 @@ export function ActivityMonitorDialog() {
       boxClassName="wide activity-box"
       zoomed={zoomed}
       onToggleZoom={() => setZoomed((z) => !z)}
+      minimizable={{ id: 'activity', dockIconId: 'dock-activity' }}
+      onButtonsHover={setHeld}
     >
-      <div className="activity">
+      {/* Its blocks are what each strip of the genie may leave out (see lib/motion.ts). */}
+      <div className="activity" data-genie-blocks="">
         <div className="am-toolbar" role="group" aria-label="Show">
           {FILTERS.map((f) => (
             <button

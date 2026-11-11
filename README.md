@@ -40,7 +40,7 @@ This is a personal project, not an open-source template.
 |---|---|
 | **Startup screen** | Logo, progress bar and boot steps. Click or press any key to skip. |
 | **Windows** | An app-style window with a sidebar, traffic-light buttons, drag, resize, snap to screen edges, a full-screen zoom and a genie minimize into the Dock. |
-| **Menu bar & Dock** | Logo menu, section links, a live clock; a Dock that magnifies with the pointer and bounces apps as they launch. |
+| **Menu bar & Dock** | Logo menu, section links, a live clock; a Dock that magnifies with the pointer, bounces apps as they launch and shows every open app. |
 | **Terminal** | A real command parser with history (↑ / ↓). |
 | **Time Machine** | Life from birth to today - school, college, jobs, and the MBA on a side lane beside the job - as snapshots flying through a starfield. Try going back past 1995. |
 | **Activity Monitor** | The skills as running processes, with a live load graph and the jobs and projects that use each one. |
