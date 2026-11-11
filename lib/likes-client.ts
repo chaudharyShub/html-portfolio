@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { createStore } from './store';
 import { likeIdPreference } from './preferences';
 
 /**
@@ -12,24 +12,11 @@ export interface LikesState {
   available: boolean;
 }
 
-const SERVER_STATE: LikesState = { count: null, available: true };
-let state: LikesState = SERVER_STATE;
+const store = createStore<LikesState>({ count: null, available: true });
+const setState = store.set;
 let loadStarted = false;
-const listeners = new Set<() => void>();
 
-function setState(next: Partial<LikesState>) {
-  state = { ...state, ...next };
-  listeners.forEach((l) => l());
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-export function useLikes(): LikesState {
-  return useSyncExternalStore(subscribe, () => state, () => SERVER_STATE);
-}
+export const useLikes: () => LikesState = store.use;
 
 /** Loads the count once (later calls do nothing). */
 export function loadLikes(): void {
@@ -47,7 +34,8 @@ export type LikeResult = 'saved' | 'limit' | 'failed' | 'busy';
 let pending = false;
 
 const changeCount = (by: number) => {
-  if (state.count !== null) setState({ count: Math.max(0, state.count + by) });
+  const { count } = store.get();
+  if (count !== null) setState({ count: Math.max(0, count + by) });
 };
 
 /** Marks the like as on its way until the server hands out the real id. */

@@ -5,6 +5,7 @@ import { AppIcon } from '@/components/icons';
 import { useOsApi, type OsActions } from '@/components/os/OsProvider';
 import { /* MadeByPill, */ MadeByWidget } from './MadeBy';
 import { StickyNote } from './StickyNote';
+import { MENUBAR_HEIGHT } from '@/lib/layout';
 
 interface DesktopIconDef {
   id: string;
@@ -30,8 +31,6 @@ const DESKTOP_ICONS: DesktopIconDef[] = [
   { id: 'icon-links', label: 'Links', icon: <AppIcon name="links" size={56} />, open: (a) => a.openDialog('links'), phoneOnly: true },
 ];
 
-/** Keep in sync with --menubar-h in styles/base.css. */
-const MENUBAR_HEIGHT = 28;
 const ICON_STEP = 104;
 /** The icons computers show, top to bottom. */
 const COLUMN_ICONS = DESKTOP_ICONS.filter((def) => !def.phoneOnly);

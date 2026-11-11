@@ -653,6 +653,26 @@ test('the status bar stays on one row at any window width, with Larger Text too'
   }
 });
 
+test('with reduced motion, the Time Machine stars are still there after the browser is resized', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await openDesktop(page);
+  await page.locator('#icon-timemachine').dblclick();
+  const canvas = page.locator('canvas.tm-space');
+  await expect(canvas).toBeVisible();
+  // Counts lit pixels: the stars are drawn once (no animation), so a resize must redraw them.
+  const litPixels = () =>
+    canvas.evaluate((el: HTMLCanvasElement) => {
+      const data = el.getContext('2d')!.getImageData(0, 0, el.width, el.height).data;
+      let lit = 0;
+      for (let i = 3; i < data.length; i += 4) if (data[i]! > 0) lit++;
+      return lit;
+    });
+  await expect.poll(litPixels).toBeGreaterThan(0);
+  await page.setViewportSize({ width: 1100, height: 700 });
+  await expect.poll(async () => (await canvas.evaluate((el: HTMLCanvasElement) => el.width)) > 0).toBe(true);
+  await expect.poll(litPixels).toBeGreaterThan(0);
+});
+
 test('the Time Machine never needs a scrollbar, even on a short laptop screen', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 657 });
   await openDesktop(page);
@@ -776,5 +796,30 @@ test('Debug Runner: the score climbs, a crash shows a joke and saves the best sc
   await page.keyboard.press('Space');
   await expect(over).toBeHidden();
   await dialog.locator('.dialog-buttons').getByRole('button', { name: 'Close' }).click();
+  await expect(dialog).toBeHidden();
+});
+
+test('Debug Runner: after a game over, Space presses a focused button; during a run it jumps', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#icon-game').dblclick();
+  const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
+  const over = dialog.locator('#game-over-msg');
+  const close = dialog.locator('.dialog-buttons').getByRole('button', { name: 'Close' });
+  const restart = dialog.locator('.dialog-buttons').getByRole('button', { name: 'Start / Restart' });
+
+  // Clicked with a mouse, Start / Restart keeps the focus: Space must still jump, not restart.
+  await expect(over).toBeVisible({ timeout: 10_000 });
+  await restart.click();
+  await expect(over).toBeHidden();
+  const scoreLine = dialog.locator('.game-score-line span').first();
+  await expect.poll(async () => Number(await scoreLine.textContent()), { timeout: 5_000 }).toBeGreaterThan(5);
+  await page.keyboard.press('Space');
+  await expect.poll(async () => Number(await scoreLine.textContent())).toBeGreaterThan(5);
+
+  // After the game over, Space on a focused Close closes the game (it used to start a new run).
+  await expect(over).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(500);
+  await close.focus();
+  await page.keyboard.press('Space');
   await expect(dialog).toBeHidden();
 });

@@ -26,14 +26,12 @@ import {
   prepareGenie,
   resetAnimationStyles,
 } from '@/lib/motion';
+import { DOCK_RESERVE, MENUBAR_HEIGHT } from '@/lib/layout';
 
 type WindowMode = 'normal' | 'maximized' | 'snapped-left' | 'snapped-right';
 type ResizeDir = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
 const RESIZE_DIRS: ResizeDir[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
-/** Keep in sync with --menubar-h / --dock-reserve in styles/base.css. */
-const MENUBAR_HEIGHT = 28;
-const DOCK_RESERVE = 84;
 const SNAP_ZONE = 8;
 /** The pointer must move this far (px) before a press on the title bar counts as a drag. */
 const DRAG_THRESHOLD = 4;
@@ -191,6 +189,7 @@ export function Window({
       // The rest of the desktop (Dock, menu bar) hears about it when the window lands: re-rendering
       // it on the click held up the animation's first frame.
       cancelAnim.current = animateToDock(el, icon, () => {
+        cancelAnim.current = undefined; // lets the browser free the genie's copies
         report('minimized');
         hideNow();
         resetWindowStyles(el);
@@ -218,6 +217,7 @@ export function Window({
       }
       // Reported when it lands, like minimize (keeps the click light).
       cancelAnim.current = animateFromDock(el, icon, () => {
+        cancelAnim.current = undefined;
         if (showAtEnd) flushSync(() => setHidden(false));
         report('open');
         animating.current = false;
@@ -236,7 +236,7 @@ export function Window({
       setStatus('open');
       if (wasClosed) {
         flushSync(() => setHidden(false));
-        if (!prefersReducedMotion()) animatePopIn(el, 0.88, 380, 400, APPLE_EASE);
+        if (!prefersReducedMotion()) animatePopIn(el, 0.88, 380, APPLE_EASE);
       }
       shownSoon();
     };
@@ -246,6 +246,7 @@ export function Window({
       if (!el) return;
       cancelAnim.current?.();
       const finish = () => {
+        cancelAnim.current = undefined;
         hideNow();
         resetWindowStyles(el);
         animating.current = false;
@@ -284,7 +285,7 @@ export function Window({
         if (!el) return;
         center();
         if (prefersReducedMotion()) return;
-        animatePopIn(el, 0.92, 520, 540, APPLE_EASE);
+        animatePopIn(el, 0.92, 520, APPLE_EASE);
       },
     };
   });
@@ -310,6 +311,7 @@ export function Window({
       before,
       after,
       () => {
+        cancelAnim.current = undefined;
         animating.current = false;
       },
       content,

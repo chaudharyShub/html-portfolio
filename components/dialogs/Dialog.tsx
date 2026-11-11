@@ -66,11 +66,13 @@ export function Dialog({ open, title, onClose, kind = 'panel', icon, boxClassNam
       }
       box.focus({ preventScroll: true });
       if (prefersReducedMotion()) return;
-      let timer: number;
-      if (sheet) timer = animateSheetIn(box);
-      else if (kind === 'alert' && isPhoneLayout()) timer = animatePopIn(box, 1.12, 260, 280, APPLE_EASE);
-      else timer = animatePopIn(box, 0.9, 340, 360);
-      return () => window.clearTimeout(timer);
+      if (sheet) {
+        const timer = animateSheetIn(box);
+        return () => window.clearTimeout(timer);
+      }
+      if (kind === 'alert' && isPhoneLayout()) animatePopIn(box, 1.12, 260, APPLE_EASE);
+      else animatePopIn(box, 0.9, 340);
+      return;
     }
     if (box.contains(document.activeElement)) returnFocus.current?.focus({ preventScroll: true });
     if (!closing) return;
