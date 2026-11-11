@@ -3,13 +3,17 @@ import { TabGlyph } from '@/components/icons';
 import { PROFILE } from '@/data/profile';
 import { BLOG_URL, type BlogPost } from '@/lib/blog';
 
-/** The latest blog posts as a list of rows with a small cover (Hashnode, plus the dev.to copy). */
+/**
+ * The latest blog posts as a list of rows with a small cover (Hashnode, plus the dev.to copy).
+ * Shown in the Writing app (`WritingDialog`), whose title bar names it; the heading is for
+ * screen readers and the page outline.
+ */
 export function Writing({ posts }: { posts: BlogPost[] }) {
   return (
-    <fieldset className="section" id="section-writing">
-      <legend>
-        <h2>Writing</h2>
-      </legend>
+    <section className="writing" id="writing-posts" aria-labelledby="writing-heading">
+      <h2 className="sr-only" id="writing-heading">
+        Writing
+      </h2>
       {posts.length === 0 ? (
         <p>
           I write about frontend, backend, cloud and security. Read the posts on{' '}
@@ -28,7 +32,7 @@ export function Writing({ posts }: { posts: BlogPost[] }) {
           </a>
         </>
       )}
-    </fieldset>
+    </section>
   );
 }
 

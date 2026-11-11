@@ -4,8 +4,17 @@ import { useEffect } from 'react';
 import { contextMenuPosition } from '@/components/desktop/ContextMenu';
 import { useOsActions } from './OsProvider';
 
+function wantsBrowserMenu(target: EventTarget | null): boolean {
+  if (target instanceof Element && target.closest('a[href], input, textarea, select, [contenteditable="true"]')) return true;
+  // Right-clicking on the selected text itself (not just anywhere while something is selected).
+  const selection = window.getSelection();
+  return Boolean(
+    target instanceof Node && selection && !selection.isCollapsed && selection.toString().trim() && selection.containsNode(target, true),
+  );
+}
+
 /**
- * Document-wide listeners: custom right-click menu, click-away and Escape to close menus, and
+ * Document-wide listeners: custom right-click menu (not on links, fields or selected text), click-away and Escape to close menus, and
  * `data-inactive` on <html> while the browser window isn't focused (window buttons turn gray).
  */
 export function useDesktopEvents() {
@@ -13,6 +22,12 @@ export function useDesktopEvents() {
 
   useEffect(() => {
     const onContextMenu = (e: MouseEvent) => {
+      // Links, text fields and selected text keep the browser's own menu (open in new tab,
+      // copy, paste); the desktop menu is for everywhere else.
+      if (wantsBrowserMenu(e.target)) {
+        closeMenus();
+        return;
+      }
       e.preventDefault();
       const { x, y } = contextMenuPosition(e.clientX, e.clientY);
       openContextMenu(x, y);

@@ -1,5 +1,4 @@
-// PROFILE is only needed by the blog command (turned off): import { PROFILE, PROFILE_LINKS }
-import { PROFILE_LINKS } from '@/data/profile';
+import { PROFILE, PROFILE_LINKS } from '@/data/profile';
 import type { BlogPost } from './blog';
 import { VISIBLE_PROJECTS } from '@/data/projects';
 import type { SectionId } from './sections';
@@ -40,7 +39,7 @@ let nextHint = 0;
 
 const COMMANDS: Record<string, Command> = {
   help: () =>
-    `Available commands:\n  whoami, about, skills, projects, experience, contact,\n  resume, links, ${PROFILE_LINKS.map((link) => link.id).join(', ')},\n  date, ver, echo <text>, clear, exit\n\nPsst: ${HINTS.length} commands are hidden. Type 'hint' for a clue.`,
+    `Available commands:\n  whoami, about, skills, projects, experience, contact,\n  resume, blog, links, ${PROFILE_LINKS.map((link) => link.id).join(', ')},\n  date, ver, echo <text>, clear, exit\n\nPsst: ${HINTS.length} commands are hidden. Type 'hint' for a clue.`,
   hint: () => {
     const i = nextHint;
     nextHint = (nextHint + 1) % HINTS.length;
@@ -83,8 +82,7 @@ const COMMANDS: Record<string, Command> = {
 };
 
 /** Parses one line of input. The echoed prompt line is always the first appended line. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for the blog command (turned off for now)
-export function runTerminalCommand(raw: string, fx: TerminalEffects, _posts: readonly TerminalPost[]): TerminalResult {
+export function runTerminalCommand(raw: string, fx: TerminalEffects, posts: readonly TerminalPost[]): TerminalResult {
   const cmd = raw.trim();
   const echo = `${TERMINAL_PROMPT} ${cmd}`;
   if (cmd === '') return { kind: 'append', lines: [echo] };
@@ -103,9 +101,7 @@ export function runTerminalCommand(raw: string, fx: TerminalEffects, _posts: rea
   // `echo` alone prints an empty line, like zsh.
   if (lower === 'echo' || lower.startsWith('echo ')) return { kind: 'append', lines: [echo, cmd.slice(5)] };
 
-  // The blog command is turned off with the Writing section (Nov 2026). To bring it back, uncomment
-  // this line and blog() below, add 'blog, ' back to help, and use `posts` instead of `_posts`.
-  // if (lower === 'blog' || lower.startsWith('blog ')) return { kind: 'append', lines: [echo, blog(lower.slice(5).trim(), fx, posts)] };
+  if (lower === 'blog' || lower.startsWith('blog ')) return { kind: 'append', lines: [echo, blog(lower.slice(5).trim(), fx, posts)] };
 
   const command = COMMANDS[lower.split(' ')[0] ?? ''];
   if (!command) {
@@ -119,23 +115,23 @@ export function runTerminalCommand(raw: string, fx: TerminalEffects, _posts: rea
   return { kind: 'append', lines: output ? [echo, output] : [echo] };
 }
 
-// /** `blog` lists the latest posts; `blog <number>` opens one, `blog all` opens the blog. */
-// function blog(arg: string, fx: TerminalEffects, posts: readonly TerminalPost[]): string {
-//   const blogUrl = PROFILE.links.hashnode.href;
-//   if (arg === 'all') {
-//     fx.openUrl(blogUrl);
-//     return 'Opening the blog...';
-//   }
-//   if (posts.length === 0) return `Couldn't load the posts right now. Read them at ${blogUrl}`;
-//   if (arg === '') {
-//     const list = posts.map((p, i) => `${String(i + 1).padStart(2)}. ${p.title}\n    ${p.dateLabel} · ${p.readMinutes} min read`);
-//     return `Latest posts:\n${list.join('\n')}\n\nType 'blog <number>' to open one, or 'blog all' for the blog.`;
-//   }
-//   const post = /^\d+$/.test(arg) ? posts[Number(arg) - 1] : undefined;
-//   if (!post) return `blog: no post '${arg}'. Pick 1-${posts.length}, or type 'blog all'.`;
-//   fx.openUrl(post.url);
-//   return `Opening "${post.title}"...`;
-// }
+/** `blog` lists the latest posts; `blog <number>` opens one, `blog all` opens the blog. */
+function blog(arg: string, fx: TerminalEffects, posts: readonly TerminalPost[]): string {
+  const blogUrl = PROFILE.links.hashnode.href;
+  if (arg === 'all') {
+    fx.openUrl(blogUrl);
+    return 'Opening the blog...';
+  }
+  if (posts.length === 0) return `Couldn't load the posts right now. Read them at ${blogUrl}`;
+  if (arg === '') {
+    const list = posts.map((p, i) => `${String(i + 1).padStart(2)}. ${p.title}\n    ${p.dateLabel} · ${p.readMinutes} min read`);
+    return `Latest posts:\n${list.join('\n')}\n\nType 'blog <number>' to open one, or 'blog all' for the blog.`;
+  }
+  const post = /^\d+$/.test(arg) ? posts[Number(arg) - 1] : undefined;
+  if (!post) return `blog: no post '${arg}'. Pick 1-${posts.length}, or type 'blog all'.`;
+  fx.openUrl(post.url);
+  return `Opening "${post.title}"...`;
+}
 
 /** Appends lines newline-separated, with no leading blank line. */
 export function appendTerminalLines(current: string, lines: string[]): string {

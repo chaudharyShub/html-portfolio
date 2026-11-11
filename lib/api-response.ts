@@ -5,7 +5,13 @@ export const NO_STORE = { 'Cache-Control': 'no-store' };
 /** True when the request comes from another site's page (only this site may write). */
 export function fromOtherSite(request: Request): boolean {
   const origin = request.headers.get('origin');
-  return Boolean(origin && new URL(origin).host !== request.headers.get('host'));
+  if (!origin) return false;
+  // `Origin: null` (sandboxed frames, some privacy tools) or anything unparsable isn't this site.
+  try {
+    return new URL(origin).host !== request.headers.get('host');
+  } catch {
+    return true;
+  }
 }
 
 export const forbidden = () => Response.json({ error: 'Forbidden' }, { status: 403, headers: NO_STORE });

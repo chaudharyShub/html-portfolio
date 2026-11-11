@@ -70,18 +70,17 @@ test('projects are grouped by company, then personal projects', async ({ page })
   );
 });
 
-// The Writing section is turned off for now (Nov 2026); switch back to test() when it returns.
-test.skip('the Writing tab lists the latest blog posts as rows with a cover, newest first', async ({ page }) => {
+test('the Writing app on the desktop lists the latest blog posts as rows with a cover, newest first', async ({ page }) => {
   // Cover images go through next/image; answer with a local picture instead of the network.
   await page.route('**/_next/image**', (route) => route.fulfill({ path: 'public/favicon.png' }));
   await openDesktop(page);
-  const writing = page.locator('#section-writing');
-  await page.getByRole('tab', { name: 'About' }).click();
-  await expect(writing).toBeHidden();
+  // Its own app: not a tab in the portfolio window, not in the Dock.
+  await expect(page.getByRole('tab', { name: 'Writing' })).toHaveCount(0);
+  await expect(page.locator('#dock-writing')).toHaveCount(0);
 
-  await page.getByRole('tab', { name: 'Writing' }).click();
-  await expect(writing.getByRole('heading', { name: 'Writing', exact: true })).toBeVisible();
-  await expect(page.locator('#section-about')).toBeHidden();
+  await page.locator('#icon-writing').dblclick();
+  const writing = page.getByRole('dialog', { name: 'Writing' });
+  await expect(writing).toBeVisible();
   // From tests/fixtures/blog: emoji and entities cleaned up, sorted by date, reading time from the word count.
   const rows = writing.locator('.post-row');
   await expect(rows.locator('.post-title')).toHaveText(['Newest Post: Tests & Fixtures', 'Older Post About npm']);
@@ -100,7 +99,6 @@ test.skip('the Writing tab lists the latest blog posts as rows with a cover, new
     'https://dev.to/shubham_works/newest-post-1abc',
   );
   await expect(rows.nth(1).getByRole('link', { name: /on dev\.to/ })).toHaveCount(0);
-  await expect(writing).not.toContainText('only on dev.to');
 
   // Clicking anywhere on the row (here: the cover) opens the post; the dev.to link opens dev.to.
   await page.context().route(/hashnode\.dev|dev\.to\/shubham_works/, (route) => route.fulfill({ body: 'post' }));
@@ -110,6 +108,10 @@ test.skip('the Writing tab lists the latest blog posts as rows with a cover, new
   const devto = page.waitForEvent('popup');
   await rows.first().locator('.post-devto').click();
   expect((await devto).url()).toBe('https://dev.to/shubham_works/newest-post-1abc');
+
+  await page.bringToFront();
+  await page.keyboard.press('Escape');
+  await expect(writing).toBeHidden();
 });
 
 test('the Shubham Works pill sits in the bottom-left corner and opens the other sites', async ({ page }) => {
@@ -264,26 +266,25 @@ test('Terminal runs commands and clears', async ({ page }) => {
   await expect(output).toContainText('https://github.com/chaudharyShub');
   await expect(output).toContainText('https://shubham-works.hashnode.dev');
 
-  // The blog command is turned off with the Writing section (Nov 2026); uncomment when it returns.
-  // // blog lists the posts; blog <n> opens one in a new tab.
-  // await input.fill('blog');
-  // await input.press('Enter');
-  // await expect(output).toContainText(' 1. Newest Post: Tests & Fixtures');
-  // await expect(output).toContainText('Nov 3, 2026 · 1 min read');
-  // const popup = page.waitForEvent('popup');
-  // await page.context().route('https://shubham-works.hashnode.dev/**', (route) => route.fulfill({ body: 'post' }));
-  // await input.fill('blog 2');
-  // await input.press('Enter');
-  // expect((await popup).url()).toBe('https://shubham-works.hashnode.dev/older-post');
-  // await expect(output).toContainText('Opening "Older Post About npm"...');
-  // await input.fill('blog 9');
-  // await input.press('Enter');
-  // await expect(output).toContainText("blog: no post '9'. Pick 1-2");
+  // blog lists the posts; blog <n> opens one in a new tab.
+  await input.fill('blog');
+  await input.press('Enter');
+  await expect(output).toContainText(' 1. Newest Post: Tests & Fixtures');
+  await expect(output).toContainText('Nov 3, 2026 · 1 min read');
+  const popup = page.waitForEvent('popup');
+  await page.context().route('https://shubham-works.hashnode.dev/**', (route) => route.fulfill({ body: 'post' }));
+  await input.fill('blog 2');
+  await input.press('Enter');
+  expect((await popup).url()).toBe('https://shubham-works.hashnode.dev/older-post');
+  await expect(output).toContainText('Opening "Older Post About npm"...');
+  await input.fill('blog 9');
+  await input.press('Enter');
+  await expect(output).toContainText("blog: no post '9'. Pick 1-2");
 
   // help lists resume and points to the hidden commands; hint gives one clue at a time.
   await input.fill('help');
   await input.press('Enter');
-  await expect(output).toContainText('resume, links'); // 'resume, blog, links' with the Writing section
+  await expect(output).toContainText('resume, blog, links');
   await expect(output).toContainText("3 commands are hidden. Type 'hint' for a clue.");
   await input.fill('hint');
   await input.press('Enter');
@@ -436,9 +437,9 @@ test('the close button asks before "quitting" and then minimizes', async ({ page
   await expect(win).toBeHidden();
 });
 
-test('Time Machine opens from the Dock and travels from today back to birth', async ({ page }) => {
+test('Time Machine opens from the desktop and travels from today back to birth', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#dock-timemachine').click({ force: true });
+  await page.locator('#icon-timemachine').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
   const ticks = dialog.getByRole('tab');
@@ -490,7 +491,7 @@ test('Time Machine opens from the Dock and travels from today back to birth', as
 
 test('the green button takes the Time Machine full screen, Escape leaves it first', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#dock-timemachine').click({ force: true });
+  await page.locator('#icon-timemachine').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
   const viewport = page.viewportSize()!;
@@ -568,6 +569,55 @@ test('a sticky note shows a motto on the desktop and can be dragged', async ({ p
   expect(Math.round(after.y - before.y)).toBe(50);
 });
 
+test('right-click opens the desktop menu, but links and text fields keep the browser menu', async ({ page }) => {
+  await openDesktop(page);
+  // Records whether the page blocked the browser's own menu for the last right-click.
+  await page.evaluate(() => {
+    window.addEventListener('contextmenu', (e) => {
+      document.documentElement.dataset.lastMenuBlocked = String(e.defaultPrevented);
+    });
+  });
+  const blocked = () => page.evaluate(() => document.documentElement.dataset.lastMenuBlocked);
+  const menu = page.locator('#context-menu');
+
+  await page.locator('.desktop-layer').click({ button: 'right', position: { x: 10, y: 300 } });
+  await expect(menu).toBeVisible();
+  expect(await blocked()).toBe('true');
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+
+  await page.getByRole('tab', { name: 'Contact' }).click();
+  await page.locator('#section-contact .profile-links a').first().click({ button: 'right' });
+  expect(await blocked()).toBe('false');
+  await expect(menu).toBeHidden();
+  await page.locator('#section-contact textarea').click({ button: 'right' });
+  expect(await blocked()).toBe('false');
+  await expect(menu).toBeHidden();
+});
+
+test('the desktop shows Shubham HD, Debug Runner, Time Machine and Writing; the other apps are in the Dock', async ({ page }) => {
+  await openDesktop(page);
+  await expect(page.locator('.desktop-icon').filter({ visible: true })).toHaveText(['Shubham HD', 'Debug Runner', 'Time Machine', 'Writing']);
+  // The others are Home Screen icons on phones; here they're in the Dock.
+  for (const id of ['activity', 'trash']) await expect(page.locator(`#dock-${id}`)).toBeVisible();
+  // Debug Runner and Time Machine are desktop apps, not in the Dock.
+  for (const id of ['game', 'timemachine']) await expect(page.locator(`#dock-${id}`)).toHaveCount(0);
+});
+
+test('a dragged desktop icon stays under the pointer', async ({ page }) => {
+  await openDesktop(page);
+  const icon = page.locator('#icon-writing');
+  const before = (await icon.boundingBox())!;
+  await page.mouse.move(before.x + 30, before.y + 30);
+  await page.mouse.down();
+  await page.mouse.move(before.x - 170, before.y - 90, { steps: 5 });
+  await page.mouse.up();
+  // Moved exactly as far as the pointer (it used to drop by the menu bar's height).
+  const after = (await icon.boundingBox())!;
+  expect(Math.round(after.x - before.x)).toBe(-200);
+  expect(Math.round(after.y - before.y)).toBe(-120);
+});
+
 test('the sticky note switches to another motto on the hour', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-26T10:59:00') });
   await openDesktop(page);
@@ -606,7 +656,7 @@ test('the status bar stays on one row at any window width, with Larger Text too'
 test('the Time Machine never needs a scrollbar, even on a short laptop screen', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 657 });
   await openDesktop(page);
-  await page.locator('#dock-timemachine').click({ force: true });
+  await page.locator('#icon-timemachine').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Time Machine' });
   await expect(dialog).toBeVisible();
   const fits = () =>
@@ -625,7 +675,7 @@ test('Debug Runner: the top score of all players shows, and a run sends its scor
   const hold = new Promise<void>((resolve) => (release = resolve));
   const state = await stubTopScore(page, { start: 1, hold });
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   const top = dialog.locator('.game-top');
   await expect(top).toHaveText(/Top score: [\d,]+$/);
@@ -657,7 +707,7 @@ test('Debug Runner: the top score of all players shows, and a run sends its scor
 test('Debug Runner: a record that the server does not save is taken back', async ({ page }) => {
   await stubTopScore(page, { start: 1, submitOk: false });
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   const over = dialog.locator('#game-over-msg');
   await expect(over).toBeVisible({ timeout: 10_000 });
@@ -672,7 +722,7 @@ test('Debug Runner: the top score hides when the server has none, and other site
 }) => {
   // Tests point the database at a dead address, so the real route answers 503.
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   await expect(dialog.locator('.game-score-line')).toContainText('Your best');
   await expect(dialog.locator('.game-top')).toHaveCount(0);
@@ -684,11 +734,28 @@ test('Debug Runner: the top score hides when the server has none, and other site
   expect(foreign.status()).toBe(403);
   const foreignRun = await request.post('/api/debug-runner/run', { headers: { Origin: 'https://example.com' } });
   expect(foreignRun.status()).toBe(403);
+  const nullOriginRun = await request.post('/api/debug-runner/run', { headers: { Origin: 'null' } });
+  expect(nullOriginRun.status()).toBe(403);
+});
+
+test('the bigger apps load on first open, then stay mounted', async ({ page }) => {
+  await openDesktop(page);
+  // Not in the page at startup (they used to be rendered and hydrated with it).
+  for (const selector of ['.game-canvas', '.tm-space']) await expect(page.locator(selector)).toHaveCount(0);
+
+  await page.locator('#icon-timemachine').dblclick();
+  const dialog = page.getByRole('dialog', { name: 'Time Machine' });
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  // Closed again, it stays in the page so it keeps its place in time.
+  await expect(page.locator('.tm-space')).toHaveCount(1);
+  await expect(page.locator('.game-canvas')).toHaveCount(0);
 });
 
 test('Debug Runner: the score climbs, a crash shows a joke and saves the best score', async ({ page }) => {
   await openDesktop(page);
-  await page.locator('#dock-game').click({ force: true });
+  await page.locator('#icon-game').dblclick();
   const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
   await expect(dialog).toBeVisible();
   const scoreLine = dialog.locator('.game-score-line span').first();

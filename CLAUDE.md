@@ -87,9 +87,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   and passes them as props into the client desktop root `components/os/ShubhamOS.tsx`. All content
   is in the server HTML (SEO); the client only chooses which sections a tab shows and their order.
 - Content lives in `data/*.ts` (profile, about, skills, projects, experience, education); blog
-  posts come from the blogs themselves (`lib/blog.ts`, see Features: Writing - turned off for now,
-  so the page is static; with it on, `app/page.tsx` is ISR with `revalidate = 86400`, a literal;
-  `BLOG_REVALIDATE` in `lib/blog.ts` matches).
+  posts come from the blogs themselves (`lib/blog.ts`, see Features: Writing). `app/page.tsx`
+  is ISR with `revalidate = 86400` (a literal; `BLOG_REVALIDATE` in `lib/blog.ts` matches).
   Entries with `hidden: true` (BrowseAnywhere project, ShepHertz job) are kept but not rendered.
 - `components/os/OsProvider.tsx`: one reducer for dialogs, menus, tab, toast and window status, plus
   stable actions (`useOsActions()`): `showToast`, `showMessage`, `openDialog`, `goToSection`,
@@ -97,7 +96,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   imperative handles/DOM nodes in via `connect.*` callback refs (`mainWindow`, `terminalWindow`,
   `mainDockIcon`, `terminalDockIcon`, `terminalConsole`, ...) because the React Compiler lint forbids
   passing ref objects around in render. Dialog ids: `message`, `closeConfirm`, `trash`, `game`,
-  `settings`, `wizard`, `timeMachine`, `about`, `activity`, `links`. Window keys: `main`, `terminal`.
+  `settings`, `wizard`, `timeMachine`, `about`, `activity`, `links`, `writing`. Window keys: `main`, `terminal`.
 - `components/windows/Window.tsx` is the single generic window (drag, 8-edge resize, snap, zoom,
   minimize, phone Home button); reuse it for any new window. Discrete state is React state; live
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
@@ -117,6 +116,20 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   content), and `.time-machine` has `isolation: isolate` so its year and edge note stay under
   the sticky title bar. Contents stay mounted
   while closed.
+- **Bigger apps load on first open** (Nov 2026, from an outside audit: hydrating every dialog
+  with the page was most of the phone's startup work): the Debug Runner, Time Machine, Activity
+  Monitor, About This Developer, System Settings and the resume installer are `next/dynamic`
+  (`ssr: false`) in `ShubhamOS.tsx`, wrapped in `OnFirstOpen` (mounts when its dialog id first
+  opens, then stays mounted like the rest). `usePreloadApps` fetches their code ~2s after load on
+  idle, so the first open doesn't wait. The game starts itself if it mounts already open
+  (`openGame()` asked before it existed). Measured locally: JS at load 137 -> 65 KB, page
+  elements 1,594 -> 936. Message, quit, Trash and Links dialogs and the Terminal stay eager.
+  Test: `desktop.spec.ts` ("the bigger apps load on first open").
+- **Security headers** on every response (`next.config.ts`): `frame-ancestors 'none'` +
+  `X-Frame-Options: DENY` (no framing, so nobody can trick visitors into clicking Like on a
+  hidden copy), `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, a
+  `Permissions-Policy` turning off camera/mic/location/payment/USB. No script CSP on purpose: Next
+  ships page data as inline scripts and the theme pre-paint script is inline. Test: `seo.spec.ts`.
 - CSS in `styles/*.css`, imported in order by `app/globals.css`. No Tailwind, no CSS-in-JS.
 - localStorage-backed preferences use `lib/stored-value.ts` (`useSyncExternalStore`, server snapshot =
   default) so there are no hydration mismatches. Keys are in `lib/storage.ts`; their string values
@@ -144,7 +157,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Likes** (Nov 2026, the site's first server data, user's request): `app/api/likes/route.ts`
   (`GET` -> `{ count }`, `POST` adds one -> `{ count, id }` (`id: null` over the daily limit),
   `DELETE` `{ id }` takes one back -> `{ count, removed }` (400 for a malformed id); a different
-  `Origin` gets 403; 503 when unconfigured or Upstash fails) over `lib/likes-store.ts`, which calls Upstash Redis's REST `/pipeline` with
+  `Origin` gets 403, so does `Origin: null` or one that can't be parsed (`fromOtherSite` in
+  `lib/api-response.ts`; it used to throw a 500); 503 when unconfigured or Upstash fails) over `lib/likes-store.ts`, which calls Upstash Redis's REST `/pipeline` with
   `fetch` (no `@upstash/redis` dependency). Database `shubham-portfolio-kv` (Upstash via the Vercel
   Marketplace, Mumbai, free plan, eviction off), env `KV_REST_API_URL` / `KV_REST_API_TOKEN`
   (also in `.env.local`). Keys: `likes:count`; `likes:ids` (set of the server-made UUIDs of likes
@@ -178,14 +192,16 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   submenu, right-click menu) use `--menu-material`: in Light a see-through glass (0.72; the
   opaquer `--material-strong` looked solid over the white window), in Dark the original
   `--material-strong` (more see-through looked bad there - user's call).
-- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-game`, `#dock-timemachine`, `#dock-activity`, `#dock-settings`, `#dock-resume`,
+- `Dock`: `#dock-portfolio`, `#dock-terminal`, `#dock-activity`, `#dock-settings`, `#dock-resume`,
   `#dock-trash` (`#dock-more` is phone-only). Magnification is JS (`useMagnification`): cosine
   falloff by pointer distance against the resting layout, written to `--s` per item; items widen (so
   the dock grows) and icons scale from their bottom edge. Launch bounce animates the tile, not the
   button. Running dots.
 - Portfolio window (`#window`) is laid out like a Mac app (CSS grid in `styles/window.css`): unified
   52px title bar, translucent sidebar (`.window::before`, backdrop blur) with the profile card (the
-  server `InfoBar` with avatar initials; its "Name:/Role:/Status:" labels are visually hidden but kept
+  server `InfoBar` with avatar initials; "Experience: 4+ Years" is in the server HTML via
+  `serverYears` (`careerYears` in `lib/uptime.ts`; the live clock takes over in the browser - it
+  used to be a "-" until then, which crawlers and link previews saw); its "Name:/Role:/Status:" labels are visually hidden but kept
   for screen readers) and the section list (the tablist, colored `tab-tile`s, a selection highlight
   that glides between rows). Content and status bar on the right.
 - Status bar (`StatusBar.tsx`, Time / Status / Made with / © / like + visitor chips) is always one
@@ -194,9 +210,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   window narrows; the chips always stay; "Made with" can also shorten with an ellipsis. Phones
   keep the wrapped, centered footer. Test: `desktop.spec.ts`.
 - Tabs (`lib/sections.ts`, Oct 2026): Home (every section), About (About + Experience), Projects,
-  Skills, Contact (and Writing, turned off for now - see Features). Skills got its own tab at the user's request (it used to sit under Projects);
-  Writing too (Nov 2026, pencil `TabGlyph`, indigo tile). The phone tab bar holds five: Writing's
-  tab is hidden there (`#tab-writing` in `ios.css`) and phones find the posts on Home.
+  Skills, Contact. Skills got its own tab at the user's request (it used to sit under Projects).
+  The blog posts are not a tab: they are the Writing app (see Features; a Writing tab was built
+  first and replaced, Nov 2026).
 - Profile photo: `public/profile.jpg` (192px square crop of the user's photo; the original is kept
   in `assets/profile-photo.jpeg`, not served). Shown in the sidebar profile card (`InfoBar`, path in
   `PROFILE.photo`) and used as the JSON-LD `Person` image. Hidden in the phone info row.
@@ -208,7 +224,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom
   (exception: the green button works in the Time Machine and Activity Monitor, see below; its minimize stays gray on purpose -
   the genie can't copy the starfield canvas).
-- Desktop icons (Shubham HD, Debug Runner, Time Machine, Activity Monitor, Terminal, Trash) in a top-right column; double-click with
+- Desktop icons on computers: only Shubham HD, Debug Runner, Time Machine and Writing, in a
+  top-right column (`columnLayout`, 104px apart). Nov 2026, user's call: seven icons looked
+  crowded, so the apps that are in the Dock (Activity Monitor, Trash) are `phoneOnly` in
+  `DESKTOP_ICONS` (`.desktop-icon--phone-only`: hidden on computers, shown on the Home Screen,
+  like Links), and Debug Runner and Time Machine left the Dock for the desktop (`#dock-game` and
+  `#dock-timemachine` are gone; user's calls). The Terminal desktop icon was
+  removed (Dock on both). Clean Up shuffles only the visible icons. Double-click with
   a mouse, single tap on touch. The default Aurora wallpaper drifts slowly (`LiveWallpaper`).
 - Animations (`lib/motion.ts`, all return a cancel function):
   - Minimize = real genie: the window is copied into 10-16 horizontal strips (each only its slice's
@@ -290,7 +312,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - The desktop layer is a Home Screen with **two pages** (Nov 2026, the user's idea), swiped like an
   iPhone (CSS scroll snap on `.desktop-layer`, each `.home-page` a 4-column grid) with tappable
   page dots above the dock (`.home-dots`, `aria-current` on the shown page). Page 1: the icons
-  (the Terminal icon is hidden there, it's in the dock; the phone-only Links icon is shown), the sticky note widget (the Shubham
+  (every icon incl. the `phoneOnly` ones - Time Machine, Activity Monitor, Trash, Links; Terminal
+  is in the dock), the sticky note widget (the Shubham
   Works pill is commented out for now, see Features); page 2: the Shubham Works widget. On computers `.home-page` is `display: contents`
   and page 2 / the dots are hidden, so the desktop is unchanged. The
   dock shows Shubham / Terminal / Settings / More (More opens `AppMenu` as an action sheet with a
@@ -309,8 +332,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   ~4.4s. Click or any key skips it ("Tap to skip" on touch screens). Timing is intentionally fixed;
   total must stay within 4-6 seconds if changed.
 - **Terminal** (`components/windows/TerminalWindow.tsx`, commands in `lib/terminal.ts`): prompt
-  `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `blog` (turned off with
-  the Writing section; when on it lists the Writing posts; `blog <n>` opens one, `blog all` the blog; posts come down from `app/page.tsx` as the
+  `shubham@portfolio ~ %`, `help`, `whoami`, `skills`, `projects`, `resume`, `blog` (lists the Writing
+  posts; `blog <n>` opens one, `blog all` the blog; posts come down from `app/page.tsx` as the
   `posts` prop of `ShubhamOS` -> `TerminalWindow`), `links` (plus one
   command per profile link id), `sudo hire-me`, history
   with Up/Down, zsh-style "command not found". Hidden commands (`sudo hire-me`, `matrix`,
@@ -382,7 +405,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   not used: they're other organizations' copyrighted assets; the user's own photos would be fine.
   Green button (or double-clicking the title bar) glides it to full screen (`zoomed` /
   `onToggleZoom` on `Dialog`, desktop only); Escape leaves full screen first, then closes.
-  Opens on the latest job. From the Dock, the desktop/Home Screen icon and the logo menu.
+  Opens on the latest job. From its desktop / Home Screen icon and the logo menu.
   Education is shown only here (not in the portfolio sections); the resume already lists the
   MBA and the B.Tech.
 - **About This Developer** (`components/dialogs/AboutDeveloperDialog.tsx`): a Mac-style About
@@ -397,10 +420,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   tags mention the skill (aliases like MUI/Material UI are matched). A "Threads = usage count"
   column was dropped: JavaScript/HTML/CSS aren't tagged anywhere and showed 0. Samples only tick
   while open; none under reduced motion. Green button = full screen. From the Dock, the
-  desktop/Home Screen icon and the logo menu.
+  Home Screen icon (phones) and the logo menu.
 - **Sticky note** (`components/desktop/StickyNote.tsx`): yellow note in the top-left of the desktop
   (mouse-draggable), a 2x2 widget in the top-right of the phone Home Screen (icons fill the left half beside it,
-  Trash continues below; the user's layout choice). Shows one of a few short mottos
+  Trash continues below; the user's layout choice). Shows one of nine short mottos
   (written by Claude at the user's request), switching on the visitor's local hour (no
   "new note every hour" caption - the user removed it). Not in the
   server HTML (depends on the clock), via `useSyncExternalStore`.
@@ -414,7 +437,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   It is saved like the theme and applied by the pre-paint script (`buildAppearanceInitScript`,
   `DISPLAY_FLAGS` in `lib/themes.ts`) so there is no flash. (CRT scanlines and mouse trails were
   removed in Oct 2026; a Reduce Transparency switch was tried and removed at the user's request.)
-- **Right-click menu**: New Folder (joke), Get Info, System Settings..., Clean Up, Reload.
+- **Right-click menu**: New Folder (joke), Get Info, System Settings..., Clean Up, Reload. Not on
+  links, text fields or selected text: those keep the browser's own menu (open in new tab, copy,
+  paste; `wantsBrowserMenu` in `useDesktopEvents.ts`).
 - **Page Not Found** (`app/not-found.tsx`, 404, not indexed): a Mac-style alert on the plain
   wallpaper with the crying Sad monitor (Nov 2026, user's pick; it had the warning icon),
   "moved to the Trash, or never existed", and "Back to Desktop".
@@ -468,15 +493,21 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     (`#icon-links`, purple chain-link tile, placed before Trash with CSS `order`; hidden on
     computers) opens the `links` dialog (`LinksDialog` in `SystemDialogs.tsx`), a bottom sheet
     "Find me online" with every link. Chosen over a separate "Links" tab:
-  the phone tab bar is full at five tabs. The posts themselves are in the Writing section.
+  the phone tab bar is full at five tabs. The posts themselves are in the Writing app.
   Tile glyphs: code brackets (GitHub), briefcase (LinkedIn), page with lines (dev.to), `#`
   (Hashnode), camera (Instagram).
   To add a link: a new id in `ProfileLinkId`, an entry in `PROFILE.links`, a glyph in
   `LINK_GLYPHS` and a `.link-tile--<id>` gradient in `styles/portfolio.css`.
-- **Writing** (`components/portfolio/Writing.tsx`, `lib/blog.ts`, Nov 2026, user's request: show
-  the dev.to and Hashnode blogs). **Turned off for now** (Nov 2026, the user's call: "don't want that feature right now"; built, merged, then commented out, like the Shubham Works pill). The code, CSS, fixtures and `next/image` hosts stay. To bring it back, uncomment the `writing` lines in `lib/sections.ts`, `app/page.tsx` (the `getBlogPosts` fetch, `revalidate`, `async`, the `posts` prop and the section) and the `blog` command in `lib/terminal.ts` (plus `'blog, '` in `help`, `_posts` -> `posts`), then un-skip / uncomment the Writing checks in `desktop.spec.ts`, `mobile.spec.ts` and `seo.spec.ts`, and add Writing back to the README. What it does when on:
-  it has its own sidebar tab on computers (hidden in the phone tab bar,
-  which is full) and a section after Experience on Home. The latest 6 posts as rows in one grouped
+- **Writing** (`components/portfolio/Writing.tsx`, `lib/blog.ts`, `components/dialogs/WritingDialog.tsx`,
+  Nov 2026, user's request: show the dev.to and Hashnode blogs): its own app, opened from the
+  `#icon-writing` desktop / Home Screen icon (pencil `AppIcon`, indigo `.app-icon--writing`);
+  not a tab in the portfolio window and not in the Dock (user's call, Nov 2026: it first was a
+  sidebar tab + a section on Home, then was turned off, then came back as this app). Dialog id
+  `writing`, a panel (`.writing-box`, 620px; the list scrolls in `.writing-body` on short screens;
+  a bottom sheet on phones). The list is a Server Component handed in through `ShubhamOS`'s
+  `writing` prop, so the posts are in the server HTML (SEO) while the window is closed; its `<h2>`
+  is `sr-only` (the title bar names it).
+  The latest 6 posts as rows in one grouped
   list (`.post-list`, like the Contact links card): a 120px cover thumbnail (`.post-thumb`, 1.91:1,
   `next/image` `fill`; 96px on phones; Hashnode's `<enclosure>`, else the dev.to copy's
   `cover_image`; only hosts in `lib/blog-hosts.ts` `COVER_HOSTS`, which `next.config.ts`
@@ -485,7 +516,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   covers the row, so the whole row opens the Hashnode post; the dev.to link sits above it
   (`z-index`). Phones hide the summary and put dev.to on its own line (narrow column). Cards with
   big covers (two per row) were built first and replaced the same day: the user asked for an
-  honest opinion - too tall (6 posts = 3 screens on Home) and the busy covers competed with
+  honest opinion - too tall (6 posts = 3 screens on the old Home tab) and the busy covers competed with
   Projects. Then "All posts on the blog". Source: the Hashnode RSS feed (the main blog, address
   from `PROFILE.links.hashnode`; parsed with regexes, no library), reading time = words / 225.
   The dev.to link is added when a dev.to article's `canonical_url` is the Hashnode post (dev.to
@@ -678,5 +709,9 @@ inventing placeholder text - this reflects a real person's actual career history
   fake `WEB3FORMS_ACCESS_KEY`; contact tests stub `api.web3forms.com` and the service worker is
   blocked. Never let tests send real mail (the user's Web3Forms quota is small). `tsconfig.json`
   lists `.next-e2e/types` by hand so `next build` doesn't rewrite it. Projects: `desktop` (all specs
-  except mobile) and `phone` (375x667 touch, `mobile.spec.ts`). The lint config includes the React
+  except mobile) and `phone` (375x667 touch, `mobile.spec.ts`). Each test gets 60s (some take
+  ~25s on a busy machine; 30s made them time out now and then). Wait for slide-ins with
+  `animationsSettled(page)` (`tests/e2e/helpers.ts`) rather than fixed delays; the remaining
+  `waitForTimeout`s are deliberate ("nothing happens" checks, the game's restart delay, Time
+  Machine travel, gesture steps). The lint config includes the React
   Compiler rules (`react-hooks/refs`, `immutability`, ...) - fix the design rather than disabling them.

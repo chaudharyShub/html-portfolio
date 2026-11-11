@@ -81,16 +81,12 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   }
 
-  /* Terminal lives in the dock on phones. */
-  #icon-terminal {
-    display: none;
-  }
-
-  /* Links is a phone-only icon; it sits before Trash (it comes last in the markup). */
-  #icon-links {
+  /* The Home Screen shows every icon (the phone Dock only has four apps; Terminal is one). */
+  .desktop-icon.desktop-icon--phone-only {
     display: flex;
   }
 
+  /* Links sits before Trash (it comes last in the markup). */
   #icon-trash {
     order: 1;
   }
@@ -524,11 +520,6 @@
     transition: color 0.2s ease;
   }
 
-  /* The phone tab bar holds five tabs; there the posts are on the Home tab. */
-  #tab-writing {
-    display: none;
-  }
-
   /* Blog rows: a smaller cover beside the text. */
   .post-row {
     align-items: flex-start;
@@ -738,7 +729,8 @@
 
   .dialog-box--panel,
   .dialog-box--panel.wide,
-  .dialog-box--panel.wizard-box {
+  .dialog-box--panel.wizard-box,
+  .dialog-box--panel.writing-box {
     width: 100%;
     max-height: 92dvh;
     border-radius: 14px 14px 0 0;

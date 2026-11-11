@@ -9,7 +9,7 @@ import type { ProfileLinkId } from '@/data/profile';
 
 const decorative = { 'aria-hidden': true, focusable: false } as const;
 
-export type AppIconName = 'portfolio' | 'terminal' | 'game' | 'settings' | 'resume' | 'trash' | 'drive' | 'more' | 'timemachine' | 'activity' | 'links';
+export type AppIconName = 'portfolio' | 'terminal' | 'game' | 'settings' | 'resume' | 'trash' | 'drive' | 'more' | 'timemachine' | 'activity' | 'links' | 'writing';
 
 const GLYPHS: Record<AppIconName, ReactNode> = {
   portfolio: (
@@ -83,6 +83,14 @@ const GLYPHS: Record<AppIconName, ReactNode> = {
     <>
       <path d="M14.6 17.4a4.2 4.2 0 0 0 6 0l3.4-3.4a4.2 4.2 0 0 0-6-6l-1.6 1.6" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
       <path d="M17.4 14.6a4.2 4.2 0 0 0-6 0L8 18a4.2 4.2 0 0 0 6 6l1.6-1.6" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
+    </>
+  ),
+  // A pencil writing a line (the same pencil as the Writing glyph, on the 32px grid).
+  writing: (
+    <>
+      <path d="M8.5 22.5l1-4.3L19.6 8.1a2 2 0 0 1 2.8 0l.5.5a2 2 0 0 1 0 2.8L12.8 21.5z" fill="#fff" />
+      <path d="M17.6 10.1l3.3 3.3" stroke="#5560dc" strokeWidth="1.6" />
+      <path d="M17 25h7" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
     </>
   ),
   more: (

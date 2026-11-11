@@ -10,6 +10,9 @@ const NOTES = [
   'Leave the code cleaner than you found it.',
   'Small commits, big progress.',
   'Every bug is a lesson with a timestamp.',
+  'Name things for the next reader.',
+  'Test it on a real phone, too.',
+  'Deleting code counts as progress.',
 ];
 
 const HOUR = 60 * 60 * 1000;

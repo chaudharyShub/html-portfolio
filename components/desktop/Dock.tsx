@@ -125,16 +125,15 @@ function useMagnification(listRef: RefObject<HTMLUListElement | null>) {
 export function Dock() {
   const { actions, connect } = useOsApi();
   const { windows, dialogs, menuOpen } = useOsState();
-  const prev = useRef({ terminal: windows.terminal, game: dialogs.game });
+  const prevTerminal = useRef(windows.terminal);
   const listRef = useRef<HTMLUListElement>(null);
   useMagnification(listRef);
 
-  // Bounce an icon when its app launches from closed.
+  // Bounce the Terminal's icon when it launches from closed.
   useEffect(() => {
-    if (prev.current.terminal === 'closed' && windows.terminal === 'open') bounce(actions.getDockIcon('terminal'));
-    if (!prev.current.game && dialogs.game) bounce(document.getElementById('dock-game'));
-    prev.current = { terminal: windows.terminal, game: dialogs.game };
-  }, [windows.terminal, dialogs.game, actions]);
+    if (prevTerminal.current === 'closed' && windows.terminal === 'open') bounce(actions.getDockIcon('terminal'));
+    prevTerminal.current = windows.terminal;
+  }, [windows.terminal, actions]);
 
   return (
     <nav className="dock" aria-label="Dock">
@@ -156,22 +155,6 @@ export function Dock() {
           pressed={windows.terminal === 'open'}
           buttonRef={connect.terminalDockIcon}
           onClick={() => (windows.terminal === 'closed' ? actions.openTerminal() : actions.toggleTerminal())}
-        />
-        <DockItem
-          id="dock-game"
-          label="Debug Runner"
-          icon="game"
-          only="mac"
-          running={dialogs.game}
-          onClick={actions.openGame}
-        />
-        <DockItem
-          id="dock-timemachine"
-          label="Time Machine"
-          icon="timemachine"
-          only="mac"
-          running={dialogs.timeMachine}
-          onClick={() => actions.openDialog('timeMachine')}
         />
         <DockItem
           id="dock-activity"
