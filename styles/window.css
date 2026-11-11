@@ -286,6 +286,7 @@ html:has(.window.maximized) .subwindow {
 /* The symbols show while the pointer is over the buttons. */
 .traffic-lights:hover .tl svg,
 .dialog-close:hover svg,
+.dialog-min:hover svg,
 .dialog-zoom:hover svg,
 .tl:focus-visible svg {
   opacity: 1;
@@ -299,13 +300,15 @@ html:has(.window.maximized) .subwindow {
    focused); pointing at them brings the colors back. */
 :root[data-inactive] .traffic-lights:not(:hover) .tl,
 :root[data-inactive] .dialog-close:not(:hover),
+:root[data-inactive] .dialog-min:not(:hover),
 :root[data-inactive] .dialog-zoom:not(:hover),
 .tl-disabled {
   --tl-bg: var(--tl-off);
   --tl-ring: var(--tl-off-ring);
 }
 
-/* Panels (Settings, Trash...) can't be minimized or zoomed: gray, like macOS panel windows. */
+/* Most panels (Settings, Trash...) can't be minimized or zoomed: gray, like macOS panel windows.
+   Activity Monitor and Writing can do both; Time Machine only goes full screen. */
 .dialog-lights-off {
   position: absolute;
   left: 34px;

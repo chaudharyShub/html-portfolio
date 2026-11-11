@@ -97,6 +97,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `mainDockIcon`, `terminalDockIcon`, `terminalConsole`, ...) because the React Compiler lint forbids
   passing ref objects around in render. Dialog ids: `message`, `closeConfirm`, `trash`, `game`,
   `settings`, `wizard`, `timeMachine`, `about`, `activity`, `links`, `writing`. Window keys: `main`, `terminal`.
+  `minimized` in the state marks open panels that are in the Dock; the panel reports it when its
+  genie lands (`reportPanelMinimized`), like the windows. Minimizable panels plug a `PanelHandle`
+  in with `connect.panel(id, ...)`, and `openDialog(id)` on a minimized one calls its `restore()`,
+  so any way of opening an app (Dock, desktop icon, menu) brings it back.
 - `components/windows/Window.tsx` is the single generic window (drag, 8-edge resize, snap, zoom,
   minimize, phone Home button); reuse it for any new window. Discrete state is React state; live
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
@@ -200,7 +204,14 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `#dock-trash` (`#dock-more` is phone-only). Magnification is JS (`useMagnification`): cosine
   falloff by pointer distance against the resting layout, written to `--s` per item; items widen (so
   the dock grows) and icons scale from their bottom edge. Launch bounce animates the tile, not the
-  button. Running dots.
+  button. Every Dock app bounces when it opens from closed, however it was opened (Dock, desktop,
+  menu), and shows the open dot while open (Nov 2026, user's report: only the Terminal bounced).
+  **Visiting tiles** (user's request, Nov 2026): Debug Runner, Time Machine and Writing aren't in
+  the Dock, so while open they get a tile (`#dock-game`, `#dock-timemachine`, `#dock-writing`,
+  `VISITING_APPS` in `Dock.tsx`) between Resume and the separator, like a Mac shows running apps;
+  it slides in (`dockItemIn`) and out when the app closes (`dockItemOut`, kept mounted for
+  `LEAVE_MS`); none under reduced motion. Clicking it brings the app back (a running game isn't
+  restarted). A MutationObserver re-measures the magnification when tiles come or go.
 - Portfolio window (`#window`) is laid out like a Mac app (CSS grid in `styles/window.css`): unified
   52px title bar, translucent sidebar (`.window::before`, backdrop blur) with the profile card (the
   server `InfoBar` with avatar initials; "Experience: 4+ Years" is in the server HTML via
@@ -225,9 +236,30 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   our own SVGs (`WindowGlyph` in `components/icons`), drawn on the button's 12x12 grid so they
   are centered and sharp; not Apple's artwork. They turn gray
   (`--tl-off`) while the browser window isn't focused (`data-inactive` on `<html>`, set in
-  `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom
-  (exception: the green button works in the Time Machine and Activity Monitor, see below; its minimize stays gray on purpose -
-  the genie can't copy the starfield canvas).
+  `useDesktopEvents`). Panels show the close button plus a gray, disabled minimize and zoom.
+  Exceptions: **Activity Monitor and Writing** minimize (genie into their Dock tile) and go full
+  screen (Nov 2026, user's pick of just these two); **Time Machine** only goes full screen (its
+  minimize stays gray on purpose - the genie can't copy the starfield canvas).
+  Panel minimize (`Dialog`'s `minimizable={{ id, dockIconId }}`): the same `genie` as the
+  windows, played on the dialog box and started right from the click (a `phase` inside `Dialog`:
+  shown / leaving / away / returning); the rest of the desktop hears about it when it lands
+  (dispatching on the click re-rendered the portfolio window and held up the first frame). The
+  dimming fades (`.dialog-overlay--minimized`, clicks pass through); in the Dock the overlay is
+  only `visibility: hidden` (`--away`), so it stays laid out and its way back can be prepared;
+  restore plays it backwards and focuses the box. Copies are prepared while the pointer rests on
+  the yellow button (on that button, not the group: after the green button the panel has a new
+  size) and on a minimized app's Dock icon (`onRest` in `Dock.tsx`, `preparePanelRestore`).
+  Activity Monitor holds its live graph still while the pointer is on the window buttons
+  (`onButtonsHover`): a new sample made the prepared copies out of date. Its layout container
+  has `data-genie-blocks`, so each strip leaves out the blocks it doesn't show (`tagBlocks` in
+  `lib/motion.ts`; scrolling blocks count as trimmable there), like the portfolio's sections;
+  checked pixel by pixel against untrimmed copies, normal and full screen. Measured (Nov 2026,
+  test browser): the click's freeze went from ~450-680ms to none with a hover first, ~50-65ms
+  without (the portfolio window: ~50-70ms). A panel's copies are pinned `position: absolute`
+  and drawn at z-index 97 (just under the Dock, above the windows; the box has no z-index of
+  its own, and the first try drew them under the portfolio window).
+  `.genie-copy.dialog-box.zoomed` keeps a full-screen panel's layout in the copies (the real
+  rule needs the overlay as parent). Activity Monitor's samples pause while minimized.
 - Desktop icons on computers: only Shubham HD, Debug Runner, Time Machine and Writing, in a
   top-right column (`columnLayout`, 104px apart). Nov 2026, user's call: seven icons looked
   crowded, so the apps that are in the Dock (Activity Monitor, Trash) are `phoneOnly` in
@@ -279,11 +311,12 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     Before copying, the genie fires `BEFORE_GENIE_COPY` on the window so JS-measured layout can
     re-measure (the sidebar's selection highlight is 0px wide while the window sits in the Dock).
   - **Maximize = full screen, Dock on top** (Nov 2026, user's call: every app the same). The
-    green button on the portfolio window, the Terminal, the Time Machine and Activity Monitor
-    covers the whole screen, menu bar included; the Dock floats above it. Layers: maximized
+    green button on the portfolio window, the Terminal, the Time Machine, Activity Monitor and
+    Writing covers the whole screen, menu bar included; the Dock floats above it. Layers: maximized
     windows 91 (Terminal 92 while the portfolio is maximized, so it stays reachable), zoomed
     panels 93 (`.dialog-overlay--zoomed`), Dock 98, other dialogs 200. Each pads its bottom by
-    `--dock-reserve` (status bar, `.terminal-body`, `.activity`, `.time-machine`) so nothing
+    `--dock-reserve` (status bar, `.terminal-body`, `.activity`, `.time-machine`,
+    `.writing-body`; Writing's list also stays 820px wide, centered) so nothing
     sits behind the Dock. Half-screen snaps still stop at the menu bar and Dock.
   - Zoom = `animateFrame`: glides the real frame (inline !important left/top/width/height) while the
     tab panel is frozen at its final width, so text lays out once, not per frame. While it glides
@@ -428,8 +461,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   Up/Down to move, a scrolling load graph, and "Used in" listing the visible jobs and projects whose
   tags mention the skill (aliases like MUI/Material UI are matched). A "Threads = usage count"
   column was dropped: JavaScript/HTML/CSS aren't tagged anywhere and showed 0. Samples only tick
-  while open; none under reduced motion. Green button = full screen. From the Dock, the
-  Home Screen icon (phones) and the logo menu.
+  while open (not while minimized); none under reduced motion. Yellow button = into the Dock,
+  green = full screen. From the Dock, the Home Screen icon (phones) and the logo menu.
 - **Sticky note** (`components/desktop/StickyNote.tsx`): yellow note in the top-left of the desktop
   (mouse-draggable), a 2x2 widget in the top-right of the phone Home Screen (icons fill the left half beside it,
   Trash continues below; the user's layout choice). Shows one of nine short mottos
@@ -510,8 +543,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - **Writing** (`components/portfolio/Writing.tsx`, `lib/blog.ts`, `components/dialogs/WritingDialog.tsx`,
   Nov 2026, user's request: show the dev.to and Hashnode blogs): its own app, opened from the
   `#icon-writing` desktop / Home Screen icon (pencil `AppIcon`, indigo `.app-icon--writing`);
-  not a tab in the portfolio window and not in the Dock (user's call, Nov 2026: it first was a
-  sidebar tab + a section on Home, then was turned off, then came back as this app). Dialog id
+  not a tab in the portfolio window and not kept in the Dock (user's call, Nov 2026: it first was a
+  sidebar tab + a section on Home, then was turned off, then came back as this app); it has a
+  visiting Dock tile while open, minimizes into it and can go full screen (see Desktop). Dialog id
   `writing`, a panel (`.writing-box`, 620px; the list scrolls in `.writing-body` on short screens;
   a bottom sheet on phones). The list is a Server Component handed in through `ShubhamOS`'s
   `writing` prop, so the posts are in the server HTML (SEO) while the window is closed; its `<h2>`
@@ -720,7 +754,11 @@ inventing placeholder text - this reflects a real person's actual career history
   lists `.next-e2e/types` by hand so `next build` doesn't rewrite it. Projects: `desktop` (all specs
   except mobile) and `phone` (375x667 touch, `mobile.spec.ts`). Each test gets 60s (some take
   ~25s on a busy machine; 30s made them time out now and then). Wait for slide-ins with
-  `animationsSettled(page)` (`tests/e2e/helpers.ts`) rather than fixed delays; the remaining
-  `waitForTimeout`s are deliberate ("nothing happens" checks, the game's restart delay, Time
-  Machine travel, gesture steps). The lint config includes the React
+  `animationsSettled(page)` (`tests/e2e/helpers.ts`) rather than fixed delays, and measure with
+  `expect.poll` / `expect(...).toPass()` instead of one look (a busy machine draws a frame or two
+  late); a state shorter than ~200ms (a closing slide) is recorded in the page with a
+  MutationObserver rather than caught by polling. Nov 2026: the Contact fit, More sheet and
+  sheet-drag tests failed now and then for those reasons. The remaining `waitForTimeout`s are
+  deliberate ("nothing happens" checks, the game's restart delay, Time Machine travel, gesture
+  steps). The lint config includes the React
   Compiler rules (`react-hooks/refs`, `immutability`, ...) - fix the design rather than disabling them.

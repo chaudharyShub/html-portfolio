@@ -162,12 +162,39 @@ const TRIM_ATTR = 'data-genie-block';
  * True when an empty box with the same height and margins takes exactly the same space as `el`:
  * it is a plain block whose children's margins can't leak out of it (text only, or a box that
  * contains them: table, grid, flex, flow-root). The legend is skipped (fieldsets draw it specially).
+ * `scrollers`: a block that scrolls (overflow not visible) contains its children's margins too.
  */
-function isTrimmable(el: Element): boolean {
+function isTrimmable(el: Element, scrollers = false): boolean {
   if (el.tagName === 'LEGEND') return false;
-  const display = getComputedStyle(el).display;
-  if (['table', 'grid', 'flex', 'flow-root'].includes(display)) return true;
-  return display === 'block' && el.childElementCount === 0;
+  const style = getComputedStyle(el);
+  if (['table', 'grid', 'flex', 'flow-root'].includes(style.display)) return true;
+  if (style.display !== 'block') return false;
+  if (scrollers && (style.overflowX !== 'visible' || style.overflowY !== 'visible')) return true;
+  return el.childElementCount === 0;
+}
+
+/**
+ * Panels mark their layout container with this attribute: its children are the blocks a strip
+ * may swap for empty boxes (like the portfolio's sections). Without it each strip of a panel
+ * laid out the whole panel (Activity Monitor: its full table and graph, 14 times).
+ */
+const BLOCKS_ATTR = 'data-genie-blocks';
+
+/** Tags the trimmable children of `container` (in the window) on their twins in the copy. */
+function tagBlocks(container: Element, copyContainer: Element | undefined, blocks: TrimBlock[], scrollers: boolean) {
+  [...container.children].forEach((block, j) => {
+    if (!isTrimmable(block, scrollers)) return;
+    const b = block.getBoundingClientRect();
+    const style = getComputedStyle(block);
+    copyContainer?.children[j]?.setAttribute(TRIM_ATTR, String(blocks.length));
+    blocks.push({
+      top: b.top,
+      bottom: b.bottom,
+      height: b.height,
+      marginTop: style.marginTop,
+      marginBottom: style.marginBottom,
+    });
+  });
 }
 
 /** An empty box that takes the same space as a trimmed block. */
@@ -202,20 +229,7 @@ function lightCopy(win: HTMLElement): { copy: HTMLElement; blocks: TrimBlock[] }
     [...slot.children].forEach((child, k) => {
       const r = child.getBoundingClientRect();
       if (r.bottom >= view.top && r.top <= view.bottom) {
-        const copySection = copySlot.children[k];
-        [...child.children].forEach((block, j) => {
-          if (!isTrimmable(block)) return;
-          const b = block.getBoundingClientRect();
-          const style = getComputedStyle(block);
-          copySection?.children[j]?.setAttribute(TRIM_ATTR, String(blocks.length));
-          blocks.push({
-            top: b.top,
-            bottom: b.bottom,
-            height: b.height,
-            marginTop: style.marginTop,
-            marginBottom: style.marginBottom,
-          });
-        });
+        tagBlocks(child, copySlot.children[k], blocks, false);
         return;
       }
       const spacer = document.createElement('div');
@@ -224,6 +238,8 @@ function lightCopy(win: HTMLElement): { copy: HTMLElement; blocks: TrimBlock[] }
       copySlot.children[k]?.replaceWith(spacer);
     });
   });
+  const copyContainers = copy.querySelectorAll(`[${BLOCKS_ATTR}]`);
+  win.querySelectorAll(`[${BLOCKS_ATTR}]`).forEach((container, i) => tagBlocks(container, copyContainers[i], blocks, true));
   copy.querySelectorAll('.resize-handle').forEach((n) => n.remove());
   // The Terminal's invisible input is styled by its id, which copies lose (it would show as a box).
   copy.querySelector('#terminal-input')?.remove();
@@ -288,7 +304,11 @@ const PREP_TTL_MS = 5000;
 /** Copies prepared ahead of a click (hover), per window. */
 const prepared = new WeakMap<HTMLElement, GeniePrep>();
 
-const scrollersOf = (root: HTMLElement) => [root, ...root.querySelectorAll<HTMLElement>('.content, .terminal-body')];
+/** Scrolling parts whose position the copies keep (windows, then the panels that can minimize). */
+const scrollersOf = (root: HTMLElement) => [
+  root,
+  ...root.querySelectorAll<HTMLElement>('.content, .terminal-body, .writing-body, .am-table-wrap'),
+];
 const viewportSize = () => `${window.innerWidth}x${window.innerHeight}`;
 
 /**
@@ -318,7 +338,9 @@ function buildGenie(win: HTMLElement): GeniePrep {
   layer.className = 'genie-layer genie-layer--prepared';
   layer.setAttribute('aria-hidden', 'true');
   layer.inert = true;
-  layer.style.zIndex = winStyle.zIndex;
+  // Windows animate at their own level. A panel's box has none (its overlay does, which may be
+  // above the Dock), so its copies go just under the Dock (98) and above the windows (up to 93).
+  layer.style.zIndex = winStyle.zIndex === 'auto' ? '97' : winStyle.zIndex;
 
   // Shadow: the funnel drawn with a canvas shadow (same blur radius as box-shadow) into a small
   // canvas that CSS stretches over the funnel. Sized when it plays (it depends on the icon).
@@ -345,6 +367,9 @@ function buildGenie(win: HTMLElement): GeniePrep {
   // Pin each copy to its strip's corner (the strip is its containing block), at full size.
   const pin = (copy: HTMLElement, y: number) => {
     const set = (prop: string, value: string) => copy.style.setProperty(prop, value, 'important');
+    // Windows are positioned already; a panel's box isn't (its overlay centers it).
+    set('position', 'absolute');
+    set('margin', '0');
     set('left', '0px');
     set('top', `${-y}px`);
     set('width', `${w.width}px`);

@@ -237,6 +237,37 @@
   opacity: 0.7;
 }
 
+/* A visiting app's tile (Debug Runner, Time Machine, Writing) opens up a slot, then slides away. */
+.dock-item--visiting {
+  animation: dockItemIn 0.32s var(--ease-apple);
+}
+
+.dock-item--leaving {
+  pointer-events: none;
+  animation: dockItemOut 0.28s var(--ease-apple) forwards;
+}
+
+@keyframes dockItemIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes dockItemOut {
+  to {
+    width: 0;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-item--visiting,
+  .dock-item--leaving {
+    animation: none;
+  }
+}
+
 .dock-sep {
   width: 1px;
   align-self: stretch;

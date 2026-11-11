@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { GAME_OVER_LINES } from '../../lib/debug-runner';
-import { openDesktop, stubTopScore } from './helpers';
+import { animationsSettled, openDesktop, stubTopScore } from './helpers';
 
 test('boot screen finishes on its own in 4-6 seconds', async ({ page }) => {
   await page.goto('/');
@@ -74,7 +74,7 @@ test('the Writing app on the desktop lists the latest blog posts as rows with a 
   // Cover images go through next/image; answer with a local picture instead of the network.
   await page.route('**/_next/image**', (route) => route.fulfill({ path: 'public/favicon.png' }));
   await openDesktop(page);
-  // Its own app: not a tab in the portfolio window, not in the Dock.
+  // Its own app: not a tab in the portfolio window, and in the Dock only while open.
   await expect(page.getByRole('tab', { name: 'Writing' })).toHaveCount(0);
   await expect(page.locator('#dock-writing')).toHaveCount(0);
 
@@ -165,14 +165,18 @@ test('the Contact tab fits a short laptop screen without scrolling', async ({ pa
   await expect(row.getByRole('button', { name: /Download Resume/ })).toBeVisible();
   // Send on the left, the others pushed to the right edge of the form, a divider between.
   await expect(row.locator('.form-actions-divider')).toBeVisible();
-  const send = (await row.getByRole('button', { name: 'Send' }).boundingBox())!;
-  const download = (await row.getByRole('button', { name: /Download Resume/ }).boundingBox())!;
-  const form = (await page.locator('#message').boundingBox())!;
-  expect(Math.abs(send.y - download.y)).toBeLessThan(2);
-  expect(Math.abs(send.x - form.x)).toBeLessThan(2);
-  expect(Math.abs(download.x + download.width - (form.x + form.width))).toBeLessThan(2);
-  const overflow = await page.locator('#window .content').evaluate((el) => el.scrollHeight - el.clientHeight);
-  expect(overflow).toBeLessThanOrEqual(0);
+  await animationsSettled(page);
+  // Measured together and retried: on a busy machine the first look can land mid-layout.
+  await expect(async () => {
+    const send = (await row.getByRole('button', { name: 'Send' }).boundingBox())!;
+    const download = (await row.getByRole('button', { name: /Download Resume/ }).boundingBox())!;
+    const form = (await page.locator('#message').boundingBox())!;
+    expect(Math.abs(send.y - download.y)).toBeLessThan(2);
+    expect(Math.abs(send.x - form.x)).toBeLessThan(2);
+    expect(Math.abs(download.x + download.width - (form.x + form.width))).toBeLessThan(2);
+    const overflow = await page.locator('#window .content').evaluate((el) => el.scrollHeight - el.clientHeight);
+    expect(overflow).toBeLessThanOrEqual(0);
+  }).toPass({ timeout: 10_000 });
 });
 
 test('Contact shows the profile links beside the form, and below it in a narrow window', async ({ page }) => {
@@ -602,6 +606,87 @@ test('the desktop shows Shubham HD, Debug Runner, Time Machine and Writing; the 
   for (const id of ['activity', 'trash']) await expect(page.locator(`#dock-${id}`)).toBeVisible();
   // Debug Runner and Time Machine are desktop apps, not in the Dock.
   for (const id of ['game', 'timemachine']) await expect(page.locator(`#dock-${id}`)).toHaveCount(0);
+});
+
+/** True while the Dock tile's icon is bouncing (its launch hop). */
+const isBouncing = (page: Page, id: string) =>
+  page.locator(`#${id} .app-icon`).evaluate((el) => el.getAnimations().length > 0);
+
+test('every Dock app bounces as it opens, and shows the open dot', async ({ page }) => {
+  await openDesktop(page);
+  for (const [id, title] of [
+    ['dock-activity', 'Activity Monitor'],
+    ['dock-settings', 'System Settings'],
+    ['dock-trash', 'Trash'],
+  ] as const) {
+    await page.locator(`#${id}`).click();
+    await expect.poll(() => isBouncing(page, id)).toBe(true);
+    await expect(page.locator(`#${id}`).locator('xpath=..').locator('.dock-dot')).toHaveClass(/\bon\b/);
+    const dialog = page.getByRole('dialog', { name: title });
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+  }
+});
+
+test('apps that are not in the Dock get a tile there while open', async ({ page }) => {
+  await openDesktop(page);
+  for (const [icon, id, title] of [
+    ['icon-game', 'dock-game', 'Debug Runner'],
+    ['icon-timemachine', 'dock-timemachine', 'Time Machine'],
+    ['icon-writing', 'dock-writing', 'Writing'],
+  ] as const) {
+    await expect(page.locator(`#${id}`)).toHaveCount(0);
+    await page.locator(`#${icon}`).dblclick();
+    await expect(page.locator(`#${id}`)).toBeVisible();
+    await expect.poll(() => isBouncing(page, id)).toBe(true);
+    const dialog = page.getByRole('dialog', { name: title });
+    await dialog.locator('.dialog-close').click();
+    await expect(dialog).toBeHidden();
+    // It slides out of the Dock, then is gone.
+    await expect(page.locator(`#${id}`)).toHaveCount(0);
+  }
+});
+
+test('Activity Monitor and Writing minimize into the Dock and come back as they were', async ({ page }) => {
+  await page.route('**/_next/image**', (route) => route.fulfill({ path: 'public/favicon.png' }));
+  await openDesktop(page);
+  // Activity Monitor: the yellow button works; the chosen filter survives the trip.
+  await page.locator('#dock-activity').click();
+  const activity = page.getByRole('dialog', { name: 'Activity Monitor' });
+  await activity.getByRole('button', { name: 'Frontend' }).click();
+  await activity.getByLabel('Minimize').click();
+  await expect(activity).toBeHidden();
+  // Still open: the Dock dot stays on.
+  await expect(page.locator('#dock-activity').locator('xpath=..').locator('.dock-dot')).toHaveClass(/\bon\b/);
+  await page.locator('#dock-activity').click();
+  await expect(activity).toBeVisible();
+  await expect(activity.getByRole('button', { name: 'Frontend' })).toHaveAttribute('aria-pressed', 'true');
+  await activity.locator('.dialog-close').click();
+
+  // Writing: full screen, then into its Dock tile, which stays while it's minimized; the desktop
+  // icon brings it back too.
+  await page.locator('#icon-writing').dblclick();
+  const writing = page.getByRole('dialog', { name: 'Writing' });
+  await writing.getByLabel('Enter Full Screen').click();
+  const viewport = page.viewportSize()!;
+  await expect.poll(async () => (await writing.boundingBox())?.width).toBe(viewport.width);
+  await writing.getByLabel('Minimize').click();
+  await expect(writing).toBeHidden();
+  await expect(page.locator('#dock-writing')).toBeVisible();
+  await page.locator('#icon-writing').dblclick();
+  await expect(writing).toBeVisible();
+  await expect.poll(async () => (await writing.boundingBox())?.width).toBe(viewport.width);
+  await writing.getByLabel('Exit Full Screen').click();
+  await expect.poll(async () => (await writing.boundingBox())?.width).toBeLessThan(viewport.width);
+  await writing.locator('.dialog-close').click();
+  await expect(writing).toBeHidden();
+
+  // The other panels keep a gray yellow button.
+  await page.locator('#icon-timemachine').dblclick();
+  const timeMachine = page.getByRole('dialog', { name: 'Time Machine' });
+  await expect(timeMachine.locator('.tl-min')).toHaveClass(/tl-disabled/);
+  await expect(timeMachine.getByLabel('Minimize')).toHaveCount(0);
 });
 
 test('a dragged desktop icon stays under the pointer', async ({ page }) => {
