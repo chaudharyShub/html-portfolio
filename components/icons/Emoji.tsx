@@ -8,7 +8,7 @@
  */
 
 import { useId, type ReactNode } from 'react';
-import { COFFEE_PATHS } from '@/lib/debug-runner';
+import { COFFEE_PATHS } from './coffee-paths';
 
 export type EmojiName =
   | 'wink'

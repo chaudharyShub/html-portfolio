@@ -134,6 +134,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
 - localStorage-backed preferences use `lib/stored-value.ts` (`useSyncExternalStore`, server snapshot =
   default) so there are no hydration mismatches. Keys are in `lib/storage.ts`; their string values
   (`shubhamOsTheme`, ...) are kept as-is so visitors' saved settings carry over.
+- Shared browser state (the like count, the Debug Runner top score) uses `createStore` in
+  `lib/store.ts`; `createListeners` there is also what `lib/stored-value.ts` is built on.
+- Desktop sizes the code measures with (`MENUBAR_HEIGHT`, `DOCK_RESERVE`) live in `lib/layout.ts`,
+  matching `--menubar-h` / `--dock-reserve` in `styles/base.css`.
 - Theme: Light / Dark / Auto via `data-theme` on `<html>`. **Default is Light** (the server HTML
   ships `data-theme="light"`); an inline pre-paint `<script>` in `app/layout.tsx` applies a saved
   choice (`next/script` `beforeInteractive` runs too late in the App Router). `<html>` has
@@ -175,7 +179,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `POST /api/debug-runner` `{ ticket, score }` -> `{ best, record }` (400 for a bad/old/reused
   ticket or a score above `maxScoreFor`: `POINTS_PER_SECOND` (10, exported from
   `lib/debug-runner.ts`) x seconds since the ticket x 1.05 + 30); `GET` -> `{ best }`; 403 from
-  other origins, 503 when unconfigured. Server `lib/runner-score-store.ts`, browser
+  other origins, 503 when unconfigured or the database fails (every route, the run ticket too). Server `lib/runner-score-store.ts`, browser
   `lib/runner-score-client.ts` (`useTopScore`, `loadTopScore` on first open, `startRun` /
   `finishRun`). Keys: `debugRunner:top` (sorted set, member `best`, `ZADD GT CH` so it only
   rises; CH tells whether it was a record), `debugRunner:run:<nonce>` (`SET NX`, 1h expiry, one
@@ -291,7 +295,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   - `animatePopIn` uses WAAPI and never touches inline transform (the main window keeps inline
     `transform: none` once centered; `resetWindowStyles` preserves it).
   - Clicking the dock icon mid-minimize reverses it. `.os-animating` on `<html>` pauses the live
-    wallpaper during window animations.
+    wallpaper during window animations; overlapping animations are counted (`markAnimating`), so
+    it stays until the last one ends. `Window.tsx` drops its animation handle when an animation
+    ends, so the genie's copies can be freed.
 
 ## Phones
 - No fake status bar (Safari shows the real one). Windows are full-screen apps: the whole `.window`
@@ -352,11 +358,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   jump), **memory leak** (a wide puddle, only a held jump clears it; width follows the speed),
   **merge conflict** (two bugs: two hops, one jump can't clear both), **404** (floats just over
   the runner's head: stay down or clear it with a full jump) - checked in a simulation at slow,
-  medium and top speed. Coffee (our cup drawing, `COFFEE_PATHS` drawn on the canvas with `Path2D`; the `coffee`
-  emoji shares them) = 4s "hotfix mode", nothing can hit you (orange
+  medium and top speed. Coffee (our cup drawing, `COFFEE_PATHS` in
+  `components/icons/coffee-paths.ts`, drawn on the canvas with `Path2D`; the `coffee` emoji
+  shares them) = 4s "hotfix mode", nothing can hit you (orange
   glow). Every 100 points a version ships ("v1.1 shipped" ... "v2.0") and the speed steps up.
   Game over shows a random line from `GAME_OVER_LINES` (never the same twice in a row); Space or
-  Restart starts again. Polish: squash/stretch, landing dust, a two-layer skyline scrolling at
+  Restart starts again (Space on a focused button presses that button between runs - Close
+  closes; during a run Space always jumps, even if a clicked Restart still has focus). Polish: squash/stretch, landing dust, a two-layer skyline scrolling at
   different speeds (no dust or scrolling under reduced motion). Best score in localStorage
   (`debugRunnerBest`, shown as "Your best"), plus "Top score" of all players from the server
   (see Architecture; hidden when the API is unavailable; game over says "New top score for all
@@ -397,7 +405,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   the Back button stays enabled at 1995 for it); a big year counter rolls
   through every year in between; newer snapshots fly past the camera. Travel by mouse wheel /
   trackpad (up = back in time, like macOS), sideways swipe on phones, arrow keys, the ‹ › buttons
-  or the year rail (`role="tablist"`, roving focus). Reduced motion: no warp, no rolling.
+  or the year rail (`role="tablist"`, roving focus). Reduced motion: no warp, no rolling (the
+  starfield is drawn once, and again after a resize).
   Its title bar stays dark in every theme (a theme-colored one was tried and looked odd over the
   space scene - user's call, Nov 2026). Cards link to the official site where the user gave one
   (`website` in `data/experience.ts` / `data/education.ts`), shown as the bare

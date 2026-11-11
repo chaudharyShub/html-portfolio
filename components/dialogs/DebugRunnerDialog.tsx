@@ -89,9 +89,12 @@ export function DebugRunnerDialog() {
     runner.current?.render();
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.code !== 'Space') return;
+      const r = runner.current;
+      // Between runs, Space presses a focused button (Close, Restart) like everywhere else.
+      // During a run it always jumps, even if a clicked Restart button still has the focus.
+      if (!r?.isRunning() && e.target instanceof HTMLButtonElement) return;
       e.preventDefault();
       if (e.repeat) return;
-      const r = runner.current;
       if (!r) return;
       if (r.isRunning()) r.press();
       else if (performance.now() - endedAt.current > RESTART_DELAY_MS) {

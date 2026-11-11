@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { createListeners } from './store';
 import { readStorage, writeStorage } from './storage';
 
 export interface StoredValue<T> {
@@ -18,7 +19,7 @@ export function createStoredValue<T>(
   serialize: (value: T) => string,
   serverValue: T,
 ): StoredValue<T> {
-  const listeners = new Set<() => void>();
+  const { subscribe, notify } = createListeners();
   let memoryRaw: string | undefined;
   let cachedRaw: string | null | undefined;
   let cachedValue: T = serverValue;
@@ -32,15 +33,10 @@ export function createStoredValue<T>(
     return cachedValue;
   };
 
-  const subscribe = (listener: () => void) => {
-    listeners.add(listener);
-    return () => listeners.delete(listener);
-  };
-
   const set = (value: T) => {
     memoryRaw = serialize(value);
     writeStorage(key, memoryRaw);
-    listeners.forEach((l) => l());
+    notify();
   };
 
   const getServerSnapshot = () => serverValue;

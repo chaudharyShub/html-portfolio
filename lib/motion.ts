@@ -71,17 +71,23 @@ function tween(durationMs: number, frame: (t: number) => void, done: () => void)
   return () => cancelAnimationFrame(id);
 }
 
+/** How many window animations are running; the mark stays until the last one ends. */
+let animatingCount = 0;
+
 /**
  * Marks the page as mid-animation: the live wallpaper pauses (so blurred glass above it need
- * not be redrawn every frame). Returns the function that clears the mark.
+ * not be redrawn every frame). Returns the function that clears the mark. Overlapping
+ * animations are counted, so the first to end doesn't restart the wallpaper under the other.
  */
 function markAnimating(): () => void {
+  animatingCount += 1;
   document.documentElement.classList.add('os-animating');
   let done = false;
   return () => {
     if (done) return;
     done = true;
-    document.documentElement.classList.remove('os-animating');
+    animatingCount -= 1;
+    if (animatingCount === 0) document.documentElement.classList.remove('os-animating');
   };
 }
 
@@ -751,21 +757,14 @@ export function animateFrame(
 
 /**
  * Scale + fade in from `fromScale` with a spring, ending on the element's own transform
- * (the animation never touches its inline styles). Returns a timer that fires when it settles.
+ * (the animation never touches its inline styles).
  */
-export function animatePopIn(
-  el: HTMLElement,
-  fromScale: number,
-  durationMs: number,
-  settleMs: number,
-  easing: string = SPRING_EASE,
-): number {
+export function animatePopIn(el: HTMLElement, fromScale: number, durationMs: number, easing: string = SPRING_EASE): void {
   cancelAnimations(el);
   const base = getComputedStyle(el).transform;
   const from = `${base === 'none' ? '' : base} scale(${fromScale})`.trim();
   el.animate([{ transform: from }, {}], { duration: durationMs, easing });
   el.animate([{ opacity: 0 }, {}], { duration: Math.round(durationMs * 0.6), easing: 'ease-out' });
-  return window.setTimeout(() => {}, settleMs);
 }
 
 /** Fade + shrink out over `durationMs`. */

@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { createStore } from './store';
 
 /**
  * The Debug Runner top score (all visitors) in the browser. Loaded when the game first opens;
@@ -14,24 +14,11 @@ export interface TopScoreState {
   record: boolean;
 }
 
-const SERVER_STATE: TopScoreState = { best: null, available: true, record: false };
-let state: TopScoreState = SERVER_STATE;
+const store = createStore<TopScoreState>({ best: null, available: true, record: false });
+const setState = store.set;
 let loadStarted = false;
-const listeners = new Set<() => void>();
 
-function setState(next: Partial<TopScoreState>) {
-  state = { ...state, ...next };
-  listeners.forEach((l) => l());
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-export function useTopScore(): TopScoreState {
-  return useSyncExternalStore(subscribe, () => state, () => SERVER_STATE);
-}
+export const useTopScore: () => TopScoreState = store.use;
 
 /** Loads the top score once (later calls do nothing). */
 export function loadTopScore(): void {
@@ -51,8 +38,8 @@ let run = 0;
 /** Call when a run starts. */
 export function startRun(): void {
   run++;
-  if (state.record) setState({ record: false });
-  if (!state.available) {
+  if (store.get().record) setState({ record: false });
+  if (!store.get().available) {
     ticket = Promise.resolve(null);
     return;
   }
@@ -71,15 +58,15 @@ export async function finishRun(score: number): Promise<void> {
   const current = ticket;
   ticket = Promise.resolve(null);
   const thisRun = run;
-  const previous = state.best;
-  const beaten = state.available && previous !== null && score > previous;
+  const previous = store.get().best;
+  const beaten = store.get().available && previous !== null && score > previous;
   if (beaten) setState({ best: score, record: true });
   /** Applies the server's top score; the record flag only while this run is still the last one. */
   const settle = (best: number | null, record: boolean) =>
     setState(run === thisRun ? { best, record } : { best });
   // Put back the old top score if this one didn't make it.
   const undo = () => {
-    if (beaten && state.best === score) settle(previous, false);
+    if (beaten && store.get().best === score) settle(previous, false);
   };
 
   const runTicket = await current;

@@ -10,6 +10,8 @@
  * Plain canvas, no libraries; only runs while started.
  */
 
+import { COFFEE_PATHS } from '@/components/icons/coffee-paths';
+
 const PLAYER_X = 24;
 const PLAYER_W = 22;
 const PLAYER_H = 28;
@@ -33,18 +35,7 @@ const MAX_SPEED = 480;
 export const POINTS_PER_SECOND = 10;
 const HOTFIX_SECONDS = 4;
 
-/**
- * The coffee cup, our own drawing on a 32x32 grid (also the "coffee" emoji drawing in
- * components/icons/Emoji.tsx). The game draws it on the canvas from these paths.
- */
-export const COFFEE_PATHS = {
-  steam1: 'M11.6 10q-1.6-2 0-3.6t0-3.6',
-  steam2: 'M16.6 10q-1.6-2 0-3.6t0-3.6',
-  handle: 'M22.4 15.4h1.4a3.3 3.3 0 0 1 0 6.6h-1.8',
-  mug: 'M6.6 12.6h16v8.6a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6Z',
-  code: 'M12.2 17.6l-1.8 1.8 1.8 1.8M17 17.6l1.8 1.8-1.8 1.8',
-} as const;
-/** Size the cup is drawn at, in px. */
+/** Size the coffee cup (components/icons/coffee-paths.ts) is drawn at, in px. */
 const COFFEE_SIZE = 20;
 
 type CoffeeShapes = Record<keyof typeof COFFEE_PATHS, Path2D>;

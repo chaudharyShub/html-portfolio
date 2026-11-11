@@ -63,7 +63,11 @@ export function startStarfield(canvas: HTMLCanvasElement, reducedMotion: boolean
     canvas.height = Math.round(height * dpr);
     ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
-  const observer = new ResizeObserver(resize);
+  // Resizing clears the canvas; with reduced motion no next frame repaints it, so draw it again.
+  const observer = new ResizeObserver(() => {
+    resize();
+    if (reducedMotion) draw();
+  });
   observer.observe(canvas);
   resize();
 
