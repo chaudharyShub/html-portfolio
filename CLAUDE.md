@@ -412,11 +412,30 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   medium and top speed. Coffee (our cup drawing, `COFFEE_PATHS` in
   `components/icons/coffee-paths.ts`, drawn on the canvas with `Path2D`; the `coffee` emoji
   shares them) = 4s "hotfix mode", nothing can hit you (orange
-  glow). Every 100 points a version ships ("v1.1 shipped" ... "v2.0") and the speed steps up.
+  glow). Every 100 points a version ships ("v1.1 shipped" ... "v2.0") and the speed steps up,
+  with **no top speed** (Nov 2026, user's report: it capped at 480 px/s at 1000 points and a
+  2100 run just went on at the same pace): +30 px/s per version to v2.0, +20 to v3.0, then +10
+  for good (`speedFor`); the shortest gap between obstacles shrinks from 0.75s at 1000 points to
+  0.55s at 3000 (`minSpawnGap`), and plain bugs get rarer past 1000 and 2000. What must stay
+  clearable is sized in seconds of travel, so every speed is fair: the leak is 0.46s wide (it was
+  capped at 166px, so a tap cleared it past ~400 px/s; 0.5s was too hard - a held jump had
+  ~120ms to start in, now ~160ms; a tap still can't clear it), the merge conflict's bugs 0.6s apart
+  (shorter lets one held jump clear both at high speed). All of it was checked with a physics
+  simulation up to 1200 px/s, back-to-back obstacles at the shortest gap too. The conflict's two
+  bugs are joined by a red dashed bracket with "merge conflict" centered over it (`pairGap`,
+  `drawConflict`; the guide's icon has it too): before, only the first bug had the label and the
+  pair read as one bug and then an unrelated one (user's report).
   Game over shows a random line from `GAME_OVER_LINES` (never the same twice in a row); Space or
   Restart starts again (Space on a focused button presses that button between runs - Close
   closes; during a run Space always jumps, even if a clicked Restart still has focus). Polish: squash/stretch, landing dust, a two-layer skyline scrolling at
-  different speeds (no dust or scrolling under reduced motion). Best score in localStorage
+  different speeds (no dust or scrolling under reduced motion). **Day / night sky** (Nov 2026,
+  user's request), following the theme: Light = a sun top right and white clouds drifting
+  slower than the skyline (each with a blue-gray underside, on a day sky that is clear blue at
+  the top and pale at the ground: on the old all-pale sky they blended in - user's report; the
+  runner gets a navy outline and a deeper skin tone by day for the same reason); Dark (and Auto on a dark system) = a crescent moon and twinkling
+  stars (still under reduced motion). The CSS tells the canvas which: `--game-sky: day | night`
+  on `#game-stage`, set beside its sky gradient; a theme change redraws at once, also between
+  runs (MutationObserver on `data-theme` + the `prefers-color-scheme` query). Best score in localStorage
   (`debugRunnerBest`, shown as "Your best"), plus "Top score" of all players from the server
   (see Architecture; hidden when the API is unavailable; game over says "New top score for all
   players!" on a record). A record shows without waiting for the server (user's request, Nov

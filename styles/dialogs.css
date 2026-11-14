@@ -1105,7 +1105,10 @@
   width: 100%;
   height: 160px;
   border-radius: 12px;
-  background: linear-gradient(#e6f2ff, #cde4ff);
+  /* A clear blue up top (the sun and clouds stand out), pale at the ground where the runner is. */
+  background: linear-gradient(#9fcdfb, #d4e9ff 70%, #e3f0ff);
+  /* Day or night: the canvas draws a sun and clouds, or a moon and stars (lib/debug-runner.ts). */
+  --game-sky: day;
   overflow: hidden;
   cursor: pointer;
   /* Holding a finger on it jumps higher: no scrolling, text selection or callout meanwhile. */
@@ -1117,11 +1120,13 @@
 
 :root[data-theme="dark"] #game-stage {
   background: linear-gradient(#1f2a3a, #15202e);
+  --game-sky: night;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) #game-stage {
     background: linear-gradient(#1f2a3a, #15202e);
+    --game-sky: night;
   }
 }
 
@@ -1268,6 +1273,12 @@
 .game-guide-404 text {
   fill: var(--red);
   font: 700 11px var(--mono);
+}
+
+.game-guide-conflict {
+  stroke: var(--red-text);
+  stroke-width: 1.2;
+  opacity: 0.7;
 }
 
 .game-score-line {
