@@ -6,7 +6,11 @@
  * Holding the jump goes higher than a tap. Obstacles: a bug (jump), a memory leak (a wide
  * puddle: hold for a long jump), a merge conflict (two bugs: two quick hops) and a floating 404
  * (stay on the ground, or clear it with a full jump). Coffee gives a few seconds of "hotfix
- * mode" (nothing can hit you). Every 100 points a version ships and the game speeds up a step.
+ * mode" (nothing can hit you). Every 100 points a version ships and the game speeds up a step,
+ * with no top speed: the steps get smaller after v2.0 and v3.0, but it never stops getting harder
+ * (it used to stop at 1000 points, so a good run just went on forever at the same pace).
+ * The sky follows the theme: a sun and drifting clouds by day (Light), a crescent moon and
+ * twinkling stars by night (Dark, or Auto on a dark system).
  * Plain canvas, no libraries; only runs while started.
  */
 
@@ -29,8 +33,24 @@ const RELEASE_CUT = 0.6;
 const JUMP_BUFFER = 0.12;
 
 const BASE_SPEED = 180; // px/s
-const SPEED_STEP = 30; // per version shipped (100 points)
-const MAX_SPEED = 480;
+
+/**
+ * Speed after `shipped` versions (100 points each): +30 px/s per version up to v2.0 (1000
+ * points), +20 up to v3.0, then +10 for good. No cap. Everything that has to stay clearable is
+ * sized in seconds of travel (the leak's width, the merge conflict's gap), so any speed is fair;
+ * it just leaves less time to react.
+ */
+function speedFor(shipped: number) {
+  const early = Math.min(shipped, 10);
+  const middle = Math.min(Math.max(shipped - 10, 0), 10);
+  const late = Math.max(shipped - 20, 0);
+  return BASE_SPEED + 30 * early + 20 * middle + 10 * late;
+}
+
+/** Shortest time between obstacles: 0.75s until 1000 points, then down to 0.55s at 3000. */
+function minSpawnGap(score: number) {
+  return Math.max(0.55, 0.75 - Math.max(0, score - 1000) / 10000);
+}
 /** Points come only from time survived; the server checks submitted scores against this. */
 export const POINTS_PER_SECOND = 10;
 const HOTFIX_SECONDS = 4;
@@ -58,8 +78,10 @@ interface Obstacle {
   y: number;
   w: number;
   h: number;
-  /** Small caption drawn above it ("memory leak", "merge conflict"). */
+  /** Small caption drawn above it ("memory leak"). */
   label?: string;
+  /** Merge conflict: set on the first bug, the distance to its partner (drawn as one bracket). */
+  pairGap?: number;
 }
 
 interface Coffee {
@@ -83,6 +105,21 @@ interface Building {
   h: number;
 }
 
+interface Cloud {
+  x: number;
+  y: number;
+  /** Size: 1 is a cloud about 44px wide. */
+  s: number;
+}
+
+interface Star {
+  x: number;
+  y: number;
+  r: number;
+  /** Where in its twinkle it starts, so they don't all pulse together. */
+  phase: number;
+}
+
 interface Colors {
   accent: string;
   text: string;
@@ -91,6 +128,8 @@ interface Colors {
   orange: string;
   /** The site's mono font stack, for the canvas text. */
   mono: string;
+  /** Dark theme: moon and stars instead of sun and clouds (`--game-sky` on #game-stage). */
+  night: boolean;
 }
 
 export interface RunnerEvents {
@@ -147,6 +186,7 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     red: '#d70015',
     orange: '#ff9500',
     mono: 'ui-monospace, monospace',
+    night: false,
   };
   let colorsReadAt = 0;
 
@@ -177,6 +217,8 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
   let coffees: Coffee[] = [];
   let particles: Particle[] = [];
   let scroll = 0;
+  const clouds: Cloud[] = [];
+  const stars: Star[] = [];
   const far: Building[] = [];
   const near: Building[] = [];
 
@@ -190,6 +232,7 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
       red: v('--red-text', colors.red),
       orange: v('--orange', colors.orange),
       mono: v('--mono', colors.mono),
+      night: v('--game-sky', 'day') === 'night',
     };
   };
 
@@ -204,6 +247,20 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     }
   };
 
+  /** Clouds and stars across twice the stage width (they scroll slower than the skyline). */
+  const buildSky = () => {
+    const span = Math.max(width, 300) * 2;
+    clouds.length = 0;
+    for (let x = rand(20, 80); x < span; x += rand(150, 230)) {
+      clouds.push({ x, y: rand(22, 58), s: rand(0.75, 1.15) });
+    }
+    stars.length = 0;
+    const count = Math.round(span / 18);
+    for (let i = 0; i < count; i++) {
+      stars.push({ x: rand(0, span), y: rand(8, 92), r: rand(0.5, 1.3), phase: rand(0, Math.PI * 2) });
+    }
+  };
+
   const resize = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     width = canvas.clientWidth;
@@ -213,10 +270,23 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
     buildSkyline(far, 24, 70);
     buildSkyline(near, 14, 42);
+    buildSky();
     if (!running) draw();
   };
   const observer = new ResizeObserver(resize);
   observer.observe(canvas);
+
+  // A theme change swaps day and night at once, even between runs (a run picks it up anyway
+  // within a second, see draw()). Settings can be open beside the game.
+  const onThemeChange = () => {
+    readColors();
+    colorsReadAt = performance.now();
+    if (!running) draw();
+  };
+  const themeObserver = new MutationObserver(onThemeChange);
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  darkQuery.addEventListener('change', onThemeChange);
 
   /** Ground-based coordinates (y up from the ground) to canvas y. */
   const groundY = () => height - FLOOR;
@@ -232,7 +302,9 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
   const spawn = () => {
     const x = width + 10;
     // New kinds join as the score grows, so the start stays easy.
-    const pool: Array<Kind | 'conflict'> = ['bug', 'bug', 'bug'];
+    // Past 1000 and 2000 points a plain bug is one pick rarer, so the harder ones come more often.
+    const bugs = score >= 2000 ? 1 : score >= 1000 ? 2 : 3;
+    const pool: Array<Kind | 'conflict'> = Array.from({ length: bugs }, () => 'bug' as const);
     if (score >= 40) pool.push('leak', 'leak');
     if (score >= 100) pool.push('conflict', 'conflict');
     if (score >= 160) pool.push('notfound', 'notfound');
@@ -241,21 +313,25 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     if (pick === 'bug') {
       obstacles.push({ kind: 'bug', x, y: 0, w: 18, h: 18 });
     } else if (pick === 'leak') {
-      // Wide enough that only a held jump clears it, at any speed.
-      const w = Math.min(166, Math.max(56, speed * 0.42 - 4));
+      // 0.46s of track: a tap's hop (~0.4s in the air) lands in it, a held jump (~0.64s)
+      // clears it, at any speed. (It used to stop growing at 166px, so past ~400px/s a tap
+      // cleared it; 0.5s left a held jump only ~120ms to start in, too hard - now ~160ms.)
+      const w = Math.max(56, speed * 0.46);
       obstacles.push({ kind: 'leak', x, y: 0, w, h: 7, label: 'memory leak' });
       extra = 0.25;
     } else if (pick === 'conflict') {
-      // Too far apart for one jump, close enough to need two quick hops.
-      const gap = speed * 0.62;
-      obstacles.push({ kind: 'bug', x, y: 0, w: 18, h: 18, label: 'merge conflict' });
+      // 0.6s apart: too far for one jump (even held, at any speed), close enough for two quick
+      // hops. That is a lot of pixels at speed, so a bracket joins the two (see drawObstacle):
+      // without it the pair read as one labeled bug and then an unrelated one.
+      const gap = speed * 0.6;
+      obstacles.push({ kind: 'bug', x, y: 0, w: 18, h: 18, pairGap: gap });
       obstacles.push({ kind: 'bug', x: x + gap, y: 0, w: 18, h: 18 });
       extra = 0.45;
     } else {
       // Floats just above the runner's head: stay down, or clear it with a full jump.
       obstacles.push({ kind: 'notfound', x, y: 40, w: 32, h: 18 });
     }
-    spawnIn = Math.max(0.75, 1.5 - score / 300) + rand(0, 0.35) + extra;
+    spawnIn = Math.max(minSpawnGap(score), 1.5 - score / 300) + rand(0, 0.35) + extra;
   };
 
   const jump = () => {
@@ -302,7 +378,7 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     const nowShipped = Math.floor(score / 100);
     if (nowShipped > shipped) {
       shipped = nowShipped;
-      speed = Math.min(MAX_SPEED, BASE_SPEED + SPEED_STEP * shipped);
+      speed = speedFor(shipped);
       bannerText = `${versionName(shipped)} shipped`;
       banner = 1.8;
     }
@@ -325,7 +401,8 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     }
     for (const o of obstacles) o.x -= dx;
     for (const c of coffees) c.x -= dx;
-    obstacles = obstacles.filter((o) => o.x + o.w > -40);
+    // A merge conflict's first bug stays until its partner has gone too (it draws the bracket).
+    obstacles = obstacles.filter((o) => o.x + o.w + (o.pairGap ?? 0) > -40);
     coffees = coffees.filter((c) => c.x > -30);
 
     for (const p of particles) {
@@ -354,6 +431,113 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
   };
 
   /* ===== Drawing ===== */
+
+  /** Where the sun or moon sits: top right, clear of the banner (center) and hotfix label (left). */
+  const skyBodyAt = () => ({ x: width - 44, y: 34 });
+
+  const drawSun = () => {
+    if (!ctx) return;
+    const { x, y } = skyBodyAt();
+    const glow = ctx.createRadialGradient(x, y, 10, x, y, 38);
+    glow.addColorStop(0, 'rgba(255, 190, 40, 0.45)');
+    glow.addColorStop(1, 'rgba(255, 200, 60, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, 38, 0, Math.PI * 2);
+    ctx.fill();
+    const body = ctx.createLinearGradient(x, y - 13, x, y + 13);
+    body.addColorStop(0, '#ffd84d');
+    body.addColorStop(1, '#ffad1f');
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.arc(x, y, 13, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  const drawMoon = () => {
+    if (!ctx) return;
+    const { x, y } = skyBodyAt();
+    const glow = ctx.createRadialGradient(x, y, 8, x, y, 34);
+    glow.addColorStop(0, 'rgba(220, 230, 255, 0.16)');
+    glow.addColorStop(1, 'rgba(220, 230, 255, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, 34, 0, Math.PI * 2);
+    ctx.fill();
+    // A crescent: the full disc, then a disc cut out of it (the canvas is see-through, the
+    // stage's night sky shows through the cut).
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, 12, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.fillStyle = '#f2eedf';
+    ctx.fillRect(x - 12, y - 12, 24, 24);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x + 6, y - 4, 10.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  /** A wrapping offset for a sky layer that scrolls `factor` times the ground speed. */
+  const skyOffset = (factor: number) => (scroll * factor) % (Math.max(width, 300) * 2);
+
+  const drawClouds = () => {
+    if (!ctx) return;
+    const span = Math.max(width, 300) * 2;
+    const offset = skyOffset(0.06);
+    /** Three puffs on a flat base. */
+    const puffs = (x: number, y: number, k: number) => {
+      ctx.beginPath();
+      ctx.arc(x + 12 * k, y, 9 * k, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.arc(x + 22 * k, y - 7 * k, 11 * k, Math.PI, 0);
+      ctx.arc(x + 34 * k, y - 2 * k, 8 * k, Math.PI * 1.25, Math.PI * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    };
+    for (const c of clouds) {
+      for (const shift of [0, span]) {
+        const x = c.x - offset + shift;
+        if (x > width + 30 || x + 50 * c.s < -30) continue;
+        // A blue-gray underside first, so the white cloud has an edge on the pale sky.
+        ctx.fillStyle = 'rgba(70, 110, 160, 0.22)';
+        puffs(x, c.y + 2.5, c.s);
+        ctx.fillStyle = '#ffffff';
+        puffs(x, c.y, c.s);
+      }
+    }
+  };
+
+  const drawStars = (now: number) => {
+    if (!ctx) return;
+    const span = Math.max(width, 300) * 2;
+    const offset = skyOffset(0.03);
+    const moon = skyBodyAt();
+    ctx.fillStyle = '#ffffff';
+    for (const st of stars) {
+      for (const shift of [0, span]) {
+        const x = st.x - offset + shift;
+        if (x < -2 || x > width + 2) continue;
+        if (Math.hypot(x - moon.x, st.y - moon.y) < 20) continue; // not in front of the moon
+        const twinkle = reducedMotion ? 0.7 : 0.45 + 0.4 * Math.sin(now / 700 + st.phase);
+        ctx.globalAlpha = twinkle;
+        ctx.beginPath();
+        ctx.arc(x, st.y, st.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  };
+
+  const drawSky = (now: number) => {
+    if (colors.night) {
+      drawMoon();
+      drawStars(now);
+    } else {
+      drawSun();
+      drawClouds();
+    }
+  };
 
   const drawSkyline = (layer: Building[], factor: number, alpha: number) => {
     if (!ctx) return;
@@ -455,6 +639,33 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
     ctx.restore();
   };
 
+  /**
+   * The merge conflict's bracket: a red dashed line over both bugs (from the first one's middle
+   * to the second's), with the caption centered above it. Just a drawing, nothing to hit.
+   */
+  const drawConflict = (x: number, gap: number) => {
+    if (!ctx) return;
+    const left = x + 9;
+    const right = x + gap + 9;
+    const y = groundY() - 26;
+    ctx.save();
+    ctx.strokeStyle = colors.red;
+    ctx.globalAlpha = 0.7;
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(left, y + 5);
+    ctx.lineTo(left, y);
+    ctx.lineTo(right, y);
+    ctx.lineTo(right, y + 5);
+    ctx.stroke();
+    ctx.restore();
+    ctx.font = `600 9px ${colors.mono}`;
+    ctx.fillStyle = colors.red;
+    ctx.textAlign = 'center';
+    ctx.fillText('merge conflict', (left + right) / 2, y - 4);
+  };
+
   const drawObstacle = (o: Obstacle) => {
     if (!ctx) return;
     const top = groundY() - o.y - o.h;
@@ -488,6 +699,7 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
       ctx.textBaseline = 'alphabetic';
     }
     if (o.label) drawLabel(o.label, o.x - 2, top - (o.kind === 'leak' ? 9 : 5));
+    if (o.pairGap) drawConflict(o.x, o.pairGap);
   };
 
   const drawPlayer = () => {
@@ -510,14 +722,21 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
       ctx.shadowColor = colors.orange;
       ctx.shadowBlur = flicker ? 0 : 14;
     }
+    // By day a navy outline and a deeper skin tone: the blue body and peach face blended into
+    // the pale-blue sky (user's report). The night sky is dark enough without.
+    const outline = colors.night ? null : 'rgba(12, 35, 70, 0.85)';
+    ctx.lineWidth = 1.5;
+    if (outline) ctx.strokeStyle = outline;
     ctx.fillStyle = colors.accent;
     ctx.beginPath();
     ctx.roundRect(-8, -16, 16, 16, 5);
     ctx.fill();
-    ctx.fillStyle = '#ffd2a8';
+    if (outline) ctx.stroke();
+    ctx.fillStyle = colors.night ? '#ffd2a8' : '#f6b98c';
     ctx.beginPath();
     ctx.arc(0, -21, 6, 0, Math.PI * 2);
     ctx.fill();
+    if (outline) ctx.stroke();
     ctx.restore();
   };
 
@@ -529,6 +748,7 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
       colorsReadAt = now;
     }
     ctx.clearRect(0, 0, width, height);
+    drawSky(now);
     drawSkyline(far, 0.15, 0.05);
     drawSkyline(near, 0.35, 0.08);
 
@@ -655,6 +875,8 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
       running = false;
       cancelAnimationFrame(frame);
       observer.disconnect();
+      themeObserver.disconnect();
+      darkQuery.removeEventListener('change', onThemeChange);
     },
   };
 }

@@ -41,9 +41,13 @@ const ICONS: Record<'bug' | 'leak' | 'conflict' | 'notfound', ReactNode> = {
     </svg>
   ),
   conflict: (
-    <svg viewBox="0 0 40 24" width="36" height="22">
-      <Bug x={-2} />
-      <Bug x={18} />
+    <svg viewBox="0 0 40 28" width="36" height="25">
+      {/* The red dashed bracket the canvas draws over the pair. */}
+      <path className="game-guide-conflict" d="M10 6.5V3h20v3.5" fill="none" strokeDasharray="3 2" />
+      <g transform="translate(0 4)">
+        <Bug x={-2} />
+        <Bug x={18} />
+      </g>
     </svg>
   ),
   notfound: (
