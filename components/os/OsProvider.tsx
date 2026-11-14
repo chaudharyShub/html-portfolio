@@ -40,8 +40,11 @@ export interface GameHandle {
 export interface PanelHandle {
   /** True from the yellow button's click until it is restored. */
   isMinimized: () => boolean;
+  /** Open and on screen (not on its way to or from the Dock). */
+  isOnScreen: () => boolean;
+  minimize: () => void;
   restore: () => void;
-  /** Builds the genie's copies ahead of a restore (the pointer is on its Dock icon). */
+  /** Builds the genie's copies ahead of a Dock click (the pointer is on its Dock icon). */
   prepareRestore: () => void;
 }
 
@@ -170,6 +173,8 @@ export interface OsConnectors {
 
 export interface OsActions {
   openDialog: (id: DialogId) => void;
+  /** Dock click, like the windows': opens it, or minimizes it if on screen, or brings it back. */
+  toggleDialogFromDock: (id: DialogId) => void;
   closeDialog: (id: DialogId) => void;
   /** A panel's genie landed in the Dock (true) or back on screen (false). */
   reportPanelMinimized: (id: DialogId, minimized: boolean) => void;
@@ -259,6 +264,12 @@ export function OsProvider({ children }: { children: ReactNode }) {
       openDialog: (id) => {
         const panel = r.panels[id];
         if (panel?.isMinimized()) panel.restore();
+        else dispatch({ type: 'openDialog', id });
+      },
+      toggleDialogFromDock: (id) => {
+        const panel = r.panels[id];
+        if (panel?.isOnScreen()) panel.minimize();
+        else if (panel?.isMinimized()) panel.restore();
         else dispatch({ type: 'openDialog', id });
       },
       closeDialog: (id) => dispatch({ type: 'closeDialog', id }),

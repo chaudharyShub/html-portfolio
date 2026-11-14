@@ -506,6 +506,22 @@ test('the green button takes the Time Machine full screen, Escape leaves it firs
   await expect.poll(async () => (await dialog.boundingBox())!.height).toBe(viewport.height);
   await expectDockOnTop(page);
 
+  // The "no data before 1995" note stays a small centered pill in full screen too.
+  await dialog.locator('#tm-tick-0').click();
+  await expect(dialog.locator('#tm-tick-0')).toHaveClass(/\bactive\b/);
+  const note = dialog.locator('.tm-edge-note');
+  await expect(async () => {
+    await dialog.getByRole('button', { name: 'Back in time' }).click();
+    await expect(note).toHaveClass(/\bshow\b/, { timeout: 1000 });
+  }).toPass();
+  await expect
+    .poll(async () => {
+      const b = (await note.boundingBox())!;
+      return b.width < 500 && Math.abs(b.x + b.width / 2 - viewport.width / 2) < 2;
+    })
+    .toBe(true);
+  await expect(note).toHaveCSS('text-align', 'center');
+
   await page.keyboard.press('Escape');
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Enter Full Screen' })).toBeVisible();
@@ -556,6 +572,71 @@ test('Activity Monitor lists the skills, filters, sorts and shows where one is u
   await page.keyboard.press('ArrowUp');
   await expect(dialog.locator('.am-name', { hasText: 'Node.js' })).toBeFocused();
   await expect(dialog.locator('.am-used')).toContainText('RunTheDay');
+});
+
+test('panels stay above the Dock and can be dragged by the title bar', async ({ page }) => {
+  // A short screen: Activity Monitor used to spread over the Dock here.
+  await page.setViewportSize({ width: 1366, height: 657 });
+  await openDesktop(page);
+  await page.locator('#dock-activity').click({ force: true });
+  const box = page.locator('.dialog-box.activity-box');
+  await expect(box).toBeVisible();
+  await animationsSettled(page);
+  const dockTop = (await page.locator('.dock').boundingBox())!.y;
+  const start = (await box.boundingBox())!;
+  expect(start.y + start.height).toBeLessThanOrEqual(dockTop);
+  expect(start.y).toBeGreaterThanOrEqual(28);
+
+  const bar = box.locator('.dialog-title-bar');
+  const barBox = (await bar.boundingBox())!;
+  await page.mouse.move(barBox.x + barBox.width / 2, barBox.y + 20);
+  await page.mouse.down();
+  await page.mouse.move(barBox.x + barBox.width / 2 - 120, barBox.y + 20, { steps: 5 });
+  await page.mouse.up();
+  const moved = (await box.boundingBox())!;
+  expect(Math.round(moved.x - start.x)).toBe(-120);
+  // Dragged far up, the title bar stops under the menu bar.
+  await page.mouse.move(barBox.x + barBox.width / 2, barBox.y + 20);
+  await page.mouse.down();
+  await page.mouse.move(barBox.x + barBox.width / 2, 0, { steps: 5 });
+  await page.mouse.up();
+  expect(Math.round((await box.boundingBox())!.y)).toBe(28);
+
+  // Opened again, it is centered again.
+  await page.keyboard.press('Escape');
+  await expect(box).toBeHidden();
+  await page.locator('#dock-activity').click({ force: true });
+  await animationsSettled(page);
+  await expect.poll(async () => Math.round((await box.boundingBox())!.x)).toBe(Math.round(start.x));
+});
+
+test('open apps leave the desktop usable: clicks outside reach it, the last one used is in front', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#dock-activity').click();
+  const activity = page.getByRole('dialog', { name: 'Activity Monitor' });
+  await expect(activity).toBeVisible();
+  await animationsSettled(page);
+
+  // The Dock and the portfolio window still take clicks, and the app stays open.
+  await page.locator('#dock-settings').click();
+  const settings = page.getByRole('dialog', { name: 'System Settings' });
+  await expect(settings).toBeVisible();
+  await expect(activity).toBeVisible();
+  const zOf = (name: string) =>
+    page.getByRole('dialog', { name }).evaluate((box) => Number(getComputedStyle(box.parentElement!).zIndex));
+  await expect.poll(() => zOf('System Settings')).toBeGreaterThan(await zOf('Activity Monitor'));
+  // Using the one behind brings it to the front.
+  await activity.locator('.dialog-title').click();
+  await expect.poll(() => zOf('Activity Monitor')).toBeGreaterThan(await zOf('System Settings'));
+
+  // Space typed in the Terminal is a space, even with the game open.
+  await page.locator('#icon-game').dblclick();
+  await expect(page.getByRole('dialog', { name: 'Debug Runner' })).toBeVisible();
+  await page.locator('#dock-terminal').click();
+  await page.locator('#terminal-input').fill('');
+  await page.locator('#terminal-input').focus();
+  await page.keyboard.type('echo hi there');
+  await expect(page.locator('#terminal-input')).toHaveValue('echo hi there');
 });
 
 test('a sticky note shows a motto on the desktop and can be dragged', async ({ page }) => {
@@ -662,6 +743,11 @@ test('Activity Monitor and Writing minimize into the Dock and come back as they 
   await page.locator('#dock-activity').click();
   await expect(activity).toBeVisible();
   await expect(activity.getByRole('button', { name: 'Frontend' })).toHaveAttribute('aria-pressed', 'true');
+  // The Dock icon toggles it, like the windows': into the Dock, and back.
+  await page.locator('#dock-activity').click();
+  await expect(activity).toBeHidden();
+  await page.locator('#dock-activity').click();
+  await expect(activity).toBeVisible();
   await activity.locator('.dialog-close').click();
 
   // Writing: full screen, then into its Dock tile, which stays while it's minimized; the desktop
@@ -677,6 +763,11 @@ test('Activity Monitor and Writing minimize into the Dock and come back as they 
   await page.locator('#icon-writing').dblclick();
   await expect(writing).toBeVisible();
   await expect.poll(async () => (await writing.boundingBox())?.width).toBe(viewport.width);
+  // Its Dock tile toggles it too.
+  await page.locator('#dock-writing').click();
+  await expect(writing).toBeHidden();
+  await page.locator('#dock-writing').click();
+  await expect(writing).toBeVisible();
   await writing.getByLabel('Exit Full Screen').click();
   await expect.poll(async () => (await writing.boundingBox())?.width).toBeLessThan(viewport.width);
   await writing.locator('.dialog-close').click();
@@ -856,6 +947,34 @@ test('the bigger apps load on first open, then stay mounted', async ({ page }) =
   // Closed again, it stays in the page so it keeps its place in time.
   await expect(page.locator('.tm-space')).toHaveCount(1);
   await expect(page.locator('.game-canvas')).toHaveCount(0);
+});
+
+test('Debug Runner: "How to play" covers the game with a guide and holds the run still', async ({ page }) => {
+  await openDesktop(page);
+  await page.locator('#icon-game').dblclick();
+  const dialog = page.getByRole('dialog', { name: 'Debug Runner' });
+  const guide = dialog.getByRole('region', { name: "What's on the track" });
+  // Not on the game's main screen.
+  await expect(guide).toHaveCount(0);
+  const score = dialog.locator('.game-score-line > span').first();
+  await expect.poll(async () => Number(await score.textContent())).toBeGreaterThan(0);
+
+  await dialog.getByRole('button', { name: 'How to play' }).click();
+  await expect(guide).toBeVisible();
+  await expect(guide.locator('.game-guide-name')).toHaveText(['Bug', 'Memory leak', 'Coffee', 'Merge conflict', '404']);
+  await expect(guide.locator('[data-item="coffee"]')).toContainText('nothing can hit you');
+  await expect(guide.locator('[data-item="coffee"] [data-emoji="coffee"]')).toBeVisible();
+  await expect(guide.getByRole('button', { name: 'Got it' })).toBeFocused();
+  // The run holds still while the guide is open.
+  const held = await score.textContent();
+  await page.waitForTimeout(600);
+  await expect(score).toHaveText(held!);
+
+  // Escape closes the guide, not the game, and the run goes on.
+  await page.keyboard.press('Escape');
+  await expect(guide).toHaveCount(0);
+  await expect(dialog).toBeVisible();
+  await expect.poll(async () => Number(await score.textContent())).toBeGreaterThan(Number(held));
 });
 
 test('Debug Runner: the score climbs, a crash shows a joke and saves the best score', async ({ page }) => {

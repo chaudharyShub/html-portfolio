@@ -376,6 +376,7 @@ function buildGenie(win: HTMLElement): GeniePrep {
     set('height', `${w.height}px`);
     set('max-height', 'none');
     set('transform', 'none');
+    set('translate', 'none'); // a dragged panel's offset is already in its rect
   };
   for (let i = 0; i < count; i++) {
     const strip = document.createElement('div');

@@ -1,9 +1,21 @@
 'use client';
 
-import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useEffectEvent,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from 'react';
 import { WindowGlyph } from '@/components/icons';
 import { useOsApi, type DialogId } from '@/components/os/OsProvider';
 import { pressableProps } from '@/lib/a11y';
+import { DOCK_RESERVE, MENUBAR_HEIGHT } from '@/lib/layout';
+import { createStore } from '@/lib/store';
 import {
   animateFromDock,
   animatePopIn,
@@ -45,6 +57,12 @@ interface DialogProps {
   children: ReactNode;
 }
 
+/**
+ * On computers panels don't block the desktop (like a Mac's app windows), so several can be open:
+ * the one opened or used last is drawn in front (`dialog-overlay--front`).
+ */
+const frontPanel = createStore({ id: '' });
+
 const CLOSE_MS = 180;
 const ZOOM_MS = 420;
 
@@ -81,6 +99,14 @@ export function Dialog({
   const phaseRef = useRef<Phase>('shown');
   const cancelGenie = useRef<(() => void) | undefined>(undefined);
   const minimizeRef = useRef<(() => void) | undefined>(undefined);
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+  const front = frontPanel.use().id === titleId;
+  const toFront = () => {
+    if (kind === 'panel' && frontPanel.get().id !== titleId) frontPanel.set({ id: titleId });
+  };
 
   // Adjust state while rendering when `open` flips (keeps the box visible for the close animation).
   if (prevOpen !== open) {
@@ -95,6 +121,7 @@ export function Dialog({
     if (!box) return;
     const sheet = kind === 'panel' && isPhoneLayout();
     if (open) {
+      if (kind === 'panel') frontPanel.set({ id: titleId });
       if (document.activeElement instanceof HTMLElement && !box.contains(document.activeElement)) {
         returnFocus.current = document.activeElement;
       }
@@ -117,7 +144,7 @@ export function Dialog({
       setClosing(false);
     }, CLOSE_MS + 10);
     return () => window.clearTimeout(timer);
-  }, [open, closing, kind]);
+  }, [open, closing, kind, titleId]);
 
   // On phones a sheet can also be pulled down to close, like iOS.
   const dismiss = useEffectEvent(() => onClose());
@@ -196,9 +223,11 @@ export function Dialog({
     minimizeRef.current = minimize;
     connect.panel(panelId, {
       isMinimized: () => phaseRef.current === 'leaving' || phaseRef.current === 'away',
+      isOnScreen: () => openRef.current && (phaseRef.current === 'shown' || phaseRef.current === 'returning'),
+      minimize,
       restore,
       prepareRestore: () => {
-        if (phaseRef.current === 'away' && boxRef.current) prepareGenie(boxRef.current);
+        if (openRef.current && boxRef.current && phaseRef.current !== 'leaving') prepareGenie(boxRef.current);
       },
     });
     return () => {
@@ -232,6 +261,56 @@ export function Dialog({
     onToggleZoom();
   };
 
+  /*
+   * Desktop panels can be dragged by the title bar, like the windows. The offset is the CSS
+   * `translate` property, so it adds to the pop-in/out transforms instead of fighting them. The
+   * title bar stays reachable: below the menu bar, above the Dock, partly on screen sideways.
+   */
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const placeBox = (box: HTMLElement, x: number, y: number) => {
+    dragOffset.current = { x, y };
+    box.style.translate = x || y ? `${x}px ${y}px` : '';
+  };
+  const startDrag = (e: PointerEvent<HTMLDivElement>) => {
+    const box = boxRef.current;
+    const bar = e.currentTarget;
+    if (!box || zoomed || e.button !== 0 || isPhoneLayout()) return;
+    if (e.target instanceof Element && e.target.closest('.tl')) return;
+    e.preventDefault(); // no text selection while dragging
+    const start = { px: e.clientX, py: e.clientY, ...dragOffset.current };
+    const rect = box.getBoundingClientRect();
+    const barHeight = bar.offsetHeight;
+    // Where the box would be with no offset.
+    const baseLeft = rect.left - start.x;
+    const baseTop = rect.top - start.y;
+    const KEEP = 100; // px of the title bar that stays on screen sideways
+    const move = (ev: globalThis.PointerEvent) => {
+      const left = Math.min(Math.max(baseLeft + start.x + ev.clientX - start.px, KEEP - rect.width), window.innerWidth - KEEP);
+      const top = Math.min(
+        Math.max(baseTop + start.y + ev.clientY - start.py, MENUBAR_HEIGHT),
+        window.innerHeight - DOCK_RESERVE - barHeight,
+      );
+      placeBox(box, left - baseLeft, top - baseTop);
+    };
+    const end = () => {
+      bar.removeEventListener('pointermove', move);
+      bar.removeEventListener('pointerup', end);
+      bar.removeEventListener('pointercancel', end);
+    };
+    bar.setPointerCapture(e.pointerId);
+    bar.addEventListener('pointermove', move);
+    bar.addEventListener('pointerup', end);
+    bar.addEventListener('pointercancel', end);
+  };
+
+  // A panel opens centered again, and going full screen (or back) forgets the offset.
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    if (!open || !box) return;
+    dragOffset.current = { x: 0, y: 0 };
+    box.style.translate = '';
+  }, [open, zoomed]);
+
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       e.stopPropagation();
@@ -247,6 +326,7 @@ export function Dialog({
         'dialog-overlay',
         `dialog-overlay--${kind}`,
         zoomed && 'dialog-overlay--zoomed',
+        front && 'dialog-overlay--front',
         closing && 'closing',
         (phase === 'leaving' || phase === 'away') && 'dialog-overlay--minimized',
         phase === 'away' && 'dialog-overlay--away',
@@ -263,10 +343,14 @@ export function Dialog({
         ref={boxRef}
         className={['dialog-box', `dialog-box--${kind}`, boxClassName, zoomed && 'zoomed'].filter(Boolean).join(' ')}
         role={kind === 'alert' ? 'alertdialog' : 'dialog'}
-        aria-modal="true"
+        // Alerts block everything; panels leave the desktop usable on computers (bottom sheets on
+        // phones still dim it, but closing them is one tap on the dimmed area).
+        aria-modal={kind === 'alert' ? true : undefined}
         aria-labelledby={titleId}
         tabIndex={-1}
         onKeyDown={onKeyDown}
+        onPointerDownCapture={toFront}
+        onFocusCapture={toFront}
       >
         {kind === 'alert' ? (
           <>
@@ -276,7 +360,7 @@ export function Dialog({
             </h2>
           </>
         ) : (
-          <div className="dialog-title-bar" onDoubleClick={(e) => e.target === e.currentTarget && toggleZoom()}>
+          <div className="dialog-title-bar" onPointerDown={startDrag} onDoubleClick={(e) => e.target === e.currentTarget && toggleZoom()}>
             <span className="tl tl-close dialog-close" {...pressableProps} onClick={onClose} aria-label="Close" title="Close">
               <WindowGlyph name="close" />
               <span className="sheet-done" aria-hidden="true">

@@ -106,7 +106,14 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   geometry and animations write styles via refs. It sets only `display: none` inline when hidden, so
   CSS picks grid (desktop) or flex (phones).
 - `components/dialogs/Dialog.tsx` is the generic dialog: `kind: 'alert' | 'panel'`, focus in, Escape
-  closes, focus returns. Panels are bottom sheets on phones (grabber, "Done"); like iOS they can
+  closes, focus returns. **On computers panels are not modal** (Nov 2026, user's pick, "work like
+  a Mac"): no dimming, clicks outside reach the desktop, Dock, menu bar and windows, several can
+  be open; they float above the windows at z-index 93, the one opened or used last (pointer or
+  focus inside) at 94 (`frontPanel` store, `.dialog-overlay--front`); no `aria-modal`. Alerts
+  stay modal (200, dimmed); phone sheets keep the dimming. Document-level keys must check focus:
+  the Debug Runner's Space only acts when nothing or the game is focused (it ate the Terminal's
+  spaces). Re-clicking an open panel's Dock icon doesn't bring it forward (not built). Test:
+  `desktop.spec.ts` ("open apps leave the desktop usable..."). Panels are bottom sheets on phones (grabber, "Done"); like iOS they can
   also be pulled down to close (`enableSheetDrag` in `lib/motion.ts`:
   only from the title bar with the grabber (Nov 2026, user's call: pulling anywhere in the content
   closed sheets by accident); past a third of the
@@ -120,6 +127,13 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   content), and `.time-machine` has `isolation: isolate` so its year and edge note stay under
   the sticky title bar. Contents stay mounted
   while closed.
+  On computers panels stay between the menu bar and the Dock (`.dialog-overlay--panel` padding,
+  box `max-height: 100%`; Activity Monitor used to cover the Dock on short screens - user's
+  report, Nov 2026) and can be **dragged by the title bar** like the windows (`startDrag` in
+  `Dialog.tsx`; the offset is the CSS `translate` property so it adds to the pop-in/out
+  transforms; the title bar is kept below the menu bar, above the Dock and 100px on screen
+  sideways; reopening or full screen centers it again; the genie's `pin` sets `translate: none`
+  on copies). Alerts don't drag. Test: `desktop.spec.ts` ("panels stay above the Dock...").
 - **Bigger apps load on first open** (Nov 2026, from an outside audit: hydrating every dialog
   with the page was most of the phone's startup work): the Debug Runner, Time Machine, Activity
   Monitor, About This Developer, System Settings and the resume installer are `next/dynamic`
@@ -212,6 +226,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   it slides in (`dockItemIn`) and out when the app closes (`dockItemOut`, kept mounted for
   `LEAVE_MS`); none under reduced motion. Clicking it brings the app back (a running game isn't
   restarted). A MutationObserver re-measures the magnification when tiles come or go.
+  **Dock clicks toggle the minimizable apps** like the windows (Nov 2026, user's report once the
+  Dock was clickable with apps open): Activity Monitor's icon and Writing's tile minimize it when
+  on screen and bring it back from the Dock (`toggleDialogFromDock`, `PanelHandle.isOnScreen` /
+  `minimize`); resting on the icon of an open one prepares the genie either way.
 - Portfolio window (`#window`) is laid out like a Mac app (CSS grid in `styles/window.css`): unified
   52px title bar, translucent sidebar (`.window::before`, backdrop blur) with the profile card (the
   server `InfoBar` with avatar initials; "Experience: 4+ Years" is in the server HTML via
@@ -314,7 +332,7 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
     green button on the portfolio window, the Terminal, the Time Machine, Activity Monitor and
     Writing covers the whole screen, menu bar included; the Dock floats above it. Layers: maximized
     windows 91 (Terminal 92 while the portfolio is maximized, so it stays reachable), zoomed
-    panels 93 (`.dialog-overlay--zoomed`), Dock 98, other dialogs 200. Each pads its bottom by
+    and other panels 93 (front panel 94), menus 95/96, Dock 98, alerts 200. Each pads its bottom by
     `--dock-reserve` (status bar, `.terminal-body`, `.activity`, `.time-machine`,
     `.writing-body`; Writing's list also stays 820px wide, centered) so nothing
     sits behind the Dock. Half-screen snaps still stop at the menu bar and Dock.
@@ -407,6 +425,15 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   then `finishRun` sends it and the server's answer settles it (if it isn't saved, the old top
   score comes back and the message goes; `run` counter so a late answer doesn't touch a newer
   run). Sound and a named leaderboard were left out on purpose.
+  **How to play** (Nov 2026, user's request): a button beside Close opens a guide card
+  (`RunnerGuide.tsx`, "What's on the track") over the stage, hint and score line, listing each
+  thing in the order it first shows up - bug, memory leak (40), coffee (60), merge conflict
+  (100), 404 (160) - drawn like the canvas draws it, with what it does. The run holds still
+  meanwhile (`pause` / `resume` in `lib/debug-runner.ts`); "Got it" or Escape closes it (Escape
+  doesn't close the game) and the run goes on. Not shown on the main screen (it sat under the
+  game first - the user found that unfriendly) and never scrolls: `.game-area` is a one-column
+  grid and the guide spans its rows, so it fits its content. Keep its thresholds in step with
+  `spawn()`. Test: `desktop.spec.ts` ("How to play" ...).
 - **Time Machine** (`components/dialogs/TimeMachineDialog.tsx`, a wide panel dialog, always dark):
   the whole life, oldest first, as "desktop snapshots" (own era gradient each). Nine stops
   (Nov 2026, user's request - three jobs alone felt thin): birth 1995 ("System first booted"),
@@ -435,6 +462,8 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   planet low on the left was removed at the user's request). Going back past
   birth (Back button, Left arrow, wheel, swipe) doesn't travel: the stack shakes and a note says
   "No data before 1995. Try asking my parents." (`hitEdge`, `.tm-edge-note`, `role="status"`;
+  a centered pill as wide as its text; the full-screen rule that widens the content leaves it
+  out - it stretched it to 760px, left-aligned;
   the Back button stays enabled at 1995 for it); a big year counter rolls
   through every year in between; newer snapshots fly past the camera. Travel by mouse wheel /
   trackpad (up = back in time, like macOS), sideways swipe on phones, arrow keys, the ‹ › buttons

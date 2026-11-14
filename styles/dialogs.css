@@ -44,6 +44,18 @@
   color: var(--text);
 }
 
+/* Panels are app windows: like on a Mac they stay between the menu bar and the Dock instead of
+   spreading over the Dock on short screens (Activity Monitor did). Phones (bottom sheets) and
+   full screen (`--zoomed`, below) set their own padding and height. */
+.dialog-overlay--panel {
+  padding-top: calc(var(--menubar-h) + 12px);
+  padding-bottom: calc(var(--dock-reserve) + 4px);
+}
+
+.dialog-box--panel {
+  max-height: 100%;
+}
+
 .dialog-box:focus {
   outline: none;
 }
@@ -260,6 +272,31 @@
   padding-bottom: calc(18px + var(--dock-reserve));
 }
 
+/* Computers: panels are app windows, not modal. No dimming, and clicks outside the box reach the
+   desktop, Dock, menu bar and windows (user's request, Nov 2026). They float above the windows
+   (maximized ones too), under the menus (95/96) and the Dock (98); the panel used last is in
+   front. Alerts stay modal (z-index 200, dimmed). Phones keep their dimmed bottom sheets. */
+@media not ((max-width: 700px) or ((max-height: 500px) and (pointer: coarse))) {
+  .dialog-overlay--panel {
+    z-index: 93;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .dialog-overlay--panel > .dialog-box {
+    pointer-events: auto;
+  }
+
+  .dialog-overlay--panel.dialog-overlay--front {
+    z-index: 94;
+  }
+
+  /* Pouring into the Dock: the box can't be clicked on the way. */
+  .dialog-overlay--minimized > .dialog-box {
+    pointer-events: none;
+  }
+}
+
 /* (Also the genie's copies of a full-screen panel, which aren't inside the overlay.) */
 .dialog-overlay--zoomed .dialog-box.zoomed,
 .genie-copy.dialog-box.zoomed {
@@ -278,7 +315,8 @@
   justify-content: center;
 }
 
-.time-machine-box.zoomed .time-machine > :not(.tm-space) {
+/* (Not the floating edge note: it is its own pill, as wide as its text.) */
+.time-machine-box.zoomed .time-machine > :not(.tm-space, .tm-edge-note) {
   width: min(100%, 760px);
   margin-inline: auto;
 }
@@ -666,9 +704,12 @@
   z-index: 4;
   top: 92px;
   left: 50%;
+  width: max-content;
+  max-width: calc(100% - 32px);
   margin: 0;
   padding: 8px 14px;
   border-radius: 999px;
+  text-align: center;
   background: rgba(10, 14, 32, 0.88);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 0 0 0.5px rgba(255, 255, 255, 0.2);
   color: #e8ecff;
@@ -1122,6 +1163,111 @@
   margin-top: 10px;
   font-size: 12px;
   color: var(--text-2);
+}
+
+/* The stage, hint and score line: the guide covers all of it while open. One grid column, and
+   the guide spans every row, so the area grows if the guide is taller (it never scrolls). */
+.game-area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(3, auto); /* stage, hint, score line */
+  align-content: start;
+}
+
+/* Every row placed by hand, so the guide can lie on top of them (auto-placement moved them below). */
+.game-area > * {
+  grid-column: 1;
+}
+
+.game-area > #game-stage {
+  grid-row: 1;
+}
+
+.game-area > .game-hint {
+  grid-row: 2;
+}
+
+.game-area > .game-score-line {
+  grid-row: 3;
+}
+
+/* The field guide (RunnerGuide.tsx, "How to play"): each thing on the track, drawn like the
+   canvas draws it. A card over the game, which holds still meanwhile. */
+.game-guide {
+  grid-row: 1 / -1;
+  grid-column: 1;
+  z-index: 3;
+  padding: 10px 14px 12px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 0.5px var(--separator);
+  animation: overlayIn 0.18s ease-out;
+}
+
+.game-guide-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.game-guide-done {
+  padding: 4px 12px;
+}
+
+.game-guide-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.game-guide-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.game-guide-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.game-guide-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 28px;
+}
+
+.game-guide-name {
+  display: block;
+  font-weight: 600;
+}
+
+.game-guide-tip {
+  display: block;
+  color: var(--text-2);
+}
+
+.game-guide-404 rect {
+  fill: color-mix(in srgb, var(--red) 14%, transparent);
+  stroke: var(--red);
+  stroke-width: 1.2;
+}
+
+.game-guide-404 text {
+  fill: var(--red);
+  font: 700 11px var(--mono);
 }
 
 .game-score-line {

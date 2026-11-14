@@ -50,7 +50,7 @@ This is a personal project, not an open-source template.
 | **Writing** | A desktop app with my latest posts from Hashnode and dev.to and their cover images, updated by themselves when I publish. |
 | **Contact** | A contact form and every profile link in one place. |
 | **Likes** | A heart with a shared like count that beats once after you've looked around for a bit; click again to take it back. |
-| **Debug Runner** | A small runner game: hop the bugs, hold to long-jump memory leaks, stay under the 404s, grab coffee for hotfix mode and ship a version every 100 points. Shows your score, your best and the top score of all players. |
+| **Debug Runner** | A small runner game: hop the bugs, hold to long-jump memory leaks, stay under the 404s, grab coffee for hotfix mode and ship a version every 100 points. A "How to play" guide pauses the run and shows what each thing does. Shows your score, your best and the top score of all players. |
 | **And more** | A sticky note, a resume "installer" and the Trash. |
 
 ## Try the Terminal

@@ -26,7 +26,7 @@ const DOCK_BUTTONS: Partial<Record<DialogId, string>> = {
 const VISITING_APPS: { dialog: DialogId; id: string; label: string; icon: AppIconName; open: (a: OsActions) => void }[] = [
   { dialog: 'game', id: 'dock-game', label: 'Debug Runner', icon: 'game', open: (a) => a.openGame() },
   { dialog: 'timeMachine', id: 'dock-timemachine', label: 'Time Machine', icon: 'timemachine', open: (a) => a.openDialog('timeMachine') },
-  { dialog: 'writing', id: 'dock-writing', label: 'Writing', icon: 'writing', open: (a) => a.openDialog('writing') },
+  { dialog: 'writing', id: 'dock-writing', label: 'Writing', icon: 'writing', open: (a) => a.toggleDialogFromDock('writing') },
 ];
 
 /** The little hop a dock icon does while its app launches (on the tile, so it never fights the magnification). */
@@ -170,9 +170,9 @@ function useMagnification(listRef: RefObject<HTMLUListElement | null>) {
 /** macOS Dock on desktop (magnifies under the pointer); the iOS dock on phones. */
 export function Dock() {
   const { actions, connect } = useOsApi();
-  const { windows, dialogs, menuOpen, minimized } = useOsState();
+  const { windows, dialogs, menuOpen } = useOsState();
   // Resting on a minimized app's icon builds its genie copies ahead, so the click starts at once.
-  const restFor = (dialog: DialogId) => (minimized[dialog] ? () => actions.preparePanelRestore(dialog) : undefined);
+  const restFor = (dialog: DialogId) => (dialogs[dialog] ? () => actions.preparePanelRestore(dialog) : undefined);
   const prevTerminal = useRef(windows.terminal);
   const prevDialogs = useRef(dialogs);
   const listRef = useRef<HTMLUListElement>(null);
@@ -233,7 +233,7 @@ export function Dock() {
           icon="activity"
           only="mac"
           running={dialogs.activity}
-          onClick={() => actions.openDialog('activity')}
+          onClick={() => actions.toggleDialogFromDock('activity')}
           onRest={restFor('activity')}
         />
         <DockItem
@@ -255,7 +255,8 @@ export function Dock() {
             leaving={!dialogs[app.dialog]}
             running={dialogs[app.dialog]}
             onRest={restFor(app.dialog)}
-            // Already open: the click only brings it back if it's in the Dock (a running game isn't restarted).
+            // Already open: Writing goes to the Dock and back like the windows; the others only come
+            // back if minimized (a running game isn't restarted).
             onClick={() => (dialogs[app.dialog] && app.dialog === 'game' ? undefined : app.open(actions))}
           />
         ))}

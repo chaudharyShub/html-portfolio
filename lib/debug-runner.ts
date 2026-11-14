@@ -105,6 +105,9 @@ export interface Runner {
   start: () => void;
   /** Stops the run (the dialog closed). */
   stop: () => void;
+  /** Holds the run still (the guide is open) and goes on from there. */
+  pause: () => void;
+  resume: () => void;
   /** Jump button down / up (Space, mouse, finger). */
   press: () => void;
   release: () => void;
@@ -149,6 +152,8 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
 
   // Run state.
   let running = false;
+  /** A run held by pause(): `running` is false meanwhile, resume() goes on. */
+  let paused = false;
   let frame = 0;
   let last = 0;
   let score = 0;
@@ -599,16 +604,33 @@ export function createRunner(canvas: HTMLCanvasElement, events: RunnerEvents, re
       readColors();
       colorsReadAt = performance.now();
       running = true;
+      paused = false;
       last = 0;
       frame = requestAnimationFrame(tick);
     },
     stop: () => {
       running = false;
+      paused = false;
       cancelAnimationFrame(frame);
       obstacles = [];
       coffees = [];
       particles = [];
       draw();
+    },
+    pause: () => {
+      if (!running) return;
+      running = false;
+      paused = true;
+      holding = false;
+      pressed = false;
+      cancelAnimationFrame(frame);
+    },
+    resume: () => {
+      if (!paused) return;
+      paused = false;
+      running = true;
+      last = 0;
+      frame = requestAnimationFrame(tick);
     },
     press: () => {
       pressed = true;
