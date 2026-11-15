@@ -729,6 +729,33 @@
   text-decoration: underline;
 }
 
+.sw-nowrap {
+  white-space: nowrap;
+}
+
+/* "All projects": a button (it opens the Projects tab), drawn like the links beside it. */
+.sw-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font: inherit;
+  color: var(--accent);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: none;
+}
+
+/* Undo the push-button hover and press from base.css. */
+.sw-link:hover,
+.sw-link:active {
+  filter: none;
+  transform: none;
+  text-decoration: underline;
+}
+
 .made-by-mark {
   display: flex;
   color: var(--maker);
@@ -808,6 +835,8 @@
 }
 
 .made-by .home-pill-panel {
+  /* Wraps "Also:" between the site names instead of one long line (user's request, Nov 2026). */
+  max-width: 250px;
   padding: 9px 14px;
   border-radius: 14px;
 }

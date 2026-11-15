@@ -622,14 +622,19 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `company` in `data/experience.ts`) puts work projects under a header per company with the role
   and dates from Experience (newest job first); projects without `company` go under "Personal
   Projects" at the end. Group headers are `<h3>`, project names `<h4>`. Mapping confirmed by the
-  user: Koru UX - Agent Fabric; Quokka Labs - RunTheDay, MDM, SportZentric; personal - CloudPrep,
-  Frontend Interview Prep (plain HTML/CSS/JS, source in the sibling folder `frontend-interview-prod`).
+  user: Koru UX - Agent Fabric; Quokka Labs - RunTheDay, MDM, SportZentric; personal (newest
+  first) - Git, Drawn Out (Nov 2026, a single-page visual Git guide, plain HTML/CSS/JS + SVG,
+  https://git-drawn-out.vercel.app), CloudPrep, Frontend Interview Prep (plain HTML/CSS/JS,
+  source in the sibling folder `frontend-interview-prod`).
   Per-project dates were not given, so the company's dates are the "when".
 - **Shubham Works block** (`components/desktop/MadeBy.tsx`, Nov 2026): "Shubham Works" is the
-  umbrella name for the user's sites (this portfolio, CloudPrep, Frontend Interview Prep); each
-  site shows the same small block, specified in CloudPrep's `docs/SHUBHAM_WORKS.md` (sibling
-  folder `CloudPrep`). On the desktop it is a slim glass pill, bottom-left, behind windows
-  (z-index 2; 89 while open); a click shows "Made by" + "Also:" above it, a click elsewhere or
+  umbrella name for the user's sites (this portfolio, Git, Drawn Out, CloudPrep, Frontend Interview Prep); each
+  site shows the same small block, specified in `docs/SHUBHAM_WORKS.md` (identical to CloudPrep's
+  `docs/SHUBHAM_WORKS.md`, sibling folder `CloudPrep`; change both together). That page also
+  tells every site to build in the owner's analytics opt-out (`lib/owner-device.ts`), same
+  token hash everywhere. On the desktop it is a slim glass pill, bottom-left, behind windows
+  (z-index 2; 89 while open); a click shows "Made by" + "Also:" above it (at most 250px wide,
+  so "Also:" wraps between site names; "· All projects" stays together), a click elsewhere or
   Escape closes (`MadeByPill` with `className="made-by"`, the same component as the phone pill;
   Nov 2026, user's call - it replaced a glass card with the full text). On screens under 1240px
   wide it moves up above the Dock's height. It first sat under the Contact card, which the user
@@ -644,8 +649,11 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   and restore the pill check in `mobile.spec.ts` from commit 9ff8ce5. Its code and CSS stay. Shared text styles are `.sw-block`, the glass is `.sw-glass`. It shows
   the orange "Dial" mark (`MakerMark` in `components/icons`, the small version, `--maker` token:
   `#c2410c` light, `#fb923c` dark, same as CloudPrep) + "A Shubham Works project", "Made by
-  Shubham Chaudhary" (plain text here), "Also:" with every visible personal project that has a
-  live link (from `data/projects.ts`, so a new one is listed automatically). Keep the wording and
+  Shubham Chaudhary" (plain text here), "Also:" with the newest 3 visible personal projects that
+  have a live link (from `data/projects.ts`, where personal projects are listed newest first, so a
+  new one takes a spot automatically), then "All projects" (a button that opens the Projects tab;
+  the other sites link to the portfolio). The cap is the user's call (Nov 2026): every site in a
+  row would grow into a paragraph as projects are added. Keep the wording and
   order identical to the other sites; if the Dial drawing changes in CloudPrep, update it here too.
 - **Project status badges**: green for Completed, orange for In Progress (`--orange` /
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
