@@ -1,12 +1,16 @@
-# Shubham Works: the shared footer (D-062)
+# Shubham Works: shared rules for every site (D-062)
 
 "Shubham Works" is the umbrella name for the developer's sites: the portfolio
 (https://shubhamworks.vercel.app/), Git, Drawn Out, CloudPrep and Frontend Interview Prep. Each site keeps
-its own logo and URL. What ties them together is the same small footer block on every site.
-This page is the reference for adding it to the other sites. Two identical copies exist:
-`docs/SHUBHAM_WORKS.md` in the portfolio (`html-portfolio`) and in `CloudPrep`; change both
-together. The portfolio's block is `components/desktop/MadeBy.tsx`, CloudPrep's is `MadeBy` in
-`src/components/layout/Brand.tsx`.
+its own logo and URL. What ties them together is the same small footer block on every site,
+the same owner-aware analytics and the same mark.
+
+**Single source of truth:** `SHUBHAM_WORKS.md` in the projects' parent folder
+(`(A) WORKING`). Edit only that file, then run `sync-shubham-works.ps1` (same folder) to copy
+it into every project's `docs/SHUBHAM_WORKS.md`. Those copies are mirrors kept so each repo
+on GitHub still has the page; never edit a copy by hand. A new project gets its copy from the
+same script. The portfolio's block is `components/desktop/MadeBy.tsx`, CloudPrep's is
+`MadeBy` in `src/components/layout/Brand.tsx`.
 
 ## The block
 
@@ -56,7 +60,7 @@ How it works:
 - The code holds only the token's SHA-256, never the token:
   `00ad41f213985ec4c69bf6fd3eb60c220399829190ca21e5c4001ddfc9dbe05b`.
   **Never write the token in code, docs, tests, commits or PR text.** Use this hash as is;
-  if it changes, change it on every site and in both copies of this page.
+  if it changes, change it on every site and in the master copy of this page.
 - On page load: read `location.hash` (URL-decoded). If it ends in `.on`, strip that. If the
   SHA-256 (hex, `crypto.subtle.digest`) of what is left equals the hash:
   - remove the token from the address bar with
@@ -94,7 +98,7 @@ footer mark uses the `maker` token (`#c2410c` on light, `#fb923c` on dark, both 
 versions on dark backgrounds; leave it off small ones.
 
 If the drawing changes, update CloudPrep's `src/components/brand/MakerMark.tsx`, both SVG
-files, the portfolio's `MakerMark` (`components/icons`) and both copies of this page together.
+files, the portfolio's `MakerMark` (`components/icons`) and the master copy of this page together.
 
 ## Later
 
