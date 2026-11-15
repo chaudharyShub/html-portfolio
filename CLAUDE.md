@@ -629,8 +629,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   Per-project dates were not given, so the company's dates are the "when".
 - **Shubham Works block** (`components/desktop/MadeBy.tsx`, Nov 2026): "Shubham Works" is the
   umbrella name for the user's sites (this portfolio, Git, Drawn Out, CloudPrep, Frontend Interview Prep); each
-  site shows the same small block, specified in `docs/SHUBHAM_WORKS.md` (identical to CloudPrep's
-  `docs/SHUBHAM_WORKS.md`, sibling folder `CloudPrep`; change both together). That page also
+  site shows the same small block, specified in `docs/SHUBHAM_WORKS.md` (a mirror of the master
+  `../SHUBHAM_WORKS.md` in the parent folder; edit the master, then run
+  `../sync-shubham-works.ps1`). That page also
   tells every site to build in the owner's analytics opt-out (`lib/owner-device.ts`), same
   token hash everywhere. On the desktop it is a slim glass pill, bottom-left, behind windows
   (z-index 2; 89 while open); a click shows "Made by" + "Also:" above it (at most 250px wide,
