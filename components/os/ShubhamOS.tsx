@@ -49,10 +49,19 @@ function OnFirstOpen({ id, children }: { id: DialogId; children: ReactNode }) {
   return opened ? children : null;
 }
 
-/** Fetches the on-demand apps' code once the browser is idle after startup. */
+/**
+ * Fetches the on-demand apps' code once the browser is idle after startup, and the Writing
+ * app's blog covers: they are lazy images inside a closed window, so they would otherwise only
+ * start loading when it opens. Switching them to eager starts the download.
+ */
 function usePreloadApps() {
   useEffect(() => {
-    const preload = () => LAZY_APPS.forEach((load) => void load());
+    const preload = () => {
+      LAZY_APPS.forEach((load) => void load());
+      document.querySelectorAll<HTMLImageElement>('#writing-posts img[loading="lazy"]').forEach((img) => {
+        img.loading = 'eager';
+      });
+    };
     // Safari has no requestIdleCallback; a plain timeout is fine there.
     const hasIdle = 'requestIdleCallback' in window;
     let handle = 0;

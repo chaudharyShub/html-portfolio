@@ -89,6 +89,11 @@ test('the Writing app on the desktop lists the latest blog posts as rows with a 
   await expect(rows.first().locator('.post-thumb img')).toHaveAttribute('src', /cdn\.hashnode\.com%2Fuploads%2Fcovers%2Ftest%2Fnewest\.jpg/);
   await expect(rows.nth(1).locator('.post-thumb img')).toHaveCount(0);
   await expect(rows.nth(1).locator('.post-thumb-empty')).toBeVisible();
+  // A cover sits on the pencil tile, so a slow one shows the tile instead of an empty box.
+  await expect(rows.first().locator('.post-thumb-empty')).toHaveCount(1);
+  await expect(rows.first().locator('.post-thumb > :last-child')).toHaveJSProperty('tagName', 'IMG');
+  // The covers start loading after startup, before the window opens.
+  await expect(rows.first().locator('.post-thumb img')).toHaveAttribute('loading', 'eager');
   // The row opens the Hashnode post; dev.to has its own link, only where the post was cross-posted.
   await expect(rows.first().getByRole('link', { name: /on Hashnode/ })).toHaveAttribute(
     'href',
