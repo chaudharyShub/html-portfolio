@@ -41,14 +41,13 @@ function PostRow({ post }: { post: BlogPost }) {
   return (
     <article className="post-row">
       <div className="post-thumb">
-        {post.cover ? (
-          // Decorative: the title beside it says what the post is.
-          <Image src={post.cover} alt="" fill sizes="120px" />
-        ) : (
-          <span className="post-thumb-empty">
-            <TabGlyph name="writing" />
-          </span>
-        )}
+        {/* The pencil tile: the whole picture when a post has no cover, and what shows while a
+            cover is still loading (the cover is drawn over it). */}
+        <span className="post-thumb-empty">
+          <TabGlyph name="writing" />
+        </span>
+        {/* Decorative: the title beside it says what the post is. */}
+        {post.cover && <Image src={post.cover} alt="" fill sizes="120px" />}
       </div>
       <div className="post-text">
         <h3 className="post-title">

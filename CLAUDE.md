@@ -602,7 +602,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   list (`.post-list`, like the Contact links card): a 120px cover thumbnail (`.post-thumb`, 1.91:1,
   `next/image` `fill`; 96px on phones; Hashnode's `<enclosure>`, else the dev.to copy's
   `cover_image`; only hosts in `lib/blog-hosts.ts` `COVER_HOSTS`, which `next.config.ts`
-  `images.remotePatterns` also reads; no cover = the pencil on the indigo tile), then title,
+  `images.remotePatterns` also reads; no cover = the pencil on the indigo tile, which is also
+  under every cover, so a slow or failed cover shows the tile, not an empty box (user's report,
+  Nov 2026); `usePreloadApps` switches the lazy covers to eager on idle after startup, so they
+  load before the window opens), then title,
   date + reading time (mono) + "dev.to" link, and a one-line summary. The title link's `::after`
   covers the row, so the whole row opens the Hashnode post; the dev.to link sits above it
   (`z-index`). Phones hide the summary and put dev.to on its own line (narrow column). Cards with
