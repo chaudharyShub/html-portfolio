@@ -12,7 +12,7 @@ export interface Project {
 
 /**
  * Personal projects (no `company`) are listed newest first: the Shubham Works badge's "Also:"
- * shows the first 3 with a live link (`MadeBy.tsx`).
+ * shows the first 3 with a live link (`OTHER_SITES`).
  */
 export const PROJECTS: Project[] = [
   {
@@ -84,3 +84,16 @@ export const PROJECTS: Project[] = [
 ];
 
 export const VISIBLE_PROJECTS = PROJECTS.filter((p) => !p.hidden);
+
+/**
+ * "Also:" in the Shubham Works block names at most this many sites, then "All projects" (user's
+ * call, Nov 2026: a list of every site would grow into a paragraph as projects are added).
+ */
+const MAX_OTHER_SITES = 3;
+
+/**
+ * The developer's newest other sites: personal projects with a live link. Personal projects are
+ * listed newest first above, so a new one takes a spot automatically. Used by the desktop's
+ * Shubham Works block (`MadeBy.tsx`) and the /projects page footer.
+ */
+export const OTHER_SITES = VISIBLE_PROJECTS.filter((p) => !p.company && p.liveUrl).slice(0, MAX_OTHER_SITES);

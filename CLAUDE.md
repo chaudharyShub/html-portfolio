@@ -651,11 +651,29 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   the orange "Dial" mark (`MakerMark` in `components/icons`, the small version, `--maker` token:
   `#c2410c` light, `#fb923c` dark, same as CloudPrep) + "A Shubham Works project", "Made by
   Shubham Chaudhary" (plain text here), "Also:" with the newest 3 visible personal projects that
-  have a live link (from `data/projects.ts`, where personal projects are listed newest first, so a
-  new one takes a spot automatically), then "All projects" (a button that opens the Projects tab;
-  the other sites link to the portfolio). The cap is the user's call (Nov 2026): every site in a
+  have a live link (`OTHER_SITES` in `data/projects.ts`, where personal projects are listed
+  newest first, so a new one takes a spot automatically), then "All projects" (a plain link to
+  the `/projects` page, same tab; the other sites link there too, see below; it used to be a
+  button opening the Projects tab). The cap is the user's call (Nov 2026): every site in a
   row would grow into a paragraph as projects are added. Keep the wording and
   order identical to the other sites; if the Dial drawing changes in CloudPrep, update it here too.
+- **`/projects` page** (`app/projects/page.tsx`, `styles/projects-page.css`, Nov 2026, user's
+  request): every visible project on one plain server-rendered page, no desktop or startup
+  screen. It's what "All projects" on the other Shubham Works sites links to: the bare portfolio
+  address only opened the desktop, with a 4.4s startup screen and no way to land on Projects.
+  Same grouping and cards as the Projects section (`groupProjects` and `ProjectCard` are exported
+  from `components/portfolio/Projects.tsx`; cards take `heading="h3"` there, under the page's
+  `<h1>` and group `<h2>`s), but **personal projects first** (visitors come from those sites)
+  and **two cards per row** (`.projects-grid`, one column under ~830px; the user picked this
+  over compact rows and filter chips, Nov 2026: one column was a huge scroll), in one 1040px
+  `--card` sheet on the wallpaper (full-bleed on phones), an
+  "Open the portfolio" button, and the Shubham Works footer without "All projects" (it's this
+  page). Theme and Larger Text follow the visitor's saved choice (the pre-paint script is in the
+  root layout). In the sitemap; canonical `/projects`. Test: `seo.spec.ts`. The portfolio's
+  own Projects section only gained a quiet "See every project on one page →" link at its end
+  (`.projects-more`; the user's point: keep the section clean). Its Live Site buttons get the
+  same accent tint as in the portfolio (`.projects-page .btn` beside `.content .btn` in
+  `base.css`).
 - **Project status badges**: green for Completed, orange for In Progress (`--orange` /
   `--orange-text` tokens, picked by `data-status`). "projects shipped" in the About window counts
   only Completed ones. The Terminal `projects` list is built from `VISIBLE_PROJECTS`.

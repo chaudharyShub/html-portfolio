@@ -2,9 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { MakerMark } from '@/components/icons';
-import { VISIBLE_PROJECTS } from '@/data/projects';
+import { OTHER_SITES } from '@/data/projects';
 import { PROFILE } from '@/data/profile';
-import { useOsActions } from '@/components/os/OsProvider';
 
 /*
  * The "Shubham Works" block shared by all the developer's sites (same wording and order
@@ -16,18 +15,6 @@ import { useOsActions } from '@/components/os/OsProvider';
  * Only the mark is orange; the rest is quiet text.
  */
 
-/**
- * "Also:" names at most this many sites, then "All projects" (user's call, Nov 2026: a list of
- * every site would grow into a paragraph as projects are added).
- */
-const MAX_OTHER_SITES = 3;
-
-/**
- * The developer's newest other sites: personal projects with a live link. Personal projects are
- * listed newest first in data/projects.ts, so a new one takes a spot here automatically.
- */
-const OTHER_SITES = VISIBLE_PROJECTS.filter((p) => !p.company && p.liveUrl).slice(0, MAX_OTHER_SITES);
-
 const BRAND = 'A Shubham Works project';
 
 function Mark({ size = 20 }: { size?: number }) {
@@ -38,9 +25,8 @@ function Mark({ size = 20 }: { size?: number }) {
   );
 }
 
-/** "Made by" and "Also:" lines. `onNavigate` runs when "All projects" opens the Projects tab. */
-function Details({ onNavigate }: { onNavigate?: () => void }) {
-  const { goToSection } = useOsActions();
+/** "Made by" and "Also:" lines. */
+function Details() {
   return (
     <>
       <p>Made by {PROFILE.name}</p>
@@ -60,20 +46,11 @@ function Details({ onNavigate }: { onNavigate?: () => void }) {
           </span>
         ))}
         {' '}
-        {/* The dot stays with "All projects" when the line wraps. The other sites link to the
-            portfolio here; on the portfolio it opens the Projects tab. */}
+        {/* The dot stays with "All projects" when the line wraps. Same page as on the other
+            sites (/projects), here in the same tab (no arrow: it stays on the site). */}
         <span className="sw-nowrap">
           {'· '}
-          <button
-            type="button"
-            className="sw-link"
-            onClick={() => {
-              onNavigate?.();
-              goToSection('projects');
-            }}
-          >
-            All projects
-          </button>
+          <a href="/projects">All projects</a>
         </span>
       </p>
     </>
@@ -109,7 +86,7 @@ export function MadeByPill({ className = 'home-pill' }: { className?: string }) 
   return (
     <div className={`${className} sw-block`} ref={rootRef}>
       <div className="home-pill-panel sw-glass" id={panelId} hidden={!open}>
-        <Details onNavigate={() => setOpen(false)} />
+        <Details />
       </div>
       <button
         type="button"

@@ -18,7 +18,7 @@ same script. The portfolio's block is `components/desktop/MadeBy.tsx`, CloudPrep
 [SW] A Shubham Works project
 Made by Shubham Chaudhary ↗       (links to the portfolio)
 Also: Git, Drawn Out ↗, Frontend Interview Prep ↗ · All projects ↗
-                                  (the newest other sites, then the portfolio)
+                                  (the newest other sites, then the portfolio's project list)
 ```
 
 Rules, so it reads the same everywhere:
@@ -27,8 +27,11 @@ Rules, so it reads the same everywhere:
   Drawn Out's doesn't link to Git, Drawn Out, and so on; "Also:" is only the other sites.
 - Same wording and order on every site. "Also:" lists **at most 3** of the developer's other
   sites (never the current one), newest first (new tab, `rel="noopener noreferrer"`), then
-  "All projects ↗" linking to the portfolio (https://shubhamworks.vercel.app/). On the
-  portfolio itself, "All projects" opens its Projects tab (no arrow, it stays on the site).
+  "All projects ↗" linking to the portfolio's project list
+  (https://shubhamworks.vercel.app/projects: a plain page, no startup screen, so visitors see
+  the projects at once; the bare portfolio address only opened the desktop). On the
+  portfolio's desktop, "All projects" goes to the same page in the same tab (no arrow, it
+  stays on the site); the /projects page itself leaves "All projects" out.
   The cap was the user's call on 2026-11-15: a list of every site would grow into a paragraph
   as projects are added.
 - Current order, newest first: Git, Drawn Out (https://git-drawn-out.vercel.app/), CloudPrep,
@@ -43,6 +46,28 @@ Rules, so it reads the same everywhere:
 - When a new project is added, it takes the first spot in "Also:" on every other site and the
   oldest one drops off past 3 (it is still in the portfolio's Projects). The portfolio does
   this by itself (from `data/projects.ts`); the other sites are edited by hand.
+
+## The README
+
+Every site's GitHub README carries the same section, just before "License":
+
+```
+## Made by
+
+<Site> is a **Shubham Works** project, made by [Shubham Chaudhary](https://shubhamworks.vercel.app/).
+
+Also:
+
+- [<other site>](<url>): <one-line description>
+- ... (the same sites, in the same order, as the footer's "Also:")
+- [All projects](https://shubhamworks.vercel.app/projects)
+```
+
+A site may add one short paragraph after the list (CloudPrep says where the credit shows in
+the app). The portfolio's README lists the other sites at the end of "Contact" instead
+(no "All projects", it is the portfolio). When "Also:" changes on the sites, change the READMEs
+too. Descriptions: Git, Drawn Out "a visual field guide to Git"; CloudPrep "practice exams for
+three AWS certifications"; Frontend Interview Prep "frontend interview questions with answers".
 
 ## Every site: keep the owner's visits out of analytics
 

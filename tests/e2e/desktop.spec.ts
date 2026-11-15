@@ -140,19 +140,14 @@ test('the Shubham Works pill sits in the bottom-left corner and opens the other 
   expect((await panel.boundingBox())!.y).toBeLessThan(b.y);
   await expect(panel).toContainText('Made by Shubham Chaudhary');
   const links = panel.getByRole('link');
-  // The newest 3 sites (at most), then "All projects".
-  await expect(links).toHaveText(['Git, Drawn Out ↗', 'CloudPrep ↗', 'Frontend Interview Prep ↗']);
+  // The newest 3 sites (at most), then "All projects" (the /projects page, same tab).
+  await expect(links).toHaveText(['Git, Drawn Out ↗', 'CloudPrep ↗', 'Frontend Interview Prep ↗', 'All projects']);
+  await expect(links.nth(3)).toHaveAttribute('href', '/projects');
+  await expect(links.nth(3)).not.toHaveAttribute('target', /.+/);
   await expect(links.nth(0)).toHaveAttribute('href', 'https://git-drawn-out.vercel.app');
   await expect(links.nth(1)).toHaveAttribute('href', 'https://aws-cloud-prepare.vercel.app');
   await expect(links.nth(2)).toHaveAttribute('href', 'https://frontend-interview-prepare.vercel.app');
   await expect(links.nth(2)).toHaveAttribute('rel', 'noopener noreferrer');
-  // "All projects" opens the Projects tab and closes the panel.
-  await panel.getByRole('button', { name: 'All projects' }).click();
-  await expect(panel).toBeHidden();
-  await expect(page.getByRole('tab', { name: 'Projects' })).toHaveAttribute('aria-selected', 'true');
-  await pill.click();
-  await expect(panel).toBeVisible();
-
   // Escape closes it, and so does a click anywhere else.
   await page.keyboard.press('Escape');
   await expect(panel).toBeHidden();
