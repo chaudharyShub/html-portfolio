@@ -51,6 +51,10 @@ test('the /projects page lists every visible project in the server HTML', async 
   const html = await response.text();
   expect(html).toContain('<title>Projects | Shubham Chaudhary</title>');
   expect(html).toMatch(/<link rel="canonical" href="https?:\/\/[^"]+\/projects"/);
+  // Link previews: its own title, plus the shared image and site name from the root layout.
+  expect(html).toMatch(/<meta property="og:image" content="https?:\/\/[^"]+\/og-image\.jpg"/);
+  expect(html).toContain('<meta property="og:site_name" content="Shubham Chaudhary"/>');
+  expect(html).toContain('<meta name="twitter:title" content="Projects | Shubham Chaudhary"/>');
   for (const name of ['Agent Fabric', 'RunTheDay (RTD)', 'Git, Drawn Out', 'CloudPrep', 'Frontend Interview Prep', 'Personal Projects'])
     expect(html).toContain(name.replace('&', '&amp;'));
   // Personal sites come first (visitors arrive from them), then the jobs.

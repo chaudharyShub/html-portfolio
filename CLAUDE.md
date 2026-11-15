@@ -669,7 +669,9 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `--card` sheet on the wallpaper (full-bleed on phones), an
   "Open the portfolio" button, and the Shubham Works footer without "All projects" (it's this
   page). Theme and Larger Text follow the visitor's saved choice (the pre-paint script is in the
-  root layout). In the sitemap; canonical `/projects`. Test: `seo.spec.ts`. The portfolio's
+  root layout). In the sitemap; canonical `/projects`. Its `openGraph` / `twitter` repeat the
+  share image, site name and type: a page's block replaces the layout's whole one (it shipped
+  without `og:image` at first). Test: `seo.spec.ts`. The portfolio's
   own Projects section only gained a quiet "See every project on one page →" link at its end
   (`.projects-more`; the user's point: keep the section clean). Its Live Site buttons get the
   same accent tint as in the portfolio (`.projects-page .btn` beside `.content .btn` in
