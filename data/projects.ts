@@ -10,6 +10,10 @@ export interface Project {
   hidden?: boolean;
 }
 
+/**
+ * Personal projects (no `company`) are listed newest first: the Shubham Works badge's "Also:"
+ * shows the first 3 with a live link (`MadeBy.tsx`).
+ */
 export const PROJECTS: Project[] = [
   {
     name: 'Agent Fabric',
@@ -20,11 +24,19 @@ export const PROJECTS: Project[] = [
       'An AI-native workflow and agent orchestration platform - the kind of internal tooling Fortune 500 teams are building right now to coordinate LLM-driven automation at scale.',
   },
   {
+    name: 'Git, Drawn Out',
+    status: 'Completed',
+    tech: ['JavaScript', 'HTML5', 'CSS3', 'SVG'],
+    description:
+      'Git, Drawn Out is an interactive field guide that explains Git through pictures instead of walls of text. It started as my personal cheat sheet while learning Git, then I made it public. Step through commands in the playground and watch the commit graph change in real time.',
+    liveUrl: 'https://git-drawn-out.vercel.app',
+  },
+  {
     name: 'CloudPrep',
     status: 'Completed',
     tech: ['React.js', 'TypeScript', 'Vite', 'Tailwind CSS', 'Supabase', 'PostgreSQL', 'MediaPipe'],
     description:
-      'AWS certification exam simulator for 3 exams (Cloud Practitioner, Solutions Architect – Associate, Developer – Associate), with a 3,600-question original bank, full-length timed mock exams, and a learning mode with instant explanations and spaced-repetition review. Built with React and TypeScript on a Supabase backend (Postgres, Auth, row-level security), plus an opt-in AI-proctored exam mode that runs computer vision in the browser (MediaPipe).',
+      'AWS certification exam simulator for CLF-C02, SAA-C03 and DVA-C03: a 4,000-question original bank, timed mock exams, and a learning mode with explanations and spaced-repetition review. React + TypeScript on Supabase (Postgres, Auth, RLS), with an opt-in AI-proctored mode using in-browser computer vision (MediaPipe).',
     liveUrl: 'https://aws-cloud-prepare.vercel.app',
   },
   {
@@ -32,7 +44,7 @@ export const PROJECTS: Project[] = [
     status: 'Completed',
     tech: ['JavaScript', 'HTML5', 'CSS3', 'localStorage'],
     description:
-      'A dependency-free interview prep app with 176 frontend questions and model answers. It includes progress tracking, starred review, search, filters and light/dark themes, all saved in the browser with no sign-up.',
+      'Dependency-free frontend interview prep: 283 questions with model answers on JavaScript, TypeScript, React, Next.js, HTML & CSS and system design. It has runnable coding challenges, progress tracking, starred review and offline support, with no sign-up.',
     liveUrl: 'https://frontend-interview-prepare.vercel.app',
   },
   {
