@@ -8,8 +8,11 @@ interface ProjectGroup {
   projects: Project[];
 }
 
-/** Work projects grouped by company (newest job first), then personal projects. */
-function groupProjects(): ProjectGroup[] {
+/**
+ * Work projects grouped by company (newest job first), then personal projects. Shared with the
+ * standalone /projects page.
+ */
+export function groupProjects(): ProjectGroup[] {
   const groups: ProjectGroup[] = VISIBLE_EXPERIENCE.map((job) => ({
     title: job.company,
     meta: `${job.title} · ${job.period}`,
@@ -36,15 +39,20 @@ export function Projects() {
           ))}
         </section>
       ))}
+      {/* A plain page with every project, outside the desktop (also where the other sites link). */}
+      <p className="projects-more">
+        <a href="/projects">See every project on one page &#8594;</a>
+      </p>
     </fieldset>
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
+/** `heading`: h4 under a company's h3 in the portfolio; h3 on the /projects page. */
+export function ProjectCard({ project, heading: Heading = 'h4' }: { project: Project; heading?: 'h3' | 'h4' }) {
   return (
     <article className="project-card">
       <div className="project-title">
-        <h4 className="project-name">{project.name}</h4>
+        <Heading className="project-name">{project.name}</Heading>
         <span className="status-badge" data-status={project.status}>{project.status}</span>
       </div>
       <div className="project-body">

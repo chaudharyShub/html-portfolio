@@ -181,6 +181,21 @@ td:first-child {
   color: var(--text-2);
 }
 
+.projects-more {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.projects-more a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.projects-more a:hover {
+  text-decoration: underline;
+}
+
 .project-card {
   margin-bottom: 12px;
   border-radius: 12px;

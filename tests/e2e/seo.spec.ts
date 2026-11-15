@@ -40,12 +40,30 @@ test('robots.txt and the sitemap let crawlers find the page and the resume', asy
 
   const sitemap = await (await request.get('/sitemap.xml')).text();
   expect(sitemap).toMatch(/<loc>[^<]+\/<\/loc>/);
+  expect(sitemap).toMatch(/<loc>[^<]+\/projects<\/loc>/);
   expect(sitemap).toMatch(/<loc>[^<]+\/Shubham_resume\.pdf<\/loc>/);
   expect((await request.get('/Shubham_resume.pdf')).status()).toBe(200);
 });
 
+test('the /projects page lists every visible project in the server HTML', async ({ request }) => {
+  const response = await request.get('/projects');
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  expect(html).toContain('<title>Projects | Shubham Chaudhary</title>');
+  expect(html).toMatch(/<link rel="canonical" href="https?:\/\/[^"]+\/projects"/);
+  for (const name of ['Agent Fabric', 'RunTheDay (RTD)', 'Git, Drawn Out', 'CloudPrep', 'Frontend Interview Prep', 'Personal Projects'])
+    expect(html).toContain(name.replace('&', '&amp;'));
+  // Personal sites come first (visitors arrive from them), then the jobs.
+  expect(html.indexOf('Personal Projects')).toBeLessThan(html.indexOf('Koru UX'));
+  // Hidden entries stay hidden here too.
+  expect(html).not.toContain('BrowseAnywhere');
+  // The Shubham Works footer, without "All projects" (this page is it).
+  expect(html).toContain('A Shubham Works project');
+  expect(html).not.toContain('All projects');
+});
+
 test('every response carries the security headers (no framing by other sites)', async ({ request }) => {
-  for (const path of ['/', '/api/likes', '/Shubham_resume.pdf']) {
+  for (const path of ['/', '/projects', '/api/likes', '/Shubham_resume.pdf']) {
     const headers = (await request.get(path)).headers();
     expect(headers['x-frame-options'], path).toBe('DENY');
     expect(headers['content-security-policy'], path).toBe("frame-ancestors 'none'");

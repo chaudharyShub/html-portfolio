@@ -32,6 +32,9 @@ small interactive desktop: a short startup screen, then a single window with Abo
 (grouped by company, then personal projects), Skills, Experience and Contact. On phones it
 becomes an app-style Home Screen.
 
+Just want the list? [**/projects**](https://shubhamworks.vercel.app/projects) shows every
+project on one plain page, without the desktop.
+
 This is a personal project, not an open-source template.
 
 ## What's inside

@@ -261,8 +261,10 @@ textarea:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
-/* Links and secondary actions inside the portfolio are tinted, so they read as clickable at a glance. */
-.content .btn:not(.btn-primary) {
+/* Links and secondary actions inside the portfolio (and on /projects) are tinted, so they read as
+   clickable at a glance. */
+.content .btn:not(.btn-primary),
+.projects-page .btn:not(.btn-primary) {
   background: color-mix(in srgb, var(--accent) 13%, transparent);
   color: var(--accent);
   box-shadow: none;
