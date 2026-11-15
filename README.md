@@ -111,6 +111,12 @@ worth a try.
 [dev.to](https://dev.to/shubham_works) ·
 [Hashnode](https://shubham-works.hashnode.dev)
 
+This portfolio is part of **Shubham Works**. My other sites:
+
+- [Git, Drawn Out](https://git-drawn-out.vercel.app/): a visual field guide to Git
+- [CloudPrep](https://aws-cloud-prepare.vercel.app/): practice exams for three AWS certifications
+- [Frontend Interview Prep](https://frontend-interview-prepare.vercel.app/): frontend interview questions with answers
+
 <div align="center">
 <br>
 <sub>It is now safe to turn off your computer.</sub>
