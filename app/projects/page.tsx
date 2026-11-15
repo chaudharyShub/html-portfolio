@@ -4,14 +4,31 @@ import { MakerMark } from '@/components/icons';
 import { groupProjects, ProjectCard } from '@/components/portfolio/Projects';
 import { OTHER_SITES } from '@/data/projects';
 import { PROFILE } from '@/data/profile';
+import { SITE } from '@/lib/site';
 
 const description = `Every project by ${PROFILE.name}, ${PROFILE.role}: work at each company and personal sites, with the tech used and live links.`;
+const socialTitle = `Projects | ${PROFILE.name}`;
 
+// A page's openGraph / twitter replace the root layout's whole block (Next doesn't merge them),
+// so the share image and site name are repeated here.
 export const metadata: Metadata = {
   title: 'Projects',
   description,
   alternates: { canonical: '/projects' },
-  openGraph: { url: '/projects', title: `Projects | ${PROFILE.name}`, description },
+  openGraph: {
+    type: 'website',
+    siteName: SITE.siteName,
+    url: '/projects',
+    title: socialTitle,
+    description,
+    images: [SITE.social.image],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: socialTitle,
+    description,
+    images: [SITE.social.image.url],
+  },
 };
 
 /**
