@@ -405,7 +405,10 @@ Lead with the person, then the experience: it is **Shubham's portfolio** (Full S
   `lib/debug-runner.ts`, a canvas; Nov 2026 upgrade at the user's request): movement is per second,
   not per frame (the first version ran twice as fast on 120Hz screens). Tap = small hop, hold
   (Space, mouse or finger) = higher jump (low gravity while held, up to 0.25s; letting go early cuts
-  the climb; a press just before landing still jumps). Obstacles join as the score grows: bug (any
+  the climb; a press just before landing still jumps). On Android a held finger is a long press:
+  the stage cancels `touchstart` (not on its Restart button) and stops `contextmenu`, else Chrome
+  selected text, buzzed and opened the desktop's right-click menu (user's report, Nov 2026; test
+  in `mobile.spec.ts`). Obstacles join as the score grows: bug (any
   jump), **memory leak** (a wide puddle, only a held jump clears it; width follows the speed),
   **merge conflict** (two bugs: two hops, one jump can't clear both), **404** (floats just over
   the runner's head: stay down or clear it with a full jump) - checked in a simulation at slow,

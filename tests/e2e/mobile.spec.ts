@@ -165,6 +165,25 @@ test('a single tap opens a Home Screen icon', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'About This Developer' })).toBeVisible();
 });
 
+test('Debug Runner: a long press on the stage is a held jump, not a selection or menu', async ({ page }) => {
+  await openDesktop(page);
+  await goHome(page);
+  await page.locator('#icon-game').tap();
+  const stage = page.getByRole('dialog', { name: 'Debug Runner' }).locator('#game-stage');
+  await expect(stage).toBeVisible();
+  // What Android does on a long press: a touchstart, then a contextmenu. Both must be taken.
+  const prevented = await stage.evaluate((el) => {
+    const touch = new Touch({ identifier: 1, target: el, clientX: 50, clientY: 50 });
+    const start = new TouchEvent('touchstart', { touches: [touch], targetTouches: [touch], bubbles: true, cancelable: true });
+    el.dispatchEvent(start);
+    const menu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 50, clientY: 50 });
+    el.dispatchEvent(menu);
+    return { touch: start.defaultPrevented, menu: menu.defaultPrevented };
+  });
+  expect(prevented).toEqual({ touch: true, menu: true });
+  await expect(page.locator('#context-menu')).toBeHidden();
+});
+
 test('Activity Monitor opens from the Home Screen and fits the phone', async ({ page }) => {
   await openDesktop(page);
   await goHome(page);

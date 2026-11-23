@@ -32,6 +32,7 @@ export function DebugRunnerDialog() {
   const best = bestScore.use();
   const top = useTopScore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const runner = useRef<Runner | null>(null);
   const endedAt = useRef(0);
   const lastLine = useRef(-1);
@@ -136,6 +137,28 @@ export function DebugRunnerDialog() {
     };
   }, [open]);
 
+  // Holding a finger down to jump higher is a long press to Android: Chrome selects text, buzzes
+  // and fires `contextmenu` (which opened the desktop's right-click menu). The stage takes the
+  // touch itself; pointer events still arrive. Buttons on it (Restart) keep their tap.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.target instanceof Element && e.target.closest('button')) return;
+      e.preventDefault();
+    };
+    const onContextMenu = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    stage.addEventListener('touchstart', onTouchStart, { passive: false });
+    stage.addEventListener('contextmenu', onContextMenu);
+    return () => {
+      stage.removeEventListener('touchstart', onTouchStart);
+      stage.removeEventListener('contextmenu', onContextMenu);
+    };
+  }, []);
+
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     if (!runner.current?.isRunning()) return;
     // Keep getting the "up" even if the finger slides off the stage.
@@ -157,6 +180,7 @@ export function DebugRunnerDialog() {
         <div className="game-area">
           <div
             id="game-stage"
+            ref={stageRef}
             onPointerDown={onPointerDown}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
